@@ -1,23 +1,67 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Difficulty, Role } from "@prisma/client";
+import { Difficulty, Role, ProblemType } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth"; // Assuming auth helper exists on server
 import { revalidatePath } from "next/cache";
+import redis from "@/lib/redis";
 
+const CACHE_TTL = 300; // 5 minutes
 
+// Cache key helpers
+const getProblemsCacheKey = (type: ProblemType, page: number) =>
+    `problems:${type}:page:${page}`;
 
-export async function getProblems(page: number = 1, pageSize: number = 10) {
+export async function getProblems(
+    page: number = 1,
+    pageSize: number = 10,
+    type: ProblemType = "PRACTICE"
+) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
     const userId = session?.user?.id;
 
+    const cacheKey = getProblemsCacheKey(type, page);
+
+    // Try cache first (only for non-authenticated or first page)
+    if (!userId || page === 1) {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            // If user is authenticated, we need to check solved status
+            if (userId) {
+                // Fetch solved status separately
+                const problemIds = parsed.problems.map((p: any) => p.id);
+                const solvedProblems = await prisma.submission.findMany({
+                    where: {
+                        userId,
+                        problemId: { in: problemIds },
+                        status: "ACCEPTED",
+                        mode: "SUBMIT"
+                    },
+                    select: { problemId: true },
+                    distinct: ["problemId"]
+                });
+                const solvedSet = new Set(solvedProblems.map(s => s.problemId));
+                parsed.problems = parsed.problems.map((p: any) => ({
+                    ...p,
+                    isSolved: solvedSet.has(p.id)
+                }));
+            }
+            return parsed;
+        }
+    }
+
     const skip = (page - 1) * pageSize;
 
     const [problems, total] = await Promise.all([
         prisma.problem.findMany({
+            where: {
+                type,
+                hidden: false
+            },
             skip,
             take: pageSize,
             orderBy: { createdAt: 'desc' },
@@ -39,7 +83,12 @@ export async function getProblems(page: number = 1, pageSize: number = 10) {
                 } : {})
             }
         }),
-        prisma.problem.count()
+        prisma.problem.count({
+            where: {
+                type,
+                hidden: false
+            }
+        })
     ]);
 
     const problemsWithStats = problems.map((p) => {
@@ -59,11 +108,71 @@ export async function getProblems(page: number = 1, pageSize: number = 10) {
         };
     });
 
-    return {
+    const result = {
         problems: problemsWithStats,
         totalPages: Math.ceil(total / pageSize),
         currentPage: page
     };
+
+    // Cache result (only for first page and non-authenticated)
+    if (!userId || page === 1) {
+        await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
+    }
+
+    return result;
+}
+
+export async function searchProblems(
+    term: string,
+    type: ProblemType = "PRACTICE"
+) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+    const userId = session?.user?.id;
+
+    const problems = await prisma.problem.findMany({
+        where: {
+            type,
+            hidden: false,
+            title: {
+                contains: term,
+                mode: 'insensitive'
+            }
+        },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+            _count: {
+                select: { submissions: true }
+            },
+            ...(userId ? {
+                submissions: {
+                    where: {
+                        userId: userId,
+                        status: "ACCEPTED",
+                        mode: "SUBMIT"
+                    },
+                    take: 1,
+                    select: { id: true }
+                }
+            } : {})
+        }
+    });
+
+    const problemsWithStats = problems.map((p) => {
+        const isSolved = (p as any).submissions?.length > 0;
+        return {
+            ...p,
+            isSolved,
+            acceptance: p._count.submissions > 0
+                ? ((p.solved || 0) / p._count.submissions) * 100
+                : 0,
+            submissions: undefined
+        };
+    });
+
+    return { problems: problemsWithStats };
 }
 
 export async function getProblem(slug: string) {
@@ -110,7 +219,16 @@ export async function createProblem(data: {
         });
 
         revalidatePath("/problems");
+        revalidatePath("/problems/dsa");
         revalidatePath("/admin/problems");
+
+        // Invalidate cache
+        const cachePattern = "problems:*";
+        const keys = await redis.keys(cachePattern);
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
+
         return { success: true, problem };
     } catch (error) {
         console.error("Failed to create problem:", error);
@@ -158,7 +276,16 @@ export async function updateProblem(id: string, data: any) {
         });
 
         revalidatePath("/problems");
+        revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+
+        // Invalidate cache
+        const cachePattern = "problems:*";
+        const keys = await redis.keys(cachePattern);
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
+
         return { success: true, data: problem };
     } catch (error) {
         console.error("Failed to update problem:", error);
@@ -180,7 +307,16 @@ export async function deleteProblem(id: string) {
             where: { id }
         });
         revalidatePath("/problems");
+        revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+
+        // Invalidate cache
+        const cachePattern = "problems:*";
+        const keys = await redis.keys(cachePattern);
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Failed to delete problem:", error);

@@ -1,6 +1,10 @@
 import { getProblem } from "@/actions/problems";
 import Workspace from "@/components/workspace/Workspace";
 import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+
+// Revalidate every 1 hour (problems rarely change)
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -50,4 +54,18 @@ export async function generateMetadata({ params }: PageProps) {
     title: `${problem.title} | Algofox`,
     description: problem.description.slice(0, 160),
   };
+}
+
+// Pre-generate static pages for top 50 problems at build time
+export async function generateStaticParams() {
+  const problems = await prisma.problem.findMany({
+    where: { hidden: false },
+    select: { slug: true },
+    orderBy: { createdAt: 'desc' },
+    take: 50, // Pre-render top 50 problems
+  });
+
+  return problems.map((p) => ({
+    slug: p.slug,
+  }));
 }

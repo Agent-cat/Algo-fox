@@ -10,7 +10,7 @@ export default function Breadcrumbs() {
     // Don't show breadcrumbs on the home page or workspace pages (individual problems)
     // Also hide on auth pages as requested
     const isWorkspace = pathname?.startsWith("/problems/") && !["/problems", "/problems/dsa"].includes(pathname || "");
-    if (pathname === "/" || isWorkspace || pathname === "/signin" || pathname === "/signup" || pathname?.startsWith("/dashboard")) return null;
+    if (pathname === "/" || isWorkspace || pathname === "/signin" || pathname === "/signup" || pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin")) return null;
 
     const pathSegments = pathname.split("/").filter((segment) => segment !== "");
 

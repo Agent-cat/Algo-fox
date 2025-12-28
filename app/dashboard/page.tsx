@@ -18,7 +18,7 @@ export default async function Dashboard() {
     const submissions = user.submissions;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <div className="min-h-screen bg-white transition-colors">
 
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -58,8 +58,8 @@ export default async function Dashboard() {
 
                         {/* ACTIVITY HEATMAP */}
                         <section>
-                            <div className="bg-white rounded-2xl border border-dashed border-gray-300  hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                                <div className="px-6 py-5 border-b border-dashed border-gray-200 bg-gray-50/50">
+                            <div className="bg-white rounded-2xl border border-dashed border-gray-300 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                                <div className="px-6 py-5 border-b border-dashed border-gray-200 bg-gray-50">
                                     <h2 className="text-xl font-bold text-gray-900">
                                         Submission Activity
                                     </h2>

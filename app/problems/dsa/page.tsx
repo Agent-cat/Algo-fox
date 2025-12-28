@@ -1,5 +1,6 @@
 import { getProblems } from "@/actions/problems";
 import ProblemsList from "../_components/ProblemsList";
+import DsaProblemsClient from "./_components/DsaProblemsClient";
 
 export const metadata = {
     title: "DSA Problems | Algofox",
@@ -7,15 +8,13 @@ export const metadata = {
 };
 
 export default async function DsaProblemsPage() {
-    // Initial fetch, page 1
-    const { problems, totalPages } = await getProblems(1, 10);
+    // Initial fetch for Practice mode, page 1
+    const { problems, totalPages } = await getProblems(1, 10, "PRACTICE");
 
     return (
-        <div className="min-h-screen bg-white">
-            <ProblemsList
-                initialProblems={problems}
-                initialTotalPages={totalPages}
-            />
-        </div>
+        <DsaProblemsClient
+            initialProblems={problems}
+            initialTotalPages={totalPages}
+        />
     );
 }

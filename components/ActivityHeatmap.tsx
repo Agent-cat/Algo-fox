@@ -111,7 +111,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
 
                 <div className="flex gap-2">
                     {/* Day Labels (Mon, Wed, Fri) */}
-                    <div className="flex flex-col gap-[3px] text-[10px] text-gray-300 mt-[1px]">
+                    <div className="flex flex-col gap-[3px] text-[10px] text-gray-500 mt-[1px]">
                         {/* 7 slots, align with grid rows */}
                         <span className="h-3 leading-3 invisible">Sun</span> {/* Spacer */}
                         <span className="h-3 leading-3">Mon</span>

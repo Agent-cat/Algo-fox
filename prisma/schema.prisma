@@ -50,17 +50,19 @@ model Problem {
   title       String
   description String
 
-  hidden     Boolean    @default(true)
-  slug       String     @unique
+  hidden     Boolean     @default(true)
+  slug       String      @unique
   score      Int
-  solved     Int?       @default(0)
-  difficulty Difficulty @default(EASY)
+  solved     Int?        @default(0)
+  difficulty Difficulty  @default(EASY)
+  type       ProblemType @default(PRACTICE)
 
   // contestSubmissions ContestSubmission[]
   // contestProblems    ContestProblem[]
 
-  submissions Submission[]
-  testCases   ProblemTestCase[]
+  submissions      Submission[]
+  testCases        ProblemTestCase[]
+  categoryProblems CategoryProblem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -70,6 +72,8 @@ model Problem {
 
   @@index([hidden, difficulty]) // problem list filtering
   @@index([createdAt])
+  @@index([type, hidden]) // filter by type
+  @@index([type, hidden, createdAt]) // Optimized for filtered sorting
 }
 
 model ProblemTestCase {
@@ -115,6 +119,7 @@ model Submission {
   @@index([problemId, createdAt]) // problem submissions
   @@index([userId, problemId]) // solved check
   @@index([status]) // judge workers
+  @@index([userId, status, mode, problemId]) // Optimized for finding solved problems
 }
 
 model Language {
@@ -238,4 +243,42 @@ enum TestCaseResult {
   MEMORY_LIMIT_EXCEEDED
   RUNTIME_ERROR
   COMPILE_ERROR
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  slug        String  @unique
+  order       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryProblems CategoryProblem[]
+
+  @@index([order])
+  @@index([slug])
+}
+
+model CategoryProblem {
+  id         String @id @default(cuid())
+  categoryId String
+  problemId  String
+  order      Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, problemId])
+  @@index([categoryId, order])
+  @@index([problemId])
+}
+
+enum ProblemType {
+  PRACTICE
+  LEARN
 }

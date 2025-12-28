@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { getProblems } from "@/actions/problems";
-import { Difficulty, Problem } from "@prisma/client";
+import { Difficulty, Problem, ProblemType } from "@prisma/client";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
@@ -12,22 +12,28 @@ type ProblemWithStats = Problem & { acceptance: number, isSolved?: boolean };
 interface ProblemsListProps {
     initialProblems: ProblemWithStats[];
     initialTotalPages: number;
+    type?: ProblemType;
 }
 
-export default function ProblemsList({ initialProblems, initialTotalPages }: ProblemsListProps) {
+export default function ProblemsList({ 
+    initialProblems, 
+    initialTotalPages,
+    type = "PRACTICE"
+}: ProblemsListProps) {
     const [problems, setProblems] = useState<ProblemWithStats[]>(initialProblems);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(page < initialTotalPages);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const observerTarget = useRef<HTMLDivElement>(null);
 
-    const loadMore = async () => {
+    const loadMore = useCallback(async () => {
         if (isLoading || !hasMore) return;
         setIsLoading(true);
         try {
             const nextPage = page + 1;
-            const res = await getProblems(nextPage);
-            setProblems([...problems, ...res.problems]);
+            const res = await getProblems(nextPage, 10, type);
+            setProblems((prev) => [...prev, ...res.problems]);
             setPage(nextPage);
             setHasMore(nextPage < res.totalPages);
         } catch (error) {
@@ -35,7 +41,30 @@ export default function ProblemsList({ initialProblems, initialTotalPages }: Pro
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [isLoading, hasMore, page, type]);
+
+    // Intersection Observer for infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting && hasMore && !isLoading && !searchTerm) {
+                    loadMore();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [hasMore, isLoading, searchTerm, loadMore]);
 
     const getDifficultyColor = (difficulty: Difficulty) => {
         switch (difficulty) {
@@ -120,23 +149,15 @@ export default function ProblemsList({ initialProblems, initialTotalPages }: Pro
                 </AnimatePresence>
             </div>
 
-            {/* Load More */}
+            {/* Infinite Scroll Trigger */}
             {hasMore && !searchTerm && (
-                <div className="flex justify-center mt-12 mb-8">
-                    <button
-                        onClick={loadMore}
-                        disabled={isLoading}
-                        className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                        {isLoading ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                                Loading...
-                            </>
-                        ) : (
-                            "Load More"
-                        )}
-                    </button>
+                <div ref={observerTarget} className="flex justify-center mt-12 mb-8 min-h-[60px]">
+                    {isLoading && (
+                        <div className="flex items-center gap-2 text-gray-500">
+                            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                            <span className="text-sm">Loading more problems...</span>
+                        </div>
+                    )}
                 </div>
             )}
 

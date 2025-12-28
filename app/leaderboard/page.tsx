@@ -25,27 +25,27 @@ export default function LeaderboardPage() {
     }, []);
 
     const getRankStyle = (rank: number) => {
-        if (rank === 1) return "bg-yellow-100 text-yellow-700 border-yellow-200";
-        if (rank === 2) return "bg-gray-100 text-gray-700 border-gray-200";
-        if (rank === 3) return "bg-orange-100 text-orange-700 border-orange-200";
-        return "bg-white text-gray-600 border-transparent";
+        if (rank === 1) return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800";
+        if (rank === 2) return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700";
+        if (rank === 3) return "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800";
+        return "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-transparent";
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-white pb-20 transition-colors">
             <Navbar />
 
             <main className="max-w-7xl mx-auto px-6 py-10 mt-16">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Global Leaderboard</h1>
-                        <p className="text-gray-500 mt-2">Top solvers and their scores based on problem difficulty.</p>
+                        <h1 className="text-3xl font-bold text-black tracking-tight">Global Leaderboard</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2">Top solvers and their scores based on problem difficulty.</p>
                     </div>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                     {/* Header */}
-                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 bg-gray-50/50 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                         <div className="col-span-1 text-center">Rank</div>
                         <div className="col-span-5 md:col-span-4">User</div>
                         <div className="col-span-2 text-center hidden md:block">Solved</div>
@@ -66,7 +66,7 @@ export default function LeaderboardPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 transition-colors group"
+                                    className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
                                 >
                                     {/* Rank */}
                                     <div className="col-span-1 flex justify-center">
@@ -77,7 +77,7 @@ export default function LeaderboardPage() {
 
                                     {/* User */}
                                     <div className="col-span-5 md:col-span-4 flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden ring-2 ring-transparent group-hover:ring-orange-100 transition-all flex items-center justify-center text-gray-400 font-bold">
+                                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden ring-2 ring-transparent group-hover:ring-orange-100 dark:group-hover:ring-orange-900 transition-all flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold">
                                             {user.image ? (
                                                 <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                                             ) : (
@@ -85,10 +85,10 @@ export default function LeaderboardPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <div className="font-semibold text-gray-900 line-clamp-1">{user.name}</div>
-                                            <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
+                                            <div className="font-semibold text-gray-900 dark:text-white line-clamp-1">{user.name}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
                                                 {user.tags.length > 0 && (
-                                                    <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] uppercase font-medium">{user.tags[0]}</span>
+                                                    <span className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-[10px] uppercase font-medium">{user.tags[0]}</span>
                                                 )}
                                                 {/* Social Icons */}
                                                 <div className="flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -107,8 +107,8 @@ export default function LeaderboardPage() {
 
                                     {/* Total Solved */}
                                     <div className="col-span-2 md:block hidden text-center">
-                                        <div className="font-bold text-gray-900">{user.problemsSolved}</div>
-                                        <div className="text-[10px] text-gray-400">Problems</div>
+                                        <div className="font-bold text-black">{user.problemsSolved}</div>
+                                        <div className="text-[10px] text-gray-400 dark:text-gray-500">Problems</div>
                                     </div>
 
                                     {/* Breakdown */}
@@ -143,8 +143,8 @@ export default function LeaderboardPage() {
 
                                     {/* Score */}
                                     <div className="col-span-3 md:col-span-2 text-right pr-4">
-                                        <div className="font-extrabold text-gray-900 text-lg">{user.totalScore.toLocaleString()}</div>
-                                        <div className="text-[10px] text-orange-500 font-bold uppercase tracking-wide">Points</div>
+                                        <div className="font-extrabold text-black text-lg">{user.totalScore.toLocaleString()}</div>
+                                        <div className="text-[10px] text-orange-500 dark:text-orange-400 font-bold uppercase tracking-wide">Points</div>
                                     </div>
                                 </motion.div>
                             ))}

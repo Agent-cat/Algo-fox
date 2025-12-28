@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-6 bg-white">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto ml-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
