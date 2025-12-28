@@ -135,15 +135,12 @@ export default function TestCases({ cases, results, mode, status }: TestCasesPro
     // Auto-switch to console tab when error is first detected
     // Reset to first test case when results are cleared
     useEffect(() => {
-        console.log("[TestCases] useEffect triggered - hasError:", hasError, "results length:", results?.length);
         if (!results || results.length === 0) {
             // No results, go back to first test case
-            console.log("[TestCases] No results, switching to tab 0");
             setActiveTab(0);
         } else if (hasError) {
             // Always switch to console when there's an error
             // This ensures runtime errors are visible
-            console.log("[TestCases] Error detected, switching to console");
             setActiveTab("console");
         }
     }, [hasError, results]);

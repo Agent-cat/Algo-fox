@@ -41,7 +41,6 @@ export default function Onboarding() {
     useEffect(() => {
         if (searchParams.get("welcome") === "true") {
             toast.success("Successfully signed in!");
-            // Optional: clean up the URL
             router.replace("/onboarding");
         }
     }, [searchParams, router]);

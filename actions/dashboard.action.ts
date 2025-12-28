@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { SubmissionResult } from "@prisma/client";
+import redis from "@/lib/redis";
 
 export async function getDashboardStats() {
     const session = await auth.api.getSession({
@@ -15,6 +16,20 @@ export async function getDashboardStats() {
     }
 
     const userId = session.user.id;
+
+    // Try to get cached data from Redis
+    const cacheKey = `dashboard:stats:${userId}`;
+    const CACHE_TTL = 5 * 60; // 5 minutes
+
+    try {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+    } catch (error) {
+        // Redis error - continue without cache
+        console.error('Redis get error:', error);
+    }
 
     // Get user basic info and submissions
     const user = await prisma.user.findUnique({
@@ -214,7 +229,7 @@ export async function getDashboardStats() {
         }
     }
 
-    return {
+    const result = {
         ...user,
         solvedByDifficulty,
         totalProblems,
@@ -222,4 +237,14 @@ export async function getDashboardStats() {
         currentStreak,
         bestStreak: Math.max(bestStreak, currentStreak)
     };
+
+    // Cache the result in Redis
+    try {
+        await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
+    } catch (error) {
+        // Redis error - continue without caching
+        console.error('Redis set error:', error);
+    }
+
+    return result;
 }

@@ -78,19 +78,15 @@ export default function CodeEditor({
                 // If this is a retry, or initial load, ensure loading state is set (though it should be true from init)
                 if (retryCount === 0) setIsLoading(true);
                 setIsRestoring(true);
-                console.log(`[CodeEditor] Loading draft for ${problemId}_${languageId} (Attempt ${retryCount + 1})`);
 
                 const savedCode = await getCodeDraft(problemId!, languageId);
 
                 // Check if component is still mounted and effect hasn't been cancelled
                 if (!isMounted || cancelled) return;
 
-                console.log(`[CodeEditor] Draft loaded: ${savedCode ? 'Found' : 'Not Found'}`);
-
                 // If not found and this is the first attempt, try once more after a delay
                 // This handles potential DB initialization race conditions
                 if (!savedCode && retryCount === 0) {
-                    console.log(`[CodeEditor] Draft not found, retrying in 200ms...`);
                     await new Promise(resolve => setTimeout(resolve, 200));
                     if (!isMounted || cancelled) return;
                     return loadDraft(1);

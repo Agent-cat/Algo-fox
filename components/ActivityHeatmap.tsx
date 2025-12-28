@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { motion } from "framer-motion";
 
 interface ActivityHeatmapProps {
@@ -10,7 +10,7 @@ interface ActivityHeatmapProps {
     }[];
 }
 
-export default function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
+function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
     // Utilities
     const formatDateKey = (date: Date) => {
         return date.toISOString().split('T')[0];
@@ -174,3 +174,6 @@ export default function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
         </div>
     );
 }
+
+// Export memoized component to prevent unnecessary re-renders
+export default memo(ActivityHeatmap);
