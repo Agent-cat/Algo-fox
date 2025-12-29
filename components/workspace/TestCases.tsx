@@ -426,10 +426,30 @@ export default function TestCases({ cases, results, mode, status }: TestCasesPro
                                                 {testCase.input}
                                             </div>
                                         </div>
-                                        <div>
-                                            <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Expected Output</div>
-                                            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap">
-                                                {testCase.output}
+
+                                        {/* Output Display Grid */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Expected Output</div>
+                                                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap h-full">
+                                                    {testCase.output}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Your Output</div>
+                                                <div className={`
+                                                    border rounded-lg p-3 font-mono text-sm whitespace-pre-wrap h-full
+                                                    ${result?.status === 'ACCEPTED'
+                                                        ? 'bg-green-50/50 border-green-100 text-green-900'
+                                                        : result?.status === 'WRONG_ANSWER'
+                                                            ? 'bg-red-50/50 border-red-100 text-red-900'
+                                                            : 'bg-gray-50 border-gray-100 text-gray-800'
+                                                    }
+                                                `}>
+                                                    {/* Prioritize showing stdout if available, otherwise show "No output" or similar placeholder */}
+                                                    {/* Note: result might be typed as TestCase but need to ensure it includes stdout */}
+                                                    {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : 'No output')}
+                                                </div>
                                             </div>
                                         </div>
                                     </>

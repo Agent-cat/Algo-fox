@@ -37,7 +37,7 @@ export default function RootLayout({
           <Breadcrumbs />
         </LayoutSpacer>
         <Toaster
-          position="top-center"
+          position="top-right"
           toastOptions={{
             style: {
               background: 'white',

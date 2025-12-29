@@ -96,144 +96,149 @@ const worker = new Worker(
             );
 
             // 3. Store Tokens in DB (TestCase records)
-            // Map to original indices from allTestCases for proper tracking
             const testCaseRecords = testCasesToEvaluate.map((tc, idx) => ({
                 index: allTestCases.findIndex(orig => orig.id === tc.id),
-                judge0TrackingId: judge0Tokens[idx].token
+                judge0TrackingId: judge0Tokens[idx].token,
+                processed: false // Track local processing state
             }));
             await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
-            // 4. Poll for Results
+            // 4. Poll and Incremental Update
             let isComplete = false;
             let attempts = 0;
-            const MAX_ATTEMPTS = 20; // 20 * 2s = 40s max wait
+            const MAX_ATTEMPTS = 20; // 40s timeout
+
+            // Track overall stats
+            let totalTime = 0;
+            let maxMemory = 0;
+            let finalStatus: SubmissionResult = "ACCEPTED";
+            let globalErrorMessage: string | null = null;
+            let compilationError = false;
 
             while (!isComplete && attempts < MAX_ATTEMPTS) {
-                await new Promise(r => setTimeout(r, 2000)); // Wait 2s
+                await new Promise(r => setTimeout(r, 2000));
                 attempts++;
 
                 const uniqueTokens = testCaseRecords.map(tc => tc.judge0TrackingId);
                 const batchResults = await SubmissionService.getBatchResults(uniqueTokens);
 
-                const allFinished = batchResults.every(r =>
-                    r.status.id !== JUDGE0_STATUS.IN_QUEUE &&
-                    r.status.id !== JUDGE0_STATUS.PROCESSING
-                );
-
-                if (allFinished) {
-                    isComplete = true;
-
-                    // Process Final Results
-                    let finalStatus: SubmissionResult = "ACCEPTED";
-                    let totalTime = 0;
-                    let maxMemory = 0;
-                    let compilationError = false;
-                    let globalErrorMessage: string | null = null; // For compilation errors that affect all test cases
-
-                    // Check if there's a compilation error (affects all test cases)
+                // Check for global compilation error (usually on the first result if it exists)
+                if (!compilationError) {
                     const firstResult = batchResults[0];
                     const firstStatus = mapJudge0StatusToDb(firstResult.status.id);
-                    if (firstStatus === "COMPILE_ERROR" && firstResult.compile_output) {
+                    if (firstStatus === "COMPILE_ERROR") {
                         compilationError = true;
                         finalStatus = "COMPILE_ERROR";
-                        globalErrorMessage = firstResult.compile_output;
+                        globalErrorMessage = firstResult.compile_output || firstResult.stderr || "Compilation Error";
+                    }
+                }
+
+                let pendingCount = 0;
+
+                const updatesToApply: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage: string | null, stdout: string | null }[] = [];
+
+                for (let i = 0; i < batchResults.length; i++) {
+                    const result = batchResults[i];
+                    const localRecord = testCaseRecords[i];
+
+                    // Identify completion (not In Queue and not Processing)
+                    const isFinished =
+                        result.status.id !== JUDGE0_STATUS.IN_QUEUE &&
+                        result.status.id !== JUDGE0_STATUS.PROCESSING;
+
+                    if (!isFinished) {
+                        pendingCount++;
+                        continue;
                     }
 
-                    for (const result of batchResults) {
-                        const status = mapJudge0StatusToDb(result.status.id);
+                    // If finished but not yet marked processed, update DB
+                    if (!localRecord.processed) {
+                        localRecord.processed = true;
+
                         const time = parseFloat(result.time || "0");
                         const memory = result.memory || 0;
+                        const status = mapJudge0StatusToDb(result.status.id);
 
-                        // Extract error message
-                        // For compilation errors, use the global error message (same for all test cases)
-                        // For runtime errors, use stderr from individual test case, but ALSO include status description
+                        // --- Error Message Logic ---
                         let errorMessage: string | null = null;
 
                         if (compilationError) {
                             errorMessage = globalErrorMessage;
-                        } else if (status === "COMPILE_ERROR" && result.compile_output) {
-                            errorMessage = result.compile_output;
+                        } else if (status === "COMPILE_ERROR") {
+                            // Prioritize compile_output for compilation errors
+                            errorMessage = result.compile_output || result.stderr || "Compilation Error";
                         } else if (status === "RUNTIME_ERROR") {
-                            // Combine status description and stderr for better context
                             const description = result.status.description || "Runtime Error";
                             const stderr = result.stderr?.trim();
+                            errorMessage = stderr ? `${description}\n\n${stderr}` : description;
 
-                            if (stderr) {
-                                // Some languages put the exception name in stderr (Java, Python)
-                                // identifying "Index out of bounds" specifically
-                                errorMessage = `${description}\n\n${stderr}`;
-                            } else {
-                                // C++ often gives just the signal (SIGSEGV) without stderr
-                                errorMessage = description;
-
-                                // Add helpful hints for common signals
-                                if (result.status.description?.includes("SIGSEGV")) {
-                                    errorMessage += "\n\nPossible causes:\n- Accessing array out of bounds\n- Dereferencing null pointer\n- Stack overflow";
-                                } else if (result.status.description?.includes("SIGFPE")) {
-                                    errorMessage += "\n\nPossible causes:\n- Division by zero\n- Integer overflow";
-                                } else if (result.status.description?.includes("SIGABRT")) {
-                                    errorMessage += "\n\nPossible causes:\n- Abort called\n- Assertion failed";
-                                } else if (result.status.description?.includes("NZEC")) {
-                                    errorMessage += "\n\nPossible causes:\n- Uncaught exception\n- Return non-zero from main";
-                                }
-                            }
+                            // Add hints
+                            if (description.includes("SIGSEGV")) errorMessage += "\n\nPossible causes:\n- Accessing array out of bounds\n- Null pointer";
+                            if (description.includes("SIGFPE")) errorMessage += "\n\nPossible causes:\n- Division by zero";
                         } else if (status === "TIME_LIMIT_EXCEEDED") {
                             errorMessage = "Time Limit Exceeded";
                         } else if (status === "MEMORY_LIMIT_EXCEEDED") {
                             errorMessage = "Memory Limit Exceeded";
                         } else if (result.stderr && status !== "ACCEPTED") {
+                            // Capture stderr for other non-accepted statuses if present
                             errorMessage = result.stderr;
-                        } else if (result.compile_output) {
+                        }
+
+                        // If we have a compile_output even for non-compile errors (rare but possible), append it if no error yet
+                        if (!errorMessage && result.compile_output && status !== "ACCEPTED") {
                             errorMessage = result.compile_output;
                         }
 
-                        // Use compilation error status if detected, otherwise use individual status
+                        // Fallback checking
+                        if ((status === "RUNTIME_ERROR" || status === "COMPILE_ERROR") && !errorMessage) {
+                            errorMessage = "Unknown Error Occurred";
+                        }
+
                         const statusToUse = compilationError ? "COMPILE_ERROR" : (status || "RUNTIME_ERROR");
 
-                        // Update individual test case
-                        await SubmissionService.updateTestCaseResult(
-                            result.token,
-                            statusToUse,
+                        // Add to batch
+                        updatesToApply.push({
+                            judge0TrackingId: result.token,
+                            status: statusToUse,
                             time,
                             memory,
-                            errorMessage
-                        );
+                            errorMessage,
+                            stdout: result.stdout
+                        });
 
-                        // Aggregate Stats
+                        // Accumulate stats
                         totalTime += time;
                         maxMemory = Math.max(maxMemory, memory);
 
-                        // Update final status (compilation error takes precedence and is already set above)
+                        // Determine Submission Status (Priority: Compile Error > Runtime Error > TLE > WA > Accepted)
                         if (!compilationError && status !== "ACCEPTED") {
-                            if (finalStatus === "ACCEPTED") { // Only override if currently accepted
-                                if (status === "WRONG_ANSWER") {
-                                    finalStatus = "WRONG_ANSWER";
-                                } else if (status === "TIME_LIMIT_EXCEEDED") {
-                                    finalStatus = "TIME_LIMIT_EXCEEDED";
-                                } else {
-                                    finalStatus = "RUNTIME_ERROR";
-                                }
+                            if (finalStatus === "ACCEPTED") {
+                                if (status === "WRONG_ANSWER") finalStatus = "WRONG_ANSWER";
+                                else if (status === "TIME_LIMIT_EXCEEDED") finalStatus = "TIME_LIMIT_EXCEEDED";
+                                else finalStatus = "RUNTIME_ERROR";
                             }
                         }
                     }
+                }
 
-                    const avgTime = totalTime / batchResults.length;
-                    await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
+                if (updatesToApply.length > 0) {
+                    await SubmissionService.updateTestCasesBatch(updatesToApply);
+                }
 
-                    if (finalStatus === "ACCEPTED") {
-                        // We need userId. We didn't fetch it initially in the worker query above.
-                        // Let's fetch it or pass it.
-                        // Worker step 1 fetched: include: { problem: ..., language: ... }.
-                        // Currently line 63: `include: { ... }`.
-                        // `submission` object has `userId`.
-                        await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
-                    }
+                if (pendingCount === 0) {
+                    isComplete = true;
                 }
             }
 
-            if (!isComplete) {
-                // Timeout scenario
-                await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED"); // Or internal error
+            if (isComplete) {
+                const avgTime = totalTime / testCaseRecords.length;
+                await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
+
+                if (finalStatus === "ACCEPTED") {
+                    await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
+                }
+            } else {
+                await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
             }
 
         } catch (error) {

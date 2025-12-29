@@ -17,6 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                         time: true,
                         memory: true,
                         errorMessage: true, // Explicitly include errorMessage
+                        stdout: true, // Include stdout
                         createdAt: true,
                         updatedAt: true
                     }

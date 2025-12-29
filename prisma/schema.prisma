@@ -149,6 +149,7 @@ model TestCase {
 
   judge0TrackingId String? @unique
   errorMessage     String?
+  stdout           String?
 
   @@index([submissionId])
 }

@@ -5,48 +5,63 @@ import { getLanguageById } from "@/lib/languages";
 const JUDGE0_URL = process.env.JUDGE0_URL || "http://localhost:2358";
 
 export class SubmissionService {
+    private static languageCache = new Map<number, { id: number; name: string; judge0Id: number }>();
+
     static async createSubmission(userId: string, problemId: string, judge0Id: number, code: string, mode: SubmissionMode = "SUBMIT") {
         // Get language info from our language mapping
         const langInfo = getLanguageById(judge0Id);
         const languageName = langInfo?.name || `Language_${judge0Id}`;
 
-        // Try to find existing language by judge0Id first (primary lookup)
-        let language = await prisma.language.findUnique({
-            where: { judge0Id: judge0Id }
-        });
+        // Check cache first
+        let language = this.languageCache.get(judge0Id);
 
-        // If not found, try to create it
         if (!language) {
-            try {
-                language = await prisma.language.create({
-                    data: {
-                        name: languageName,
-                        judge0Id: judge0Id
-                    }
-                });
-            } catch (error: any) {
-                // If creation fails due to name conflict, try to find by name
-                // This handles the case where a language with this name exists but different judge0Id
-                if (error.code === 'P2002') {
-                    const existingByName = await prisma.language.findUnique({
-                        where: { name: languageName }
-                    });
-                    if (existingByName) {
-                        // Use the existing language even if judge0Id doesn't match
-                        // In production, languages should be pre-seeded to avoid this
-                        language = existingByName;
-                    } else {
-                        // If it's a judge0Id conflict, find by judge0Id
-                        language = await prisma.language.findUnique({
-                            where: { judge0Id: judge0Id }
-                        });
-                        if (!language) {
-                            throw new Error(`Could not create or find language with judge0Id ${judge0Id}`);
+            // Try to find existing language by judge0Id first (primary lookup)
+            const dbLanguage = await prisma.language.findUnique({
+                where: { judge0Id: judge0Id }
+            });
+
+            if (dbLanguage) {
+                language = dbLanguage;
+            } else {
+                // If not found, try to create it
+                try {
+                    language = await prisma.language.create({
+                        data: {
+                            name: languageName,
+                            judge0Id: judge0Id
                         }
+                    });
+                } catch (error: any) {
+                    // If creation fails due to name conflict, try to find by name
+                    // This handles the case where a language with this name exists but different judge0Id
+                    if (error.code === 'P2002') {
+                        const existingByName = await prisma.language.findUnique({
+                            where: { name: languageName }
+                        });
+                        if (existingByName) {
+                            // Use the existing language even if judge0Id doesn't match
+                            // In production, languages should be pre-seeded to avoid this
+                            language = existingByName;
+                        } else {
+                            // If it's a judge0Id conflict, find by judge0Id
+                            const existingByJudge0Id = await prisma.language.findUnique({
+                                where: { judge0Id: judge0Id }
+                            });
+                            if (!existingByJudge0Id) {
+                                throw new Error(`Could not create or find language with judge0Id ${judge0Id}`);
+                            }
+                            language = existingByJudge0Id;
+                        }
+                    } else {
+                        throw error;
                     }
-                } else {
-                    throw error;
                 }
+            }
+
+            // Update cache
+            if (language) {
+                this.languageCache.set(judge0Id, language);
             }
         }
 
@@ -91,16 +106,34 @@ export class SubmissionService {
         );
     }
 
-    static async updateTestCaseResult(judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage?: string | null) {
+    static async updateTestCaseResult(judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage?: string | null, stdout?: string | null) {
         await prisma.testCase.update({
             where: { judge0TrackingId },
             data: {
                 status,
                 time,
                 memory,
-                errorMessage: errorMessage || null
+                errorMessage: errorMessage || null,
+                stdout: stdout || null
             }
         });
+    }
+
+    static async updateTestCasesBatch(updates: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage?: string | null, stdout?: string | null }[]) {
+        if (updates.length === 0) return;
+
+        await prisma.$transaction(
+            updates.map(update => prisma.testCase.update({
+                where: { judge0TrackingId: update.judge0TrackingId },
+                data: {
+                    status: update.status,
+                    time: update.time,
+                    memory: update.memory,
+                    errorMessage: update.errorMessage || null,
+                    stdout: update.stdout || null
+                }
+            }))
+        );
     }
 
     static async sendToJudge0(languageId: number, code: string, testCases: { input: string; output: string }[]) {
@@ -109,19 +142,25 @@ export class SubmissionService {
 
         const submissions = testCases.map(tc => ({
             language_id: languageId,
-            source_code: code,
-            stdin: tc.input,
-            expected_output: tc.output,
+            source_code: Buffer.from(code).toString('base64'),
+            stdin: Buffer.from(tc.input).toString('base64'),
+            expected_output: Buffer.from(tc.output).toString('base64'),
         }));
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
         try {
-            const response = await fetch(`${JUDGE0_URL}/submissions/batch?base64_encoded=false`, {
+            const response = await fetch(`${JUDGE0_URL}/submissions/batch?base64_encoded=true`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ submissions }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`Judge0 Error: ${response.statusText}`);
@@ -133,29 +172,53 @@ export class SubmissionService {
         } catch (error) {
             console.error("Failed to send to Judge0", error);
             throw error;
+        } finally {
+            clearTimeout(timeoutId);
         }
     }
 
     static async getBatchResults(tokens: string[]) {
+        if (tokens.length === 0) return [];
+
         const tokensStr = tokens.join(",");
-        // Include compile_output and stderr for error messages
-        const response = await fetch(`${JUDGE0_URL}/submissions/batch?tokens=${tokensStr}&base64_encoded=false&fields=token,status,time,memory,compile_output,stderr`, {
-            method: "GET",
-        });
+        // Include compile_output, stderr for error messages, and stdout for user output
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch batch results");
+        try {
+            const response = await fetch(`${JUDGE0_URL}/submissions/batch?tokens=${tokensStr}&base64_encoded=true&fields=token,status,time,memory,compile_output,stderr,stdout`, {
+                method: "GET",
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Judge0 Batch Fetch Failed: Status ${response.status}`, errorText);
+                throw new Error(`Failed to fetch batch results: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            return (data.submissions as {
+                token: string;
+                status: { id: number; description: string };
+                time: string;
+                memory: number;
+                compile_output: string | null;
+                stderr: string | null;
+                stdout: string | null;
+            }[]).map(sub => ({
+                ...sub,
+                stdout: sub.stdout ? Buffer.from(sub.stdout, 'base64').toString('utf-8') : null,
+                stderr: sub.stderr ? Buffer.from(sub.stderr, 'base64').toString('utf-8') : null,
+                compile_output: sub.compile_output ? Buffer.from(sub.compile_output, 'base64').toString('utf-8') : null,
+            }));
+        } catch (error) {
+            throw error;
+        } finally {
+            clearTimeout(timeoutId);
         }
-
-        const data = await response.json();
-        return data.submissions as {
-            token: string;
-            status: { id: number; description: string };
-            time: string;
-            memory: number;
-            compile_output: string | null;
-            stderr: string | null;
-        }[];
     }
 
     static async incrementProblemSolved(problemId: string, userId: string) {

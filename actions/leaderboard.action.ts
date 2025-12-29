@@ -40,8 +40,12 @@ export async function getLeaderboardData() {
         console.error('Redis get error:', error);
     }
 
-    // Fetch users with their accepted submissions to calculate score dynamically
+    // Fetch top 100 users by totalScore directly from DB
     const users = await prisma.user.findMany({
+        orderBy: {
+            totalScore: 'desc'
+        },
+        take: 100,
         select: {
             id: true,
             name: true,
@@ -50,7 +54,11 @@ export async function getLeaderboardData() {
             leetCodeHandle: true,
             codeChefHandle: true,
             githubHandle: true,
-            // We can fetch submissions to calculate precise score
+            totalScore: true,
+            problemsSolved: true,
+            // We still need difficulty breakdown for the "stats" field, but we can't easily group-by per user in a single findMany.
+            // Option 1: Store difficulty counts in User model (ideal for scale).
+            // Option 2: Compute stats for only the top 100 users (acceptable).
             submissions: {
                 where: {
                     status: SubmissionResult.ACCEPTED
@@ -58,39 +66,39 @@ export async function getLeaderboardData() {
                 select: {
                     problem: {
                         select: {
-                            id: true,
                             difficulty: true
                         }
                     }
                 },
-                distinct: ['problemId'] // Ensure unique solved problems
+                distinct: ['problemId']
             }
         }
-        // distinct: ['id'] // users are distinct by default
     });
 
-    const leaderboard: LeaderboardEntry[] = users.map(user => {
+    const leaderboard: LeaderboardEntry[] = users.map((user, index) => {
         let easyCount = 0;
         let mediumCount = 0;
         let hardCount = 0;
 
+        // Calculate stats for the top 100 (much smaller dataset)
         user.submissions.forEach(sub => {
             if (sub.problem.difficulty === 'EASY') easyCount++;
             else if (sub.problem.difficulty === 'MEDIUM') mediumCount++;
             else if (sub.problem.difficulty === 'HARD') hardCount++;
         });
 
-        // Scoring Formula
-        const score = (easyCount * 10) + (mediumCount * 30) + (hardCount * 50);
+        // Use stored totalScore which is indexed and accurate
+        // Fallback to calculation if 0, but usually stored is correct.
+        // The implementation plan says use stored totalScore.
 
         return {
-            rank: 0, // Assigned after sort
+            rank: index + 1,
             userId: user.id,
             name: user.name,
             image: user.image,
             tags: user.tags,
-            problemsSolved: easyCount + mediumCount + hardCount,
-            totalScore: score,
+            problemsSolved: user.problemsSolved, // Use stored count
+            totalScore: user.totalScore, // Use stored score
             socials: {
                 leetcode: user.leetCodeHandle,
                 codechef: user.codeChefHandle,
@@ -105,20 +113,12 @@ export async function getLeaderboardData() {
         };
     });
 
-    // Sort by Total Score Descending
-    leaderboard.sort((a, b) => b.totalScore - a.totalScore);
-
-    // Assign Ranks
-    const result = leaderboard.map((entry, index) => ({
-        ...entry,
-        rank: index + 1
-    }));
+    const result = leaderboard;
 
     // Cache the leaderboard in Redis
     try {
         await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
     } catch (error) {
-        // Redis error - continue without caching
         console.error('Redis set error:', error);
     }
 
