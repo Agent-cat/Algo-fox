@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "sonner";
-// import DevToolsBlocker from "@/components/DevToolsBlocker";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LayoutSpacer from "@/components/LayoutSpacer";
 

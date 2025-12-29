@@ -1,7 +1,7 @@
 import { getProblems } from "@/actions/problems";
 import { Plus, Pencil, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import DeleteProblemButton from "./_components/DeleteProblemButton";
+import DeleteProblemButton from "@/components/admin/DeleteProblemButton";
 
 export default async function AdminDashboardPage() {
     const { problems } = await getProblems(1, 100);
@@ -53,7 +53,7 @@ export default async function AdminDashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {problems.map((problem) => (
+                                    {problems.map((problem: any) => (
                                         <tr key={problem.id} className="hover:bg-gray-50/50 transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="font-semibold text-gray-900">{problem.title}</div>
