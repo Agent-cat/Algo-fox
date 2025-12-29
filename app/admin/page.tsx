@@ -1,10 +1,10 @@
-import { getProblems } from "@/actions/problems";
+import { getAdminProblems } from "@/actions/problems";
 import { Plus, Pencil, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import DeleteProblemButton from "@/components/admin/DeleteProblemButton";
 
 export default async function AdminDashboardPage() {
-    const { problems } = await getProblems(1, 100);
+    const { problems } = await getAdminProblems(1, 100);
 
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {

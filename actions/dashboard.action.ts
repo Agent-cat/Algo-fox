@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { SubmissionResult } from "@prisma/client";
+import { SubmissionResult, Difficulty } from "@prisma/client";
 import redis from "@/lib/redis";
 
 export async function getDashboardStats() {
@@ -103,7 +103,7 @@ export async function getDashboardStats() {
     });
 
     // Get total problems by difficulty
-    const totalByDifficulty = await prisma.problem.groupBy({
+    const totalByDifficulty = await (prisma as any).problem.groupBy({
         by: ['difficulty'],
         where: {
             hidden: false
@@ -111,7 +111,7 @@ export async function getDashboardStats() {
         _count: {
             id: true
         }
-    });
+    }) as { difficulty: Difficulty; _count: { id: number } }[];
 
     const totalProblems = {
         EASY: 0,
@@ -122,7 +122,9 @@ export async function getDashboardStats() {
 
     totalByDifficulty.forEach(group => {
         const count = group._count.id;
-        totalProblems[group.difficulty] = count;
+        if (group.difficulty in totalProblems) {
+            totalProblems[group.difficulty as keyof typeof totalProblems] = count;
+        }
         totalProblems.TOTAL += count;
     });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProblems, deleteProblem } from "@/actions/problems";
+import { getAdminProblems, deleteProblem } from "@/actions/problems";
 import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -14,7 +14,7 @@ export default function AdminProblemsPage() {
 
     const fetchProblems = async () => {
         setIsLoading(true);
-        const res = await getProblems(1, 100);
+        const res = await getAdminProblems(1, 100);
         setProblems(res.problems);
         setIsLoading(false);
     }

@@ -4,14 +4,58 @@ import { prisma } from "@/lib/prisma";
 import { Difficulty, Role, ProblemType } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth"; // Assuming auth helper exists on server
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
+
+import { unstable_cache } from "next/cache";
 
 const CACHE_TTL = 300; // 5 minutes
 
 // Cache key helpers
 const getProblemsCacheKey = (type: ProblemType, page: number) =>
-    `problems:${type}:page:${page}`;
+    `problems:list:${type}:page:${page}`;
+
+// Cached fetcher for public problem list
+const getCachedProblems = async (page: number, pageSize: number, type: ProblemType) => {
+    return unstable_cache(
+        async () => {
+            const skip = (page - 1) * pageSize;
+            const [problems, total] = await Promise.all([
+                prisma.problem.findMany({
+                    where: {
+                        type,
+                        hidden: false
+                    },
+                    skip,
+                    take: pageSize,
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        difficulty: true,
+                        score: true,
+                        solved: true,
+                        createdAt: true,
+                        type: true,
+                        _count: {
+                            select: { submissions: true }
+                        }
+                    }
+                }),
+                prisma.problem.count({
+                    where: {
+                        type,
+                        hidden: false
+                    }
+                })
+            ]);
+            return { problems, total };
+        },
+        [getProblemsCacheKey(type, page), 'problems-list'],
+        { revalidate: CACHE_TTL, tags: ['problems-list'] }
+    )();
+};
 
 export async function getProblems(
     page: number = 1,
@@ -23,103 +67,91 @@ export async function getProblems(
     });
     const userId = session?.user?.id;
 
-    const cacheKey = getProblemsCacheKey(type, page);
+    // 1. Fetch public data (cached)
+    const { problems, total } = await getCachedProblems(page, pageSize, type);
 
-    // Try cache first (only for non-authenticated or first page)
-    if (!userId || page === 1) {
-        const cached = await redis.get(cacheKey);
-        if (cached) {
-            const parsed = JSON.parse(cached);
-            // If user is authenticated, we need to check solved status
-            if (userId) {
-                // Fetch solved status separately
-                const problemIds = parsed.problems.map((p: any) => p.id);
-                const solvedProblems = await prisma.submission.findMany({
-                    where: {
-                        userId,
-                        problemId: { in: problemIds },
-                        status: "ACCEPTED",
-                        mode: "SUBMIT"
-                    },
-                    select: { problemId: true },
-                    distinct: ["problemId"]
-                });
-                const solvedSet = new Set(solvedProblems.map(s => s.problemId));
-                parsed.problems = parsed.problems.map((p: any) => ({
-                    ...p,
-                    isSolved: solvedSet.has(p.id)
-                }));
-            }
-            return parsed;
-        }
+    // 2. If user is logged in, fetch their solved status for these specific problems
+    let solvedSet = new Set<string>();
+    if (userId && problems.length > 0) {
+        const problemIds = problems.map(p => p.id);
+        const solvedSubmissions = await prisma.submission.findMany({
+            where: {
+                userId,
+                problemId: { in: problemIds },
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            },
+            select: { problemId: true },
+            distinct: ["problemId"]
+        });
+        solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
     }
 
-    const skip = (page - 1) * pageSize;
-
-    const [problems, total] = await Promise.all([
-        prisma.problem.findMany({
-            where: {
-                type,
-                hidden: false
-            },
-            skip,
-            take: pageSize,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                _count: {
-                    select: { submissions: true }
-                },
-                // Efficiently check if CURRENT user solved this
-                ...(userId ? {
-                    submissions: {
-                        where: {
-                            userId: userId,
-                            status: "ACCEPTED",
-                            mode: "SUBMIT"
-                        },
-                        take: 1,
-                        select: { id: true }
-                    }
-                } : {})
-            }
-        }),
-        prisma.problem.count({
-            where: {
-                type,
-                hidden: false
-            }
-        })
-    ]);
-
+    // 3. Merge data
     const problemsWithStats = problems.map((p) => {
-        // Safe access for submissions array if it exists
-        const isSolved = (p as any).submissions?.length > 0;
-
         return {
             ...p,
-            isSolved,
+            isSolved: solvedSet.has(p.id),
             // Use the stored 'solved' count which is now maintained by worker
             // Fallback to 0 if null
             acceptance: p._count.submissions > 0
                 ? ((p.solved || 0) / p._count.submissions) * 100
                 : 0,
-            // Remove the submissions array from result to keep payload clean
-            submissions: undefined
         };
     });
 
-    const result = {
+    return {
         problems: problemsWithStats,
         totalPages: Math.ceil(total / pageSize),
         currentPage: page
     };
+}
 
-    // Cache result (only for first page and non-authenticated)
-    if (!userId || page === 1) {
-        await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
+export async function getAdminProblems(
+    page: number = 1,
+    pageSize: number = 50
+) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized");
     }
 
-    return result;
+    return unstable_cache(
+        async () => {
+            const skip = (page - 1) * pageSize;
+            const [problems, total] = await Promise.all([
+                prisma.problem.findMany({
+                    skip,
+                    take: pageSize,
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        difficulty: true,
+                        hidden: true,
+                        score: true,
+                        type: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    }
+                }),
+                prisma.problem.count()
+            ]);
+
+            return {
+                problems,
+                totalPages: Math.ceil(total / pageSize),
+                currentPage: page,
+                total
+            };
+        },
+        [`admin:problems:page:${page}`],
+        { revalidate: 300, tags: ['admin-problems-list'] }
+    )();
 }
 
 export async function searchProblems(
@@ -142,44 +174,66 @@ export async function searchProblems(
         },
         take: 10,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            difficulty: true,
+            score: true,
+            solved: true,
+            createdAt: true,
+            type: true,
             _count: {
                 select: { submissions: true }
-            },
-            ...(userId ? {
-                submissions: {
-                    where: {
-                        userId: userId,
-                        status: "ACCEPTED",
-                        mode: "SUBMIT"
-                    },
-                    take: 1,
-                    select: { id: true }
-                }
-            } : {})
+            }
         }
     });
 
+    let solvedSet = new Set<string>();
+    if (userId && problems.length > 0) {
+        const problemIds = problems.map(p => p.id);
+        const solvedSubmissions = await prisma.submission.findMany({
+            where: {
+                userId,
+                problemId: { in: problemIds },
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            },
+            select: { problemId: true },
+            distinct: ["problemId"]
+        });
+        solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
+    }
+
     const problemsWithStats = problems.map((p) => {
-        const isSolved = (p as any).submissions?.length > 0;
         return {
             ...p,
-            isSolved,
+            isSolved: solvedSet.has(p.id),
             acceptance: p._count.submissions > 0
                 ? ((p.solved || 0) / p._count.submissions) * 100
                 : 0,
-            submissions: undefined
         };
     });
 
     return { problems: problemsWithStats };
 }
 
+// Cached fetcher for single problem
+const getCachedProblem = async (slug: string) => {
+    return unstable_cache(
+        async () => {
+            return prisma.problem.findUnique({
+                where: { slug },
+                include: { testCases: true, user: { select: { name: true, image: true } } }
+            });
+        },
+        [`problem:${slug}`],
+        { revalidate: 3600, tags: [`problem-${slug}`] } // Cache for 1 hour
+    )();
+};
+
 export async function getProblem(slug: string) {
-    const problem = await prisma.problem.findUnique({
-        where: { slug },
-        include: { testCases: true, user: { select: { name: true, image: true } } }
-    });
+    const problem = await getCachedProblem(slug);
     return problem;
 }
 
@@ -221,6 +275,7 @@ export async function createProblem(data: {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath("/admin/problems");
+        revalidateTag('admin-problems-list');
 
         // Invalidate cache
         const cachePattern = "problems:*";
@@ -278,6 +333,8 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+        revalidateTag('admin-problems-list');
+        revalidateTag(`problem-${problem.slug}`);
 
         // Invalidate cache
         const cachePattern = "problems:*";
@@ -309,6 +366,7 @@ export async function deleteProblem(id: string) {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+        revalidateTag('admin-problems-list');
 
         // Invalidate cache
         const cachePattern = "problems:*";
