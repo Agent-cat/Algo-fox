@@ -7,10 +7,22 @@ import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "./practice/PracticeClient";
 import LearnMode from "./learn/LearnMode";
 import { SearchBar } from "./shared/SearchBar";
-import { Problem, Category } from "@prisma/client";
+import { Problem, Category, Difficulty, ProblemType } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 
-type ProblemWithStats = Problem & { acceptance: number; isSolved?: boolean };
+type ProblemWithStats = {
+    id: string;
+    title: string;
+    slug: string;
+    difficulty: Difficulty;
+    type: ProblemType;
+    acceptance: number;
+    solved?: number | null;
+    isSolved?: boolean;
+    score: number;
+    createdAt: Date;
+    _count: { submissions: number };
+};
 
 interface DsaProblemsClientProps {
     initialProblems: ProblemWithStats[];
@@ -96,3 +108,4 @@ export default function DsaProblemsClient({
         </div>
     );
 }
+

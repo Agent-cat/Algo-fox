@@ -30,7 +30,7 @@ export default function EditCategoryPage() {
     try {
       const { getCategoryById } = await import("@/actions/category.action");
       const res = await getCategoryById(categoryId);
-      if (res.success) {
+      if (res.success && res.category) {
         setCategory(res.category);
         setFormData({
           name: res.category.name,

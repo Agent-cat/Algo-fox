@@ -7,7 +7,19 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
-type ProblemWithStats = Problem & { acceptance: number, isSolved?: boolean };
+type ProblemWithStats = {
+    id: string;
+    title: string;
+    slug: string;
+    difficulty: Difficulty;
+    type: ProblemType;
+    acceptance: number;
+    solved?: number | null;
+    isSolved?: boolean;
+    score: number;
+    createdAt: Date;
+    _count: { submissions: number };
+};
 
 interface ProblemsListProps {
     initialProblems: ProblemWithStats[];
@@ -15,8 +27,8 @@ interface ProblemsListProps {
     type?: ProblemType;
 }
 
-export default function ProblemsList({ 
-    initialProblems, 
+export default function ProblemsList({
+    initialProblems,
     initialTotalPages,
     type = "PRACTICE"
 }: ProblemsListProps) {

@@ -7,8 +7,6 @@ const connection = new IORedis(REDIS_URL, {
 });
 
 connection.on('error', (error) => {
-    // Suppress unhandled error events to prevent crashing
-    // connection errors are also handled at the call site in proxy.ts
     if (process.env.NODE_ENV !== 'production') {
         console.warn('[Redis] Connection error:', error);
     }

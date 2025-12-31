@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -13,20 +12,15 @@ const nextConfig: NextConfig = {
         hostname: '**.googleusercontent.com',
       },
     ],
-    formats: ['image/webp', 'image/avif'], // Modern image formats
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 
-  // Enable React strict mode for better development warnings
   reactStrictMode: true,
 
-  // Compression
   compress: true,
 
-  // Production optimizations
-  poweredByHeader: false, // Remove X-Powered-By header for security
-
-  // Security headers
+  poweredByHeader: false,
   async headers() {
     return [
       {

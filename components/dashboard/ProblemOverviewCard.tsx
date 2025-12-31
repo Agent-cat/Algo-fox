@@ -10,7 +10,7 @@ interface ProblemOverviewCardProps {
         HARD: number;
         TOTAL: number;
     };
-    problemsSolved: number; // Keeping this for prop compatibility, but using calculated for internal consistency
+    problemsSolved: number;
 }
 
 export function ProblemOverviewCard({

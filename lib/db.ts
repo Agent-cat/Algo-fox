@@ -9,7 +9,7 @@ export interface CodeDraft {
     updatedAt: number;
 }
 
-const EXPIRATION_TIME_MS = 5 * 60 * 60 * 1000; // 5 hours
+const EXPIRATION_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours
 const DB_NAME = 'AlgoFoxDB';
 
 class AlgoFoxDB extends Dexie {

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { Difficulty, Role, ProblemType } from "@prisma/client";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth"; // Assuming auth helper exists on server
+import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
 
@@ -11,11 +11,13 @@ import { unstable_cache } from "next/cache";
 
 const CACHE_TTL = 300; // 5 minutes
 
-// Cache key helpers
+// CACHE KEY HELPERS
+
 const getProblemsCacheKey = (type: ProblemType, page: number) =>
     `problems:list:${type}:page:${page}`;
 
-// Cached fetcher for public problem list
+// CACHED FETCHER FOR PUBLIC PROBLEM LIST
+
 const getCachedProblems = async (page: number, pageSize: number, type: ProblemType) => {
     return unstable_cache(
         async () => {
@@ -57,20 +59,23 @@ const getCachedProblems = async (page: number, pageSize: number, type: ProblemTy
     )();
 };
 
+// GETTING PUBLIC PROBLEMS
+
 export async function getProblems(
     page: number = 1,
     pageSize: number = 10,
     type: ProblemType = "PRACTICE"
 ) {
+    // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
     });
     const userId = session?.user?.id;
 
-    // 1. Fetch public data (cached)
+    // FETCHING PUBLIC DATA (CACHED)
     const { problems, total } = await getCachedProblems(page, pageSize, type);
 
-    // 2. If user is logged in, fetch their solved status for these specific problems
+    // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
     let solvedSet = new Set<string>();
     if (userId && problems.length > 0) {
         const problemIds = problems.map(p => p.id);
@@ -87,13 +92,13 @@ export async function getProblems(
         solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
     }
 
-    // 3. Merge data
+    // MERGING DATA
     const problemsWithStats = problems.map((p) => {
         return {
             ...p,
             isSolved: solvedSet.has(p.id),
-            // Use the stored 'solved' count which is now maintained by worker
-            // Fallback to 0 if null
+            // USING THE STORED 'SOLVED' COUNT WHICH IS NOW MAINTAINED BY WORKER
+            // FALLBACK TO 0 IF NULL
             acceptance: p._count.submissions > 0
                 ? ((p.solved || 0) / p._count.submissions) * 100
                 : 0,
@@ -107,10 +112,13 @@ export async function getProblems(
     };
 }
 
+// GETTING ADMIN PROBLEMS
+
 export async function getAdminProblems(
     page: number = 1,
     pageSize: number = 50
 ) {
+    // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -153,6 +161,8 @@ export async function getAdminProblems(
         { revalidate: 300, tags: ['admin-problems-list'] }
     )();
 }
+
+// SEARCHING FOR PROBLEMS
 
 export async function searchProblems(
     term: string,
@@ -218,7 +228,8 @@ export async function searchProblems(
     return { problems: problemsWithStats };
 }
 
-// Cached fetcher for single problem
+// CACHED FETCHER FOR SINGLE PROBLEM
+
 const getCachedProblem = async (slug: string) => {
     return unstable_cache(
         async () => {
@@ -232,10 +243,16 @@ const getCachedProblem = async (slug: string) => {
     )();
 };
 
+
+// GETTING A PROBLEM BY SLUG CACHED
+
 export async function getProblem(slug: string) {
     const problem = await getCachedProblem(slug);
     return problem;
 }
+
+
+// CREATING A PROBLEM --> ADMIN ONLY
 
 export async function createProblem(data: {
     title: string;
@@ -275,9 +292,11 @@ export async function createProblem(data: {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath("/admin/problems");
+        revalidatePath("/admin/problems");
+        // @ts-expect-error - Next.js type mismatch: expected 2 arguments
         revalidateTag('admin-problems-list');
 
-        // Invalidate cache
+        // INVALIDATING THE CACHE
         const cachePattern = "problems:*";
         const keys = await redis.keys(cachePattern);
         if (keys.length > 0) {
@@ -291,20 +310,31 @@ export async function createProblem(data: {
     }
 }
 
+
+// GETTING A PROBLEM BY ID
 export async function getProblemById(id: string) {
-    const problem = await prisma.problem.findUnique({
-        where: { id },
-        include: {
-            testCases: true
-        }
-    });
-    return { success: true, data: problem };
+    try {
+        const problem = await prisma.problem.findUnique({
+            where: { id },
+            include: {
+                testCases: true
+            }
+        });
+        return { success: true, data: problem };
+    } catch (error) {
+        console.error("Failed to get problem by id:", error);
+        return { success: false, error: "Failed to get problem by id" };
+    }
 }
 
+
+// UPDATING A PROBLEM --> ADMIN ONLY
 export async function updateProblem(id: string, data: any) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
+
+    // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -325,6 +355,8 @@ export async function updateProblem(id: string, data: any) {
             };
         }
 
+        // UPDATING THE PROBLEM
+
         const problem = await prisma.problem.update({
             where: { id },
             data: updateData
@@ -333,10 +365,13 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+        // @ts-expect-error - Next.js type mismatch
         revalidateTag('admin-problems-list');
+        // @ts-expect-error - Next.js type mismatch
         revalidateTag(`problem-${problem.slug}`);
 
-        // Invalidate cache
+        // INVALIDATING THE CACHE
+
         const cachePattern = "problems:*";
         const keys = await redis.keys(cachePattern);
         if (keys.length > 0) {
@@ -350,10 +385,14 @@ export async function updateProblem(id: string, data: any) {
     }
 }
 
+
+// DELETING A PROBLEM --> ADMIN ONLY
 export async function deleteProblem(id: string) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
+
+    // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -366,14 +405,18 @@ export async function deleteProblem(id: string) {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath(`/admin/problems`);
+
+        // @ts-expect-error - Next.js type mismatch
         revalidateTag('admin-problems-list');
 
-        // Invalidate cache
+        // INVALIDATING THE CACHE
         const cachePattern = "problems:*";
         const keys = await redis.keys(cachePattern);
         if (keys.length > 0) {
             await redis.del(...keys);
         }
+
+        // RETURNING THE SUCCESS
 
         return { success: true };
     } catch (error) {

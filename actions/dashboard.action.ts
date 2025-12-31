@@ -1,37 +1,45 @@
 "use server";
 
+// ====================OPTIMIZATOION NEEDED HERE====================
+
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { SubmissionResult, Difficulty } from "@prisma/client";
 import redis from "@/lib/redis";
 
+// GETTING DASHBOARD STATS
 export async function getDashboardStats() {
     const session = await auth.api.getSession({
         headers: await headers()
     });
-
+    // CHECKING IF USER IS AUTHENTICATED --> RETURNING NULL IF NOT AUTHENTICATED
     if (!session?.user) {
         return null;
     }
 
     const userId = session.user.id;
 
-    // Try to get cached data from Redis
+
+
     const cacheKey = `dashboard:stats:${userId}`;
     const CACHE_TTL = 5 * 60; // 5 minutes
 
     try {
+        // GETTING CACHE FROM REDIS
+
         const cached = await redis.get(cacheKey);
         if (cached) {
+            // RETURNING THE CACHE IF CACHED
             return JSON.parse(cached);
         }
     } catch (error) {
-        // Redis error - continue without cache
+        // REDIS ERROR --> CONTINUE WITHOUT CACHE
         console.error('Redis get error:', error);
     }
 
-    // 1. Fetch User Data (Lite) - Blocking to fail fast and reduce initial connection spike
+    // FETCHING USER DATA (LITE) - BLOCKING TO FAIL FAST AND REDUCE INITIAL CONNECTION SPIKE
+
     const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -69,7 +77,7 @@ export async function getDashboardStats() {
 
     // 2. Parallelize remaining stats queries (Reduced from 5 to 3 concurrent connections)
 
-    // Combined Query: submissions for Difficulty Breakdown AND Streaks
+    // COMBINED QUERY: submissions for Difficulty Breakdown AND Streaks
     // Both require: userId, status=ACCEPTED, distinct: problemId
     const solvedProblemsPromise = prisma.submission.findMany({
         where: { userId: userId, status: SubmissionResult.ACCEPTED },
@@ -81,7 +89,7 @@ export async function getDashboardStats() {
         orderBy: { createdAt: 'desc' }
     });
 
-    // Language Stats: Needs distinct by (problemId, languageId)
+    // LANGUAGE STATS: NEEDS DISTINCT BY (problemId, languageId)
     const languageStatsPromise = prisma.submission.findMany({
         where: { userId: userId, status: SubmissionResult.ACCEPTED },
         select: {
@@ -91,7 +99,7 @@ export async function getDashboardStats() {
         distinct: ['problemId', 'languageId']
     });
 
-    // Total Problems Count (Metadata)
+    // TOTAL PROBLEMS COUNT (METADATA)
     const totalByDifficultyPromise = (prisma as any).problem.groupBy({
         by: ['difficulty'],
         where: { hidden: false },
@@ -106,7 +114,7 @@ export async function getDashboardStats() {
 
     // --- Process Data (CPU bound, fast) ---
 
-    // Solved by Difficulty
+    // SOLVED BY DIFFICULTY
     const solvedByDifficulty = { EASY: 0, MEDIUM: 0, HARD: 0 };
     solvedProblems.forEach(sub => {
         const diff = sub.problem.difficulty;
@@ -115,7 +123,7 @@ export async function getDashboardStats() {
         }
     });
 
-    // Total Problems
+    // TOTAL PROBLEMS
     const totalProblems = { EASY: 0, MEDIUM: 0, HARD: 0, TOTAL: 0 };
     (totalByDifficulty as { difficulty: Difficulty; _count: { id: number } }[]).forEach(group => {
         const count = group._count.id;
@@ -125,7 +133,7 @@ export async function getDashboardStats() {
         totalProblems.TOTAL += count;
     });
 
-    // Language Counts
+    // LANGUAGE COUNTS
     const languageCounts: Record<string, number> = {};
     languageStats.forEach(sub => {
         const langName = sub.language.name;
@@ -138,7 +146,7 @@ export async function getDashboardStats() {
         languageCounts[normalizedName]++;
     });
 
-    // Streaks Calculation
+    // STREAKS CALCULATION
     let currentStreak = 0;
     let bestStreak = 0;
 
@@ -148,7 +156,7 @@ export async function getDashboardStats() {
             .map(d => new Date(d))
             .sort((a, b) => a.getTime() - b.getTime());
 
-        // Best Streak
+        // BEST STREAK
         let streak = 1;
         bestStreak = 1;
         for (let i = 1; i < sortedDates.length; i++) {
@@ -161,10 +169,10 @@ export async function getDashboardStats() {
             }
         }
 
-        // Current Streak
+        // CURRENT STREAK
         let date = new Date();
         date.setHours(0, 0, 0, 0);
-        // Check today
+        // CHECKING TODAY
         if (uniqueDates.has(date.toDateString())) {
             currentStreak++;
             date.setDate(date.getDate() - 1);
@@ -173,7 +181,7 @@ export async function getDashboardStats() {
                 date.setDate(date.getDate() - 1);
             }
         } else {
-            // Check yesterday
+            // CHECKING YESTERDAY
             date.setDate(date.getDate() - 1);
             if (uniqueDates.has(date.toDateString())) {
                 currentStreak++;
@@ -191,16 +199,17 @@ export async function getDashboardStats() {
         solvedByDifficulty,
         totalProblems,
         languageCounts,
-        currentStreak, // Use calculated streak
-        bestStreak: Math.max(bestStreak, currentStreak) // simple max check
+        currentStreak, // USED CALCULATED STREAK
+        bestStreak: Math.max(bestStreak, currentStreak)
     };
 
-    // Cache the result in Redis
+    // CACHING THE RESULT IN REDIS
     try {
         await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
     } catch (error) {
         console.error('Redis set error:', error);
     }
 
+    // RETURNING THE RESULT
     return result;
 }

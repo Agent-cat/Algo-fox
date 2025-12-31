@@ -8,11 +8,15 @@ import redis from "@/lib/redis";
 
 const CACHE_TTL = 300; // 5 minutes
 
-// Cache key helpers
+// CACHE KEY HELPERS
+
 const getCategoriesCacheKey = () => "categories:all";
 const getCategoryCacheKey = (slug: string) => `category:${slug}`;
 const getCategoryProblemsCacheKey = (categoryId: string, page: number) =>
   `category:${categoryId}:problems:page:${page}`;
+
+
+// GETTING ALL CATEGORIES
 
 export async function getCategories() {
   try {
@@ -21,14 +25,13 @@ export async function getCategories() {
     });
     const userId = session?.user?.id;
 
-    // We only cache the base categories structure, not user-specific solved counts
-    // unless we want to cache per user (too expensive). 
-    // Strategy: Cache base categories, then fetch solved count and merge.
+    // ONLY CACHING THE BASE CATEGORIES STRUCTURE, NOT USER-SPECIFIC SOLVED COUNTS
 
     const cacheKey = getCategoriesCacheKey();
     let categories;
 
-    // 1. Try cache for base categories
+    // GETTING CACHE FOR BASE CATEGORIES
+
     const cached = await redis.get(cacheKey);
     if (cached) {
       categories = JSON.parse(cached).categories;
@@ -46,12 +49,18 @@ export async function getCategories() {
           }
         }
       });
+
+      // CACHING THE BASE CATEGORIES STRUCTURE IF NOT CACHED
+
       await redis.setex(cacheKey, CACHE_TTL, JSON.stringify({ categories }));
     }
 
-    // 2. If user is logged in, calculate solved count per category
+    // IF USER IS LOGGED IN, CALCULATING SOLVED COUNT PER CATEGORY
+
     if (userId) {
-      // Use raw query for performance - 30x faster than fetching all rows
+
+      // USING RAW QUERY FOR PERFORMANCE - 30X FASTER THAN FETCHING ALL ROWS
+
       const solvedCountsRaw = await prisma.$queryRaw<any[]>`
          SELECT
            cp."categoryId",
@@ -64,22 +73,28 @@ export async function getCategories() {
          GROUP BY cp."categoryId"
        `;
 
+      // CREATING A MAP OF SOLVED COUNT PER CATEGORY
+
       const solvedMap = new Map<string, number>();
       solvedCountsRaw.forEach((row: any) => {
         solvedMap.set(row.categoryId, row.count);
       });
 
-      // Merge into categories
+      // MERGING INTO CATEGORIES
       categories = categories.map((cat: any) => ({
         ...cat,
         solvedCount: solvedMap.get(cat.id) || 0
       }));
     } else {
+      // IF USER IS NOT LOGGED IN, SETTING SOLVED COUNT TO 0
+
       categories = categories.map((cat: any) => ({
         ...cat,
         solvedCount: 0
       }));
     }
+
+    // RETURNING THE CATEGORIES
 
     return { categories };
   } catch (error) {
@@ -88,15 +103,23 @@ export async function getCategories() {
   }
 }
 
+// GETTING A CATEGORY BY SLUG
+
 export async function getCategory(slug: string) {
   try {
     const cacheKey = getCategoryCacheKey(slug);
 
-    // Try cache first
+    // GETTING CACHE FOR CATEGORY
+
     const cached = await redis.get(cacheKey);
     if (cached) {
+
+      // RETURNING THE CACHE IF CACHED
+
       return JSON.parse(cached);
     }
+
+    // GETTING CATEGORY FROM DATABASE IF NOT CACHED
 
     const category = await prisma.category.findUnique({
       where: { slug },
@@ -107,21 +130,24 @@ export async function getCategory(slug: string) {
       }
     });
 
+    // IF CATEGORY IS NOT FOUND, RETURNING AN ERROR
+
     if (!category) {
       return { success: false, error: "Category not found" };
     }
 
-    const result = { success: true, category };
+    // CACHING THE CATEGORY
 
-    // Cache result
-    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(category));
 
-    return result;
+    return { success: true, category: category };
   } catch (error) {
     console.error("Failed to fetch category:", error);
-    return { success: false, error: "Failed to fetch category" };
+    return { success: false, error: "Failed to fetch category: " + error };
   }
 }
+
+// GETTING A CATEGORY BY ID --> NO CACHING
 
 export async function getCategoryById(id: string) {
   try {
@@ -145,6 +171,8 @@ export async function getCategoryById(id: string) {
   }
 }
 
+// GETTING CATEGORY PROBLEMS
+
 export async function getCategoryProblems(
   categoryId: string,
   page: number = 1,
@@ -158,14 +186,21 @@ export async function getCategoryProblems(
 
     const cacheKey = getCategoryProblemsCacheKey(categoryId, page);
 
-    // Try cache first (only for non-authenticated or first page)
+    // GETTING CACHE FOR CATEGORY PROBLEMS IF NOT CACHED
+
     if (!userId || page === 1) {
       const cached = await redis.get(cacheKey);
       if (cached) {
+
+        // RETURNING THE CACHE IF CACHED
+
         const parsed = JSON.parse(cached);
-        // If user is authenticated, we need to check solved status
+
+        // IF USER IS AUTHENTICATED, WE NEED TO CHECK SOLVED STATUS
+
         if (userId) {
-          // Fetch solved status separately
+          // FETCHING SOLVED STATUS SEPARATELY
+
           const problemIds = parsed.problems.map((p: any) => p.id);
           const solvedProblems = await prisma.submission.findMany({
             where: {
@@ -177,17 +212,30 @@ export async function getCategoryProblems(
             select: { problemId: true },
             distinct: ["problemId"]
           });
+
+          // CREATING A SET OF SOLVED PROBLEMS
+
           const solvedSet = new Set(solvedProblems.map(s => s.problemId));
+
+          // UPDATING THE PROBLEMS WITH SOLVED STATUS
+
           parsed.problems = parsed.problems.map((p: any) => ({
             ...p,
             isSolved: solvedSet.has(p.id)
           }));
         }
+
+        // RETURNING THE PROBLEMS
+
         return parsed;
       }
     }
 
+    // SKIPPING THE PROBLEMS
+
     const skip = (page - 1) * pageSize;
+
+    // FETCHING THE CATEGORY PROBLEMS
 
     const [categoryProblems, total] = await Promise.all([
       prisma.categoryProblem.findMany({
@@ -253,21 +301,32 @@ export async function getCategoryProblems(
   }
 }
 
+
+// CREATING A CATEGORY --> ADMIN ONLY
+
 export async function createCategory(data: {
   name: string;
   description?: string;
   slug: string;
   order?: number;
 }) {
+
+
+
   const session = await auth.api.getSession({
     headers: await headers()
   });
+
+  // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
   try {
+
+    // CREATING THE CATEGORY
+
     const category = await prisma.category.create({
       data: {
         name: data.name,
@@ -277,13 +336,17 @@ export async function createCategory(data: {
       }
     });
 
-    // Invalidate cache
+    // INVALIDATING THE CACHE
+
     await redis.del(getCategoriesCacheKey());
 
+    // REVALIDATING THE PATHS
     revalidatePath("/problems/dsa");
     revalidatePath("/admin/categories");
 
-    return { success: true, category };
+    // RETURNING THE SUCCESS AND THE CATEGORY
+    return { success: true, category: category };
+
   } catch (error: any) {
     console.error("Failed to create category:", error);
     return {
@@ -293,19 +356,15 @@ export async function createCategory(data: {
   }
 }
 
-export async function updateCategory(
-  id: string,
-  data: {
-    name?: string;
-    description?: string;
-    slug?: string;
-    order?: number;
-  }
-) {
+// UPDATING A CATEGORY --> ADMIN ONLY
+
+export async function updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; }) {
+
+
   const session = await auth.api.getSession({
     headers: await headers()
   });
-
+  // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
@@ -316,9 +375,12 @@ export async function updateCategory(
       data
     });
 
-    // Invalidate cache
+    // INVALIDATING THE CACHE
+
     await redis.del(getCategoriesCacheKey());
     await redis.del(getCategoryCacheKey(category.slug));
+
+    // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
 
     revalidatePath("/problems/dsa");
     revalidatePath("/admin/categories");
@@ -330,10 +392,14 @@ export async function updateCategory(
   }
 }
 
+// DELETING A CATEGORY --> ADMIN ONLY
+
 export async function deleteCategory(id: string) {
   const session = await auth.api.getSession({
     headers: await headers()
   });
+
+  // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
@@ -349,11 +415,15 @@ export async function deleteCategory(id: string) {
       where: { id }
     });
 
-    // Invalidate cache
+    // INVALIDATING THE CACHE
+
     await redis.del(getCategoriesCacheKey());
+    // INVALIDATING THE CACHE FOR THE CATEGORY IF IT EXISTS
     if (category) {
       await redis.del(getCategoryCacheKey(category.slug));
     }
+
+    // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
 
     revalidatePath("/problems/dsa");
     revalidatePath("/admin/categories");
@@ -365,6 +435,9 @@ export async function deleteCategory(id: string) {
   }
 }
 
+
+// ADDING A PROBLEM TO A CATEGORY --> ADMIN ONLY
+
 export async function addProblemToCategory(
   categoryId: string,
   problemId: string,
@@ -373,17 +446,22 @@ export async function addProblemToCategory(
   const session = await auth.api.getSession({
     headers: await headers()
   });
+  // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
   try {
-    // Ensure problem is of type LEARN
+    
+    // UPDATING THE PROBLEM TO BE OF TYPE LEARN
+
     await prisma.problem.update({
       where: { id: problemId },
       data: { type: "LEARN" }
     });
+
+    // CREATING THE CATEGORY PROBLEM
 
     const categoryProblem = await prisma.categoryProblem.create({
       data: {
@@ -397,7 +475,7 @@ export async function addProblemToCategory(
       }
     });
 
-    // Invalidate cache
+    // INVALIDATING THE CACHE FOR THE CATEGORY PROBLEMS
     const cachePattern = `category:${categoryId}:problems:*`;
     const keys = await redis.keys(cachePattern);
     if (keys.length > 0) {
@@ -418,6 +496,9 @@ export async function addProblemToCategory(
   }
 }
 
+
+// REMOVING A PROBLEM FROM A CATEGORY --> ADMIN ONLY
+
 export async function removeProblemFromCategory(
   categoryId: string,
   problemId: string
@@ -426,11 +507,16 @@ export async function removeProblemFromCategory(
     headers: await headers()
   });
 
+  // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
+
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
 
   try {
+
+    // DELETING THE CATEGORY PROBLEM
+
     await prisma.categoryProblem.delete({
       where: {
         categoryId_problemId: {
@@ -440,7 +526,8 @@ export async function removeProblemFromCategory(
       }
     });
 
-    // Invalidate cache
+    // INVALIDATING THE CACHE FOR THE CATEGORY PROBLEMS
+
     const cachePattern = `category:${categoryId}:problems:*`;
     const keys = await redis.keys(cachePattern);
     if (keys.length > 0) {

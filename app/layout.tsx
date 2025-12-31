@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "sonner";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LayoutSpacer from "@/components/LayoutSpacer";
+import NetworkStatus from "@/components/NetworkStatus";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased select-none `}
       >
+        <NetworkStatus />
         {/* <DevToolsBlocker /> */}
         <Navbar />
         <LayoutSpacer>

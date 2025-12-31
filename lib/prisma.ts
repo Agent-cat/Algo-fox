@@ -13,7 +13,7 @@ const prismaClientSingleton = () => {
 
                     // Warn about slow queries (>1 second)
                     if (end - start > 1000) {
-                        console.warn(`🐌 Slow query: ${model}.${operation} took ${(end - start).toFixed(2)}ms`);
+                        console.warn(`Slow query: ${model}.${operation} took ${(end - start).toFixed(2)}ms`);
                     }
 
                     return result;
@@ -25,10 +25,12 @@ const prismaClientSingleton = () => {
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
-const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClientSingleton | undefined
-};
+declare global {
+    var prisma: PrismaClientSingleton | undefined;
+}
 
-export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+const prisma = globalThis.prisma ?? prismaClientSingleton();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export { prisma };
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;

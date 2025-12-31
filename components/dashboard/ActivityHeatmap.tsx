@@ -175,5 +175,5 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
     );
 }
 
-// Export memoized component to prevent unnecessary re-renders
+
 export default memo(ActivityHeatmap);

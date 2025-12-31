@@ -11,9 +11,17 @@ import { getProblems } from "@/actions/problems";
 import { Plus, Trash2, ArrowLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Difficulty, Problem } from "@prisma/client";
-
-type ProblemWithStats = Problem & { acceptance: number; isSolved?: boolean };
+import { Difficulty } from "@prisma/client";
+type ProblemWithStats = {
+  id: string;
+  title: string;
+  slug: string;
+  difficulty: Difficulty;
+  type: any;
+  acceptance: number;
+  solved?: number | null;
+  isSolved?: boolean;
+};
 
 export default function CategoryProblemsPage() {
   const params = useParams();

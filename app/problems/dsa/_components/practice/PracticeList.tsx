@@ -1,7 +1,19 @@
 import PracticeClient from "./PracticeClient";
-import { Problem } from "@prisma/client";
+import { Problem, Difficulty, ProblemType } from "@prisma/client";
 
-type ProblemWithStats = Problem & { acceptance: number; isSolved?: boolean };
+type ProblemWithStats = {
+    id: string;
+    title: string;
+    slug: string;
+    difficulty: Difficulty;
+    type: ProblemType;
+    acceptance: number;
+    solved?: number | null;
+    isSolved?: boolean;
+    score: number;
+    createdAt: Date;
+    _count: { submissions: number };
+};
 
 interface PracticeListProps {
     initialProblems: ProblemWithStats[];
@@ -18,6 +30,7 @@ export default function PracticeList({ initialProblems, initialTotalPages }: Pra
             initialProblems={initialProblems}
             initialTotalPages={initialTotalPages}
             type="PRACTICE"
+            searchTerm=""
         />
     );
 }

@@ -2,24 +2,21 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import redis from '@/lib/redis';
 
-// Rate limit configuration per route pattern
+
 const RATE_LIMITS = {
     '/api': { requests: 100, window: 60 }, // 100 requests per minute
     '/problems': { requests: 200, window: 60 }, // 200 requests per minute
 } as const;
 
-/**
- * Rate limiting middleware to prevent abuse
- * Uses Redis for distributed rate limiting
- */
+
 export default async function proxy(request: NextRequest) {
-    // Get IP from headers (Next.js doesn't expose request.ip directly)
+    // GETTING IP FROM HEADERS
     const ip = request.headers.get('x-forwarded-for') ??
         request.headers.get('x-real-ip') ??
         'unknown';
     const pathname = request.nextUrl.pathname;
 
-    // Find matching rate limit configuration
+    // FINDING MATCHING RATE LIMIT CONFIGURATION
     const limitEntry = Object.entries(RATE_LIMITS).find(([path]) =>
         pathname.startsWith(path)
     );
@@ -34,12 +31,12 @@ export default async function proxy(request: NextRequest) {
     try {
         const count = await redis.incr(key);
 
-        // Set expiry on first request
+        // SETTING EXPIRY ON FIRST REQUEST
         if (count === 1) {
             await redis.expire(key, limit.window);
         }
 
-        // Check if rate limit exceeded
+        // CHECKING IF RATE LIMIT EXCEEDED
         if (count > limit.requests) {
             return NextResponse.json(
                 {
@@ -58,7 +55,7 @@ export default async function proxy(request: NextRequest) {
             );
         }
 
-        // Add rate limit headers to response
+        // ADDING RATE LIMIT HEADERS TO RESPONSE
         const response = NextResponse.next();
         response.headers.set('X-RateLimit-Limit', limit.requests.toString());
         response.headers.set('X-RateLimit-Remaining', (limit.requests - count).toString());
@@ -66,12 +63,12 @@ export default async function proxy(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('Rate limiting error:', error);
-        // Fail open - allow request if Redis is down
+        // FAIL OPEN - ALLOW REQUEST IF REDIS IS DOWN
         return NextResponse.next();
     }
 }
 
-// Configure which routes to apply middleware to
+// CONFIGURING WHICH ROUTES TO APPLY MIDDLEWARE TO
 export const config = {
     matcher: [
         '/api/:path*',

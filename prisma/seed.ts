@@ -7,27 +7,27 @@ const problems = [
         title: "Two Sum",
         slug: "two-sum",
         description: `
-Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to \`target\`.
+Given an array of integers \`nums\` and an integer \`target\`, print indices of the two numbers such that they add up to \`target\`.
 
 You may assume that each input would have **exactly one solution**, and you may not use the *same* element twice.
 
-You can return the answer in any order.
+You can print the answer in any order.
 
 ## Example 1:
 
 **Input:** nums = [2,7,11,15], target = 9
-**Output:** [0,1]
-**Explanation:** Because nums[0] + nums[1] == 9, we return [0, 1].
+**Output:** 0 1
+**Explanation:** Because nums[0] + nums[1] == 9, we print 0 1.
 
 ## Example 2:
 
 **Input:** nums = [3,2,4], target = 6
-**Output:** [1,2]
+**Output:** 1 2
 
 ## Example 3:
 
 **Input:** nums = [3,3], target = 6
-**Output:** [0,1]
+**Output:** 0 1
 
 ## Constraints:
 
@@ -39,11 +39,11 @@ You can return the answer in any order.
         difficulty: Difficulty.EASY,
         score: 10,
         testCases: [
-            { input: "4\n2 7 11 15\n9", output: "[0, 1]", hidden: false },
-            { input: "3\n3 2 4\n6", output: "[1, 2]", hidden: false },
-            { input: "2\n3 3\n6", output: "[0, 1]", hidden: true },
-            { input: "4\n0 4 3 0\n0", output: "[0, 3]", hidden: true },
-            { input: "5\n-1 -2 -3 -4 -5\n-8", output: "[2, 4]", hidden: true }
+            { input: "4\n2 7 11 15\n9", output: "0 1", hidden: false },
+            { input: "3\n3 2 4\n6", output: "1 2", hidden: false },
+            { input: "2\n3 3\n6", output: "0 1", hidden: true },
+            { input: "4\n0 4 3 0\n0", output: "0 3", hidden: true },
+            { input: "5\n-1 -2 -3 -4 -5\n-8", output: "2 4", hidden: true }
         ]
     },
     {
@@ -52,7 +52,7 @@ You can return the answer in any order.
         description: `
 A phrase is a **palindrome** if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
 
-Given a string \`s\`, return \`true\` *if it is a palindrome, or* \`false\` *otherwise*.
+Given a string \`s\`, print \`true\` *if it is a palindrome, or* \`false\` *otherwise*.
 
 ## Example 1:
 
@@ -92,7 +92,7 @@ Since an empty string reads the same forward and backward, it is a palindrome.
         title: "Maximum Subarray",
         slug: "maximum-subarray",
         description: `
-Given an integer array \`nums\`, find the subarray with the largest sum, and return *its sum*.
+Given an integer array \`nums\`, find the subarray with the largest sum, and print *its sum*.
 
 ## Example 1:
 
@@ -132,7 +132,7 @@ Given an integer array \`nums\`, find the subarray with the largest sum, and ret
         title: "Valid Anagram",
         slug: "valid-anagram",
         description: `
-Given two strings \`s\` and \`t\`, return \`true\` if \`t\` is an anagram of \`s\`, and \`false\` otherwise.
+Given two strings \`s\` and \`t\`, print \`true\` if \`t\` is an anagram of \`s\`, and \`false\` otherwise.
 
 ## Example 1:
 
@@ -163,7 +163,7 @@ Given two strings \`s\` and \`t\`, return \`true\` if \`t\` is an anagram of \`s
         title: "Contains Duplicate",
         slug: "contains-duplicate",
         description: `
-Given an integer array \`nums\`, return \`true\` if any value appears **at least twice** in the array, and return \`false\` if every element is distinct.
+Given an integer array \`nums\`, print \`true\` if any value appears **at least twice** in the array, and print \`false\` if every element is distinct.
 
 ## Example 1:
 
@@ -194,19 +194,19 @@ Given an integer array \`nums\`, return \`true\` if any value appears **at least
         title: "Reverse String",
         slug: "reverse-string",
         description: `
-Write a function that reverses a string. The input string is given as an array of characters \`s\`.
+Write a function that reverses a string. The input string is given as an array of characters \`s\`. Print the reversed string.
 
 You must do this by modifying the input array in-place with \`O(1)\` extra memory.
 
 ## Example 1:
 
 **Input:** s = ["h","e","l","l","o"]
-**Output:** ["o","l","l","e","h"]
+**Output:** o l l e h
 
 ## Example 2:
 
 **Input:** s = ["H","a","n","n","a","h"]
-**Output:** ["h","a","n","n","a","H"]
+**Output:** h a n n a H
 
 ## Constraints:
 
@@ -216,18 +216,18 @@ You must do this by modifying the input array in-place with \`O(1)\` extra memor
         difficulty: Difficulty.EASY,
         score: 10,
         testCases: [
-            { input: `5\nh e l l o`, output: `["o","l","l","e","h"]`, hidden: false },
-            { input: `6\nH a n n a h`, output: `["h","a","n","n","a","H"]`, hidden: false },
-            { input: `1\nA`, output: `["A"]`, hidden: true },
-            { input: `2\na b`, output: `["b","a"]`, hidden: true },
-            { input: `3\n1 2 3`, output: `["3", "2", "1"]`, hidden: true }
+            { input: `5\nh e l l o`, output: `o l l e h`, hidden: false },
+            { input: `6\nH a n n a h`, output: `h a n n a H`, hidden: false },
+            { input: `1\nA`, output: `A`, hidden: true },
+            { input: `2\na b`, output: `b a`, hidden: true },
+            { input: `3\n1 2 3`, output: `3 2 1`, hidden: true }
         ]
     },
     {
         title: "Product of Array Except Self",
         slug: "product-of-array-except-self",
         description: `
-Given an integer array \`nums\`, return *an array* \`answer\` *such that* \`answer[i]\` *is equal to the product of all the elements of* \`nums\` *except* \`nums[i]\`.
+Given an integer array \`nums\`, print *an array* \`answer\` *such that* \`answer[i]\` *is equal to the product of all the elements of* \`nums\` *except* \`nums[i]\`.
 
 The product of any prefix or suffix of \`nums\` is **guaranteed** to fit in a **32-bit** integer.
 
@@ -236,12 +236,12 @@ You must write an algorithm that runs in \`O(n)\` time and without using the div
 ## Example 1:
 
 **Input:** nums = [1,2,3,4]
-**Output:** [24,12,8,6]
+**Output:** 24 12 8 6
 
 ## Example 2:
 
 **Input:** nums = [-1,1,0,-3,3]
-**Output:** [0,0,9,0,0]
+**Output:** 0 0 9 0 0
 
 ## Constraints:
 
@@ -252,18 +252,18 @@ You must write an algorithm that runs in \`O(n)\` time and without using the div
         difficulty: Difficulty.MEDIUM,
         score: 20,
         testCases: [
-            { input: "4\n1 2 3 4", output: "[24, 12, 8, 6]", hidden: false },
-            { input: "5\n-1 1 0 -3 3", output: "[0, 0, 9, 0, 0]", hidden: false },
-            { input: "2\n1 1", output: "[1, 1]", hidden: true },
-            { input: "3\n4 0 4", output: "[0, 16, 0]", hidden: true },
-            { input: "3\n1 2 3", output: "[6, 3, 2]", hidden: true }
+            { input: "4\n1 2 3 4", output: "24 12 8 6", hidden: false },
+            { input: "5\n-1 1 0 -3 3", output: "0 0 9 0 0", hidden: false },
+            { input: "2\n1 1", output: "1 1", hidden: true },
+            { input: "3\n4 0 4", output: "0 16 0", hidden: true },
+            { input: "3\n1 2 3", output: "6 3 2", hidden: true }
         ]
     },
     {
         title: "Group Anagrams",
         slug: "group-anagrams",
         description: `
-Given an array of strings \`strs\`, group **the anagrams** together. You can return the answer in **any order**.
+Given an array of strings \`strs\`, group **the anagrams** together. You can print the answer in **any order**.
 
 An **Anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
 
@@ -302,7 +302,7 @@ An **Anagram** is a word or phrase formed by rearranging the letters of a differ
         title: "Longest Consecutive Sequence",
         slug: "longest-consecutive-sequence",
         description: `
-Given an unsorted array of integers \`nums\`, return *the length of the longest consecutive elements sequence*.
+Given an unsorted array of integers \`nums\`, print *the length of the longest consecutive elements sequence*.
 
 You must write an algorithm that runs in \`O(n)\` time.
 
@@ -340,7 +340,7 @@ You are given an integer array \`height\` of length \`n\`. There are \`n\` verti
 
 Find two lines that together with the x-axis form a container, such that the container contains the most water.
 
-Return *the maximum amount of water a container can store*.
+Print *the maximum amount of water a container can store*.
 
 **Notice** that you may not slant the container.
 
@@ -408,7 +408,7 @@ Given \`n\` non-negative integers representing an elevation map where the width 
         title: "Median of Two Sorted Arrays",
         slug: "median-of-two-sorted-arrays",
         description: `
-Given two sorted arrays \`nums1\` and \`nums2\` of size \`m\` and \`n\` respectively, return **the median** of the two sorted arrays.
+Given two sorted arrays \`nums1\` and \`nums2\` of size \`m\` and \`n\` respectively, print **the median** of the two sorted arrays.
 
 The overall run time complexity should be \`O(log (m+n))\`.
 
@@ -449,12 +449,12 @@ The overall run time complexity should be \`O(log (m+n))\`.
         description: `
 You are given an array of \`k\` linked-lists \`lists\`, each linked-list is sorted in ascending order.
 
-*Merge all the linked-lists into one sorted linked-list and return it.*
+*Merge all the linked-lists into one sorted linked-list and print it.*
 
 ## Example 1:
 
 **Input:** lists = [[1,4,5],[1,3,4],[2,6]]
-**Output:** [1,1,2,3,4,4,5,6]
+**Output:** 1 1 2 3 4 4 5 6
 **Explanation:** The linked-lists are:
 [
   1->4->5,
@@ -467,12 +467,12 @@ merging them into one sorted list:
 ## Example 2:
 
 **Input:** lists = []
-**Output:** []
+**Output:**
 
 ## Example 3:
 
 **Input:** lists = [[]]
-**Output:** []
+**Output:**
 
 ## Constraints:
 
@@ -486,11 +486,11 @@ merging them into one sorted list:
         difficulty: Difficulty.HARD,
         score: 30,
         testCases: [
-            { input: `3\n3 1 4 5\n3 1 3 4\n2 2 6`, output: `[1,1,2,3,4,4,5,6]`, hidden: false },
-            { input: `0`, output: `[]`, hidden: false }, // K=0
-            { input: `1\n0`, output: `[]`, hidden: true }, // K=1, list size 0
-            { input: `2\n1 1\n1 0`, output: `[0, 1]`, hidden: true },
-            { input: `3\n1 1\n1 2\n1 3`, output: `[1, 2, 3]`, hidden: true }
+            { input: `3\n3 1 4 5\n3 1 3 4\n2 2 6`, output: `1 1 2 3 4 4 5 6`, hidden: false },
+            { input: `0`, output: ``, hidden: false }, // K=0
+            { input: `1\n0`, output: ``, hidden: true }, // K=1, list size 0
+            { input: `2\n1 1\n1 0`, output: `0 1`, hidden: true },
+            { input: `3\n1 1\n1 2\n1 3`, output: `1 2 3`, hidden: true }
         ]
     }
 ];

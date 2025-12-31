@@ -1,5 +1,5 @@
 import { getDashboardStats } from "@/actions/dashboard.action";
-import ActivityHeatmap from "@/components/ActivityHeatmap";
+import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
 import { UserProfileCard } from "@/components/dashboard/UserProfileCard";
 import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { LanguagesCard } from "@/components/dashboard/LanguagesCard";

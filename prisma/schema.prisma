@@ -39,7 +39,6 @@ model User {
   // contestSubmissions ContestSubmission[]
   problems    Problem[]
 
-  // @@unique([collageId, email]) // Removed as email is unique now
   @@index([collageId])
   @@index([collageId, totalScore]) // leaderboard per college
   @@map("user")

@@ -36,6 +36,9 @@ export const completeOnboarding = async (data: z.infer<typeof onboardingSchema>)
     }
 };
 
+
+// GETTING A USER 
+
 export const getUser = async () => {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -43,8 +46,13 @@ export const getUser = async () => {
 
     if (!session?.user) return null;
 
+    try {
     const user = await prisma.user.findUnique({
-        where: { id: session.user.id }
-    });
-    return user;
+            where: { id: session.user.id }
+        });
+        return user;
+    } catch (error) {
+        console.error("Failed to get user:", error);
+        return null;
+    }
 }

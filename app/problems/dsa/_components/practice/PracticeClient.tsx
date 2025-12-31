@@ -2,12 +2,24 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { searchProblems, getProblems } from "@/actions/problems";
-import { Problem, ProblemType } from "@prisma/client";
+import { Problem, ProblemType, Difficulty } from "@prisma/client";
 import { ProblemRow } from "../shared/ProblemRow";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { PROBLEMS_PAGE_SIZE, INTERSECTION_THRESHOLD } from "../shared/constants";
 
-type ProblemWithStats = Problem & { acceptance: number; isSolved?: boolean };
+type ProblemWithStats = {
+    id: string;
+    title: string;
+    slug: string;
+    difficulty: Difficulty;
+    type: ProblemType;
+    acceptance: number;
+    solved?: number | null;
+    isSolved?: boolean;
+    score: number;
+    createdAt: Date;
+    _count: { submissions: number };
+};
 
 interface PracticeClientProps {
     initialProblems: ProblemWithStats[];
