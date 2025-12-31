@@ -1,5 +1,4 @@
 import { getProblems } from "@/actions/problems";
-import ProblemsList from "../_components/ProblemsList";
 import DsaProblemsClient from "./_components/DsaProblemsClient";
 
 export const metadata = {
@@ -8,7 +7,7 @@ export const metadata = {
 };
 
 export default async function DsaProblemsPage() {
-    // Initial fetch for Practice mode, page 1
+    // FETCHING PRACTICE MODE, PAGE 1
     const { problems, totalPages } = await getProblems(1, 10, "PRACTICE");
 
     return (

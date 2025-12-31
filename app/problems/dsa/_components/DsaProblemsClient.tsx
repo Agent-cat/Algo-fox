@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "./practice/PracticeClient";
 import LearnMode from "./learn/LearnMode";
 import { SearchBar } from "./shared/SearchBar";
-import { Problem, Category, Difficulty, ProblemType } from "@prisma/client";
+import { Category, Difficulty, ProblemType } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 
 type ProblemWithStats = {
@@ -37,11 +36,11 @@ export default function DsaProblemsClient({
     const router = useRouter();
     const pathname = usePathname();
 
-    // Derived state from URL, default to 'practice'
+    // DERIVED STATE FROM URL, DEFAULT TO 'PRACTICE'
     const mode = (searchParams.get("mode") as "practice" | "learn") || "practice";
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Lifted state for Learn Mode caching
+    // LIFTED STATE FOR LEARN MODE CACHING
     const [categories, setCategories] = useState<Category[]>([]);
     const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
     const [hasFetchedCategories, setHasFetchedCategories] = useState(false);
@@ -81,7 +80,7 @@ export default function DsaProblemsClient({
     return (
         <div className="min-h-screen bg-white py-8">
             <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
-                {/* Header Tools */}
+                {/* HEADER TOOLS */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
                     <SearchBar
                         onSearch={handleSearch}
