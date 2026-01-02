@@ -279,8 +279,7 @@ export class SubmissionService {
 
                 // Invalidate user score cache and leaderboard cache
                 try {
-                    // @ts-expect-error - Next.js type mismatch
-                    revalidateTag(`user-score-${userId}`);
+                    await redis.del(`user-score-${userId}`);
                     // Invalidate leaderboard cache so new users appear
                     await redis.del('leaderboard:global');
                 } catch (error) {

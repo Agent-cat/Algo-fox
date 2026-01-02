@@ -75,7 +75,7 @@ export default function CategoryProblemsPage() {
       const res = await getProblems(1, 100, "LEARN");
       // Filter out problems already in category
       const inCategory = new Set(problems.map((p) => p.id));
-      const available = res.problems.filter((p) => !inCategory.has(p.id));
+      const available = res.problems.filter((p: any) => !inCategory.has(p.id));
       setAvailableProblems(available);
     } catch (error) {
       console.error("Failed to fetch available problems:", error);

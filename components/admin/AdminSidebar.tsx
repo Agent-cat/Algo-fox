@@ -1,16 +1,20 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Code, Database, ChevronRight } from "lucide-react";
+import { BookOpen, Code, Database, ChevronRight, LucideIcon } from "lucide-react";
 import { useState } from "react";
 
-const menuItems = [
-  {
-    name: "Dashboard",
-    href: "/admin",
-    icon: LayoutDashboard,
-  },
+type MenuItem = {
+  name: string;
+  icon: LucideIcon;
+} & (
+    | { href: string; children?: never }
+    | { href?: never; children: { name: string; href: string }[] }
+  );
+
+const menuItems: MenuItem[] = [
   {
     name: "DSA",
     icon: Code,
@@ -73,18 +77,17 @@ export default function AdminSidebar() {
               <div key={item.name}>
                 <button
                   onClick={() => toggleSection(item.name)}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                    hasActiveChild
+                  className={`w - full flex items - center justify - between px - 4 py - 2.5 rounded - lg text - sm transition - colors ${hasActiveChild
                       ? "bg-gray-100 text-gray-900 font-medium"
                       : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
+                    } `}
                 >
                   <div className="flex items-center gap-3">
                     <item.icon className="w-5 h-5" />
                     <span>{item.name}</span>
                   </div>
                   <ChevronRight
-                    className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                    className={`w - 4 h - 4 transition - transform ${isExpanded ? "rotate-90" : ""} `}
                   />
                 </button>
                 {isExpanded && (
@@ -96,11 +99,10 @@ export default function AdminSidebar() {
                         <Link
                           key={child.href}
                           href={child.href}
-                          className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
-                            isActive
+                          className={`flex items - center gap - 3 px - 4 py - 2 rounded - lg text - sm transition - colors ${isActive
                               ? "bg-orange-50 text-orange-600 font-medium"
                               : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
+                            } `}
                         >
                           <span className="w-2 h-2 rounded-full bg-current opacity-50" />
                           {child.name}
@@ -120,11 +122,10 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                isActive
+              className={`flex items - center gap - 3 px - 4 py - 2.5 rounded - lg text - sm transition - colors ${isActive
                   ? "bg-gray-100 text-gray-900 font-medium"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-              }`}
+                } `}
             >
               <Icon className="w-5 h-5" />
               <span>{item.name}</span>

@@ -49,13 +49,13 @@ model Problem {
   title       String
   description String
 
-  hidden        Boolean       @default(true)
-  slug          String        @unique
-  score         Int
-  solved        Int?          @default(0)
-  difficulty    Difficulty    @default(EASY)
-  type          ProblemType   @default(PRACTICE)
-  domain        ProblemDomain @default(DSA)
+  hidden      Boolean       @default(true)
+  slug        String        @unique
+  score       Int
+  solved      Int?          @default(0)
+  difficulty  Difficulty    @default(EASY)
+  type        ProblemType   @default(PRACTICE)
+  domain      ProblemDomain @default(DSA)
   hiddenQuery String?
 
   // contestSubmissions ContestSubmission[]
@@ -122,6 +122,7 @@ model Submission {
   @@index([userId, problemId]) // solved check
   @@index([status]) // judge workers
   @@index([userId, status, mode, problemId]) // Optimized for finding solved problems
+  @@index([userId, status, createdAt]) // Optimized for dashboard activity feed and streaks
 }
 
 model Language {

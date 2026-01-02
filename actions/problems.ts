@@ -1,68 +1,10 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { Difficulty, Role, ProblemType, ProblemDomain } from "@prisma/client";
+import { ProblemService } from "@/core/services/problem.service";
+import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
-import redis from "@/lib/redis";
-
-import { unstable_cache } from "next/cache";
-
-const CACHE_TTL = 300; // 5 minutes
-
-// CACHE KEY HELPERS
-
-const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number) =>
-    `problems:list:${domain}:${type}:page:${page}`;
-
-// CACHED FETCHER FOR PUBLIC PROBLEM LIST
-
-const getCachedProblems = async (page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA") => {
-    return unstable_cache(
-        async () => {
-            const skip = (page - 1) * pageSize;
-            const [problems, total] = await Promise.all([
-                prisma.problem.findMany({
-                    where: {
-                        type,
-                        domain,
-                        hidden: false
-                    },
-                    skip,
-                    take: pageSize,
-                    orderBy: { createdAt: 'desc' },
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        difficulty: true,
-                        score: true,
-                        solved: true,
-                        createdAt: true,
-                        type: true,
-                        _count: {
-                            select: { submissions: true }
-                        }
-                    }
-                }),
-                prisma.problem.count({
-                    where: {
-                        type,
-                        domain,
-                        hidden: false
-                    }
-                })
-            ]);
-            return { problems, total };
-        },
-        [getProblemsCacheKey(type, domain, page), 'problems-list', `problems-${domain}-${type}`],
-        { 
-            revalidate: CACHE_TTL, 
-            tags: ['problems-list', `problems-${domain}-${type}`] 
-        }
-    )();
-};
 
 // GETTING PUBLIC PROBLEMS
 
@@ -78,44 +20,7 @@ export async function getProblems(
     });
     const userId = session?.user?.id;
 
-    // FETCHING PUBLIC DATA (CACHED)
-    const { problems, total } = await getCachedProblems(page, pageSize, type, domain);
-
-    // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
-    let solvedSet = new Set<string>();
-    if (userId && problems.length > 0) {
-        const problemIds = problems.map(p => p.id);
-        const solvedSubmissions = await prisma.submission.findMany({
-            where: {
-                userId,
-                problemId: { in: problemIds },
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-            },
-            select: { problemId: true },
-            distinct: ["problemId"]
-        });
-        solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
-    }
-
-    // MERGING DATA
-    const problemsWithStats = problems.map((p) => {
-        return {
-            ...p,
-            isSolved: solvedSet.has(p.id),
-            // USING THE STORED 'SOLVED' COUNT WHICH IS NOW MAINTAINED BY WORKER
-            // FALLBACK TO 0 IF NULL
-            acceptance: p._count.submissions > 0
-                ? ((p.solved || 0) / p._count.submissions) * 100
-                : 0,
-        };
-    });
-
-    return {
-        problems: problemsWithStats,
-        totalPages: Math.ceil(total / pageSize),
-        currentPage: page
-    };
+    return ProblemService.getProblems(page, pageSize, type, domain, userId);
 }
 
 // GETTING ADMIN PROBLEMS
@@ -134,42 +39,7 @@ export async function getAdminProblems(
         throw new Error("Unauthorized");
     }
 
-    return unstable_cache(
-        async () => {
-            const skip = (page - 1) * pageSize;
-            const where = domain ? { domain } : {};
-            const [problems, total] = await Promise.all([
-                prisma.problem.findMany({
-                    where,
-                    skip,
-                    take: pageSize,
-                    orderBy: { createdAt: 'desc' },
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        difficulty: true,
-                        hidden: true,
-                        score: true,
-                        type: true,
-                        domain: true,
-                        createdAt: true,
-                        updatedAt: true,
-                    }
-                }),
-                prisma.problem.count({ where })
-            ]);
-
-            return {
-                problems,
-                totalPages: Math.ceil(total / pageSize),
-                currentPage: page,
-                total
-            };
-        },
-        [`admin:problems:${domain || 'all'}:page:${page}`],
-        { revalidate: 300, tags: ['admin-problems-list'] }
-    )();
+    return ProblemService.getAdminProblems(page, pageSize, domain);
 }
 
 // SEARCHING FOR PROBLEMS
@@ -184,83 +54,13 @@ export async function searchProblems(
     });
     const userId = session?.user?.id;
 
-    const problems = await prisma.problem.findMany({
-        where: {
-            type,
-            domain,
-            hidden: false,
-            title: {
-                contains: term,
-                mode: 'insensitive'
-            }
-        },
-        take: 10,
-        orderBy: { createdAt: 'desc' },
-        select: {
-            id: true,
-            title: true,
-            slug: true,
-            difficulty: true,
-            score: true,
-            solved: true,
-            createdAt: true,
-            type: true,
-            _count: {
-                select: { submissions: true }
-            }
-        }
-    });
-
-    let solvedSet = new Set<string>();
-    if (userId && problems.length > 0) {
-        const problemIds = problems.map(p => p.id);
-        const solvedSubmissions = await prisma.submission.findMany({
-            where: {
-                userId,
-                problemId: { in: problemIds },
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-            },
-            select: { problemId: true },
-            distinct: ["problemId"]
-        });
-        solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
-    }
-
-    const problemsWithStats = problems.map((p) => {
-        return {
-            ...p,
-            isSolved: solvedSet.has(p.id),
-            acceptance: p._count.submissions > 0
-                ? ((p.solved || 0) / p._count.submissions) * 100
-                : 0,
-        };
-    });
-
-    return { problems: problemsWithStats };
+    return ProblemService.searchProblems(term, type, domain, userId);
 }
-
-// CACHED FETCHER FOR SINGLE PROBLEM
-
-const getCachedProblem = async (slug: string) => {
-    return unstable_cache(
-        async () => {
-            return prisma.problem.findUnique({
-                where: { slug },
-                include: { testCases: true, user: { select: { name: true, image: true } } }
-            });
-        },
-        [`problem:${slug}`],
-        { revalidate: 3600, tags: [`problem-${slug}`] } // Cache for 1 hour
-    )();
-};
-
 
 // GETTING A PROBLEM BY SLUG CACHED
 
 export async function getProblem(slug: string) {
-    const problem = await getCachedProblem(slug);
-    return problem;
+    return ProblemService.getProblem(slug);
 }
 
 
@@ -284,34 +84,16 @@ export async function createProblem(data: {
         throw new Error("Unauthorized");
     }
 
-    try {
-        const problem = await prisma.problem.create({
-            data: {
-                title: data.title,
-                description: data.description,
-                difficulty: data.difficulty,
-                slug: data.slug,
-                score: 10,
-                hidden: data.hidden,
-                hiddenQuery: data.hiddenQuery || null,
-                domain: data.domain || "DSA",
-                testCases: {
-                    create: data.testCases.map(tc => ({
-                        input: tc.input,
-                        output: tc.output,
-                        hidden: tc.hidden ?? false
-                    }))
-                }
-            },
-        });
+    const result = await ProblemService.createProblem(data);
 
+    if (result.success) {
         revalidatePath("/problems");
         revalidatePath("/dsa");
         revalidatePath("/sql");
         revalidatePath("/admin/problems");
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
-        
+
         // @ts-expect-error - Next.js type mismatch: expected 2 arguments
         revalidateTag('admin-problems-list');
         // @ts-expect-error - Next.js type mismatch
@@ -320,36 +102,15 @@ export async function createProblem(data: {
         revalidateTag('problems-SQL-PRACTICE');
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('problems-DSA-PRACTICE');
-
-        // INVALIDATING THE CACHE
-        const cachePattern = "problems:*";
-        const keys = await redis.keys(cachePattern);
-        if (keys.length > 0) {
-            await redis.del(...keys);
-        }
-
-        return { success: true, problem };
-    } catch (error) {
-        console.error("Failed to create problem:", error);
-        return { success: false, error: "Failed to create problem" };
     }
+
+    return result;
 }
 
 
 // GETTING A PROBLEM BY ID
 export async function getProblemById(id: string) {
-    try {
-        const problem = await prisma.problem.findUnique({
-            where: { id },
-            include: {
-                testCases: true
-            }
-        });
-        return { success: true, data: problem };
-    } catch (error) {
-        console.error("Failed to get problem by id:", error);
-        return { success: false, error: "Failed to get problem by id" };
-    }
+    return ProblemService.getProblemById(id);
 }
 
 
@@ -365,57 +126,27 @@ export async function updateProblem(id: string, data: any) {
         throw new Error("Unauthorized");
     }
 
-    try {
-        const { testCases, ...problemData } = data;
+    const result = await ProblemService.updateProblem(id, data);
 
-        const updateData: any = { ...problemData };
-        if (testCases) {
-            updateData.testCases = {
-                deleteMany: {},
-                create: testCases.map((tc: any) => ({
-                    input: tc.input,
-                    output: tc.output,
-                    hidden: tc.hidden ?? false
-                }))
-            };
-        }
-
-        // UPDATING THE PROBLEM
-
-        const problem = await prisma.problem.update({
-            where: { id },
-            data: updateData
-        });
-
+    if (result.success) {
         revalidatePath("/problems");
         revalidatePath("/dsa");
         revalidatePath("/sql");
         revalidatePath(`/admin/problems`);
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
-        
+
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('admin-problems-list');
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('problems-list');
         // @ts-expect-error - Next.js type mismatch - Invalidate domain-specific caches
-        revalidateTag(`problems-${problem.domain || 'DSA'}-${problem.type || 'PRACTICE'}`);
+        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`);
         // @ts-expect-error - Next.js type mismatch
-        revalidateTag(`problem-${problem.slug}`);
-
-        // INVALIDATING THE CACHE
-
-        const cachePattern = "problems:*";
-        const keys = await redis.keys(cachePattern);
-        if (keys.length > 0) {
-            await redis.del(...keys);
-        }
-
-        return { success: true, data: problem };
-    } catch (error) {
-        console.error("Failed to update problem:", error);
-        return { success: false, error: "Failed to update problem" };
+        revalidateTag(`problem-${result.data?.slug}`);
     }
+
+    return result;
 }
 
 
@@ -431,10 +162,9 @@ export async function deleteProblem(id: string) {
         throw new Error("Unauthorized");
     }
 
-    try {
-        await prisma.problem.delete({
-            where: { id }
-        });
+    const result = await ProblemService.deleteProblem(id);
+
+    if (result.success) {
         revalidatePath("/problems");
         revalidatePath("/dsa");
         revalidatePath("/sql");
@@ -446,19 +176,7 @@ export async function deleteProblem(id: string) {
         revalidateTag('admin-problems-list');
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('problems-list');
-
-        // INVALIDATING THE CACHE
-        const cachePattern = "problems:*";
-        const keys = await redis.keys(cachePattern);
-        if (keys.length > 0) {
-            await redis.del(...keys);
-        }
-
-        // RETURNING THE SUCCESS
-
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to delete problem:", error);
-        return { success: false, error: "Failed to delete problem" };
     }
+
+    return result;
 }
