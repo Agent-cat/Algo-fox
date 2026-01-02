@@ -8,6 +8,7 @@ import remarkBreaks from 'remark-breaks';
 import { Problem } from '@prisma/client';
 import { BadgeCheck, FileText, List } from 'lucide-react';
 import Submissions from './Submissions';
+import { getPointsLabel } from '@/lib/points';
 
 type Tab = "description" | "solutions" | "submissions";
 
@@ -63,6 +64,9 @@ export default function ProblemDescription({ problem, activeTab, onTabChange }: 
                             <div className="flex items-center gap-3">
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(problem.difficulty)}`}>
                                     {problem.difficulty.charAt(0) + problem.difficulty.slice(1).toLowerCase()}
+                                </span>
+                                <span className="text-sm text-gray-600 font-medium">
+                                    {getPointsLabel(problem.difficulty)}
                                 </span>
                             </div>
                         </div>

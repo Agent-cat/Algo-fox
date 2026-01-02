@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { searchProblems, getProblems } from "@/actions/problems";
-import { Problem, ProblemType, Difficulty } from "@prisma/client";
+import { Problem, ProblemType, Difficulty, ProblemDomain } from "@prisma/client";
 import { ProblemRow } from "../shared/ProblemRow";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { PROBLEMS_PAGE_SIZE, INTERSECTION_THRESHOLD } from "../shared/constants";
@@ -25,6 +25,7 @@ interface PracticeClientProps {
     initialProblems: ProblemWithStats[];
     initialTotalPages: number;
     type?: ProblemType;
+    domain?: ProblemDomain;
     searchTerm: string;
 }
 
@@ -32,6 +33,7 @@ export default function PracticeClient({
     initialProblems,
     initialTotalPages,
     type = "PRACTICE",
+    domain = "DSA",
     searchTerm
 }: PracticeClientProps) {
     const [problems, setProblems] = useState<ProblemWithStats[]>(initialProblems);
@@ -59,7 +61,7 @@ export default function PracticeClient({
 
             setIsSearching(true);
             try {
-                const result = await searchProblems(searchTerm, type);
+                const result = await searchProblems(searchTerm, type, domain);
                 setSearchResults(result.problems);
             } catch (error) {
                 console.error("Search failed:", error);
@@ -70,7 +72,7 @@ export default function PracticeClient({
         };
 
         performSearch();
-    }, [searchTerm, type]);
+    }, [searchTerm, type, domain]);
 
     // Memoize displayed problems
     const displayedProblems = useMemo(() => {
@@ -84,7 +86,7 @@ export default function PracticeClient({
         setIsLoading(true);
         try {
             const nextPage = page + 1;
-            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type);
+            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain);
             setProblems((prev) => [...prev, ...res.problems]);
             setPage(nextPage);
             setHasMore(nextPage < res.totalPages);
@@ -93,7 +95,7 @@ export default function PracticeClient({
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, hasMore, page, type, searchTerm]);
+    }, [isLoading, hasMore, page, type, domain, searchTerm]);
 
     // Intersection Observer for infinite scroll
     useEffect(() => {

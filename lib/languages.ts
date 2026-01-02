@@ -110,6 +110,12 @@ func main() {
     // write your code here
 
 }`
+    },
+    {
+        id: 82,
+        name: "SQL",
+        monacoLanguage: "sql",
+        boilerplate: `` // Empty boilerplate for SQL
     }
 ];
 

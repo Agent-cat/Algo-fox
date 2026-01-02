@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { SubmissionResult, TestCaseResult, SubmissionMode } from "@prisma/client";
 import { getLanguageById } from "@/lib/languages";
+import { getPointsForDifficulty } from "@/lib/points";
+import { revalidateTag } from "next/cache";
+import redis from "@/lib/redis";
 
 const JUDGE0_URL = process.env.JUDGE0_URL || "http://localhost:2358";
 
@@ -238,15 +241,18 @@ export class SubmissionService {
 
             // Only increment if this is the first accepted solution (count should be exactly 1, which is the current one)
             if (acceptedCount === 1) {
-                // Fetch the problem to get its score
+                // Fetch the problem to get its difficulty
                 const problem = await tx.problem.findUnique({
                     where: { id: problemId },
-                    select: { score: true }
+                    select: { difficulty: true }
                 });
 
                 if (!problem) {
                     throw new Error("Problem not found");
                 }
+
+                // Calculate points based on difficulty
+                const points = getPointsForDifficulty(problem.difficulty);
 
                 // Increment problem's solved count
                 await tx.problem.update({
@@ -258,7 +264,7 @@ export class SubmissionService {
                     }
                 });
 
-                // Increment user's problemsSolved count and add score
+                // Increment user's problemsSolved count and add points based on difficulty
                 await tx.user.update({
                     where: { id: userId },
                     data: {
@@ -266,10 +272,22 @@ export class SubmissionService {
                             increment: 1
                         },
                         totalScore: {
-                            increment: problem.score
+                            increment: points
                         }
                     }
                 });
+
+                // Invalidate user score cache and leaderboard cache
+                try {
+                    // @ts-expect-error - Next.js type mismatch
+                    revalidateTag(`user-score-${userId}`);
+                    // Invalidate leaderboard cache so new users appear
+                    await redis.del('leaderboard:global');
+                } catch (error) {
+                    // Cache invalidation might fail in worker context, but that's okay
+                    // The cache will expire naturally after 30 seconds (user score) and 10 minutes (leaderboard)
+                    console.error("Failed to invalidate cache:", error);
+                }
             }
         });
     }

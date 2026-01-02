@@ -20,20 +20,31 @@ import { useEffect } from 'react';
 import { usePersistentSplit } from '@/hooks/use-layout';
 
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
+const SQL_LANGUAGE_ID = 82; // SQL language ID
 
 // Get language from localStorage or use default
-function getStoredLanguageId(): number {
-    if (typeof window === 'undefined') return DEFAULT_LANGUAGE_ID;
+function getStoredLanguageId(domain?: string): number {
+    if (typeof window === 'undefined') {
+        // For SQL problems, default to SQL language
+        return domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID;
+    }
     try {
         const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
         if (stored) {
             const id = parseInt(stored, 10);
-            if (!isNaN(id)) return id;
+            if (!isNaN(id)) {
+                // For SQL problems, always use SQL language
+                if (domain === "SQL") {
+                    return SQL_LANGUAGE_ID;
+                }
+                return id;
+            }
         }
     } catch (e) {
         console.error('Failed to read language from localStorage', e);
     }
-    return DEFAULT_LANGUAGE_ID;
+    // For SQL problems, default to SQL language
+    return domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID;
 }
 
 
@@ -42,20 +53,29 @@ export default function Workspace({ problem }: WorkspaceProps) {
     const [code, setCode] = useState<string>("// Write your code here");
     const [isSubmitting, setIsSubmitting] = useState(false);
     // Start with default language to avoid hydration mismatch, then update from localStorage
-    const [languageId, setLanguageId] = useState(DEFAULT_LANGUAGE_ID);
+    const [languageId, setLanguageId] = useState(
+        problem.domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID
+    );
 
     // Load language from localStorage after hydration (client-side only)
     useEffect(() => {
-        const storedLanguageId = getStoredLanguageId();
-        if (storedLanguageId !== DEFAULT_LANGUAGE_ID) {
-            setLanguageId(storedLanguageId);
+        const storedLanguageId = getStoredLanguageId(problem.domain);
+        // For SQL problems, always use SQL language
+        const finalLanguageId = problem.domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
+        if (finalLanguageId !== languageId) {
+            setLanguageId(finalLanguageId);
             // Clear default boilerplate if we are switching languages on load
             setCode("");
         }
-    }, []);
+    }, [problem.domain]);
 
     // Handle language change and persist to localStorage
     const handleLanguageChange = (newLanguageId: number) => {
+        // For SQL problems, always use SQL language - don't allow changes
+        if (problem.domain === "SQL") {
+            return; // Prevent language changes for SQL problems
+        }
+        
         setLanguageId(newLanguageId);
         setCode(""); // Clear code to prevent stale submissions while new draft loads
         try {
@@ -155,6 +175,8 @@ export default function Workspace({ problem }: WorkspaceProps) {
                             });
                             if (mode === "SUBMIT") {
                                 setActiveTab("submissions");
+                                // Dispatch custom event to refresh user points
+                                window.dispatchEvent(new CustomEvent("pointsUpdated"));
                             }
                         } else {
                             toast.error(`Result: ${data.status}`);
@@ -218,12 +240,13 @@ export default function Workspace({ problem }: WorkspaceProps) {
                         >
                             <div className="h-full overflow-hidden">
                                 <CodeEditor
-                                    key={languageId} // Force remount on language change
+                                    key={`${problem.id}-${languageId}`} // Stable key: remount only when problem or language changes
                                     value={code}
                                     onChange={(value) => setCode(value || "")}
                                     languageId={languageId}
                                     onLanguageChange={handleLanguageChange}
                                     problemId={problem.id}
+                                    domain={problem.domain}
                                 />
                             </div>
                             <div className="h-full overflow-hidden">

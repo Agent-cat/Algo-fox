@@ -49,12 +49,14 @@ model Problem {
   title       String
   description String
 
-  hidden     Boolean     @default(true)
-  slug       String      @unique
-  score      Int
-  solved     Int?        @default(0)
-  difficulty Difficulty  @default(EASY)
-  type       ProblemType @default(PRACTICE)
+  hidden        Boolean       @default(true)
+  slug          String        @unique
+  score         Int
+  solved        Int?          @default(0)
+  difficulty    Difficulty    @default(EASY)
+  type          ProblemType   @default(PRACTICE)
+  domain        ProblemDomain @default(DSA)
+  hiddenQuery String?
 
   // contestSubmissions ContestSubmission[]
   // contestProblems    ContestProblem[]
@@ -73,6 +75,7 @@ model Problem {
   @@index([createdAt])
   @@index([type, hidden]) // filter by type
   @@index([type, hidden, createdAt]) // Optimized for filtered sorting
+  @@index([domain, type, hidden]) // filter by domain and type
 }
 
 model ProblemTestCase {
@@ -246,11 +249,12 @@ enum TestCaseResult {
 }
 
 model Category {
-  id          String  @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
   description String?
-  slug        String  @unique
-  order       Int     @default(0)
+  slug        String        @unique
+  order       Int           @default(0)
+  domain      ProblemDomain @default(DSA)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -259,6 +263,7 @@ model Category {
 
   @@index([order])
   @@index([slug])
+  @@index([domain, order]) // filter by domain
 }
 
 model CategoryProblem {
@@ -281,4 +286,9 @@ model CategoryProblem {
 enum ProblemType {
   PRACTICE
   LEARN
+}
+
+enum ProblemDomain {
+  DSA
+  SQL
 }

@@ -5,8 +5,10 @@ import { AlignLeft, RotateCcw, Maximize2, ChevronDown, Loader2 } from 'lucide-re
 import { getCodeDraft, saveCodeDraft } from '@/lib/db';
 import { toast } from 'sonner';
 import { LANGUAGES, getLanguageById, DEFAULT_LANGUAGE_ID } from '@/lib/languages';
+import { ProblemDomain } from '@prisma/client';
 
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
+const SQL_LANGUAGE_ID = 82; // SQL language ID
 
 interface CodeEditorProps {
     onChange: (value: string | undefined) => void;
@@ -15,6 +17,7 @@ interface CodeEditorProps {
     value?: string;
     languageId?: number;
     problemId?: string;
+    domain?: ProblemDomain;
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -25,22 +28,54 @@ export default function CodeEditor({
     defaultValue,
     value: controlledValue,
     languageId = DEFAULT_LANGUAGE_ID,
-    problemId
+    problemId,
+    domain
 }: CodeEditorProps) {
+    // Filter languages based on domain: SQL problems only show SQL language
+    const availableLanguages = domain === "SQL" 
+        ? LANGUAGES.filter(lang => lang.id === SQL_LANGUAGE_ID)
+        : LANGUAGES.filter(lang => lang.id !== SQL_LANGUAGE_ID);
+    
+    // For SQL problems, default to SQL language
+    const effectiveLanguageId = domain === "SQL" 
+        ? (languageId === SQL_LANGUAGE_ID ? languageId : SQL_LANGUAGE_ID)
+        : languageId;
+    
     // We rely on the parent key={languageId} to remount this component when language changes
     // sc so we can use languageId prop directly.
-    const currentLanguage = getLanguageById(languageId) || LANGUAGES[0];
+    const currentLanguage = getLanguageById(effectiveLanguageId) || availableLanguages[0];
 
-    // Initialize code state with boilerplate - will be replaced by useEffect when code is loaded
-    const [code, setCode] = useState(defaultValue || currentLanguage.boilerplate);
+    // Initialize code state - empty for SQL, boilerplate for others
+    const initialCode = domain === "SQL" 
+        ? (defaultValue || "")
+        : (defaultValue || currentLanguage.boilerplate);
+    const [code, setCode] = useState(initialCode);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const editorRef = React.useRef<any>(null);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isRestoring, setIsRestoring] = useState(false);
     // Initialize loading state: if we have a problemId, we are loading.
-    const [isLoading, setIsLoading] = useState(!!problemId);
+    // For SQL, we can skip loading since we start with empty code
+    const [isLoading, setIsLoading] = useState(!!problemId && domain !== "SQL");
     const [isSaving, setIsSaving] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Suppress Monaco Editor cancellation errors (they're harmless)
+    useEffect(() => {
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            // Suppress "Canceled" errors from Monaco Editor disposal
+            if (event.reason?.message === 'Canceled' || 
+                event.reason?.toString()?.includes('Canceled')) {
+                event.preventDefault();
+                return;
+            }
+        };
+
+        window.addEventListener('unhandledrejection', handleUnhandledRejection);
+        return () => {
+            window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        };
+    }, []);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -59,14 +94,22 @@ export default function CodeEditor({
     // LOAD SAVED CODE
     useEffect(() => {
         if (!problemId) {
-            // If no problemId, just set boilerplate for current language
-            const lang = getLanguageById(languageId);
-            const langBoilerplate = lang?.boilerplate || LANGUAGES[0].boilerplate;
+            // If no problemId, set code based on domain
+            if (domain === "SQL") {
+                setCode("");
+                if (editorRef.current) {
+                    editorRef.current.setValue("");
+                }
+                onChange("");
+            } else {
+                const lang = getLanguageById(effectiveLanguageId);
+                const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
             setCode(langBoilerplate);
             if (editorRef.current) {
                 editorRef.current.setValue(langBoilerplate);
             }
             onChange(langBoilerplate);
+            }
             return;
         }
 
@@ -74,28 +117,73 @@ export default function CodeEditor({
         let cancelled = false;
 
         async function loadDraft(retryCount = 0) {
+            // For SQL, if no saved code, just set empty and return immediately
+            if (domain === "SQL" && retryCount === 0) {
+                try {
+                    setIsLoading(true);
+                    const savedCode = await getCodeDraft(problemId!, effectiveLanguageId);
+                    if (!isMounted || cancelled) {
+                        setIsLoading(false);
+                        return;
+                    }
+                    const codeToSet = savedCode || "";
+                    setCode(codeToSet);
+                    if (editorRef.current) {
+                        editorRef.current.setValue(codeToSet);
+                    }
+                    onChange(codeToSet);
+                    setIsLoading(false);
+                    return;
+                } catch (error) {
+                    console.error("Failed to load code draft:", error);
+                    if (isMounted && !cancelled) {
+                        setCode("");
+                        if (editorRef.current) {
+                            editorRef.current.setValue("");
+                        }
+                        onChange("");
+                        setIsLoading(false);
+                    }
+                    return;
+                }
+            }
+
             try {
                 // If this is a retry, or initial load, ensure loading state is set (though it should be true from init)
                 if (retryCount === 0) setIsLoading(true);
                 setIsRestoring(true);
 
-                const savedCode = await getCodeDraft(problemId!, languageId);
+                const savedCode = await getCodeDraft(problemId!, effectiveLanguageId);
 
                 // Check if component is still mounted and effect hasn't been cancelled
-                if (!isMounted || cancelled) return;
+                if (!isMounted || cancelled) {
+                    setIsLoading(false);
+                    setIsRestoring(false);
+                    return;
+                }
 
                 // If not found and this is the first attempt, try once more after a delay
                 // This handles potential DB initialization race conditions
                 if (!savedCode && retryCount === 0) {
                     await new Promise(resolve => setTimeout(resolve, 200));
-                    if (!isMounted || cancelled) return;
+                    if (!isMounted || cancelled) {
+                        setIsLoading(false);
+                        setIsRestoring(false);
+                        return;
+                    }
                     return loadDraft(1);
                 }
 
-                const lang = getLanguageById(languageId);
-                const langBoilerplate = lang?.boilerplate || LANGUAGES[0].boilerplate;
-
-                const codeToSet = savedCode || langBoilerplate;
+                // For SQL, use empty string if no saved code; for others, use boilerplate
+                let codeToSet: string;
+                if (domain === "SQL") {
+                    codeToSet = savedCode || "";
+                } else {
+                    const lang = getLanguageById(effectiveLanguageId);
+                    const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
+                    codeToSet = savedCode || langBoilerplate;
+                }
+                
                 setCode(codeToSet);
 
                 if (editorRef.current) {
@@ -104,15 +192,27 @@ export default function CodeEditor({
                 onChange(codeToSet);
             } catch (error) {
                 console.error("Failed to load code draft:", error);
-                if (!isMounted || cancelled) return;
-                // On error, set boilerplate
-                const lang = getLanguageById(languageId);
-                const langBoilerplate = lang?.boilerplate || LANGUAGES[0].boilerplate;
+                if (!isMounted || cancelled) {
+                    setIsLoading(false);
+                    setIsRestoring(false);
+                    return;
+                }
+                // On error, set empty for SQL, boilerplate for others
+                if (domain === "SQL") {
+                    setCode("");
+                    if (editorRef.current) {
+                        editorRef.current.setValue("");
+                    }
+                    onChange("");
+                } else {
+                    const lang = getLanguageById(effectiveLanguageId);
+                    const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
                 setCode(langBoilerplate);
                 if (editorRef.current) {
                     editorRef.current.setValue(langBoilerplate);
                 }
                 onChange(langBoilerplate);
+                }
             } finally {
                 if (isMounted && !cancelled) {
                     setIsRestoring(false);
@@ -128,7 +228,7 @@ export default function CodeEditor({
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [problemId, languageId]); // languageId dependency is technically static due to key prop, but kept for correctness
+    }, [problemId, effectiveLanguageId]); // Removed availableLanguages from deps to prevent unnecessary re-renders
 
     // HANDLE AUTOSAVE
     const debouncedSave = (value: string) => {
@@ -143,7 +243,7 @@ export default function CodeEditor({
             try {
                 // Save to DB and wait for at least 500ms to show the spinner
                 await Promise.all([
-                    saveCodeDraft(problemId, languageId, value),
+                    saveCodeDraft(problemId, effectiveLanguageId, value),
                     new Promise(resolve => setTimeout(resolve, 500))
                 ]);
             } catch (err) {
@@ -156,7 +256,7 @@ export default function CodeEditor({
 
     const handleLanguageChange = (newLanguageId: number) => {
         // Don't change if it's the same language
-        if (newLanguageId === languageId) {
+        if (newLanguageId === effectiveLanguageId) {
             setIsDropdownOpen(false);
             return;
         }
@@ -176,6 +276,25 @@ export default function CodeEditor({
         }
     };
 
+    // Cleanup editor on unmount
+    useEffect(() => {
+        return () => {
+            if (editorRef.current) {
+                try {
+                    // Dispose editor properly to avoid cancellation errors
+                    const editor = editorRef.current;
+                    if (editor.dispose) {
+                        editor.dispose();
+                    }
+                    editorRef.current = null;
+                } catch (error) {
+                    // Ignore disposal errors (editor might already be disposed)
+                    console.debug('Editor disposal error (safe to ignore):', error);
+                }
+            }
+        };
+    }, []);
+
     const handleFormat = () => {
         if (editorRef.current) {
             editorRef.current.getAction('editor.action.formatDocument').run();
@@ -183,17 +302,17 @@ export default function CodeEditor({
     };
 
     const handleReset = () => {
-        const lang = getLanguageById(languageId);
-        const boilerplate = lang?.boilerplate || LANGUAGES[0].boilerplate;
-        setCode(boilerplate);
-        onChange(boilerplate);
+        // For SQL, reset to empty; for others, reset to boilerplate
+        const resetCode = domain === "SQL" ? "" : (getLanguageById(effectiveLanguageId)?.boilerplate || availableLanguages[0].boilerplate);
+        setCode(resetCode);
+        onChange(resetCode);
         if (editorRef.current) {
-            editorRef.current.setValue(boilerplate);
+            editorRef.current.setValue(resetCode);
         }
 
         if (problemId) {
-            // Overwrite draft immediately with boilerplate code
-            saveCodeDraft(problemId, languageId, boilerplate).then(() => {
+            // Overwrite draft immediately with reset code
+            saveCodeDraft(problemId, effectiveLanguageId, resetCode).then(() => {
                 toast.success("Code reset to default");
             });
         }
@@ -223,11 +342,11 @@ export default function CodeEditor({
                         </button>
                         {isDropdownOpen && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[120px]">
-                                {LANGUAGES.map((lang) => (
+                                {availableLanguages.map((lang) => (
                                     <button
                                         key={lang.id}
                                         onClick={() => handleLanguageChange(lang.id)}
-                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 transition-colors first:rounded-t-lg last:rounded-b-lg ${languageId === lang.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
+                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 transition-colors first:rounded-t-lg last:rounded-b-lg ${effectiveLanguageId === lang.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
                                             }`}
                                     >
                                         {lang.name}
@@ -302,6 +421,7 @@ export default function CodeEditor({
                             automaticLayout: true,
                             padding: { top: 16 },
                         }}
+                        loading={<div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 text-orange-500 animate-spin" /></div>}
                     />
                 )}
             </div>

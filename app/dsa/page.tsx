@@ -7,8 +7,8 @@ export const metadata = {
 };
 
 export default async function DsaProblemsPage() {
-    // FETCHING PRACTICE MODE, PAGE 1
-    const { problems, totalPages } = await getProblems(1, 10, "PRACTICE");
+    // FETCHING PRACTICE MODE, PAGE 1 FOR DSA DOMAIN
+    const { problems, totalPages } = await getProblems(1, 10, "PRACTICE", "DSA");
 
     return (
         <DsaProblemsClient

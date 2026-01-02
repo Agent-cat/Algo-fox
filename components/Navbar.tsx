@@ -5,6 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import UserPoints from "./UserPoints";
 
 export default function Navbar() {
     const { data: session, isPending } = authClient.useSession();
@@ -12,7 +13,7 @@ export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
 
-    const isWorkspace = pathname?.startsWith("/problems/") && !["/problems", "/problems/dsa"].includes(pathname || "");
+    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
 
     if (isWorkspace) {
         return null;
@@ -47,6 +48,7 @@ export default function Navbar() {
                                     <Link href="/problems" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
                                         Problems
                                     </Link>
+                                    <div className="flex items-center gap-6">
                                     <div className="relative group">
                                         <button className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
                                             <span className="text-sm font-semibold text-gray-700">{session.user.name}</span>
@@ -76,6 +78,8 @@ export default function Navbar() {
                                                 Sign Out
                                             </button>
                                         </div>
+                                        </div>
+                                        <UserPoints />
                                     </div>
                                 </div>
                             ) : (
@@ -123,10 +127,11 @@ export default function Navbar() {
                                             session.user.name?.charAt(0).toUpperCase()
                                         )}
                                     </div>
-                                    <div>
+                                    <div className="flex-1">
                                         <p className="font-semibold">{session.user.name}</p>
                                         <p className="text-xs text-gray-500">{session.user.email}</p>
                                     </div>
+                                    <UserPoints />
                                 </div>
                                 <Link href="/dashboard" className="text-base font-medium text-gray-800 hover:text-orange-600">Dashboard</Link>
                                 <Link href="/problems" className="text-base font-medium text-gray-800 hover:text-orange-600">Problems</Link>

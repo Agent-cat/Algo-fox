@@ -88,10 +88,23 @@ const worker = new Worker(
                 return;
             }
 
+            // For SQL problems, prepend hiddenQuery and convert to SQLite
+            let codeToExecute = code;
+            if (problem.domain === "SQL") {
+                // Prepend hiddenQuery if exists
+                if (problem.hiddenQuery) {
+                    codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
+                }
+                
+                // Convert SQL to SQLite-compatible syntax
+                const { convertBatchToSQLite } = await import("@/lib/sql-converter");
+                codeToExecute = convertBatchToSQLite(codeToExecute);
+            }
+
             // 2. Send Batch to Judge0
             const judge0Tokens = await SubmissionService.sendToJudge0(
                 language.judge0Id,
-                code,
+                codeToExecute,
                 testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
             );
 
@@ -234,7 +247,8 @@ const worker = new Worker(
                 const avgTime = totalTime / testCaseRecords.length;
                 await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
 
-                if (finalStatus === "ACCEPTED") {
+                // Only award points for SUBMIT mode and only on first accepted solution
+                if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
                     await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
                 }
             } else {

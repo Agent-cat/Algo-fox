@@ -6,7 +6,7 @@ import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "./practice/PracticeClient";
 import LearnMode from "./learn/LearnMode";
 import { SearchBar } from "./shared/SearchBar";
-import { Category, Difficulty, ProblemType } from "@prisma/client";
+import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 
 type ProblemWithStats = {
@@ -50,7 +50,7 @@ export default function DsaProblemsClient({
             const fetchCategories = async () => {
                 setIsCategoriesLoading(true);
                 try {
-                    const res = await getCategories();
+                    const res = await getCategories("DSA");
                     setCategories(res.categories);
                     setHasFetchedCategories(true);
                 } catch (error) {
@@ -95,6 +95,7 @@ export default function DsaProblemsClient({
                         initialProblems={initialProblems}
                         initialTotalPages={initialTotalPages}
                         searchTerm={searchTerm}
+                        domain="DSA"
                     />
                 ) : (
                     <LearnMode

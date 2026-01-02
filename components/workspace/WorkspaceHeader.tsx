@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import UserPoints from "@/components/UserPoints";
 
 interface WorkspaceHeaderProps {
   onSubmit: () => void;
@@ -67,7 +68,7 @@ export default function WorkspaceHeader({ onSubmit, onRun, isSubmitting, isRunni
 
         <div className="hidden md:flex items-center gap-2">
           <Link
-            href="/problems/dsa"
+            href="/dsa"
             className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1"
           >
             <span className="sr-only">List</span>
@@ -122,14 +123,16 @@ export default function WorkspaceHeader({ onSubmit, onRun, isSubmitting, isRunni
         </button>
 
         {session ? (
-          <div className="relative" ref={profileRef}>
-            <button
-              onClick={() => setProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
-            >
-              <span className="text-sm font-semibold text-gray-700 hidden md:block">
-                {session.user.name}
-              </span>
+          <>
+            <div className="flex items-center gap-4">
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+                >
+                  <span className="text-sm font-semibold text-gray-700 hidden md:block">
+                    {session.user.name}
+                  </span>
               <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs ring-offset-1">
                 {session.user.image ? (
                   <img
@@ -177,7 +180,10 @@ export default function WorkspaceHeader({ onSubmit, onRun, isSubmitting, isRunni
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+            </div>
+            <UserPoints className="hidden md:flex" />
+            </div>
+          </>
         ) : (
           <Link
             href="/signin"

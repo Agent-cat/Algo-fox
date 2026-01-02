@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Difficulty, Role, ProblemType } from "@prisma/client";
+import { Difficulty, Role, ProblemType, ProblemDomain } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -13,12 +13,12 @@ const CACHE_TTL = 300; // 5 minutes
 
 // CACHE KEY HELPERS
 
-const getProblemsCacheKey = (type: ProblemType, page: number) =>
-    `problems:list:${type}:page:${page}`;
+const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number) =>
+    `problems:list:${domain}:${type}:page:${page}`;
 
 // CACHED FETCHER FOR PUBLIC PROBLEM LIST
 
-const getCachedProblems = async (page: number, pageSize: number, type: ProblemType) => {
+const getCachedProblems = async (page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA") => {
     return unstable_cache(
         async () => {
             const skip = (page - 1) * pageSize;
@@ -26,6 +26,7 @@ const getCachedProblems = async (page: number, pageSize: number, type: ProblemTy
                 prisma.problem.findMany({
                     where: {
                         type,
+                        domain,
                         hidden: false
                     },
                     skip,
@@ -48,14 +49,18 @@ const getCachedProblems = async (page: number, pageSize: number, type: ProblemTy
                 prisma.problem.count({
                     where: {
                         type,
+                        domain,
                         hidden: false
                     }
                 })
             ]);
             return { problems, total };
         },
-        [getProblemsCacheKey(type, page), 'problems-list'],
-        { revalidate: CACHE_TTL, tags: ['problems-list'] }
+        [getProblemsCacheKey(type, domain, page), 'problems-list', `problems-${domain}-${type}`],
+        { 
+            revalidate: CACHE_TTL, 
+            tags: ['problems-list', `problems-${domain}-${type}`] 
+        }
     )();
 };
 
@@ -64,7 +69,8 @@ const getCachedProblems = async (page: number, pageSize: number, type: ProblemTy
 export async function getProblems(
     page: number = 1,
     pageSize: number = 10,
-    type: ProblemType = "PRACTICE"
+    type: ProblemType = "PRACTICE",
+    domain: ProblemDomain = "DSA"
 ) {
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -73,7 +79,7 @@ export async function getProblems(
     const userId = session?.user?.id;
 
     // FETCHING PUBLIC DATA (CACHED)
-    const { problems, total } = await getCachedProblems(page, pageSize, type);
+    const { problems, total } = await getCachedProblems(page, pageSize, type, domain);
 
     // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
     let solvedSet = new Set<string>();
@@ -116,7 +122,8 @@ export async function getProblems(
 
 export async function getAdminProblems(
     page: number = 1,
-    pageSize: number = 50
+    pageSize: number = 50,
+    domain?: ProblemDomain
 ) {
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -130,8 +137,10 @@ export async function getAdminProblems(
     return unstable_cache(
         async () => {
             const skip = (page - 1) * pageSize;
+            const where = domain ? { domain } : {};
             const [problems, total] = await Promise.all([
                 prisma.problem.findMany({
+                    where,
                     skip,
                     take: pageSize,
                     orderBy: { createdAt: 'desc' },
@@ -143,11 +152,12 @@ export async function getAdminProblems(
                         hidden: true,
                         score: true,
                         type: true,
+                        domain: true,
                         createdAt: true,
                         updatedAt: true,
                     }
                 }),
-                prisma.problem.count()
+                prisma.problem.count({ where })
             ]);
 
             return {
@@ -157,7 +167,7 @@ export async function getAdminProblems(
                 total
             };
         },
-        [`admin:problems:page:${page}`],
+        [`admin:problems:${domain || 'all'}:page:${page}`],
         { revalidate: 300, tags: ['admin-problems-list'] }
     )();
 }
@@ -166,7 +176,8 @@ export async function getAdminProblems(
 
 export async function searchProblems(
     term: string,
-    type: ProblemType = "PRACTICE"
+    type: ProblemType = "PRACTICE",
+    domain: ProblemDomain = "DSA"
 ) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -176,6 +187,7 @@ export async function searchProblems(
     const problems = await prisma.problem.findMany({
         where: {
             type,
+            domain,
             hidden: false,
             title: {
                 contains: term,
@@ -260,6 +272,8 @@ export async function createProblem(data: {
     difficulty: Difficulty;
     slug: string;
     hidden: boolean;
+    hiddenQuery?: string | null;
+    domain?: ProblemDomain;
     testCases: { input: string; output: string; hidden?: boolean }[];
 }) {
     const session = await auth.api.getSession({
@@ -279,6 +293,8 @@ export async function createProblem(data: {
                 slug: data.slug,
                 score: 10,
                 hidden: data.hidden,
+                hiddenQuery: data.hiddenQuery || null,
+                domain: data.domain || "DSA",
                 testCases: {
                     create: data.testCases.map(tc => ({
                         input: tc.input,
@@ -290,11 +306,20 @@ export async function createProblem(data: {
         });
 
         revalidatePath("/problems");
-        revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
+        revalidatePath("/sql");
         revalidatePath("/admin/problems");
-        revalidatePath("/admin/problems");
+        revalidatePath("/admin/dsa/problems");
+        revalidatePath("/admin/sql/problems");
+        
         // @ts-expect-error - Next.js type mismatch: expected 2 arguments
         revalidateTag('admin-problems-list');
+        // @ts-expect-error - Next.js type mismatch
+        revalidateTag('problems-list');
+        // @ts-expect-error - Next.js type mismatch - Invalidate domain-specific caches
+        revalidateTag('problems-SQL-PRACTICE');
+        // @ts-expect-error - Next.js type mismatch
+        revalidateTag('problems-DSA-PRACTICE');
 
         // INVALIDATING THE CACHE
         const cachePattern = "problems:*";
@@ -363,10 +388,18 @@ export async function updateProblem(id: string, data: any) {
         });
 
         revalidatePath("/problems");
-        revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
+        revalidatePath("/sql");
         revalidatePath(`/admin/problems`);
+        revalidatePath("/admin/dsa/problems");
+        revalidatePath("/admin/sql/problems");
+        
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('admin-problems-list');
+        // @ts-expect-error - Next.js type mismatch
+        revalidateTag('problems-list');
+        // @ts-expect-error - Next.js type mismatch - Invalidate domain-specific caches
+        revalidateTag(`problems-${problem.domain || 'DSA'}-${problem.type || 'PRACTICE'}`);
         // @ts-expect-error - Next.js type mismatch
         revalidateTag(`problem-${problem.slug}`);
 
@@ -403,11 +436,16 @@ export async function deleteProblem(id: string) {
             where: { id }
         });
         revalidatePath("/problems");
-        revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
+        revalidatePath("/sql");
         revalidatePath(`/admin/problems`);
+        revalidatePath("/admin/dsa/problems");
+        revalidatePath("/admin/sql/problems");
 
         // @ts-expect-error - Next.js type mismatch
         revalidateTag('admin-problems-list');
+        // @ts-expect-error - Next.js type mismatch
+        revalidateTag('problems-list');
 
         // INVALIDATING THE CACHE
         const cachePattern = "problems:*";

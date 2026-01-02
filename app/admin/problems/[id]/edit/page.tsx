@@ -60,10 +60,12 @@ export default function EditProblemPage() {
                         description: problem.description,
                         difficulty: problem.difficulty as Difficulty,
                         hidden: problem.hidden,
+                        hiddenQuery: problem.hiddenQuery || null,
                         testCases: problem.testCases || []
                     }}
                     onSubmit={(data) => updateProblem(id, data)}
                     submitLabel="Save Changes"
+                    domain={problem.domain || "DSA"}
                 />
             </div>
         </div>

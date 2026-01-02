@@ -1,16 +1,18 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { ProblemDomain, Difficulty } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
 
 const CACHE_TTL = 300; // 5 minutes
 
 // CACHE KEY HELPERS
 
-const getCategoriesCacheKey = () => "categories:all";
+const getCategoriesCacheKey = (domain?: ProblemDomain) => 
+  domain ? `categories:${domain}:all` : "categories:all";
 const getCategoryCacheKey = (slug: string) => `category:${slug}`;
 const getCategoryProblemsCacheKey = (categoryId: string, page: number) =>
   `category:${categoryId}:problems:page:${page}`;
@@ -18,7 +20,7 @@ const getCategoryProblemsCacheKey = (categoryId: string, page: number) =>
 
 // GETTING ALL CATEGORIES
 
-export async function getCategories() {
+export async function getCategories(domain: ProblemDomain = "DSA") {
   try {
     const session = await auth.api.getSession({
       headers: await headers()
@@ -27,7 +29,7 @@ export async function getCategories() {
 
     // ONLY CACHING THE BASE CATEGORIES STRUCTURE, NOT USER-SPECIFIC SOLVED COUNTS
 
-    const cacheKey = getCategoriesCacheKey();
+    const cacheKey = getCategoriesCacheKey(domain);
     let categories;
 
     // GETTING CACHE FOR BASE CATEGORIES
@@ -37,6 +39,9 @@ export async function getCategories() {
       categories = JSON.parse(cached).categories;
     } else {
       categories = await prisma.category.findMany({
+        where: {
+          domain
+        },
         orderBy: { order: "asc" },
         select: {
           id: true,
@@ -44,6 +49,7 @@ export async function getCategories() {
           description: true,
           slug: true,
           order: true,
+          domain: true,
           _count: {
             select: { categoryProblems: true }
           }
@@ -309,6 +315,7 @@ export async function createCategory(data: {
   description?: string;
   slug: string;
   order?: number;
+  domain?: ProblemDomain;
 }) {
 
 
@@ -332,16 +339,18 @@ export async function createCategory(data: {
         name: data.name,
         description: data.description,
         slug: data.slug,
-        order: data.order ?? 0
+        order: data.order ?? 0,
+        domain: data.domain || "DSA"
       }
     });
 
     // INVALIDATING THE CACHE
 
     await redis.del(getCategoriesCacheKey());
+    await redis.del(getCategoriesCacheKey(category.domain));
 
     // REVALIDATING THE PATHS
-    revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
     revalidatePath("/admin/categories");
 
     // RETURNING THE SUCCESS AND THE CATEGORY
@@ -382,7 +391,7 @@ export async function updateCategory(id: string, data: { name?: string; descript
 
     // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
 
-    revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
     revalidatePath("/admin/categories");
 
     return { success: true, category };
@@ -425,7 +434,7 @@ export async function deleteCategory(id: string) {
 
     // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
 
-    revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
     revalidatePath("/admin/categories");
 
     return { success: true };
@@ -453,12 +462,24 @@ export async function addProblemToCategory(
   }
 
   try {
+    // GETTING THE CATEGORY TO GET ITS DOMAIN
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { domain: true, slug: true }
+    });
+
+    if (!category) {
+      return { success: false, error: "Category not found" };
+    }
     
-    // UPDATING THE PROBLEM TO BE OF TYPE LEARN
+    // UPDATING THE PROBLEM TO BE OF TYPE LEARN AND MATCH CATEGORY DOMAIN
 
     await prisma.problem.update({
       where: { id: problemId },
-      data: { type: "LEARN" }
+      data: { 
+        type: "LEARN",
+        domain: category.domain
+      }
     });
 
     // CREATING THE CATEGORY PROBLEM
@@ -482,9 +503,13 @@ export async function addProblemToCategory(
       await redis.del(...keys);
     }
     await redis.del(getCategoryCacheKey(categoryProblem.category.slug));
+    await redis.del(getCategoriesCacheKey(category.domain));
 
-    revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
+        revalidatePath("/sql");
     revalidatePath(`/admin/categories/${categoryId}`);
+    revalidatePath(`/admin/dsa/categories/${categoryId}`);
+    revalidatePath(`/admin/sql/categories/${categoryId}`);
 
     return { success: true, categoryProblem };
   } catch (error: any) {
@@ -534,13 +559,119 @@ export async function removeProblemFromCategory(
       await redis.del(...keys);
     }
 
-    revalidatePath("/problems/dsa");
+        revalidatePath("/dsa");
     revalidatePath(`/admin/categories/${categoryId}`);
 
     return { success: true };
   } catch (error) {
     console.error("Failed to remove problem from category:", error);
     return { success: false, error: "Failed to remove problem from category" };
+  }
+}
+
+// CREATING A PROBLEM AND ADDING IT TO A CATEGORY --> ADMIN ONLY
+
+export async function createProblemAndAddToCategory(
+  categoryId: string,
+  data: {
+    title: string;
+    description: string;
+    difficulty: Difficulty;
+    slug: string;
+    hidden: boolean;
+    hiddenQuery?: string | null;
+    testCases: { input: string; output: string; hidden?: boolean }[];
+  }
+) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    // GETTING THE CATEGORY TO GET ITS DOMAIN
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+      select: { domain: true, slug: true }
+    });
+
+    if (!category) {
+      return { success: false, error: "Category not found" };
+    }
+
+    // CREATING THE PROBLEM AS TYPE LEARN WITH CATEGORY DOMAIN
+    const problem = await prisma.problem.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        difficulty: data.difficulty,
+        slug: data.slug,
+        score: 10,
+        hidden: data.hidden,
+        hiddenQuery: data.hiddenQuery || null,
+        type: "LEARN",
+        domain: category.domain,
+        testCases: {
+          create: data.testCases.map(tc => ({
+            input: tc.input,
+            output: tc.output,
+            hidden: tc.hidden ?? false
+          }))
+        }
+      },
+    });
+
+    // ADDING THE PROBLEM TO THE CATEGORY
+    await prisma.categoryProblem.create({
+      data: {
+        categoryId,
+        problemId: problem.id,
+        order: 0
+      }
+    });
+
+    // INVALIDATING THE CACHE
+    const cachePattern = `category:${categoryId}:problems:*`;
+    const keys = await redis.keys(cachePattern);
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+    await redis.del(getCategoryCacheKey(category.slug));
+    await redis.del(getCategoriesCacheKey(category.domain));
+
+    // INVALIDATING PROBLEM CACHES
+    const problemCachePattern = "problems:*";
+    const problemKeys = await redis.keys(problemCachePattern);
+    if (problemKeys.length > 0) {
+      await redis.del(...problemKeys);
+    }
+
+    revalidatePath("/dsa");
+    revalidatePath("/sql");
+    revalidatePath(`/admin/categories/${categoryId}`);
+    revalidatePath(`/admin/dsa/categories/${categoryId}`);
+    revalidatePath(`/admin/sql/categories/${categoryId}`);
+    revalidatePath("/admin/problems");
+    revalidatePath("/admin/dsa/problems");
+    revalidatePath("/admin/sql/problems");
+    
+    // @ts-expect-error - Next.js type mismatch
+    revalidateTag('admin-problems-list');
+    // @ts-expect-error - Next.js type mismatch
+    revalidateTag('problems-list');
+    // @ts-expect-error - Next.js type mismatch
+    revalidateTag(`problems-${category.domain}-LEARN`);
+
+    return { success: true, problem };
+  } catch (error: any) {
+    console.error("Failed to create problem and add to category:", error);
+    if (error.code === "P2002") {
+      return { success: false, error: "Problem slug already exists" };
+    }
+    return { success: false, error: error.message || "Failed to create problem and add to category" };
   }
 }
 

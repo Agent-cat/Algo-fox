@@ -61,7 +61,8 @@ export async function getLeaderboardData() {
             // Option 2: Compute stats for only the top 100 users (acceptable).
             submissions: {
                 where: {
-                    status: SubmissionResult.ACCEPTED
+                    status: SubmissionResult.ACCEPTED,
+                    mode: "SUBMIT" as const
                 },
                 select: {
                     problem: {

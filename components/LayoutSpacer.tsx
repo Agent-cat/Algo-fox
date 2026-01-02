@@ -6,7 +6,7 @@ export default function LayoutSpacer({ children }: { children: React.ReactNode }
     const pathname = usePathname();
 
     // Logic must match Navbar/Breadcrumbs: Identify workspace pages where Navbar is hidden
-    const isWorkspace = pathname?.startsWith("/problems/") && !["/problems", "/problems/dsa"].includes(pathname || "");
+    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
 
     // If on a workspace page (Navbar hidden), don't add top padding.
     // If normally navigating (Navbar visible), add padding to account for fixed Navbar.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Difficulty } from "@prisma/client";
+import { Difficulty, ProblemDomain } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
@@ -13,19 +13,26 @@ interface ProblemFormProps {
         description: string;
         difficulty: Difficulty;
         hidden: boolean;
+        hiddenQuery?: string | null;
         testCases: { input: string; output: string; hidden?: boolean }[];
     };
     onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
     submitLabel: string;
+    domain?: ProblemDomain;
+    redirectPath?: string;
 }
 
-export default function ProblemForm({ initialData, onSubmit, submitLabel }: ProblemFormProps) {
+export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath }: ProblemFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [testCases, setTestCases] = useState<{ input: string; output: string; hidden?: boolean }[]>(
         initialData?.testCases || []
     );
-    const [hidden, setHidden] = useState(initialData?.hidden ?? true);
+    // Default to visible for new problems, preserve existing state for edits
+    // For DSA domain, always set hidden to false (always visible)
+    const [hidden, setHidden] = useState(
+        domain === "DSA" ? false : (initialData?.hidden ?? false)
+    );
 
     // Form fields state
     const [formData, setFormData] = useState({
@@ -34,6 +41,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
         difficulty: initialData?.difficulty || "EASY",
         description: initialData?.description || ""
     });
+
+    // hiddenQuery state (only for SQL domain)
+    const [hiddenQuery, setHiddenQuery] = useState(initialData?.hiddenQuery || "");
 
     const router = useRouter();
 
@@ -84,7 +94,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
         const data = {
             ...formData,
             difficulty: formData.difficulty as Difficulty,
-            hidden,
+            hidden: domain === "DSA" ? false : hidden, // Always visible for DSA
+            hiddenQuery: domain === "SQL" ? (hiddenQuery.trim() || null) : null, // Only for SQL
+            domain,
             testCases,
         };
 
@@ -92,8 +104,12 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
 
         if (res.success) {
             toast.success("Saved successfully");
-            router.push("/admin/problems");
-            router.refresh();
+            // Only redirect if redirectPath is explicitly provided (not undefined)
+            if (redirectPath !== undefined) {
+                router.push(redirectPath || "/admin/problems");
+                router.refresh();
+            }
+            // If redirectPath is undefined, parent component handles navigation
         } else {
             toast.error(res.error || "Something went wrong");
         }
@@ -148,7 +164,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className={`grid gap-6 ${domain === "SQL" ? "grid-cols-2" : "grid-cols-1"}`}>
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700">Difficulty</label>
                                 <select
@@ -161,19 +177,21 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
                                     <option value="HARD">Hard</option>
                                 </select>
                             </div>
-                            <div className="space-y-2 flex flex-col justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => setHidden(!hidden)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors border ${hidden
-                                        ? "bg-gray-50 text-gray-600 border-gray-200"
-                                        : "bg-green-50 text-green-700 border-green-200"
-                                        }`}
-                                >
-                                    {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    {hidden ? "Hidden Problem" : "Visible Problem"}
-                                </button>
-                            </div>
+                            {domain === "SQL" && (
+                                <div className="space-y-2 flex flex-col justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => setHidden(!hidden)}
+                                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors border ${hidden
+                                            ? "bg-gray-50 text-gray-600 border-gray-200"
+                                            : "bg-green-50 text-green-700 border-green-200"
+                                            }`}
+                                    >
+                                        {hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        {hidden ? "Hidden Problem" : "Visible Problem"}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -189,6 +207,25 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel }: Prob
                             placeholder="# Problem Description..."
                             className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all font-mono text-sm leading-relaxed text-gray-900"
                         />
+                        
+                        {/* Hidden Query field - only for SQL domain */}
+                        {domain === "SQL" && (
+                            <div className="space-y-2 mt-6">
+                                <label className="text-sm font-semibold text-gray-700">
+                                    Hidden Query (Optional)
+                                    <span className="text-xs text-gray-500 font-normal ml-2">
+                                        This SQL query will be prepended to the user's code before execution
+                                    </span>
+                                </label>
+                                <textarea
+                                    value={hiddenQuery}
+                                    onChange={e => setHiddenQuery(e.target.value)}
+                                    rows={5}
+                                    placeholder="-- e.g. CREATE TABLE temp_table AS SELECT * FROM ..."
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all font-mono text-sm leading-relaxed text-gray-900"
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
 
