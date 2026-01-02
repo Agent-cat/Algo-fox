@@ -1,6 +1,6 @@
 import { Queue, Worker, Job } from "bullmq";
 import connection from "@/lib/redis";
-import { SubmissionService } from "@/services/submission.service";
+import { SubmissionService } from "@/core/services/submission.service";
 import { SubmissionResult, TestCaseResult } from "@prisma/client";
 
 const QUEUE_NAME = "submission-queue";
@@ -95,7 +95,7 @@ const worker = new Worker(
                 if (problem.hiddenQuery) {
                     codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
                 }
-                
+
                 // Convert SQL to SQLite-compatible syntax
                 const { convertBatchToSQLite } = await import("@/lib/sql-converter");
                 codeToExecute = convertBatchToSQLite(codeToExecute);

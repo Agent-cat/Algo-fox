@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SubmissionService } from "@/services/submission.service";
-import { addSubmissionJob } from "@/queues/submission.queue";
+import { SubmissionService } from "@/core/services/submission.service";
+import { addSubmissionJob } from "@/core/queues/submission.queue";
 import { authClient } from "@/lib/auth-client"; // Assuming auth helper exists or we use prisma session
 import { prisma } from "@/lib/prisma"; // Direct access for session check if needed
 
