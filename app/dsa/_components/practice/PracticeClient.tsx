@@ -37,6 +37,14 @@ export default function PracticeClient({
     searchTerm
 }: PracticeClientProps) {
     const [problems, setProblems] = useState<ProblemWithStats[]>(initialProblems);
+
+    // Reset problems when initialProblems changes (e.g. filter change)
+    useEffect(() => {
+        setProblems(initialProblems);
+        setPage(1);
+        setHasMore(page < initialTotalPages);
+    }, [initialProblems, initialTotalPages]);
+
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(page < initialTotalPages);
     const [isLoading, setIsLoading] = useState(false);

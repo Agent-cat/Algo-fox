@@ -96,14 +96,14 @@ export default function Home() {
             Join thousands of developers leveling up their skills daily.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link 
-              href="/dashboard" 
+            <Link
+              href="/dashboard"
               className="px-8 py-4 bg-orange-500 dark:bg-orange-600 text-white text-lg font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-700 transition-all shadow-xl shadow-orange-500/20 text-center hover:scale-105 transform"
             >
               Start Coding Now
             </Link>
-            <Link 
-              href="/problems" 
+            <Link
+              href="/problems"
               className="px-8 py-4 bg-black text-white text-lg font-semibold rounded-xl hover:bg-gray-900 transition-all border-2 border-black text-center hover:scale-105 transform"
             >
               Explore Problems

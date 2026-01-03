@@ -43,7 +43,85 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // 1. Create Submission in DB
+        // HANDLE RUN MODE (No DB Storage, Synchronous)
+        if (mode === "RUN") {
+            const problem = await prisma.problem.findUnique({
+                where: { id: problemId },
+                include: { testCases: true }
+            });
+
+            if (!problem) {
+                return NextResponse.json({ error: "Problem not found" }, { status: 404 });
+            }
+
+            // Send to Judge0
+            const tokens = await SubmissionService.sendToJudge0(
+                languageId,
+                code,
+                problem.testCases.map(tc => ({ input: tc.input, output: tc.output }))
+            );
+
+            // Wait for results (poll Judge0 internally)
+            let attempts = 0;
+            const maxAttempts = 10; // 2 seconds total roughly (if 200ms delay)
+            let results: any[] = [];
+
+            // Simple internal polling since we need to return the response
+            // For better performance/reliability, we might want to just wait a fixed time or use a smarter loop
+            // Judge0 is usually fast for small inputs.
+
+            while (attempts < maxAttempts) {
+                const batchResults = await SubmissionService.getBatchResults(tokens.map(t => t.token));
+
+                // Check if any vary still pending/processing
+                const isPending = batchResults.some(r => r.status.id <= 2); // 1=In Queue, 2=Processing
+
+                if (!isPending) {
+                    results = batchResults;
+                    break;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
+                attempts++;
+                results = batchResults; // Keep latest state
+            }
+
+            // Format results to match what frontend expects from polling
+            // Frontend expects: { status: "ACCEPTED" | ..., testCases: [...] }
+
+            const formattedTestCases = results.map((r, index) => {
+                const statusMap: Record<number, string> = {
+                    3: "ACCEPTED",
+                    4: "WRONG_ANSWER",
+                    5: "TIME_LIMIT_EXCEEDED",
+                    6: "COMPILE_ERROR",
+                    // Map others as needed
+                };
+
+                return {
+                    index,
+                    status: statusMap[r.status.id] || "RUNTIME_ERROR",
+                    time: parseFloat(r.time || "0"),
+                    memory: r.memory,
+                    stdout: r.stdout,
+                    errorMessage: r.stderr || r.compile_output
+                };
+            });
+
+            const overrideStatus = formattedTestCases.find(tc => tc.status !== "ACCEPTED")?.status || "ACCEPTED";
+            // Calculate totals
+            const totalTime = formattedTestCases.reduce((acc, curr) => acc + (curr.time || 0), 0);
+            const maxMemory = Math.max(...formattedTestCases.map(tc => tc.memory || 0));
+
+            return NextResponse.json({
+                status: overrideStatus,
+                testCases: formattedTestCases,
+                time: totalTime,
+                memory: maxMemory
+            });
+        }
+
+        // 1. Create Submission in DB (SUBMIT MODE)
         const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode);
 
         // 2. Add to Queue

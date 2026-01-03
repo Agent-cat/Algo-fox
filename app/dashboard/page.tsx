@@ -31,6 +31,11 @@ export default async function Dashboard() {
                                 name={user.name}
                                 email={user.email}
                                 image={user.image}
+                                bio={user.bio}
+                                leetCodeHandle={user.leetCodeHandle}
+                                codeChefHandle={user.codeChefHandle}
+                                hackerrankHandle={user.hackerrankHandle}
+                                githubHandle={user.githubHandle}
                             />
                         </section>
 

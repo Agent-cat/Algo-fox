@@ -75,7 +75,7 @@ export default function Workspace({ problem }: WorkspaceProps) {
         if (problem.domain === "SQL") {
             return; // Prevent language changes for SQL problems
         }
-        
+
         setLanguageId(newLanguageId);
         setCode(""); // Clear code to prevent stale submissions while new draft loads
         try {
@@ -129,7 +129,7 @@ export default function Workspace({ problem }: WorkspaceProps) {
 
             toast.info(mode === "RUN" ? "Running code..." : "Submitting code...");
 
-            // 1. Create Submission
+            // 1. Create Submission / Run Code
             const res = await fetch("/api/submissions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -143,7 +143,32 @@ export default function Workspace({ problem }: WorkspaceProps) {
             });
 
             if (!res.ok) throw new Error("Submission failed");
-            const { submissionId } = await res.json();
+            const data = await res.json();
+
+            // HANDLE RUN MODE (Synchronous Response)
+            if (mode === "RUN") {
+                setIsRunning(false);
+                setSubmissionMode("RUN");
+
+                if (data.testCases) {
+                    setSubmissionResults(data.testCases);
+                }
+                if (data.status) {
+                    setSubmissionStatus(data.status);
+
+                    if (data.status === "ACCEPTED") {
+                        toast.success("Run Accepted!", {
+                            description: `Time: ${data.time?.toFixed(3)}s | Memory: ${data.memory}KB`
+                        });
+                    } else {
+                        toast.error(`Result: ${data.status}`);
+                    }
+                }
+                return;
+            }
+
+            // HANDLE SUBMIT MODE (Polling)
+            const { submissionId } = data;
 
             // 2. Poll for Results
             setSubmissionMode(mode);
@@ -166,11 +191,10 @@ export default function Workspace({ problem }: WorkspaceProps) {
 
                     if (data.status !== "PENDING") {
                         clearInterval(interval);
-                        if (mode === "RUN") setIsRunning(false);
-                        else setIsSubmitting(false);
+                        setIsSubmitting(false);
 
                         if (data.status === "ACCEPTED") {
-                            toast.success(mode === "RUN" ? "Run Accepted!" : "Submitted Successfully!", {
+                            toast.success("Submitted Successfully!", {
                                 description: `Time: ${data.time}ms | Memory: ${data.memory}KB`
                             });
                             if (mode === "SUBMIT") {
@@ -184,8 +208,7 @@ export default function Workspace({ problem }: WorkspaceProps) {
                     }
                 } catch (e) {
                     clearInterval(interval);
-                    if (mode === "RUN") setIsRunning(false);
-                    else setIsSubmitting(false);
+                    setIsSubmitting(false);
                 }
             }, 2000);
 

@@ -290,4 +290,48 @@ export class SubmissionService {
             }
         });
     }
+    static async getSubmissionById(id: string) {
+        return prisma.submission.findUnique({
+            where: { id },
+            include: {
+                problem: {
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        difficulty: true,
+                    }
+                },
+                language: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                testCases: {
+                    orderBy: { index: 'asc' }
+                }
+            }
+        });
+    }
+
+    static async getProblemSubmissions(problemId: string, userId: string) {
+        return prisma.submission.findMany({
+            where: {
+                problemId,
+                userId,
+                mode: "SUBMIT" // Only show actual submissions, not runs
+            },
+            include: {
+                language: {
+                    select: {
+                        name: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+    }
 }

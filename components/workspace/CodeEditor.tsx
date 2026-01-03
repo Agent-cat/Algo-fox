@@ -11,7 +11,7 @@ const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
 const SQL_LANGUAGE_ID = 82; // SQL language ID
 
 interface CodeEditorProps {
-    onChange: (value: string | undefined) => void;
+    onChange?: (value: string | undefined) => void;
     onLanguageChange?: (languageId: number) => void;
     defaultValue?: string;
     value?: string;
@@ -29,34 +29,39 @@ export default function CodeEditor({
     value: controlledValue,
     languageId = DEFAULT_LANGUAGE_ID,
     problemId,
-    domain
-}: CodeEditorProps) {
+    domain,
+    readOnly = false
+}: CodeEditorProps & { readOnly?: boolean }) {
     // Filter languages based on domain: SQL problems only show SQL language
-    const availableLanguages = domain === "SQL" 
+    const availableLanguages = domain === "SQL"
         ? LANGUAGES.filter(lang => lang.id === SQL_LANGUAGE_ID)
         : LANGUAGES.filter(lang => lang.id !== SQL_LANGUAGE_ID);
-    
+
     // For SQL problems, default to SQL language
-    const effectiveLanguageId = domain === "SQL" 
+    const effectiveLanguageId = domain === "SQL"
         ? (languageId === SQL_LANGUAGE_ID ? languageId : SQL_LANGUAGE_ID)
         : languageId;
-    
+
     // We rely on the parent key={languageId} to remount this component when language changes
     // sc so we can use languageId prop directly.
     const currentLanguage = getLanguageById(effectiveLanguageId) || availableLanguages[0];
 
-    // Initialize code state - empty for SQL, boilerplate for others
-    const initialCode = domain === "SQL" 
-        ? (defaultValue || "")
-        : (defaultValue || currentLanguage.boilerplate);
+    // Initialize code state
+    // If readOnly, prioritize controlledValue.
+    // Else, use domain/boilerplate logic.
+    const initialCode = readOnly && controlledValue !== undefined
+        ? controlledValue
+        : (domain === "SQL" ? (defaultValue || "") : (defaultValue || currentLanguage.boilerplate));
+
     const [code, setCode] = useState(initialCode);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const editorRef = React.useRef<any>(null);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isRestoring, setIsRestoring] = useState(false);
-    // Initialize loading state: if we have a problemId, we are loading.
-    // For SQL, we can skip loading since we start with empty code
-    const [isLoading, setIsLoading] = useState(!!problemId && domain !== "SQL");
+
+    // Initialize loading state: if we have a problemId AND NOT readOnly, we are loading.
+    const [isLoading, setIsLoading] = useState(!!problemId && domain !== "SQL" && !readOnly);
+
     const [isSaving, setIsSaving] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +69,7 @@ export default function CodeEditor({
     useEffect(() => {
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
             // Suppress "Canceled" errors from Monaco Editor disposal
-            if (event.reason?.message === 'Canceled' || 
+            if (event.reason?.message === 'Canceled' ||
                 event.reason?.toString()?.includes('Canceled')) {
                 event.preventDefault();
                 return;
@@ -91,8 +96,10 @@ export default function CodeEditor({
         }
     }, [isDropdownOpen]);
 
-    // LOAD SAVED CODE
+    // LOAD SAVED CODE (Only if NOT readOnly)
     useEffect(() => {
+        if (readOnly) return; // Skip loading draft if read-only
+
         if (!problemId) {
             // If no problemId, set code based on domain
             if (domain === "SQL") {
@@ -100,15 +107,15 @@ export default function CodeEditor({
                 if (editorRef.current) {
                     editorRef.current.setValue("");
                 }
-                onChange("");
+                if (onChange) onChange("");
             } else {
                 const lang = getLanguageById(effectiveLanguageId);
                 const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
-            setCode(langBoilerplate);
-            if (editorRef.current) {
-                editorRef.current.setValue(langBoilerplate);
-            }
-            onChange(langBoilerplate);
+                setCode(langBoilerplate);
+                if (editorRef.current) {
+                    editorRef.current.setValue(langBoilerplate);
+                }
+                if (onChange) onChange(langBoilerplate);
             }
             return;
         }
@@ -131,7 +138,7 @@ export default function CodeEditor({
                     if (editorRef.current) {
                         editorRef.current.setValue(codeToSet);
                     }
-                    onChange(codeToSet);
+                    if (onChange) onChange(codeToSet);
                     setIsLoading(false);
                     return;
                 } catch (error) {
@@ -141,7 +148,7 @@ export default function CodeEditor({
                         if (editorRef.current) {
                             editorRef.current.setValue("");
                         }
-                        onChange("");
+                        if (onChange) onChange("");
                         setIsLoading(false);
                     }
                     return;
@@ -149,7 +156,7 @@ export default function CodeEditor({
             }
 
             try {
-                // If this is a retry, or initial load, ensure loading state is set (though it should be true from init)
+                // If this is a retry, or initial load, ensure loading state is set
                 if (retryCount === 0) setIsLoading(true);
                 setIsRestoring(true);
 
@@ -163,7 +170,6 @@ export default function CodeEditor({
                 }
 
                 // If not found and this is the first attempt, try once more after a delay
-                // This handles potential DB initialization race conditions
                 if (!savedCode && retryCount === 0) {
                     await new Promise(resolve => setTimeout(resolve, 200));
                     if (!isMounted || cancelled) {
@@ -183,13 +189,13 @@ export default function CodeEditor({
                     const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
                     codeToSet = savedCode || langBoilerplate;
                 }
-                
+
                 setCode(codeToSet);
 
                 if (editorRef.current) {
                     editorRef.current.setValue(codeToSet);
                 }
-                onChange(codeToSet);
+                if (onChange) onChange(codeToSet);
             } catch (error) {
                 console.error("Failed to load code draft:", error);
                 if (!isMounted || cancelled) {
@@ -203,15 +209,15 @@ export default function CodeEditor({
                     if (editorRef.current) {
                         editorRef.current.setValue("");
                     }
-                    onChange("");
+                    if (onChange) onChange("");
                 } else {
                     const lang = getLanguageById(effectiveLanguageId);
                     const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
-                setCode(langBoilerplate);
-                if (editorRef.current) {
-                    editorRef.current.setValue(langBoilerplate);
-                }
-                onChange(langBoilerplate);
+                    setCode(langBoilerplate);
+                    if (editorRef.current) {
+                        editorRef.current.setValue(langBoilerplate);
+                    }
+                    if (onChange) onChange(langBoilerplate);
                 }
             } finally {
                 if (isMounted && !cancelled) {
@@ -228,11 +234,11 @@ export default function CodeEditor({
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [problemId, effectiveLanguageId]); // Removed availableLanguages from deps to prevent unnecessary re-renders
+    }, [problemId, effectiveLanguageId, readOnly]);
 
-    // HANDLE AUTOSAVE
+    // HANDLE AUTOSAVE (Only if NOT readOnly)
     const debouncedSave = (value: string) => {
-        if (!problemId) return;
+        if (!problemId || readOnly) return; // Skip saving logic entirely if readOnly
 
         if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
@@ -255,14 +261,13 @@ export default function CodeEditor({
     };
 
     const handleLanguageChange = (newLanguageId: number) => {
-        // Don't change if it's the same language
+        // In read-only mode, we likely disable changing lang, but if allowed:
         if (newLanguageId === effectiveLanguageId) {
             setIsDropdownOpen(false);
             return;
         }
 
         setIsDropdownOpen(false);
-        // Parent component will handle state update and remount us
         if (onLanguageChange) {
             onLanguageChange(newLanguageId);
         }
@@ -270,7 +275,8 @@ export default function CodeEditor({
 
     const handleEditorDidMount = (editor: any) => {
         editorRef.current = editor;
-        // Set initial code value
+        // In readOnly mode, the editor might strictly follow `value` prop if we passed one,
+        // but setting it explicitly ensures it matches state.
         if (code) {
             editor.setValue(code);
         }
@@ -281,14 +287,13 @@ export default function CodeEditor({
         return () => {
             if (editorRef.current) {
                 try {
-                    // Dispose editor properly to avoid cancellation errors
+                    // Dispose editor properly
                     const editor = editorRef.current;
                     if (editor.dispose) {
                         editor.dispose();
                     }
                     editorRef.current = null;
                 } catch (error) {
-                    // Ignore disposal errors (editor might already be disposed)
                     console.debug('Editor disposal error (safe to ignore):', error);
                 }
             }
@@ -302,16 +307,16 @@ export default function CodeEditor({
     };
 
     const handleReset = () => {
-        // For SQL, reset to empty; for others, reset to boilerplate
+        if (readOnly) return; // Disable reset in read-only
+
         const resetCode = domain === "SQL" ? "" : (getLanguageById(effectiveLanguageId)?.boilerplate || availableLanguages[0].boilerplate);
         setCode(resetCode);
-        onChange(resetCode);
+        if (onChange) onChange(resetCode);
         if (editorRef.current) {
             editorRef.current.setValue(resetCode);
         }
 
         if (problemId) {
-            // Overwrite draft immediately with reset code
             saveCodeDraft(problemId, effectiveLanguageId, resetCode).then(() => {
                 toast.success("Code reset to default");
             });
@@ -335,12 +340,14 @@ export default function CodeEditor({
                 <div className="flex items-center gap-3">
                     <div className="relative" ref={dropdownRef}>
                         <button
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="flex items-center gap-2 text-xs font-medium text-gray-700 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                            onClick={() => !readOnly && setIsDropdownOpen(!isDropdownOpen)}
+                            disabled={readOnly}
+                            className={`flex items-center gap-2 text-xs font-medium text-gray-700 px-2 py-1 rounded transition-colors ${readOnly ? 'opacity-70 cursor-default' : 'hover:bg-gray-200'}`}
                         >
-                            {currentLanguage.name} <ChevronDown className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            {currentLanguage.name}
+                            {!readOnly && <ChevronDown className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />}
                         </button>
-                        {isDropdownOpen && (
+                        {isDropdownOpen && !readOnly && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[120px]">
                                 {availableLanguages.map((lang) => (
                                     <button
@@ -372,13 +379,15 @@ export default function CodeEditor({
                     >
                         <AlignLeft className="w-4 h-4" />
                     </button>
-                    <button
-                        onClick={handleReset}
-                        className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-                        title="Reset to Default"
-                    >
-                        <RotateCcw className="w-4 h-4" />
-                    </button>
+                    {!readOnly && (
+                        <button
+                            onClick={handleReset}
+                            className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                            title="Reset to Default"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                        </button>
+                    )}
                     <button
                         onClick={handleFullScreen}
                         className="p-1.5 hover:bg-gray-200 rounded transition-colors"
@@ -408,7 +417,7 @@ export default function CodeEditor({
                         onChange={(value) => {
                             const newVal = value || "";
                             setCode(newVal);
-                            onChange(newVal);
+                            if (onChange) onChange(newVal);
                             debouncedSave(newVal);
                         }}
                         options={{
@@ -417,7 +426,7 @@ export default function CodeEditor({
                             lineNumbers: 'on',
                             roundedSelection: true,
                             scrollBeyondLastLine: false,
-                            readOnly: false,
+                            readOnly: readOnly, // Apply readOnly prop here
                             automaticLayout: true,
                             padding: { top: 16 },
                         }}

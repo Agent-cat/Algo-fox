@@ -6,6 +6,7 @@ import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "./practice/PracticeClient";
 import LearnMode from "./learn/LearnMode";
 import { SearchBar } from "./shared/SearchBar";
+import { FilterBar } from "@/components/problems/FilterBar";
 import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 
@@ -91,12 +92,15 @@ export default function DsaProblemsClient({
                 </div>
 
                 {mode === "practice" ? (
-                    <PracticeClient
-                        initialProblems={initialProblems}
-                        initialTotalPages={initialTotalPages}
-                        searchTerm={searchTerm}
-                        domain="DSA"
-                    />
+                    <>
+                        <FilterBar />
+                        <PracticeClient
+                            initialProblems={initialProblems}
+                            initialTotalPages={initialTotalPages}
+                            searchTerm={searchTerm}
+                            domain="DSA"
+                        />
+                    </>
                 ) : (
                     <LearnMode
                         searchTerm={searchTerm}
@@ -105,7 +109,7 @@ export default function DsaProblemsClient({
                     />
                 )}
             </div>
-        </div>
+        </div >
     );
 }
 

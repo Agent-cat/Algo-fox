@@ -12,7 +12,9 @@ export async function getProblems(
     page: number = 1,
     pageSize: number = 10,
     type: ProblemType = "PRACTICE",
-    domain: ProblemDomain = "DSA"
+    domain: ProblemDomain = "DSA",
+    difficulty?: Difficulty,
+    tags?: string[]
 ) {
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -20,7 +22,8 @@ export async function getProblems(
     });
     const userId = session?.user?.id;
 
-    return ProblemService.getProblems(page, pageSize, type, domain, userId);
+    return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || []);
+
 }
 
 // GETTING ADMIN PROBLEMS
@@ -75,6 +78,7 @@ export async function createProblem(data: {
     hiddenQuery?: string | null;
     domain?: ProblemDomain;
     testCases: { input: string; output: string; hidden?: boolean }[];
+    tags?: string[];
 }) {
     const session = await auth.api.getSession({
         headers: await headers()

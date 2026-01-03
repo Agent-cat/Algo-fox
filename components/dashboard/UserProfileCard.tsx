@@ -1,12 +1,19 @@
-import { Settings, Settings2 } from "lucide-react";
+import { ProfileActions } from "./ProfileActions";
 
 interface UserProfileCardProps {
     name: string;
     email: string;
     image?: string | null;
+    bio?: string | null;
+    leetCodeHandle?: string | null;
+    codeChefHandle?: string | null;
+    hackerrankHandle?: string | null;
+    githubHandle?: string | null;
 }
 
-export function UserProfileCard({ name, email, image }: UserProfileCardProps) {
+export function UserProfileCard(props: UserProfileCardProps) {
+    const { name, email, image, bio } = props;
+
     return (
         <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="flex flex-col items-center text-center">
@@ -22,16 +29,10 @@ export function UserProfileCard({ name, email, image }: UserProfileCardProps) {
                 </div>
 
                 <h2 className="text-xl font-bold text-gray-900 mb-1">{name}</h2>
-                <p className="text-sm text-gray-500 mb-4">{email}</p>
+                <p className="text-sm text-gray-500 mb-2">{email}</p>
+                {bio && <p className="text-xs text-gray-400 mb-4 line-clamp-2 px-4">{bio}</p>}
 
-                <div className="flex gap-2 w-full">
-                    <button className="flex-1 py-2 px-4 bg-orange-500 text-white text-sm font-medium rounded-xl hover:bg-orange-600 transition-colors">
-                        Edit Profile
-                    </button>
-                    <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-600">
-                        <Settings2 className="w-5 h-5" />
-                    </button>
-                </div>
+                <ProfileActions user={props} />
             </div>
         </div>
     );

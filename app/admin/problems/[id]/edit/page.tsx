@@ -61,7 +61,9 @@ export default function EditProblemPage() {
                         difficulty: problem.difficulty as Difficulty,
                         hidden: problem.hidden,
                         hiddenQuery: problem.hiddenQuery || null,
-                        testCases: problem.testCases || []
+                        hiddenQuery: problem.hiddenQuery || null,
+                        testCases: problem.testCases || [],
+                        tags: problem.tags || []
                     }}
                     onSubmit={(data) => updateProblem(id, data)}
                     submitLabel="Save Changes"

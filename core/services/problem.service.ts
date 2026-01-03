@@ -7,8 +7,8 @@ const CACHE_TTL = 300; // 5 minutes
 const PROBLEM_CACHE_TTL = 3600; // 1 hour
 
 // CACHE KEY HELPERS
-const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number) =>
-    `problems:list:${domain}:${type}:page:${page}`;
+const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = []) =>
+    `problems:list:${domain}:${type}:page:${page}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}`;
 const getAdminProblemsCacheKey = (domain: string | undefined, page: number) =>
     `admin:problems:${domain || 'all'}:page:${page}`;
 const getProblemCacheKey = (slug: string) => `problem:${slug}`;
@@ -16,8 +16,8 @@ const getProblemCacheKey = (slug: string) => `problem:${slug}`;
 export class ProblemService {
 
     // CACHED FETCHER FOR PUBLIC PROBLEM LIST
-    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA") {
-        const cacheKey = getProblemsCacheKey(type, domain, page);
+    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = []) {
+        const cacheKey = getProblemsCacheKey(type, domain, page, diff, tags);
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
@@ -34,7 +34,13 @@ export class ProblemService {
                 where: {
                     type,
                     domain,
-                    hidden: false
+                    difficulty: diff,
+                    hidden: false,
+                    tags: tags.length > 0 ? {
+                        some: {
+                            slug: { in: tags }
+                        }
+                    } : undefined
                 },
                 skip,
                 take: pageSize,
@@ -50,6 +56,12 @@ export class ProblemService {
                     type: true,
                     _count: {
                         select: { submissions: true }
+                    },
+                    tags: {
+                        select: {
+                            name: true,
+                            slug: true
+                        }
                     }
                 }
             }),
@@ -57,6 +69,7 @@ export class ProblemService {
                 where: {
                     type,
                     domain,
+                    difficulty: diff,
                     hidden: false
                 }
             })
@@ -77,10 +90,12 @@ export class ProblemService {
         pageSize: number = 10,
         type: ProblemType = "PRACTICE",
         domain: ProblemDomain = "DSA",
-        userId?: string
+        userId?: string,
+        diff?: Difficulty,
+        tags: string[] = []
     ) {
         // FETCHING PUBLIC DATA (CACHED)
-        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain);
+        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags);
 
         // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
         let solvedSet = new Set<string>();
@@ -205,6 +220,12 @@ export class ProblemService {
                 type: true,
                 _count: {
                     select: { submissions: true }
+                },
+                tags: {
+                    select: {
+                        name: true,
+                        slug: true
+                    }
                 }
             }
         });
@@ -254,7 +275,11 @@ export class ProblemService {
 
         const problem = await prisma.problem.findUnique({
             where: { slug },
-            include: { testCases: true, user: { select: { name: true, image: true } } }
+            include: {
+                testCases: true,
+                user: { select: { name: true, image: true } },
+                tags: { select: { name: true, slug: true } }
+            }
         });
 
         if (problem) {
@@ -279,7 +304,8 @@ export class ProblemService {
             const problem = await prisma.problem.findUnique({
                 where: { id },
                 include: {
-                    testCases: true
+                    testCases: true,
+                    tags: { select: { name: true, slug: true } }
                 }
             });
             return { success: true, data: problem };
@@ -299,6 +325,7 @@ export class ProblemService {
         hiddenQuery?: string | null;
         domain?: ProblemDomain;
         testCases: { input: string; output: string; hidden?: boolean }[];
+        tags?: string[];
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -317,7 +344,10 @@ export class ProblemService {
                             output: tc.output,
                             hidden: tc.hidden ?? false
                         }))
-                    }
+                    },
+                    tags: data.tags ? {
+                        connect: data.tags.map(slug => ({ slug }))
+                    } : undefined
                 },
             });
 
@@ -334,7 +364,7 @@ export class ProblemService {
     // UPDATING A PROBLEM
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, ...problemData } = data;
+            const { testCases, tags, ...problemData } = data;
 
             const updateData: any = { ...problemData };
             if (testCases) {
@@ -345,6 +375,13 @@ export class ProblemService {
                         output: tc.output,
                         hidden: tc.hidden ?? false
                     }))
+                };
+            }
+
+            if (tags) {
+                updateData.tags = {
+                    set: [], // Disconnect all existing
+                    connect: tags.map((slug: string) => ({ slug }))
                 };
             }
 

@@ -13,7 +13,7 @@ import { getPointsLabel } from '@/lib/points';
 type Tab = "description" | "solutions" | "submissions";
 
 interface ProblemDescriptionProps {
-    problem: Problem;
+    problem: Problem & { tags?: { name: string; slug: string }[] };
     activeTab: Tab;
     onTabChange: (tab: Tab) => void;
 }
@@ -68,6 +68,17 @@ export default function ProblemDescription({ problem, activeTab, onTabChange }: 
                                 <span className="text-sm text-gray-600 font-medium">
                                     {getPointsLabel(problem.difficulty)}
                                 </span>
+
+                                {problem.tags && problem.tags.length > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-gray-300" />
+                                        {problem.tags.map(tag => (
+                                            <span key={tag.slug} className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">
+                                                {tag.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -87,6 +98,6 @@ export default function ProblemDescription({ problem, activeTab, onTabChange }: 
                     <div className="p-8 text-center text-gray-500">Solutions coming soon!</div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

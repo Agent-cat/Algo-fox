@@ -1,6 +1,5 @@
 
 import { prisma } from "@/lib/prisma";
-import { SubmissionResult, Difficulty } from "@prisma/client";
 import redis from "@/lib/redis";
 
 export class DashboardService {
@@ -36,7 +35,13 @@ export class DashboardService {
                 image: true,
                 problemsSolved: true,
                 totalScore: true,
+                bio: true,
+                leetCodeHandle: true,
+                codeChefHandle: true,
+                hackerrankHandle: true,
+                githubHandle: true,
                 submissions: {
+                    where: { mode: "SUBMIT" },
                     select: {
                         id: true,
                         createdAt: true,
@@ -77,11 +82,12 @@ export class DashboardService {
         const languageStatsPromise = prisma.$queryRaw<any[]>`
             SELECT 
                 l."name",
-                CAST(COUNT(*) AS INTEGER) as "count"
+                CAST(COUNT(DISTINCT s."problemId") AS INTEGER) as "count"
             FROM "Submission" s
             JOIN "Language" l ON s."languageId" = l."id"
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
+              AND s."mode" = 'SUBMIT'::"SubmissionMode"
             GROUP BY l."name"
         `;
 

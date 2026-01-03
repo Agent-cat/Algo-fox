@@ -3,6 +3,8 @@
 import { UserService } from "@/core/services/user.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 /**
  * Get user's total score (cached for 30 seconds)
@@ -63,4 +65,46 @@ export async function completeOnboarding(data: {
     const userId = session.user.id;
 
     return UserService.completeOnboarding(userId, data);
+}
+
+/**
+ * Update user profile information
+ */
+export async function updateUserInfo(data: {
+    name?: string;
+    bio?: string;
+    leetCodeHandle?: string;
+    codeChefHandle?: string;
+    hackerrankHandle?: string;
+    githubHandle?: string;
+}): Promise<{ success: boolean; error?: string }> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session?.user?.id) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+
+    try {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                name: data.name,
+                bio: data.bio,
+                leetCodeHandle: data.leetCodeHandle,
+                codeChefHandle: data.codeChefHandle,
+                hackerrankHandle: data.hackerrankHandle,
+                githubHandle: data.githubHandle,
+            }
+        });
+
+        revalidatePath("/dashboard");
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update user info:", error);
+        return { success: false, error: "Failed to update profile" };
+    }
 }
