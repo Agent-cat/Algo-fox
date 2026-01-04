@@ -58,12 +58,16 @@ model Problem {
   domain      ProblemDomain @default(DSA)
   hiddenQuery String?
 
+  // Function template mode for DSA problems
+  useFunctionTemplate Boolean @default(false)
+
   // contestSubmissions ContestSubmission[]
   // contestProblems    ContestProblem[]
 
-  submissions      Submission[]
-  testCases        ProblemTestCase[]
-  categoryProblems CategoryProblem[]
+  submissions       Submission[]
+  testCases         ProblemTestCase[]
+  categoryProblems  CategoryProblem[]
+  functionTemplates ProblemFunctionTemplate[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -102,6 +106,27 @@ model ProblemTestCase {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([problemId])
+}
+
+// Function templates for DSA problems - stores boilerplate and driver code per language
+model ProblemFunctionTemplate {
+  id         String @id @default(cuid())
+  problemId  String
+  languageId Int // Judge0 language ID (63=JS, 71=Python, 62=Java, etc.)
+
+  // What user sees in the editor (function signature/boilerplate)
+  functionTemplate String @db.Text
+
+  // Hidden driver code that calls user's function and handles I/O
+  driverCode String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, languageId])
   @@index([problemId])
 }
 

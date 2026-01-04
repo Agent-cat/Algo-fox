@@ -133,55 +133,55 @@ export default function WorkspaceHeader({ onSubmit, onRun, isSubmitting, isRunni
                   <span className="text-sm font-semibold text-gray-700 hidden md:block">
                     {session.user.name}
                   </span>
-              <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs ring-offset-1">
-                {session.user.image ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  session.user.name?.charAt(0).toUpperCase()
-                )}
-              </div>
-            </button>
+                  <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs ring-offset-1">
+                    {session.user.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      session.user.name?.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                </button>
 
-            <AnimatePresence>
-              {isProfileOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg p-1 z-50 origin-top-right"
-                >
-                  {(session.user as any).role === "ADMIN" && (
-                    <Link
-                      href="/admin/problems/create"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
-                      onClick={() => setProfileOpen(false)}
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg p-1 z-50 origin-top-right"
                     >
-                      Admin Panel
-                    </Link>
+                      {(session.user as any).role === "ADMIN" && (
+                        <Link
+                          href="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        Sign Out
+                      </button>
+                    </motion.div>
                   )}
-                  <Link
-                    href="/dashboard"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                  >
-                    Sign Out
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            </div>
-            <UserPoints className="hidden md:flex" />
+                </AnimatePresence>
+              </div>
+              <UserPoints className="hidden md:flex" />
             </div>
           </>
         ) : (

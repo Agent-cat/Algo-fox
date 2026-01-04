@@ -10,6 +10,12 @@ import { ProblemDomain } from '@prisma/client';
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
 const SQL_LANGUAGE_ID = 82; // SQL language ID
 
+interface FunctionTemplate {
+    languageId: number;
+    functionTemplate: string;
+    driverCode: string;
+}
+
 interface CodeEditorProps {
     onChange?: (value: string | undefined) => void;
     onLanguageChange?: (languageId: number) => void;
@@ -18,6 +24,7 @@ interface CodeEditorProps {
     languageId?: number;
     problemId?: string;
     domain?: ProblemDomain;
+    functionTemplates?: FunctionTemplate[];
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -30,6 +37,7 @@ export default function CodeEditor({
     languageId = DEFAULT_LANGUAGE_ID,
     problemId,
     domain,
+    functionTemplates,
     readOnly = false
 }: CodeEditorProps & { readOnly?: boolean }) {
     // Filter languages based on domain: SQL problems only show SQL language
@@ -46,12 +54,27 @@ export default function CodeEditor({
     // sc so we can use languageId prop directly.
     const currentLanguage = getLanguageById(effectiveLanguageId) || availableLanguages[0];
 
+    // Helper: get the boilerplate for the current language
+    // If function template exists for this language, use it; otherwise use default
+    const getBoilerplate = (): string => {
+        if (domain === "SQL") return "";
+        // Check if we have a function template for this language
+        if (functionTemplates && functionTemplates.length > 0) {
+            const template = functionTemplates.find(t => t.languageId === effectiveLanguageId);
+            if (template && template.functionTemplate) {
+                return template.functionTemplate;
+            }
+        }
+        // Fall back to default boilerplate from languages.ts
+        return currentLanguage.boilerplate;
+    };
+
     // Initialize code state
     // If readOnly, prioritize controlledValue.
     // Else, use domain/boilerplate logic.
     const initialCode = readOnly && controlledValue !== undefined
         ? controlledValue
-        : (domain === "SQL" ? (defaultValue || "") : (defaultValue || currentLanguage.boilerplate));
+        : (domain === "SQL" ? (defaultValue || "") : (defaultValue || getBoilerplate()));
 
     const [code, setCode] = useState(initialCode);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -109,8 +132,7 @@ export default function CodeEditor({
                 }
                 if (onChange) onChange("");
             } else {
-                const lang = getLanguageById(effectiveLanguageId);
-                const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
+                const langBoilerplate = getBoilerplate();
                 setCode(langBoilerplate);
                 if (editorRef.current) {
                     editorRef.current.setValue(langBoilerplate);
@@ -185,8 +207,7 @@ export default function CodeEditor({
                 if (domain === "SQL") {
                     codeToSet = savedCode || "";
                 } else {
-                    const lang = getLanguageById(effectiveLanguageId);
-                    const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
+                    const langBoilerplate = getBoilerplate();
                     codeToSet = savedCode || langBoilerplate;
                 }
 
@@ -211,8 +232,7 @@ export default function CodeEditor({
                     }
                     if (onChange) onChange("");
                 } else {
-                    const lang = getLanguageById(effectiveLanguageId);
-                    const langBoilerplate = lang?.boilerplate || availableLanguages[0].boilerplate;
+                    const langBoilerplate = getBoilerplate();
                     setCode(langBoilerplate);
                     if (editorRef.current) {
                         editorRef.current.setValue(langBoilerplate);
@@ -309,7 +329,7 @@ export default function CodeEditor({
     const handleReset = () => {
         if (readOnly) return; // Disable reset in read-only
 
-        const resetCode = domain === "SQL" ? "" : (getLanguageById(effectiveLanguageId)?.boilerplate || availableLanguages[0].boilerplate);
+        const resetCode = domain === "SQL" ? "" : getBoilerplate();
         setCode(resetCode);
         if (onChange) onChange(resetCode);
         if (editorRef.current) {

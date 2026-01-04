@@ -47,7 +47,10 @@ export async function POST(req: NextRequest) {
         if (mode === "RUN") {
             const problem = await prisma.problem.findUnique({
                 where: { id: problemId },
-                include: { testCases: true }
+                include: {
+                    testCases: true,
+                    functionTemplates: true // Include function templates for DSA
+                }
             });
 
             if (!problem) {
@@ -69,6 +72,38 @@ export async function POST(req: NextRequest) {
                 // Convert SQL to SQLite-compatible syntax
                 const { convertBatchToSQLite } = await import("@/lib/sql-converter");
                 codeToExecute = convertBatchToSQLite(codeToExecute);
+            }
+            // For DSA problems with function templates, combine driver code + user's function
+            else if (problem.domain === "DSA" && problem.useFunctionTemplate && problem.functionTemplates?.length) {
+                // Find the template for the current language  
+                const template = problem.functionTemplates.find(
+                    t => t.languageId === languageId
+                );
+
+                if (template?.driverCode) {
+                    const langId = languageId;
+
+                    // Check if driver code uses placeholder for user code insertion
+                    if (template.driverCode.includes("{{USER_CODE}}")) {
+                        codeToExecute = template.driverCode.replace("{{USER_CODE}}", code);
+                    }
+                    // Go (60), Rust (73): Driver first (package/imports/fn main), then user function
+                    else if (langId === 60 || langId === 73) {
+                        codeToExecute = template.driverCode + "\n\n" + code;
+                    }
+                    // JavaScript (63), Python (71): User code first, then driver
+                    else if (langId === 63 || langId === 71) {
+                        codeToExecute = code + "\n\n" + template.driverCode;
+                    }
+                    // Java (62), C (50), C++ (54): Need placeholder or insert before closing brace
+                    else if (langId === 62 || langId === 50 || langId === 54) {
+                        codeToExecute = template.driverCode.replace(/}\s*$/, code + "\n}");
+                    }
+                    // Default: user code first, then driver
+                    else {
+                        codeToExecute = code + "\n\n" + template.driverCode;
+                    }
+                }
             }
 
             // Send to Judge0

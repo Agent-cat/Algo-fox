@@ -292,7 +292,8 @@ export class ProblemService {
             include: {
                 testCases: true,
                 user: { select: { name: true, image: true } },
-                tags: { select: { name: true, slug: true } }
+                tags: { select: { name: true, slug: true } },
+                functionTemplates: true // Include for DSA function template boilerplates
             }
         });
 
@@ -319,7 +320,8 @@ export class ProblemService {
                 where: { id },
                 include: {
                     testCases: true,
-                    tags: { select: { name: true, slug: true } }
+                    tags: { select: { name: true, slug: true } },
+                    functionTemplates: true
                 }
             });
             return { success: true, data: problem };
@@ -340,6 +342,8 @@ export class ProblemService {
         domain?: ProblemDomain;
         testCases: { input: string; output: string; hidden?: boolean }[];
         tags?: string[];
+        useFunctionTemplate?: boolean;
+        functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -352,6 +356,7 @@ export class ProblemService {
                     hidden: data.hidden,
                     hiddenQuery: data.hiddenQuery || null,
                     domain: data.domain || "DSA",
+                    useFunctionTemplate: data.useFunctionTemplate || false,
                     testCases: {
                         create: data.testCases.map(tc => ({
                             input: tc.input,
@@ -361,6 +366,14 @@ export class ProblemService {
                     },
                     tags: data.tags ? {
                         connect: data.tags.map(slug => ({ slug }))
+                    } : undefined,
+                    // Create function templates if provided and enabled
+                    functionTemplates: data.useFunctionTemplate && data.functionTemplates?.length ? {
+                        create: data.functionTemplates.map(ft => ({
+                            languageId: ft.languageId,
+                            functionTemplate: ft.functionTemplate,
+                            driverCode: ft.driverCode,
+                        }))
                     } : undefined
                 },
             });
@@ -378,7 +391,7 @@ export class ProblemService {
     // UPDATING A PROBLEM
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, tags, ...problemData } = data;
+            const { testCases, tags, functionTemplates, ...problemData } = data;
 
             const updateData: any = { ...problemData };
             if (testCases) {
@@ -399,6 +412,18 @@ export class ProblemService {
                 };
             }
 
+            // Handle function templates
+            if (functionTemplates !== undefined) {
+                updateData.functionTemplates = {
+                    deleteMany: {}, // Delete all existing templates
+                    create: functionTemplates.map((ft: any) => ({
+                        languageId: ft.languageId,
+                        functionTemplate: ft.functionTemplate,
+                        driverCode: ft.driverCode,
+                    }))
+                };
+            }
+
             // UPDATING THE PROBLEM
             const problem = await prisma.problem.update({
                 where: { id },
@@ -408,6 +433,8 @@ export class ProblemService {
             // INVALIDATING THE CACHE
             await this.invalidateProblemCaches();
             await redis.del(getProblemCacheKey(problem.slug));
+            // Also invalidate function template cache
+            await redis.del(`problem-templates:${id}`);
 
             return { success: true, data: problem };
         } catch (error) {

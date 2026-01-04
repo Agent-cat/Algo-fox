@@ -78,7 +78,9 @@ export default function EditProblemPage() {
                             hidden: problem.hidden,
                             hiddenQuery: problem.hiddenQuery || null,
                             testCases: problem.testCases || [],
-                            tags: problem.tags || []
+                            tags: problem.tags || [],
+                            useFunctionTemplate: problem.useFunctionTemplate || false,
+                            functionTemplates: problem.functionTemplates || []
                         }}
                         onSubmit={(data) => updateProblem(id, data)}
                         submitLabel="Save Changes"

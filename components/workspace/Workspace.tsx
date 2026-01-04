@@ -10,8 +10,18 @@ import WorkspaceHeader from './WorkspaceHeader';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+interface FunctionTemplate {
+    languageId: number;
+    functionTemplate: string;
+    driverCode: string;
+}
+
 interface WorkspaceProps {
-    problem: Problem & { testCases: ProblemTestCase[] };
+    problem: Problem & {
+        testCases: ProblemTestCase[];
+        functionTemplates?: FunctionTemplate[];
+        useFunctionTemplate?: boolean;
+    };
 }
 
 import { authClient } from '@/lib/auth-client';
@@ -270,6 +280,11 @@ export default function Workspace({ problem }: WorkspaceProps) {
                                     onLanguageChange={handleLanguageChange}
                                     problemId={problem.id}
                                     domain={problem.domain}
+                                    functionTemplates={
+                                        problem.useFunctionTemplate && problem.functionTemplates
+                                            ? problem.functionTemplates
+                                            : undefined
+                                    }
                                 />
                             </div>
                             <div className="h-full overflow-hidden">

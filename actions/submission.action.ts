@@ -95,8 +95,7 @@ export async function markConceptAsCompleted(problemId: string) {
         revalidatePath("/problems");
         revalidatePath("/dsa");
         revalidatePath("/sql");
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag(`problem-${problemId}`);
+        revalidateTag(`problem-${problemId}`, 'max');
 
         return { success: true };
     } catch (error) {

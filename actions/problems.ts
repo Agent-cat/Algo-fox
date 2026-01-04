@@ -80,6 +80,8 @@ export async function createProblem(data: {
     domain?: ProblemDomain;
     testCases: { input: string; output: string; hidden?: boolean }[];
     tags?: string[];
+    useFunctionTemplate?: boolean;
+    functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
 }) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -99,14 +101,10 @@ export async function createProblem(data: {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        // @ts-expect-error - Next.js type mismatch: expected 2 arguments
-        revalidateTag('admin-problems-list');
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('problems-list');
-        // @ts-expect-error - Next.js type mismatch - Invalidate domain-specific caches
-        revalidateTag('problems-SQL-PRACTICE');
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('problems-DSA-PRACTICE');
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
+        revalidateTag('problems-SQL-PRACTICE', 'max');
+        revalidateTag('problems-DSA-PRACTICE', 'max');
     }
 
     return result;
@@ -141,14 +139,10 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('admin-problems-list');
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('problems-list');
-        // @ts-expect-error - Next.js type mismatch - Invalidate domain-specific caches
-        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`);
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag(`problem-${result.data?.slug}`);
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
+        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`, 'max');
+        revalidateTag(`problem-${result.data?.slug}`, 'max');
     }
 
     return result;
@@ -177,10 +171,8 @@ export async function deleteProblem(id: string) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('admin-problems-list');
-        // @ts-expect-error - Next.js type mismatch
-        revalidateTag('problems-list');
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
     }
 
     return result;

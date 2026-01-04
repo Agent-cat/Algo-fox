@@ -62,7 +62,12 @@ const worker = new Worker(
             const submission = await prisma.submission.findUnique({
                 where: { id: submissionId },
                 include: {
-                    problem: { include: { testCases: true } },
+                    problem: {
+                        include: {
+                            testCases: true,
+                            functionTemplates: true // Include function templates for DSA
+                        }
+                    },
                     language: true
                 }
             });
@@ -88,8 +93,10 @@ const worker = new Worker(
                 return;
             }
 
-            // For SQL problems, prepend hiddenQuery and convert to SQLite
+            // Build the code to execute
             let codeToExecute = code;
+
+            // For SQL problems, prepend hiddenQuery and convert to SQLite
             if (problem.domain === "SQL") {
                 // Prepend hiddenQuery if exists
                 if (problem.hiddenQuery) {
@@ -99,6 +106,40 @@ const worker = new Worker(
                 // Convert SQL to SQLite-compatible syntax
                 const { convertBatchToSQLite } = await import("@/lib/sql-converter");
                 codeToExecute = convertBatchToSQLite(codeToExecute);
+            }
+            // For DSA problems with function templates, combine driver code + user's function
+            else if (problem.domain === "DSA" && problem.useFunctionTemplate && problem.functionTemplates?.length) {
+                const template = problem.functionTemplates.find(
+                    t => t.languageId === language.judge0Id
+                );
+
+                if (template?.driverCode) {
+                    const langId = language.judge0Id;
+
+                    // Check if driver code uses placeholder for user code insertion
+                    if (template.driverCode.includes("{{USER_CODE}}")) {
+                        // Replace placeholder with user's code
+                        codeToExecute = template.driverCode.replace("{{USER_CODE}}", code);
+                    }
+                    // Go (60), Rust (73): Driver first (package/imports/fn main), then user function
+                    else if (langId === 60 || langId === 73) {
+                        codeToExecute = template.driverCode + "\n\n" + code;
+                    }
+                    // JavaScript (63), Python (71): User code first, then driver
+                    else if (langId === 63 || langId === 71) {
+                        codeToExecute = code + "\n\n" + template.driverCode;
+                    }
+                    // Java (62), C (50), C++ (54): Need placeholder - warn if missing
+                    else if (langId === 62 || langId === 50 || langId === 54) {
+                        // For structured languages, assume user code goes inside class/before main
+                        // If no placeholder, try driver first (for cases where main is at end)
+                        codeToExecute = template.driverCode.replace(/}\s*$/, code + "\n}");
+                    }
+                    // Default: user code first, then driver
+                    else {
+                        codeToExecute = code + "\n\n" + template.driverCode;
+                    }
+                }
             }
 
             // 2. Send Batch to Judge0

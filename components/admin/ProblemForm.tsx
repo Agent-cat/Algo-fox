@@ -9,6 +9,13 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TagInput } from "./TagInput";
+import FunctionTemplateEditor, { FunctionTemplate } from "./FunctionTemplateEditor";
+
+const functionTemplateSchema = z.object({
+    languageId: z.number(),
+    functionTemplate: z.string(),
+    driverCode: z.string(),
+});
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -19,16 +26,22 @@ const formSchema = z.object({
     hiddenQuery: z.string().optional().nullable(),
     tags: z.array(z.string()).optional(),
     testCases: z.array(z.object({
-        input: z.string().min(1, "Input is required"),
+        input: z.string(), // Optional for SQL
         output: z.string().min(1, "Output is required"),
         hidden: z.boolean().optional()
-    })).min(1, "At least one test case is required")
+    })).min(1, "At least one test case is required"),
+    useFunctionTemplate: z.boolean().optional(),
+    functionTemplates: z.array(functionTemplateSchema).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface ProblemFormProps {
-    initialData?: Omit<Partial<FormValues>, "tags"> & { tags?: { name: string; slug: string }[] };
+    initialData?: Omit<Partial<FormValues>, "tags"> & {
+        tags?: { name: string; slug: string }[];
+        useFunctionTemplate?: boolean;
+        functionTemplates?: FunctionTemplate[];
+    };
     onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
     submitLabel: string;
     domain?: ProblemDomain;
@@ -39,7 +52,16 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedTags, setSelectedTags] = useState<{ name: string, slug: string }[]>(initialData?.tags || []);
+
+    // Function template state (for DSA only)
+    const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
+    const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
+
     const router = useRouter();
+
+    // Determine number of steps based on domain
+    const isDSA = domain === "DSA";
+    const totalSteps = isDSA ? 4 : 3;
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -51,7 +73,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             hidden: initialData?.hidden || false,
             hiddenQuery: initialData?.hiddenQuery || "",
             testCases: initialData?.testCases?.length ? initialData.testCases : [{ input: "", output: "", hidden: false }],
-            tags: initialData?.tags?.map(t => t.slug) || []
+            tags: initialData?.tags?.map(t => t.slug) || [],
+            useFunctionTemplate: initialData?.useFunctionTemplate || false,
+            functionTemplates: initialData?.functionTemplates || [],
         }
     });
 
@@ -62,21 +86,36 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     const hiddenValue = watch("hidden");
 
-    const steps = [
-        { id: 1, name: "Basic Details" },
-        { id: 2, name: "Description" },
-        { id: 3, name: "Test Cases" }
-    ];
+    // Build steps array based on domain
+    const steps = isDSA
+        ? [
+            { id: 1, name: "Basic Details" },
+            { id: 2, name: "Description" },
+            { id: 3, name: "Test Cases" },
+            { id: 4, name: "Code Templates" }
+        ]
+        : [
+            { id: 1, name: "Basic Details" },
+            { id: 2, name: "Description" },
+            { id: 3, name: "Test Cases" }
+        ];
 
-    const handleNext = async () => {
+    const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+
         let isValid = false;
         if (currentStep === 1) {
             isValid = await trigger(["title", "slug", "difficulty"]);
         } else if (currentStep === 2) {
             isValid = await trigger(["description"]);
+        } else if (currentStep === 3) {
+            isValid = await trigger(["testCases"]);
+        } else {
+            isValid = true; // Step 4 (templates) has no required validation
         }
 
-        if (isValid) {
+        if (isValid && currentStep < totalSteps) {
             setCurrentStep(prev => prev + 1);
         }
     };
@@ -86,6 +125,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     };
 
     async function onSubmitForm(data: FormValues) {
+        // Prevent double submission
+        if (isLoading) return;
         setIsLoading(true);
 
         const submissionData = {
@@ -94,6 +135,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
             tags: selectedTags.map(t => t.slug),
+            // Include function template data for DSA
+            useFunctionTemplate: isDSA ? useFunctionTemplate : false,
+            functionTemplates: isDSA && useFunctionTemplate ? functionTemplates : [],
         };
 
         const res = await onSubmit(submissionData);
@@ -121,12 +165,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors
                                 ${currentStep >= step.id ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-500"}
                             `}>
-                                {step.id}
-                            </div>
+                                {step.id}                            </div>
                             <span className={`text-sm font-medium ${currentStep >= step.id ? "text-gray-900" : "text-gray-400"}`}>
                                 {step.name}
                             </span>
-                            {step.id < 3 && <div className="w-12 h-0.5 bg-gray-200 mx-2" />}
+                            {step.id < totalSteps && <div className="w-12 h-0.5 bg-gray-200 mx-2" />}
                         </div>
                     ))}
                 </div>
@@ -251,7 +294,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                             {fields.map((field, index) => (
                                 <div key={field.id} className="flex gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:border-orange-200 transition-colors">
                                     <div className="flex-1 space-y-2">
-                                        <label className="text-xs font-medium text-gray-500">INPUT</label>
+                                        <label className="text-xs font-medium text-gray-500">
+                                            INPUT {domain === "SQL" && <span className="text-[10px] font-normal opacity-70 ml-1">(OPTIONAL)</span>}
+                                        </label>
                                         <textarea
                                             {...register(`testCases.${index}.input` as const)}
                                             className="w-full px-3 py-2 rounded-md border border-gray-200 focus:border-orange-500 outline-none text-sm font-mono"
@@ -286,6 +331,22 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                     </div>
                 )}
 
+                {/* Step 4: Code Templates (DSA only) */}
+                {isDSA && currentStep === 4 && (
+                    <div className="space-y-6 max-w-4xl mx-auto animation-fade-in">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">Code Templates</h3>
+                            <p className="text-sm text-gray-500">Choose how users will start solving this problem.</p>
+                        </div>
+                        <FunctionTemplateEditor
+                            value={functionTemplates}
+                            onChange={setFunctionTemplates}
+                            useFunctionTemplate={useFunctionTemplate}
+                            onUseFunctionTemplateChange={setUseFunctionTemplate}
+                        />
+                    </div>
+                )}
+
                 {/* Footer Actions */}
                 <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between">
                     <button
@@ -297,7 +358,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         Back
                     </button>
 
-                    {currentStep < 3 ? (
+                    {currentStep < totalSteps ? (
                         <button
                             type="button"
                             onClick={handleNext}
