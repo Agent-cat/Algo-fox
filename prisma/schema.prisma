@@ -229,6 +229,7 @@ enum Difficulty {
   EASY
   MEDIUM
   HARD
+  CONCEPT
 }
 
 enum Role {

@@ -19,8 +19,8 @@ const formSchema = z.object({
     hiddenQuery: z.string().optional().nullable(),
     tags: z.array(z.string()).optional(),
     testCases: z.array(z.object({
-        input: z.string(),
-        output: z.string(),
+        input: z.string().min(1, "Input is required"),
+        output: z.string().min(1, "Output is required"),
         hidden: z.boolean().optional()
     })).min(1, "At least one test case is required")
 });
@@ -48,7 +48,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             slug: initialData?.slug || "",
             description: initialData?.description || "",
             difficulty: initialData?.difficulty || "EASY",
-            hidden: domain === "DSA" ? false : (initialData?.hidden ?? false),
+            hidden: initialData?.hidden || false,
             hiddenQuery: initialData?.hiddenQuery || "",
             testCases: initialData?.testCases?.length ? initialData.testCases : [{ input: "", output: "", hidden: false }],
             tags: initialData?.tags?.map(t => t.slug) || []
@@ -90,7 +90,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
         const submissionData = {
             ...data,
-            hidden: domain === "DSA" ? false : data.hidden,
+            hidden: data.hidden,
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
             tags: selectedTags.map(t => t.slug),
@@ -182,21 +182,19 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700">Hidden</label>
-                                {domain === "SQL" && (
-                                    <div className="space-y-2 flex flex-col justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => setValue("hidden", !hiddenValue)}
-                                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors border ${hiddenValue
-                                                ? "bg-gray-50 text-gray-600 border-gray-200"
-                                                : "bg-green-50 text-green-700 border-green-200"
-                                                }`}
-                                        >
-                                            {hiddenValue ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                            {hiddenValue ? "Hidden Problem" : "Visible Problem"}
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="space-y-2 flex flex-col justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => setValue("hidden", !hiddenValue)}
+                                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors border ${hiddenValue
+                                            ? "bg-gray-50 text-gray-600 border-gray-200"
+                                            : "bg-green-50 text-green-700 border-green-200"
+                                            }`}
+                                    >
+                                        {hiddenValue ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        {hiddenValue ? "Hidden Problem" : "Visible Problem"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -268,7 +266,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             rows={2}
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 pt-6">
+                                    <div className="flex flex-col gap-2 pt-6 items-center">
+                                        <label className="flex items-center gap-2 cursor-pointer group" title="Hidden Test Case">
+                                            <input
+                                                type="checkbox"
+                                                {...register(`testCases.${index}.hidden` as const)}
+                                                className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                                            />
+                                            <span className="text-xs text-gray-500 font-medium group-hover:text-gray-700 transition-colors">Hidden</span>
+                                        </label>
                                         <button type="button" onClick={() => remove(index)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
                                             <Trash2 className="w-4 h-4" />
                                         </button>

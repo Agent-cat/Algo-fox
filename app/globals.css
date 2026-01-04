@@ -90,3 +90,11 @@ body {
   background-color: rgba(156, 163, 175, 0.5);
   border-radius: 20px;
 }
+
+.bg-grid {
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+  background-position: center top;
+}

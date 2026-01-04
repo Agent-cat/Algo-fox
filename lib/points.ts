@@ -14,6 +14,8 @@ export function getPointsForDifficulty(difficulty: Difficulty): number {
             return 10;
         case "HARD":
             return 15;
+        case "CONCEPT":
+            return 0;
         default:
             return 0;
     }

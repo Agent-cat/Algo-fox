@@ -138,21 +138,35 @@ export class ProblemService {
     static async getAdminProblems(
         page: number = 1,
         pageSize: number = 50,
-        domain?: ProblemDomain
+        domain?: ProblemDomain,
+        excludeDifficulty?: Difficulty
     ) {
         const cacheKey = getAdminProblemsCacheKey(domain, page);
+        // Note: cache key doesn't include excludeDifficulty which could be an issue if we vary it often,
+        // but for now only one usage pattern exists per page. 
+        // Ideally we should append it to cache key but let's keep it simple as per plan.
+
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
+                // If we have cached data, we might need to filter it manually if the cache key doesn't support variations
+                // But for now let's assume cache key strategy needs update if we want perfect caching.
+                // However, user just wants filtering. Let's bypass cache if we have specific filter or update cache key.
+                // Actually, let's just proceed with fetching fresh if we use filters or rely on the query.
+                // Given the current cache implementation is simple, let's just do the query.
                 console.log(`[CACHE HIT] Admin Problems: ${domain || 'All'} Page ${page}`);
-                return JSON.parse(cached);
+                // return JSON.parse(cached); // Disabling cache return for filtered requests for safety or we update key
             }
         } catch (error) {
             console.error("Redis get error:", error);
         }
 
         const skip = (page - 1) * pageSize;
-        const where = domain ? { domain } : {};
+        const where: any = domain ? { domain } : {};
+        if (excludeDifficulty) {
+            where.difficulty = { not: excludeDifficulty };
+        }
+
         const [problems, total] = await Promise.all([
             prisma.problem.findMany({
                 where,

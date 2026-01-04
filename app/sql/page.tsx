@@ -1,7 +1,8 @@
 import { getProblems } from "@/actions/problems";
 import SqlProblemsClient from "./_components/SqlProblemsClient";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "SQL Problems | Algofox",
     description: "Practice SQL problems and improve your database query skills.",
 };

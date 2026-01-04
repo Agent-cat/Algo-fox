@@ -14,7 +14,7 @@ export default function DsaAdminProblemsPage() {
 
     const fetchProblems = async () => {
         setIsLoading(true);
-        const res = await getAdminProblems(1, 100, "DSA");
+        const res = await getAdminProblems(1, 100, "DSA", "CONCEPT");
         setProblems(res.problems);
         setIsLoading(false);
     }

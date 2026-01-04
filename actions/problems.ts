@@ -31,7 +31,8 @@ export async function getProblems(
 export async function getAdminProblems(
     page: number = 1,
     pageSize: number = 50,
-    domain?: ProblemDomain
+    domain?: ProblemDomain,
+    excludeDifficulty?: Difficulty
 ) {
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -42,7 +43,7 @@ export async function getAdminProblems(
         throw new Error("Unauthorized");
     }
 
-    return ProblemService.getAdminProblems(page, pageSize, domain);
+    return ProblemService.getAdminProblems(page, pageSize, domain, excludeDifficulty);
 }
 
 // SEARCHING FOR PROBLEMS

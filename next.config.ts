@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   compress: true,
 
   poweredByHeader: false,
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
   async headers() {
     return [
       {

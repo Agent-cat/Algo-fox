@@ -14,7 +14,7 @@ export default function SqlAdminProblemsPage() {
 
     const fetchProblems = async () => {
         setIsLoading(true);
-        const res = await getAdminProblems(1, 100, "SQL");
+        const res = await getAdminProblems(1, 100, "SQL", "CONCEPT");
         setProblems(res.problems);
         setIsLoading(false);
     }

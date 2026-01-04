@@ -480,7 +480,7 @@ export class CategoryService {
             slug: string;
             hidden: boolean;
             hiddenQuery?: string | null;
-            testCases: { input: string; output: string; hidden?: boolean }[];
+            testCases?: { input: string; output: string; hidden?: boolean }[];
         }
     ) {
         try {
@@ -501,17 +501,17 @@ export class CategoryService {
                     description: data.description,
                     difficulty: data.difficulty,
                     slug: data.slug,
-                    score: 10,
+                    score: data.difficulty === "CONCEPT" ? 0 : 10,
                     hidden: data.hidden,
                     hiddenQuery: data.hiddenQuery || null,
                     type: "LEARN",
                     domain: category.domain,
                     testCases: {
-                        create: data.testCases.map(tc => ({
+                        create: data.testCases?.map(tc => ({
                             input: tc.input,
                             output: tc.output,
                             hidden: tc.hidden ?? false
-                        }))
+                        })) || []
                     }
                 },
             });

@@ -75,6 +75,7 @@ export class DashboardService {
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
               AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND p."difficulty" != 'CONCEPT'::"Difficulty"
             GROUP BY p."difficulty"
         `;
 
@@ -85,9 +86,11 @@ export class DashboardService {
                 CAST(COUNT(DISTINCT s."problemId") AS INTEGER) as "count"
             FROM "Submission" s
             JOIN "Language" l ON s."languageId" = l."id"
+            JOIN "Problem" p ON s."problemId" = p."id"
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
               AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND p."difficulty" != 'CONCEPT'::"Difficulty"
             GROUP BY l."name"
         `;
 
@@ -97,16 +100,21 @@ export class DashboardService {
             SELECT DISTINCT
                 DATE(s."createdAt") as "date"
             FROM "Submission" s
+            JOIN "Problem" p ON s."problemId" = p."id"
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
               AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND p."difficulty" != 'CONCEPT'::"Difficulty"
             ORDER BY "date" ASC
         `;
 
         // 4. TOTAL PROBLEMS COUNT (METADATA)
         const totalByDifficultyPromise = prisma.problem.groupBy({
             by: ['difficulty'],
-            where: { hidden: false },
+            where: {
+                hidden: false,
+                difficulty: { not: 'CONCEPT' }
+            },
             _count: { id: true }
         });
 

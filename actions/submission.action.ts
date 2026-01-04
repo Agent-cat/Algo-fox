@@ -3,7 +3,7 @@
 import { SubmissionService } from "@/core/services/submission.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidatePath, revalidateTag } from "next/cache";
 
 export async function getSubmission(id: string) {
     const session = await auth.api.getSession({
@@ -60,4 +60,47 @@ export async function getProblemSubmissionsAction(problemId: string) {
     );
 
     return getCachedSubmissions(problemId, userId);
+}
+
+export async function markConceptAsCompleted(problemId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || !session.user) {
+        throw new Error("Unauthorized");
+    }
+
+    const userId = session.user.id;
+
+    // Use a default language (e.g., JavaScript ID 63) for concept submissions since language doesn't matter
+    const DEFAULT_CONCEPT_LANG_ID = 63;
+
+    try {
+        // Create a submission with ACCEPTED status
+        const submission = await SubmissionService.createSubmission(
+            userId,
+            problemId,
+            DEFAULT_CONCEPT_LANG_ID,
+            "// CONCEPT COMPLETED",
+            "SUBMIT"
+        );
+
+        // Update status to ACCEPTED
+        await SubmissionService.updateSubmissionStatus(submission.id, "ACCEPTED", 0, 0);
+
+        // Increment solved counts (logic in service handles exclusion of user stats for CONCEPT)
+        await SubmissionService.incrementProblemSolved(problemId, userId);
+
+        revalidatePath("/problems");
+        revalidatePath("/dsa");
+        revalidatePath("/sql");
+        // @ts-expect-error - Next.js type mismatch
+        revalidateTag(`problem-${problemId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to mark concept as completed:", error);
+        return { success: false, error: "Failed to mark as completed" };
+    }
 }

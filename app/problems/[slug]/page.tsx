@@ -3,6 +3,9 @@ import Workspace from "@/components/workspace/Workspace";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Laptop2 } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import ConceptViewer from "@/components/problems/ConceptViewer";
 
 // REVALIDATING EVERY 1 HOUR (PROBLEMS RARELY CHANGE)
 export const revalidate = 3600;
@@ -35,6 +38,30 @@ export default async function ProblemPage({ params }: PageProps) {
 
   if (!problem) {
     return notFound();
+  }
+
+  if (problem.difficulty === "CONCEPT") {
+    // Check if user has completed this concept
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
+
+    let isSolved = false;
+    if (session?.user) {
+      const submission = await prisma.submission.findFirst({
+        where: {
+          problemId: problem.id,
+          userId: session.user.id,
+          status: "ACCEPTED",
+          mode: "SUBMIT"
+        }
+      });
+      isSolved = !!submission;
+    }
+
+    return (
+      <ConceptViewer problem={problem} isSolved={isSolved} />
+    );
   }
 
   return (

@@ -54,11 +54,28 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: "Problem not found" }, { status: 404 });
             }
 
+            // Filter test cases: for RUN mode, usually only public ones? 
+            // The worker does: testCasesToEvaluate = allTestCases.filter(tc => !tc.hidden);
+            // Let's mirror that behavior for consistency.
+            const testCasesToEvaluate = problem.testCases.filter(tc => !tc.hidden);
+
+            let codeToExecute = code;
+            if (problem.domain === "SQL") {
+                // Prepend hiddenQuery if exists
+                if (problem.hiddenQuery) {
+                    codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
+                }
+
+                // Convert SQL to SQLite-compatible syntax
+                const { convertBatchToSQLite } = await import("@/lib/sql-converter");
+                codeToExecute = convertBatchToSQLite(codeToExecute);
+            }
+
             // Send to Judge0
             const tokens = await SubmissionService.sendToJudge0(
                 languageId,
-                code,
-                problem.testCases.map(tc => ({ input: tc.input, output: tc.output }))
+                codeToExecute,
+                testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
             );
 
             // Wait for results (poll Judge0 internally)

@@ -191,7 +191,7 @@ export async function createProblemAndAddToCategory(
     slug: string;
     hidden: boolean;
     hiddenQuery?: string | null;
-    testCases: { input: string; output: string; hidden?: boolean }[];
+    testCases?: { input: string; output: string; hidden?: boolean }[];
   }
 ) {
   const session = await auth.api.getSession({

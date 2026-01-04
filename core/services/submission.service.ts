@@ -265,17 +265,20 @@ export class SubmissionService {
                 });
 
                 // Increment user's problemsSolved count and add points based on difficulty
-                await tx.user.update({
-                    where: { id: userId },
-                    data: {
-                        problemsSolved: {
-                            increment: 1
-                        },
-                        totalScore: {
-                            increment: points
+                // SKIP IF CONCEPT
+                if (problem.difficulty !== "CONCEPT") {
+                    await tx.user.update({
+                        where: { id: userId },
+                        data: {
+                            problemsSolved: {
+                                increment: 1
+                            },
+                            totalScore: {
+                                increment: points
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 // Invalidate user score cache and leaderboard cache
                 try {

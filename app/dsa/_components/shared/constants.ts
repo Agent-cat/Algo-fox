@@ -9,6 +9,7 @@ export const DIFFICULTY_COLORS = {
     EASY: "text-emerald-500 bg-emerald-50/50",
     MEDIUM: "text-amber-500 bg-amber-50/50",
     HARD: "text-rose-500 bg-rose-50/50",
+    CONCEPT: "text-indigo-500 bg-indigo-50/50",
 } as const;
 
 // Animation configurations
