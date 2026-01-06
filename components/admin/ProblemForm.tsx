@@ -32,6 +32,7 @@ const formSchema = z.object({
     })).min(1, "At least one test case is required"),
     useFunctionTemplate: z.boolean().optional(),
     functionTemplates: z.array(functionTemplateSchema).optional(),
+    solution: z.string().optional().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -61,7 +62,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     // Determine number of steps based on domain
     const isDSA = domain === "DSA";
-    const totalSteps = isDSA ? 4 : 3;
+    const totalSteps = isDSA ? 5 : 4;
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -76,6 +77,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             tags: initialData?.tags?.map(t => t.slug) || [],
             useFunctionTemplate: initialData?.useFunctionTemplate || false,
             functionTemplates: initialData?.functionTemplates || [],
+            solution: initialData?.solution || "",
         }
     });
 
@@ -91,13 +93,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         ? [
             { id: 1, name: "Basic Details" },
             { id: 2, name: "Description" },
-            { id: 3, name: "Test Cases" },
-            { id: 4, name: "Code Templates" }
+            { id: 3, name: "Solution" },
+            { id: 4, name: "Test Cases" },
+            { id: 5, name: "Code Templates" }
         ]
         : [
             { id: 1, name: "Basic Details" },
             { id: 2, name: "Description" },
-            { id: 3, name: "Test Cases" }
+            { id: 3, name: "Solution" },
+            { id: 4, name: "Test Cases" }
         ];
 
     const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -110,9 +114,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         } else if (currentStep === 2) {
             isValid = await trigger(["description"]);
         } else if (currentStep === 3) {
+            isValid = await trigger(["solution"]);
+        } else if (currentStep === 4) {
             isValid = await trigger(["testCases"]);
         } else {
-            isValid = true; // Step 4 (templates) has no required validation
+            isValid = true; // Step 5 (templates) has no required validation
         }
 
         if (isValid && currentStep < totalSteps) {
@@ -275,8 +281,23 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                     </div>
                 )}
 
-                {/* Step 3: Test Cases */}
+                {/* Step 3: Solution */}
                 {currentStep === 3 && (
+                    <div className="space-y-4 max-w-4xl mx-auto animation-fade-in">
+                        <label className="text-sm font-semibold text-gray-700">Solution (Markdown)</label>
+                        <p className="text-xs text-gray-500 mb-2">This solution will be visible only to users who have successfully solved the problem.</p>
+                        <textarea
+                            {...register("solution")}
+                            rows={15}
+                            placeholder="# Detailed Solution..."
+                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all font-mono text-sm leading-relaxed text-gray-900"
+                        />
+                        {errors.solution && <p className="text-xs text-red-500">{errors.solution.message}</p>}
+                    </div>
+                )}
+
+                {/* Step 4: Test Cases */}
+                {currentStep === 4 && (
                     <div className="space-y-6 max-w-3xl mx-auto animation-fade-in">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-gray-900">Test Cases</h3>
@@ -331,8 +352,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                     </div>
                 )}
 
-                {/* Step 4: Code Templates (DSA only) */}
-                {isDSA && currentStep === 4 && (
+                {/* Step 5: Code Templates (DSA only) */}
+                {isDSA && currentStep === 5 && (
                     <div className="space-y-6 max-w-4xl mx-auto animation-fade-in">
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold text-gray-900">Code Templates</h3>

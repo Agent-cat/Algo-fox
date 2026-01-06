@@ -344,6 +344,7 @@ export class ProblemService {
         tags?: string[];
         useFunctionTemplate?: boolean;
         functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
+        solution?: string | null;
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -357,6 +358,7 @@ export class ProblemService {
                     hiddenQuery: data.hiddenQuery || null,
                     domain: data.domain || "DSA",
                     useFunctionTemplate: data.useFunctionTemplate || false,
+                    solution: data.solution || null,
                     testCases: {
                         create: data.testCases.map(tc => ({
                             input: tc.input,

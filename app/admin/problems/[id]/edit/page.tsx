@@ -80,7 +80,8 @@ export default function EditProblemPage() {
                             testCases: problem.testCases || [],
                             tags: problem.tags || [],
                             useFunctionTemplate: problem.useFunctionTemplate || false,
-                            functionTemplates: problem.functionTemplates || []
+                            functionTemplates: problem.functionTemplates || [],
+                            solution: problem.solution || ""
                         }}
                         onSubmit={(data) => updateProblem(id, data)}
                         submitLabel="Save Changes"

@@ -21,7 +21,10 @@ interface WorkspaceProps {
         testCases: ProblemTestCase[];
         functionTemplates?: FunctionTemplate[];
         useFunctionTemplate?: boolean;
+        solution?: string | null;
+        tags?: { name: string; slug: string }[];
     };
+    isSolved: boolean;
 }
 
 import { authClient } from '@/lib/auth-client';
@@ -58,10 +61,11 @@ function getStoredLanguageId(domain?: string): number {
 }
 
 
-export default function Workspace({ problem }: WorkspaceProps) {
+export default function Workspace({ problem, isSolved }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
     const [code, setCode] = useState<string>("// Write your code here");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSolvedState, setIsSolvedState] = useState(isSolved);
     // Start with default language to avoid hydration mismatch, then update from localStorage
     const [languageId, setLanguageId] = useState(
         problem.domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID
@@ -207,6 +211,7 @@ export default function Workspace({ problem }: WorkspaceProps) {
                             toast.success("Submitted Successfully!", {
                                 description: `Time: ${data.time}ms | Memory: ${data.memory}KB`
                             });
+                            setIsSolvedState(true);
                             if (mode === "SUBMIT") {
                                 setActiveTab("submissions");
                                 // Dispatch custom event to refresh user points
@@ -257,6 +262,7 @@ export default function Workspace({ problem }: WorkspaceProps) {
                             problem={problem}
                             activeTab={activeTab}
                             onTabChange={setActiveTab}
+                            isSolved={isSolvedState}
                         />
                     </div>
 

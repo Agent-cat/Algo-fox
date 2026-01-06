@@ -3,9 +3,12 @@
 import { SubmissionService } from "@/core/services/submission.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { unstable_cache, revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
 
 export async function getSubmission(id: string) {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 86400, revalidate: 86400 }); // 24 hours (submissions are immutable generally)
+    
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -14,18 +17,9 @@ export async function getSubmission(id: string) {
         return null;
     }
 
-    const getCachedSubmission = unstable_cache(
-        async (submissionId: string) => {
-            return SubmissionService.getSubmissionById(submissionId);
-        },
-        [`submission-${id}`],
-        {
-            tags: [`submission-${id}`],
-            revalidate: 60 * 60 * 24 // 24 hours (submissions are immutable generally)
-        }
-    );
+    cacheTag(`submission-${id}`, `user-submissions-${session.user.id}`);
 
-    const submission = await getCachedSubmission(id);
+    const submission = await SubmissionService.getSubmissionById(id);
 
     // Security check: Ensure the submission belongs to the user
     // OR if we want to allow sharing, we might skip this. 
@@ -38,6 +32,9 @@ export async function getSubmission(id: string) {
 }
 
 export async function getProblemSubmissionsAction(problemId: string) {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 60, revalidate: 60 }); // 1 minute default, but we rely on on-demand revalidation ideally
+    
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -48,18 +45,9 @@ export async function getProblemSubmissionsAction(problemId: string) {
 
     const userId = session.user.id;
 
-    const getCachedSubmissions = unstable_cache(
-        async (pId: string, uId: string) => {
-            return SubmissionService.getProblemSubmissions(pId, uId);
-        },
-        [`problem-submissions-${userId}-${problemId}`],
-        {
-            tags: [`problem-submissions-${userId}-${problemId}`],
-            revalidate: 60 // 1 minute default, but we rely on on-demand revalidation ideally
-        }
-    );
+    cacheTag(`problem-submissions-${userId}-${problemId}`, `user-submissions-${userId}`, `problem-${problemId}`);
 
-    return getCachedSubmissions(problemId, userId);
+    return SubmissionService.getProblemSubmissions(problemId, userId);
 }
 
 export async function markConceptAsCompleted(problemId: string) {
@@ -95,7 +83,9 @@ export async function markConceptAsCompleted(problemId: string) {
         revalidatePath("/problems");
         revalidatePath("/dsa");
         revalidatePath("/sql");
-        revalidateTag(`problem-${problemId}`, 'max');
+        updateTag(`problem-${problemId}`);
+        updateTag(`user-submissions-${userId}`);
+        updateTag(`problem-submissions-${userId}-${problemId}`);
 
         return { success: true };
     } catch (error) {

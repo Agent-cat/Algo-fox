@@ -13,12 +13,16 @@ import { getPointsLabel } from '@/lib/points';
 type Tab = "description" | "solutions" | "submissions";
 
 interface ProblemDescriptionProps {
-    problem: Problem & { tags?: { name: string; slug: string }[] };
+    problem: Problem & {
+        tags?: { name: string; slug: string }[];
+        solution?: string | null;
+    };
     activeTab: Tab;
     onTabChange: (tab: Tab) => void;
+    isSolved: boolean;
 }
 
-export default function ProblemDescription({ problem, activeTab, onTabChange }: ProblemDescriptionProps) {
+export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved }: ProblemDescriptionProps) {
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case "EASY": return "text-emerald-600 bg-emerald-50 border-emerald-100";
@@ -42,6 +46,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange }: 
                 <button
                     onClick={() => onTabChange("solutions")}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    disabled={problem.difficulty === "CONCEPT"}
                 >
                     <BadgeCheck className="w-4 h-4" />
                     Solutions
@@ -95,7 +100,31 @@ export default function ProblemDescription({ problem, activeTab, onTabChange }: 
                 {activeTab === "submissions" && <Submissions problemId={problem.id} />}
 
                 {activeTab === "solutions" && (
-                    <div className="p-8 text-center text-gray-500">Solutions coming soon!</div>
+                    <div className="px-6 py-6 space-y-6">
+                        {isSolved ? (
+                            <div className="prose prose-[1rem] max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-code:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 prose-pre:text-gray-900 prose-pre:border prose-pre:border-gray-200">
+                                {problem.solution ? (
+                                    <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                        {problem.solution}
+                                    </Markdown>
+                                ) : (
+                                    <div className="text-gray-500 italic text-center py-10">
+                                        No solution has been provided for this problem yet.
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-20 px-10 text-center space-y-4">
+                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <BadgeCheck className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900">Solution Locked</h2>
+                                <p className="text-gray-600 max-w-xs">
+                                    You need to successfully solve this problem to unlock the official solution.
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
         </div >

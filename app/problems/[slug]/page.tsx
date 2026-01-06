@@ -6,9 +6,10 @@ import { Laptop2 } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import ConceptViewer from "@/components/problems/ConceptViewer";
+import { Suspense } from "react";
 
-// REVALIDATING EVERY 1 HOUR (PROBLEMS RARELY CHANGE)
-export const revalidate = 3600;
+// MIGRATED: Removed export const revalidate = 3600 (incompatible with Cache Components)
+// Caching is now handled via "use cache" in the getProblem action with cacheLife
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -31,23 +32,17 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
+// Dynamic component that checks if problem is solved
+async function ProblemContent({ problem }: { problem: any }) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
 
-export default async function ProblemPage({ params }: PageProps) {
-  const { slug } = await params;
-  const problem = await getProblem(slug);
-
-  if (!problem) {
-    return notFound();
-  }
-
-  if (problem.difficulty === "CONCEPT") {
-    // Check if user has completed this concept
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
-
-    let isSolved = false;
-    if (session?.user) {
+  let isSolved = false;
+  if (session?.user) {
+    if (session.user.role === "ADMIN") {
+      isSolved = true;
+    } else {
       const submission = await prisma.submission.findFirst({
         where: {
           problemId: problem.id,
@@ -58,7 +53,9 @@ export default async function ProblemPage({ params }: PageProps) {
       });
       isSolved = !!submission;
     }
+  }
 
+  if (problem.difficulty === "CONCEPT") {
     return (
       <ConceptViewer problem={problem} isSolved={isSolved} />
     );
@@ -76,9 +73,31 @@ export default async function ProblemPage({ params }: PageProps) {
         </p>
       </div>
       <div className="hidden md:block">
-        <Workspace problem={problem} />
+        <Workspace problem={problem} isSolved={isSolved} />
       </div>
     </>
+  );
+}
+
+export default async function ProblemPage({ params }: PageProps) {
+  const { slug } = await params;
+  const problem = await getProblem(slug);
+
+  if (!problem) {
+    return notFound();
+  }
+
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading problem...</p>
+        </div>
+      </div>
+    }>
+      <ProblemContent problem={problem} />
+    </Suspense>
   );
 }
 

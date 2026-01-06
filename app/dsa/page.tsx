@@ -1,12 +1,13 @@
 import { getProblems } from "@/actions/problems";
 import DsaProblemsClient from "./_components/DsaProblemsClient";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "DSA Problems | Algofox",
     description: "Practice Data Structures and Algorithms problems and improve your skills.",
 };
 
-export default async function DsaProblemsPage({
+async function DsaProblemsContent({
     searchParams
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -31,5 +32,22 @@ export default async function DsaProblemsPage({
             initialProblems={problems}
             initialTotalPages={totalPages}
         />
+    );
+}
+
+export default async function DsaProblemsPage({
+    searchParams
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading problems...</p>
+            </div>
+        </div>}>
+            <DsaProblemsContent searchParams={searchParams} />
+        </Suspense>
     );
 }

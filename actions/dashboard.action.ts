@@ -3,9 +3,13 @@
 import { DashboardService } from "@/core/services/dashboard.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { cacheTag, cacheLife } from "next/cache";
 
 // GETTING DASHBOARD STATS
 export async function getDashboardStats() {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for dashboard stats
+    
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -15,6 +19,8 @@ export async function getDashboardStats() {
     }
 
     const userId = session.user.id;
+
+    cacheTag(`dashboard-${userId}`, 'dashboard-stats');
 
     return DashboardService.getDashboardStats(userId);
 }

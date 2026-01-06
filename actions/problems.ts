@@ -4,7 +4,7 @@ import { ProblemService } from "@/core/services/problem.service";
 import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
 
 // GETTING PUBLIC PROBLEMS
 
@@ -16,11 +16,17 @@ export async function getProblems(
     difficulty?: Difficulty,
     tags?: string[]
 ) {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
     });
     const userId = session?.user?.id;
+
+    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}-page-${page}${userId ? `-user-${userId}` : ''}`;
+    cacheTag(tagKey, 'problems-list', `problems-${domain}-${type}`);
 
     return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || []);
 
@@ -34,6 +40,9 @@ export async function getAdminProblems(
     domain?: ProblemDomain,
     excludeDifficulty?: Difficulty
 ) {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
@@ -42,6 +51,9 @@ export async function getAdminProblems(
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
     }
+
+    const tagKey = `admin-problems-${domain || 'all'}${excludeDifficulty ? `-exclude-${excludeDifficulty}` : ''}-page-${page}`;
+    cacheTag(tagKey, 'admin-problems-list');
 
     return ProblemService.getAdminProblems(page, pageSize, domain, excludeDifficulty);
 }
@@ -53,10 +65,16 @@ export async function searchProblems(
     type: ProblemType = "PRACTICE",
     domain: ProblemDomain = "DSA"
 ) {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for search results
+    
     const session = await auth.api.getSession({
         headers: await headers()
     });
     const userId = session?.user?.id;
+
+    const tagKey = `search-${domain}-${type}-${term.toLowerCase().slice(0, 20)}${userId ? `-user-${userId}` : ''}`;
+    cacheTag(tagKey, 'problems-search');
 
     return ProblemService.searchProblems(term, type, domain, userId);
 }
@@ -64,6 +82,11 @@ export async function searchProblems(
 // GETTING A PROBLEM BY SLUG CACHED
 
 export async function getProblem(slug: string) {
+    "use cache";
+    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    
+    cacheTag(`problem-${slug}`, 'problems-list');
+
     return ProblemService.getProblem(slug);
 }
 
@@ -82,6 +105,7 @@ export async function createProblem(data: {
     tags?: string[];
     useFunctionTemplate?: boolean;
     functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
+    solution?: string | null;
 }) {
     const session = await auth.api.getSession({
         headers: await headers()
@@ -101,10 +125,10 @@ export async function createProblem(data: {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list', 'max');
-        revalidateTag('problems-list', 'max');
-        revalidateTag('problems-SQL-PRACTICE', 'max');
-        revalidateTag('problems-DSA-PRACTICE', 'max');
+        updateTag('admin-problems-list');
+        updateTag('problems-list');
+        updateTag('problems-SQL-PRACTICE');
+        updateTag('problems-DSA-PRACTICE');
     }
 
     return result;
@@ -113,6 +137,11 @@ export async function createProblem(data: {
 
 // GETTING A PROBLEM BY ID
 export async function getProblemById(id: string) {
+    "use cache";
+    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    
+    cacheTag(`problem-id-${id}`, 'problems-list');
+
     return ProblemService.getProblemById(id);
 }
 
@@ -139,10 +168,10 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list', 'max');
-        revalidateTag('problems-list', 'max');
-        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`, 'max');
-        revalidateTag(`problem-${result.data?.slug}`, 'max');
+        updateTag('admin-problems-list');
+        updateTag('problems-list');
+        updateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`);
+        updateTag(`problem-${result.data?.slug}`);
     }
 
     return result;
@@ -171,8 +200,8 @@ export async function deleteProblem(id: string) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list', 'max');
-        revalidateTag('problems-list', 'max');
+        updateTag('admin-problems-list');
+        updateTag('problems-list');
     }
 
     return result;

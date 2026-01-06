@@ -4,13 +4,16 @@ import { UserService } from "@/core/services/user.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
 
 /**
- * Get user's total score (cached for 30 seconds)
- * Cache is invalidated when user solves a problem via revalidateTag
+ * Get user's total score (cached for 5 minutes)
+ * Cache is invalidated when user solves a problem via updateTag
  */
 export async function getUserScore(): Promise<number> {
+    "use cache: private"; // Must be at top - allows headers() inside
+    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes
+    
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -20,6 +23,8 @@ export async function getUserScore(): Promise<number> {
     }
 
     const userId = session.user.id;
+
+    cacheTag(`user-score-${userId}`, `user-${userId}`);
 
     return UserService.getUserScore(userId);
 }
@@ -102,6 +107,9 @@ export async function updateUserInfo(data: {
         });
 
         revalidatePath("/dashboard");
+        updateTag(`user-${userId}`);
+        updateTag(`user-score-${userId}`);
+        updateTag('dashboard-stats');
         return { success: true };
     } catch (error) {
         console.error("Failed to update user info:", error);

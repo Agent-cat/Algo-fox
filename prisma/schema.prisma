@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//////////////////////////////////// Authentication Models //////////////////////////////////////////
 model User {
   id        String  @id
   name      String
@@ -35,164 +36,11 @@ model User {
   sessions    Session[]
   accounts    Account[]
   submissions Submission[]
-  // contestPoints      ContestPoint[]
-  // contestSubmissions ContestSubmission[]
   problems    Problem[]
 
   @@index([collageId])
-  @@index([collageId, totalScore]) // leaderboard per college
+  @@index([collageId, totalScore])
   @@map("user")
-}
-
-model Problem {
-  id          String @id @default(cuid())
-  title       String
-  description String
-
-  hidden      Boolean       @default(true)
-  slug        String        @unique
-  score       Int
-  solved      Int?          @default(0)
-  difficulty  Difficulty    @default(EASY)
-  type        ProblemType   @default(PRACTICE)
-  domain      ProblemDomain @default(DSA)
-  hiddenQuery String?
-
-  // Function template mode for DSA problems
-  useFunctionTemplate Boolean @default(false)
-
-  // contestSubmissions ContestSubmission[]
-  // contestProblems    ContestProblem[]
-
-  submissions       Submission[]
-  testCases         ProblemTestCase[]
-  categoryProblems  CategoryProblem[]
-  functionTemplates ProblemFunctionTemplate[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  tags Tag[]
-
-  @@index([createdAt])
-  @@index([domain, type, hidden, difficulty, createdAt]) // filter by domain, type, difficulty and sort
-  @@index([domain, type, hidden, createdAt]) // filter by domain, type and sort
-}
-
-model Tag {
-  id   String @id @default(cuid())
-  name String @unique
-  slug String @unique
-
-  problems Problem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([slug])
-}
-
-model ProblemTestCase {
-  id        String  @id @default(cuid())
-  problemId String
-  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  input     String
-  output    String
-  hidden    Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([problemId])
-}
-
-// Function templates for DSA problems - stores boilerplate and driver code per language
-model ProblemFunctionTemplate {
-  id         String @id @default(cuid())
-  problemId  String
-  languageId Int // Judge0 language ID (63=JS, 71=Python, 62=Java, etc.)
-
-  // What user sees in the editor (function signature/boilerplate)
-  functionTemplate String @db.Text
-
-  // Hidden driver code that calls user's function and handles I/O
-  driverCode String @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([problemId, languageId])
-  @@index([problemId])
-}
-
-model Submission {
-  id         String @id @default(cuid())
-  problemId  String
-  userId     String
-  languageId Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  code   String
-  status SubmissionResult @default(PENDING)
-  mode   SubmissionMode   @default(SUBMIT)
-
-  testCases TestCase[]
-  memory    Int?
-  time      Float?
-
-  // activeContestId    String?
-  // activeContest      Contest?            @relation(fields: [activeContestId], references: [id], onDelete: Cascade)
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // contestSubmissions ContestSubmission[]
-  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt]) // user submission history
-  @@index([problemId, createdAt]) // problem submissions
-  @@index([userId, problemId]) // solved check
-  @@index([status]) // judge workers
-  @@index([userId, status, mode, problemId]) // Optimized for finding solved problems
-  @@index([userId, status, createdAt]) // Optimized for dashboard activity feed and streaks
-}
-
-model Language {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  judge0Id Int    @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  submissions Submission[]
-}
-
-model TestCase {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  status TestCaseResult @default(PENDING)
-  index  Int
-
-  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  submissionId String
-
-  memory Int?
-  time   Float?
-
-  judge0TrackingId String? @unique
-  errorMessage     String?
-  stdout           String?
-
-  @@index([submissionId])
 }
 
 model Session {
@@ -250,6 +98,195 @@ model Verification {
   @@map("verification")
 }
 
+////////////////////////////////////// Problem Models ///////////////////////////////////////////
+
+model Problem {
+  id          String @id @default(cuid())
+  title       String
+  description String
+
+  hidden      Boolean       @default(true)
+  slug        String        @unique
+  score       Int
+  solved      Int?          @default(0)
+  difficulty  Difficulty    @default(EASY)
+  type        ProblemType   @default(PRACTICE)
+  domain      ProblemDomain @default(DSA)
+  hiddenQuery String?
+
+  useFunctionTemplate Boolean @default(false)
+  solution            String? @db.Text
+
+  submissions       Submission[]
+  testCases         ProblemTestCase[]
+  categoryProblems  CategoryProblem[]
+  functionTemplates ProblemFunctionTemplate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  tags Tag[]
+
+  @@index([createdAt])
+  @@index([domain, type, hidden, difficulty, createdAt])
+  @@index([domain, type, hidden, createdAt])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  problems Problem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model ProblemTestCase {
+  id        String  @id @default(cuid())
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  input     String
+  output    String
+  hidden    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([problemId])
+}
+
+model ProblemFunctionTemplate {
+  id         String @id @default(cuid())
+  problemId  String
+  languageId Int
+
+  functionTemplate String @db.Text
+  driverCode       String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, languageId])
+  @@index([problemId])
+}
+
+model Language {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  judge0Id Int    @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submissions Submission[]
+}
+
+////////////////////////////////////// Submission Models ////////////////////////////////////////
+
+model Submission {
+  id         String @id @default(cuid())
+  problemId  String
+  userId     String
+  languageId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  code   String
+  status SubmissionResult @default(PENDING)
+  mode   SubmissionMode   @default(SUBMIT)
+
+  testCases TestCase[]
+  memory    Int?
+  time      Float?
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([problemId, createdAt])
+  @@index([userId, problemId])
+  @@index([status])
+  @@index([userId, status, mode, problemId])
+  @@index([userId, status, createdAt])
+}
+
+model TestCase {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status TestCaseResult @default(PENDING)
+  index  Int
+
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String
+
+  memory Int?
+  time   Float?
+
+  judge0TrackingId String? @unique
+  errorMessage     String?
+  stdout           String?
+
+  @@index([submissionId])
+}
+
+////////////////////////////////////// Category Models ////////////////////////////////////////
+
+model Category {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  slug        String        @unique
+  order       Int           @default(0)
+  domain      ProblemDomain @default(DSA)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryProblems CategoryProblem[]
+
+  @@index([order])
+  @@index([slug])
+  @@index([domain, order])
+}
+
+model CategoryProblem {
+  id         String @id @default(cuid())
+  categoryId String
+  problemId  String
+  order      Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, problemId])
+  @@index([categoryId, order])
+  @@index([problemId])
+}
+
+////////////////////////////////////// Enums ////////////////////////////////////////////
+
+enum Role {
+  ADMIN
+  INSTITUTION
+  STUDENT
+}
+
 enum Difficulty {
   EASY
   MEDIUM
@@ -257,10 +294,14 @@ enum Difficulty {
   CONCEPT
 }
 
-enum Role {
-  ADMIN
-  INSTITUTION
-  STUDENT
+enum ProblemType {
+  PRACTICE
+  LEARN
+}
+
+enum ProblemDomain {
+  DSA
+  SQL
 }
 
 enum SubmissionMode {
@@ -286,49 +327,4 @@ enum TestCaseResult {
   MEMORY_LIMIT_EXCEEDED
   RUNTIME_ERROR
   COMPILE_ERROR
-}
-
-model Category {
-  id          String        @id @default(cuid())
-  name        String
-  description String?
-  slug        String        @unique
-  order       Int           @default(0)
-  domain      ProblemDomain @default(DSA)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  categoryProblems CategoryProblem[]
-
-  @@index([order])
-  @@index([slug])
-  @@index([domain, order]) // filter by domain
-}
-
-model CategoryProblem {
-  id         String @id @default(cuid())
-  categoryId String
-  problemId  String
-  order      Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-
-  @@unique([categoryId, problemId])
-  @@index([categoryId, order])
-  @@index([problemId])
-}
-
-enum ProblemType {
-  PRACTICE
-  LEARN
-}
-
-enum ProblemDomain {
-  DSA
-  SQL
 }

@@ -6,8 +6,10 @@ import { LanguagesCard } from "@/components/dashboard/LanguagesCard";
 import { ProblemOverviewCard } from "@/components/dashboard/ProblemOverviewCard";
 import { RecentSubmissionsCard } from "@/components/dashboard/RecentSubmissionsCard";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import DashboardLoading from "./loading";
 
-export default async function Dashboard() {
+async function DashboardContent() {
     const stats = await getDashboardStats();
 
     if (!stats) {
@@ -86,5 +88,13 @@ export default async function Dashboard() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default async function Dashboard() {
+    return (
+        <Suspense fallback={<DashboardLoading />}>
+            <DashboardContent />
+        </Suspense>
     );
 }
