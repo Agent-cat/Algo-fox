@@ -11,12 +11,16 @@ import * as z from "zod";
 import { TagInput } from "./TagInput";
 import FunctionTemplateEditor, { FunctionTemplate } from "./FunctionTemplateEditor";
 
+
+// FUNCTION TAMPLATE SCHEMA
 const functionTemplateSchema = z.object({
     languageId: z.number(),
     functionTemplate: z.string(),
     driverCode: z.string(),
 });
 
+
+// FORM SCHEMA
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     slug: z.string().min(1, "Slug is required"),
@@ -37,6 +41,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// PROPS INTERFACE
 interface ProblemFormProps {
     initialData?: Omit<Partial<FormValues>, "tags"> & {
         tags?: { name: string; slug: string }[];
@@ -54,13 +59,13 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedTags, setSelectedTags] = useState<{ name: string, slug: string }[]>(initialData?.tags || []);
 
-    // Function template state (for DSA only)
+    //FUNCTION TAMPLATE (DSA ONLY)
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
 
     const router = useRouter();
 
-    // Determine number of steps based on domain
+    // NUMBER OF STEPS BASED ON DOMAIN
     const isDSA = domain === "DSA";
     const totalSteps = isDSA ? 5 : 4;
 
@@ -88,7 +93,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     const hiddenValue = watch("hidden");
 
-    // Build steps array based on domain
+    // BUILD STEPS ARRAY BASED ON DOMAIN
     const steps = isDSA
         ? [
             { id: 1, name: "Basic Details" },
@@ -104,6 +109,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             { id: 4, name: "Test Cases" }
         ];
 
+    // NEXT STEP HANDLER
     const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         e?.preventDefault();
         e?.stopPropagation();
@@ -130,8 +136,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         setCurrentStep(prev => prev - 1);
     };
 
+    // ON SUBMIT
     async function onSubmitForm(data: FormValues) {
-        // Prevent double submission
+
         if (isLoading) return;
         setIsLoading(true);
 
@@ -141,7 +148,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
             tags: selectedTags.map(t => t.slug),
-            // Include function template data for DSA
             useFunctionTemplate: isDSA ? useFunctionTemplate : false,
             functionTemplates: isDSA && useFunctionTemplate ? functionTemplates : [],
         };

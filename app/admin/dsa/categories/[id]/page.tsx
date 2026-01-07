@@ -26,10 +26,12 @@ type ProblemWithStats = {
   isSolved?: boolean;
 };
 
-export default function DsaCategoryProblemsPage() {
+import { Suspense } from "react";
+
+function DsaCategoryProblemsContent() {
   const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  const categoryId = params?.id as string;
 
   const [category, setCategory] = useState<any>(null);
   const [problems, setProblems] = useState<ProblemWithStats[]>([]);
@@ -38,8 +40,10 @@ export default function DsaCategoryProblemsPage() {
   const [showConceptModal, setShowConceptModal] = useState(false);
 
   useEffect(() => {
-    fetchCategory();
-    fetchProblems();
+    if (categoryId) {
+      fetchCategory();
+      fetchProblems();
+    }
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -308,6 +312,18 @@ export default function DsaCategoryProblemsPage() {
         )
       }
     </div >
+  );
+}
+
+export default function DsaCategoryProblemsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    }>
+      <DsaCategoryProblemsContent />
+    </Suspense>
   );
 }
 

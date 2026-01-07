@@ -11,7 +11,7 @@ import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
 export async function getCategories(domain: ProblemDomain = "DSA") {
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-  
+
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -27,7 +27,7 @@ export async function getCategories(domain: ProblemDomain = "DSA") {
 export async function getCategory(slug: string) {
   "use cache";
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-  
+
   cacheTag(`category-${slug}`, 'categories-list');
 
   return CategoryService.getCategoryBySlug(slug);
@@ -48,7 +48,7 @@ export async function getCategoryProblems(
 ) {
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-  
+
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -139,8 +139,8 @@ export async function deleteCategory(id: string) {
     revalidatePath("/dsa");
     revalidatePath("/admin/categories");
     updateTag('categories-list');
-    if (data.slug) {
-      updateTag(`category-${data.slug}`);
+    if (result.slug) {
+      updateTag(`category-${result.slug}`);
     }
   }
 

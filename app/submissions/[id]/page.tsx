@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, Database, CheckCircle2, XCircle, AlertCircle, Terminal } from "lucide-react";
 import CodeEditor from "@/components/workspace/CodeEditor";
+import { Suspense } from "react";
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function SubmissionPage({ params }: PageProps) {
+async function SubmissionContent({ params }: PageProps) {
     const { id } = await params;
     const submission = await getSubmission(id);
 
@@ -123,5 +124,17 @@ export default async function SubmissionPage({ params }: PageProps) {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function SubmissionPage({ params }: PageProps) {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen pt-24 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            </div>
+        }>
+            <SubmissionContent params={params} />
+        </Suspense>
     );
 }

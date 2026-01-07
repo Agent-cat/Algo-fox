@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeftIcon } from "lucide-react";
+import { Suspense } from "react";
 
-export default function SignUp() {
+function SignUpContent() {
     const [loading, setLoading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -55,7 +56,7 @@ export default function SignUp() {
             <div className="max-w-md w-full space-y-8">
                 <div className="absolute top-8 left-8">
                     <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-medium">
-                        <ArrowLeftIcon  className="w-5 h-5" />
+                        <ArrowLeftIcon className="w-5 h-5" />
                         Back
                     </Link>
                 </div>
@@ -114,5 +115,17 @@ export default function SignUp() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SignUp() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        }>
+            <SignUpContent />
+        </Suspense>
     );
 }

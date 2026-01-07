@@ -8,14 +8,17 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Difficulty } from "@prisma/client";
 
-export default function EditProblemPage() {
+import { Suspense } from "react";
+
+function EditProblemContent() {
     const params = useParams();
-    const id = params.id as string;
+    const id = params?.id as string;
     const [problem, setProblem] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchProblem = async () => {
+            if (!id) return;
             const res = await getProblemById(id);
             if (res.success) {
                 setProblem(res.data);
@@ -90,5 +93,20 @@ export default function EditProblemPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function EditProblemPage() {
+    return (
+        <Suspense fallback={
+            <div className="h-[60vh] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+                    <p className="text-gray-500 font-medium">Loading problem data...</p>
+                </div>
+            </div>
+        }>
+            <EditProblemContent />
+        </Suspense>
     );
 }

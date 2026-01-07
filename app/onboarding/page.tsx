@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { completeOnboarding } from "@/actions/user.action";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Suspense } from "react";
 
 const Icons = {
     User: (props: any) => (
@@ -24,7 +25,7 @@ const Icons = {
     )
 };
 
-export default function Onboarding() {
+function OnboardingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [step, setStep] = useState(1);
@@ -51,7 +52,6 @@ export default function Onboarding() {
 
     const handleNext = () => {
         if (step === 1 && !formData.collageId.trim()) {
-            // Shake animation or error state could be added here
             return;
         }
         setStep(step + 1);
@@ -246,3 +246,14 @@ export default function Onboarding() {
     );
 }
 
+export default function Onboarding() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            </div>
+        }>
+            <OnboardingContent />
+        </Suspense>
+    );
+}

@@ -370,7 +370,7 @@ export class CategoryService {
                 await redis.del(getCategoryCacheKey(category.slug));
             }
 
-            return { success: true };
+            return { success: true, slug: category?.slug };
         } catch (error) {
             console.error("Failed to delete category:", error);
             return { success: false, error: "Failed to delete category" };

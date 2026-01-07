@@ -23,10 +23,12 @@ type ProblemWithStats = {
   isSolved?: boolean;
 };
 
-export default function CategoryProblemsPage() {
+import { Suspense } from "react";
+
+function CategoryProblemsContent() {
   const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  const categoryId = params?.id as string;
 
   const [category, setCategory] = useState<any>(null);
   const [problems, setProblems] = useState<ProblemWithStats[]>([]);
@@ -37,8 +39,10 @@ export default function CategoryProblemsPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchCategory();
-    fetchProblems();
+    if (categoryId) {
+      fetchCategory();
+      fetchProblems();
+    }
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -316,6 +320,18 @@ export default function CategoryProblemsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CategoryProblemsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    }>
+      <CategoryProblemsContent />
+    </Suspense>
   );
 }
 

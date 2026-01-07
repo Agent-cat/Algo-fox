@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import { Suspense } from "react";
+
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase, alphanumeric, and hyphen-separated"),
@@ -19,10 +21,10 @@ const categorySchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
-export default function EditCategoryPage() {
+function EditCategoryContent() {
   const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  const categoryId = params?.id as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +41,9 @@ export default function EditCategoryPage() {
   });
 
   useEffect(() => {
-    fetchCategory();
+    if (categoryId) {
+      fetchCategory();
+    }
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -194,5 +198,17 @@ export default function EditCategoryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditCategoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    }>
+      <EditCategoryContent />
+    </Suspense>
   );
 }

@@ -7,10 +7,12 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export default function EditSqlCategoryPage() {
+import { Suspense } from "react";
+
+function EditSqlCategoryContent() {
   const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  const categoryId = params?.id as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +25,9 @@ export default function EditSqlCategoryPage() {
   });
 
   useEffect(() => {
-    fetchCategory();
+    if (categoryId) {
+      fetchCategory();
+    }
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -186,6 +190,18 @@ export default function EditSqlCategoryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditSqlCategoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    }>
+      <EditSqlCategoryContent />
+    </Suspense>
   );
 }
 

@@ -7,10 +7,12 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export default function EditDsaCategoryPage() {
+import { Suspense } from "react";
+
+function EditDsaCategoryContent() {
   const params = useParams();
   const router = useRouter();
-  const categoryId = params.id as string;
+  const categoryId = params?.id as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +25,9 @@ export default function EditDsaCategoryPage() {
   });
 
   useEffect(() => {
-    fetchCategory();
+    if (categoryId) {
+      fetchCategory();
+    }
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -186,6 +190,18 @@ export default function EditDsaCategoryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditDsaCategoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    }>
+      <EditDsaCategoryContent />
+    </Suspense>
   );
 }
 

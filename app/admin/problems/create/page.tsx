@@ -2,8 +2,9 @@
 
 import { createProblem } from "@/actions/problems";
 import ProblemForm from "@/components/admin/ProblemForm";
+import { Suspense } from "react";
 
-export default function CreateProblemPage() {
+function CreateProblemContent() {
     return (
         <div className="w-full max-w-5xl mx-auto space-y-8 animate-fade-in-up">
             <div className="flex flex-col gap-1">
@@ -18,5 +19,17 @@ export default function CreateProblemPage() {
                 />
             </div>
         </div>
+    );
+}
+
+export default function CreateProblemPage() {
+    return (
+        <Suspense fallback={
+            <div className="w-full max-w-5xl mx-auto pt-24 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            </div>
+        }>
+            <CreateProblemContent />
+        </Suspense>
     );
 }

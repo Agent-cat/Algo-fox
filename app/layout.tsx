@@ -7,6 +7,8 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import LayoutSpacer from "@/components/LayoutSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
 
+import { Suspense } from "react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,10 +36,12 @@ export default function RootLayout({
       >
         <NetworkStatus />
         {/* <DevToolsBlocker /> */}
-        <Navbar />
-        <LayoutSpacer>
-          <Breadcrumbs />
-        </LayoutSpacer>
+        <Suspense fallback={null}>
+          <Navbar />
+          <LayoutSpacer>
+            <Breadcrumbs />
+          </LayoutSpacer>
+        </Suspense>
         <Toaster
           position="top-right"
           toastOptions={{

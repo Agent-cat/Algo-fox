@@ -4,8 +4,9 @@ import { createProblem } from "@/actions/problems";
 import ProblemForm from "@/components/admin/ProblemForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { Suspense } from "react";
 
-export default function CreateDsaProblemPage() {
+function CreateDsaProblemContent() {
     return (
         <div className="min-h-screen pt-24 pb-12 px-6 bg-white">
             <div className="max-w-3xl mx-auto ml-0">
@@ -18,7 +19,7 @@ export default function CreateDsaProblemPage() {
                 </Link>
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New DSA Problem</h1>
-                    <p className="text-gray-500">Add a new DSA challenge for the community.</p>
+                    <p className="text-gray-500">Add a new challenge for the community.</p>
                 </div>
 
                 <ProblemForm
@@ -32,3 +33,14 @@ export default function CreateDsaProblemPage() {
     );
 }
 
+export default function CreateDsaProblemPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen pt-24 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            </div>
+        }>
+            <CreateDsaProblemContent />
+        </Suspense>
+    );
+}
