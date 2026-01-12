@@ -32,7 +32,7 @@ function OnboardingContent() {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         bio: "",
-        collageId: "",
+        collegeId: "",
         leetCodeHandle: "",
         codeChefHandle: "",
         hackerrankHandle: "",
@@ -51,7 +51,7 @@ function OnboardingContent() {
     };
 
     const handleNext = () => {
-        if (step === 1 && !formData.collageId.trim()) {
+        if (step === 1 && !formData.collegeId.trim()) {
             return;
         }
         setStep(step + 1);
@@ -72,7 +72,7 @@ function OnboardingContent() {
         }
     };
 
-    const isStep1Valid = !!formData.collageId.trim();
+    const isStep1Valid = !!formData.collegeId.trim();
 
     return (
         <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -124,8 +124,8 @@ function OnboardingContent() {
                                             <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College ID / Name</label>
                                             <input
                                                 type="text"
-                                                name="collageId"
-                                                value={formData.collageId}
+                                                name="collegeId"
+                                                value={formData.collegeId}
                                                 onChange={handleChange}
                                                 className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
                                                 placeholder="e.g. IIT Delhi"

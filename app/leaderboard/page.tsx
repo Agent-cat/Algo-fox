@@ -49,7 +49,7 @@ export default function LeaderboardPage() {
 
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Leaderboard</h1>
-                            <p className="text-gray-500 mt-1">Top performers ranked by their problem-solving skills</p>
+                            <p className="text-gray-500 mt-1">Top students ranked by their problem-solving skills</p>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ export default function LeaderboardPage() {
                             Rank
                         </div>
                         <div className="col-span-5 md:col-span-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            User
+                            Student
                         </div>
                         <div className="col-span-2 text-center hidden md:block text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Solved

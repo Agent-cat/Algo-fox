@@ -4,13 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 
+import { useState, useEffect } from "react";
+
 export default function Breadcrumbs() {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Don't show breadcrumbs on the home page or workspace pages (individual problems)
     // Also hide on auth pages as requested
     const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
-    if (pathname === "/" || isWorkspace || pathname === "/signin" || pathname === "/signup" || pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin")) return null;
+
+    // During SSR/Hydration, pathname might be null or we might be on a path that should be hidden.
+    // We return null if we're not mounted or if any hide condition is met.
+    if (!mounted || !pathname || pathname === "/" || isWorkspace || pathname === "/signin" || pathname === "/signup" || pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin")) return null;
 
     const pathSegments = pathname.split("/").filter((segment) => segment !== "");
 

@@ -6,10 +6,11 @@ import redis from "@/lib/redis";
 const CACHE_TTL = 30; // 30 seconds
 
 export class UserService {
-    /**
-     * Get user's total score (cached for 30 seconds)
-     * Cache is invalidated when user solves a problem
-     */
+
+    /*
+     * GETS USERS TOTAL SCORE (cached for 30 seconds)
+     * CACHE IS INVALIDATD WHEN USER SOLVES A PROBLEM
+    */
     static async getUserScore(userId: string): Promise<number> {
         const cacheKey = `user-score-${userId}`;
 
@@ -38,6 +39,7 @@ export class UserService {
 
         return score;
     }
+
 
     /**
      * Recalculate user's total score based on their solved problems
@@ -92,13 +94,13 @@ export class UserService {
         }
     }
 
-    /**
-     * Complete user onboarding process
-     * Updates user profile information and marks onboarding as complete
-     */
+    /*
+     * COMPLETE USER ONBOARDING PROCESS
+     * UPDATES USER PROFILE INFORMATION AND MARKS ONBOARDING AS COMPLETED
+    */
     static async completeOnboarding(userId: string, data: {
         bio?: string;
-        collageId: string;
+        collegeId: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string;
@@ -108,7 +110,7 @@ export class UserService {
             await prisma.user.update({
                 where: { id: userId },
                 data: {
-                    collageId: data.collageId || null,
+                    collegeId: data.collegeId || null,
                     bio: data.bio || null,
                     leetCodeHandle: data.leetCodeHandle || null,
                     codeChefHandle: data.codeChefHandle || null,

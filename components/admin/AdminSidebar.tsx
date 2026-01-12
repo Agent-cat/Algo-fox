@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Code, Database, ChevronRight, LucideIcon, LayoutDashboard, Settings, Users, BarChart3 } from "lucide-react";
+import { BookOpen, Code, Database, ChevronRight, LucideIcon, LayoutDashboard, Settings, Users, BarChart3, Building2, Trophy } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -48,6 +48,16 @@ const menuItems: MenuItem[] = [
       },
     ],
   },
+  {
+    name: "Institutions",
+    icon: Building2,
+    href: "/admin/institutions",
+  },
+  {
+    name: "Contests",
+    icon: Trophy,
+    href: "/dashboard/contests",
+  },
 ];
 
 export default function AdminSidebar() {
@@ -86,8 +96,8 @@ export default function AdminSidebar() {
                 <button
                   onClick={() => toggleSection(item.name)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${hasActiveChild
-                      ? "bg-orange-50 text-orange-700 shadow-sm shadow-orange-100"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-orange-50 text-orange-700 shadow-sm shadow-orange-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -119,8 +129,8 @@ export default function AdminSidebar() {
                               key={child.href}
                               href={child.href}
                               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${isActive
-                                  ? "text-orange-600 bg-orange-50 font-medium translate-x-1"
-                                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 hover:translate-x-1"
+                                ? "text-orange-600 bg-orange-50 font-medium translate-x-1"
+                                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 hover:translate-x-1"
                                 }`}
                             >
                               {isActive && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
@@ -144,8 +154,8 @@ export default function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 mb-1 group ${isActive
-                  ? "bg-orange-600 text-white shadow-lg shadow-orange-200"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                ? "bg-orange-600 text-white shadow-lg shadow-orange-200"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
             >
               <div className={`p-1.5 rounded-lg transition-colors ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm"

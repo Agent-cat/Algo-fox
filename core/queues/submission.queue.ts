@@ -160,7 +160,7 @@ const worker = new Worker(
             // 4. Poll and Incremental Update
             let isComplete = false;
             let attempts = 0;
-            const MAX_ATTEMPTS = 20; // 40s timeout
+            const MAX_ATTEMPTS = 160; // ~40s timeout (160 * 250ms)
 
             // Track overall stats
             let totalTime = 0;
@@ -170,7 +170,7 @@ const worker = new Worker(
             let compilationError = false;
 
             while (!isComplete && attempts < MAX_ATTEMPTS) {
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 250)); // Poll every 250ms for faster feedback
                 attempts++;
 
                 const uniqueTokens = testCaseRecords.map(tc => tc.judge0TrackingId);

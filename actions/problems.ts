@@ -14,22 +14,22 @@ export async function getProblems(
     type: ProblemType = "PRACTICE",
     domain: ProblemDomain = "DSA",
     difficulty?: Difficulty,
-    tags?: string[]
+    tags?: string[],
+    cursor?: string
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-    
+
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
     });
     const userId = session?.user?.id;
 
-    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}-page-${page}${userId ? `-user-${userId}` : ''}`;
+    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}`;
     cacheTag(tagKey, 'problems-list', `problems-${domain}-${type}`);
 
-    return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || []);
-
+    return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || [], cursor);
 }
 
 // GETTING ADMIN PROBLEMS
@@ -42,7 +42,7 @@ export async function getAdminProblems(
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-    
+
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
         headers: await headers()
@@ -67,7 +67,7 @@ export async function searchProblems(
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for search results
-    
+
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -84,7 +84,7 @@ export async function searchProblems(
 export async function getProblem(slug: string) {
     "use cache";
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-    
+
     cacheTag(`problem-${slug}`, 'problems-list');
 
     return ProblemService.getProblem(slug);
@@ -139,10 +139,29 @@ export async function createProblem(data: {
 export async function getProblemById(id: string) {
     "use cache";
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-    
+
     cacheTag(`problem-id-${id}`, 'problems-list');
 
     return ProblemService.getProblemById(id);
+}
+
+// NAVIGATION ACTIONS
+
+export async function getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
+    return ProblemService.getNextProblem(currentCreatedAt, domain, type);
+}
+
+export async function getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
+    return ProblemService.getPreviousProblem(currentCreatedAt, domain, type);
+}
+
+export async function getRandomProblem(domain: ProblemDomain, type: ProblemType) {
+    // No cache for random
+    return ProblemService.getRandomProblem(domain, type);
 }
 
 

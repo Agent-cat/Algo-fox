@@ -1,11 +1,5 @@
 import { Difficulty } from "@prisma/client";
 
-/**
- * Get points awarded for solving a problem based on difficulty
- * Easy: 5 points
- * Medium: 10 points
- * Hard: 15 points
- */
 export function getPointsForDifficulty(difficulty: Difficulty): number {
     switch (difficulty) {
         case "EASY":
@@ -21,9 +15,7 @@ export function getPointsForDifficulty(difficulty: Difficulty): number {
     }
 }
 
-/**
- * Get formatted points string for display
- */
+
 export function getPointsLabel(difficulty: Difficulty): string {
     const points = getPointsForDifficulty(difficulty);
     return `${points} pts`;

@@ -6,7 +6,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { Problem } from '@prisma/client';
-import { BadgeCheck, FileText, List } from 'lucide-react';
+import { BadgeCheck, FileText, List, ShieldAlert } from 'lucide-react';
 import Submissions from './Submissions';
 import { getPointsLabel } from '@/lib/points';
 
@@ -20,9 +20,10 @@ interface ProblemDescriptionProps {
     activeTab: Tab;
     onTabChange: (tab: Tab) => void;
     isSolved: boolean;
+    contestId?: string;
 }
 
-export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved }: ProblemDescriptionProps) {
+export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved, contestId }: ProblemDescriptionProps) {
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case "EASY": return "text-emerald-600 bg-emerald-50 border-emerald-100";
@@ -35,7 +36,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
     return (
         <div className="h-full flex flex-col bg-white">
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-gray-300 border-dashed px-4 py-2 bg-gray-50/50">
+            <div className={`flex items-center gap-1 border-b border-gray-300 border-dashed px-4 py-2 ${contestId ? 'bg-orange-50/30' : 'bg-gray-50/50'}`}>
                 <button
                     onClick={() => onTabChange("description")}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "description" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"}`}
@@ -43,21 +44,29 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                     <FileText className="w-4 h-4" />
                     Description
                 </button>
-                <button
-                    onClick={() => onTabChange("solutions")}
-                    className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
-                    disabled={problem.difficulty === "CONCEPT"}
-                >
-                    <BadgeCheck className="w-4 h-4" />
-                    Solutions
-                </button>
+                {!contestId && (
+                    <button
+                        onClick={() => onTabChange("solutions")}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
+                        disabled={problem.difficulty === "CONCEPT"}
+                    >
+                        <BadgeCheck className="w-4 h-4" />
+                        Solutions
+                    </button>
+                )}
                 <button
                     onClick={() => onTabChange("submissions")}
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "submissions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"}`}
                 >
                     <List className="w-4 h-4" />
-                    Submissions
+                    {contestId ? "My Verdicts" : "Submissions"}
                 </button>
+                {contestId && (
+                    <div className="ml-auto flex items-center gap-2 px-2 py-1 bg-orange-100 rounded text-orange-700 font-bold text-[10px] uppercase tracking-wider">
+                        <ShieldAlert className="w-3 h-3" />
+                        Secure
+                    </div>
+                )}
             </div>
 
             {/* CONTENT */}

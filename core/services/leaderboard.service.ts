@@ -43,6 +43,9 @@ export class LeaderboardService {
 
         // Fetch top 100 users by totalScore directly from DB
         const users = await prisma.user.findMany({
+            where: {
+                role: 'STUDENT'
+            },
             orderBy: {
                 totalScore: 'desc'
             },

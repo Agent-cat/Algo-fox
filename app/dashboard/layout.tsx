@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 async function AuthCheck({ children }: { children: React.ReactNode }) {
+    const h = await headers();
     const session = await auth.api.getSession({
-        headers: await headers()
+        headers: h
     });
 
     if (!session) {
@@ -19,7 +20,7 @@ async function AuthCheck({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
 }
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -37,3 +38,4 @@ export default async function DashboardLayout({
         </Suspense>
     );
 }
+

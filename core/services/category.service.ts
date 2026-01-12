@@ -63,7 +63,7 @@ export class CategoryService {
              CAST(COUNT(DISTINCT cp."problemId") AS INTEGER) as "count"
            FROM "CategoryProblem" cp
            JOIN "Submission" s ON cp."problemId" = s."problemId"
-           WHERE s."userId" = ${userId} 
+           WHERE s."userId" = ${userId}
              AND s."status" = 'ACCEPTED'::"SubmissionResult"
              AND s."mode" = 'SUBMIT'::"SubmissionMode"
            GROUP BY cp."categoryId"
@@ -171,27 +171,22 @@ export class CategoryService {
         categoryId: string,
         page: number = 1,
         pageSize: number = 10,
-        userId?: string
+        userId?: string,
+        cursor?: string
     ) {
         try {
-            const cacheKey = getCategoryProblemsCacheKey(categoryId, page);
+            const cacheKey = cursor
+                ? `category:${categoryId}:problems:cursor:${cursor}`
+                : getCategoryProblemsCacheKey(categoryId, page);
 
             // GETTING CACHE FOR CATEGORY PROBLEMS IF NOT CACHED
-
-            if (!userId || page === 1) {
+            if (!userId || (page === 1 && !cursor)) {
                 const cached = await redis.get(cacheKey);
                 if (cached) {
-
-                    // RETURNING THE CACHE IF CACHED
-                    console.log(`[CACHE HIT] Category Problems: ${categoryId} (Page ${page})`);
-
+                    console.log(`[CACHE HIT] Category Problems: ${categoryId} (${cursor ? 'Cursor ' + cursor : 'Page ' + page})`);
                     const parsed = JSON.parse(cached);
-
                     // IF USER IS AUTHENTICATED, WE NEED TO CHECK SOLVED STATUS
-
                     if (userId) {
-                        // FETCHING SOLVED STATUS SEPARATELY
-
                         const problemIds = parsed.problems.map((p: any) => p.id);
                         const solvedProblems = await prisma.submission.findMany({
                             where: {
@@ -203,67 +198,55 @@ export class CategoryService {
                             select: { problemId: true },
                             distinct: ["problemId"]
                         });
-
-                        // CREATING A SET OF SOLVED PROBLEMS
-
                         const solvedSet = new Set(solvedProblems.map(s => s.problemId));
-
-                        // UPDATING THE PROBLEMS WITH SOLVED STATUS
-
                         parsed.problems = parsed.problems.map((p: any) => ({
                             ...p,
                             isSolved: solvedSet.has(p.id)
                         }));
                     }
-
-                    // RETURNING THE PROBLEMS
-
                     return parsed;
                 }
             }
 
-            // SKIPPING THE PROBLEMS
-
-            const skip = (page - 1) * pageSize;
-
-            // FETCHING THE CATEGORY PROBLEMS
-
-            const [categoryProblems, total] = await Promise.all([
-                prisma.categoryProblem.findMany({
-                    where: { categoryId },
-                    skip,
-                    take: pageSize,
-                    orderBy: { order: "asc" },
-                    include: {
-                        problem: {
-                            include: {
-                                _count: {
-                                    select: { submissions: true }
-                                },
-                                ...(userId ? {
-                                    submissions: {
-                                        where: {
-                                            userId: userId,
-                                            status: "ACCEPTED",
-                                            mode: "SUBMIT"
-                                        },
-                                        take: 1,
-                                        select: { id: true }
-                                    }
-                                } : {})
-                            }
+            const query: any = {
+                where: { categoryId },
+                take: pageSize,
+                orderBy: { order: "asc" },
+                include: {
+                    problem: {
+                        include: {
+                            _count: { select: { submissions: true } },
+                            ...(userId ? {
+                                submissions: {
+                                    where: {
+                                        userId,
+                                        status: "ACCEPTED",
+                                        mode: "SUBMIT"
+                                    },
+                                    take: 1,
+                                    select: { id: true }
+                                }
+                            } : {})
                         }
                     }
-                }),
-                prisma.categoryProblem.count({
-                    where: { categoryId }
-                })
+                }
+            };
+
+            if (cursor) {
+                query.cursor = { id: cursor };
+                query.skip = 1;
+            } else {
+                query.skip = (page - 1) * pageSize;
+            }
+
+            const [categoryProblems, total] = await Promise.all([
+                prisma.categoryProblem.findMany(query),
+                prisma.categoryProblem.count({ where: { categoryId } })
             ]);
 
             const problems = categoryProblems.map((cp) => {
                 const p = cp.problem;
                 const isSolved = (p as any).submissions?.length > 0;
-
                 return {
                     ...p,
                     isSolved,
@@ -277,18 +260,19 @@ export class CategoryService {
             const result = {
                 problems,
                 totalPages: Math.ceil(total / pageSize),
-                currentPage: page
+                currentPage: page,
+                total
             };
 
-            // Cache result (only for first page and non-authenticated)
-            if (!userId || page === 1) {
+            // Cache result (only for first page or cursor and non-authenticated)
+            if (!userId || (page === 1 && !cursor)) {
                 await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
             }
 
             return result;
         } catch (error) {
             console.error("Failed to fetch category problems:", error);
-            return { problems: [], totalPages: 0, currentPage: page };
+            return { problems: [], totalPages: 0, currentPage: page, total: 0 };
         }
     }
 

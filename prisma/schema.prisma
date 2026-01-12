@@ -8,10 +8,11 @@ datasource db {
 }
 
 //////////////////////////////////// Authentication Models //////////////////////////////////////////
+
 model User {
   id        String  @id
   name      String
-  collageId String?
+  collegeId String?
   email     String  @unique
 
   totalScore     Int @default(0)
@@ -33,13 +34,21 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions    Session[]
-  accounts    Account[]
-  submissions Submission[]
-  problems    Problem[]
+  sessions      Session[]
+  accounts      Account[]
+  submissions   Submission[]
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  problems      Problem[]
 
-  @@index([collageId])
-  @@index([collageId, totalScore])
+  taughtClassrooms   Classroom[] @relation("TeacherClassrooms")
+  enrolledClassrooms Classroom[] @relation("StudentClassrooms")
+  contests           Contest[]
+  contestParticipations ContestParticipation[]
+
+  @@index([collegeId])
+  @@index([collegeId, totalScore])
+  @@index([institutionId])
   @@map("user")
 }
 
@@ -117,6 +126,11 @@ model Problem {
   useFunctionTemplate Boolean @default(false)
   solution            String? @db.Text
 
+  // Aptitude / MCQ fields
+  isMcq   Boolean @default(false)
+  options Json? // Store options as JSON: [{"id": "1", "text": "Option A"}, ...]
+  answer  String? // Correct option ID
+
   submissions       Submission[]
   testCases         ProblemTestCase[]
   categoryProblems  CategoryProblem[]
@@ -129,6 +143,8 @@ model Problem {
   userId String?
 
   tags Tag[]
+
+  contestProblems ContestProblem[]
 
   @@index([createdAt])
   @@index([domain, type, hidden, difficulty, createdAt])
@@ -201,6 +217,8 @@ model Submission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  contestId String?
+
   code   String
   status SubmissionResult @default(PENDING)
   mode   SubmissionMode   @default(SUBMIT)
@@ -212,6 +230,7 @@ model Submission {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
   problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  contest  Contest? @relation(fields: [contestId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([problemId, createdAt])
@@ -219,6 +238,7 @@ model Submission {
   @@index([status])
   @@index([userId, status, mode, problemId])
   @@index([userId, status, createdAt])
+  @@index([contestId])
 }
 
 model TestCase {
@@ -283,7 +303,9 @@ model CategoryProblem {
 
 enum Role {
   ADMIN
-  INSTITUTION
+  INSTITUTION_MANAGER
+  CONTEST_MANAGER
+  TEACHER
   STUDENT
 }
 
@@ -297,11 +319,15 @@ enum Difficulty {
 enum ProblemType {
   PRACTICE
   LEARN
+  CONTEST
 }
 
 enum ProblemDomain {
   DSA
   SQL
+  APTITUDE
+  OOPS
+  WEBDEV
 }
 
 enum SubmissionMode {
@@ -327,4 +353,180 @@ enum TestCaseResult {
   MEMORY_LIMIT_EXCEEDED
   RUNTIME_ERROR
   COMPILE_ERROR
+}
+
+enum ContestVisibility {
+  PUBLIC
+  INSTITUTION
+  CLASSROOM
+}
+
+model Institution {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  domain    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  classrooms Classroom[]
+  contests   Contest[]
+
+  @@map("institution")
+}
+
+model Classroom {
+  id            String      @id @default(cuid())
+  name          String
+  section       String?
+  subject       String?
+  joinCode      String      @unique
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  teacherId String
+  teacher   User   @relation("TeacherClassrooms", fields: [teacherId], references: [id])
+
+  contests Contest[]
+  students User[]    @relation("StudentClassrooms")
+
+  isTrackingActive  Boolean   @default(false)
+  trackingStartedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([institutionId])
+  @@index([teacherId])
+  @@map("classroom")
+}
+
+model Contest {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?  @db.Text
+  startTime   DateTime
+  endTime     DateTime
+
+  // Customization fields
+  backgroundImage String? @db.Text
+  prizes          String? @db.Text
+  rules           String? @db.Text
+  hidden          Boolean @default(false)
+
+  visibility    ContestVisibility @default(PUBLIC)
+  institutionId String?
+  institution   Institution?      @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  classroomId String?
+  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  problems ContestProblem[]
+  participants ContestParticipation[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  submissions Submission[]
+
+  @@index([institutionId])
+  @@index([classroomId])
+  @@index([creatorId])
+  @@index([slug])
+  @@map("contest")
+}
+
+model ContestProblem {
+  id        String @id @default(cuid())
+  contestId String
+  problemId String
+  order     Int    @default(0)
+
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([contestId, problemId])
+  @@index([contestId, order])
+  @@map("contest_problem")
+}
+
+model ContestParticipation {
+  id        String  @id @default(cuid())
+  userId    String
+  contestId String
+
+  acceptedRules Boolean @default(false)
+  isFinished    Boolean @default(false)
+  finishedAt    DateTime?
+
+  // Session tracking for multi-tab detection
+  sessionId        String?
+  sessionStartedAt DateTime?
+
+  // Violation counts (denormalized for quick access)
+  tabSwitchCount      Int @default(0)
+  fullscreenExitCount Int @default(0)
+  copyPasteCount      Int @default(0)
+  devToolsCount       Int @default(0)
+  keyboardCount       Int @default(0)
+  navigationCount     Int @default(0)
+  totalViolations     Int @default(0)
+
+  // Status flags
+  isFlagged Boolean @default(false)
+  isBlocked Boolean @default(false)
+
+  // Tiered blocking
+  tempBlockedUntil   DateTime?  // When temp block expires (null = not temp blocked)
+  permanentlyBlocked Boolean @default(false)  // Requires manager to unblock
+  unblockedBy        String?    // Manager who unblocked
+  unblockedAt        DateTime?  // When they were unblocked
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest    Contest            @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  violations ContestViolation[]
+
+  @@unique([userId, contestId])
+  @@index([contestId])
+  @@index([userId])
+  @@index([sessionId])
+  @@map("contest_participation")
+}
+
+model ContestViolation {
+  id              String        @id @default(cuid())
+  participationId String
+  type            ViolationType
+  message         String?
+  metadata        Json?
+
+  createdAt DateTime @default(now())
+
+  participation ContestParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
+
+  @@index([participationId])
+  @@index([type])
+  @@map("contest_violation")
+}
+
+enum ViolationType {
+  TAB_SWITCH
+  FULLSCREEN_EXIT
+  COPY_PASTE
+  DEVTOOLS_OPEN
+  KEYBOARD_SHORTCUT
+  NAVIGATION_ATTEMPT
+  MULTI_TAB
+  SUSPICIOUS_INPUT
 }

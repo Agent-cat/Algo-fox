@@ -1,0 +1,103 @@
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import Link from "next/link";
+
+interface Classroom {
+    id: string;
+    name: string;
+    section: string | null;
+    subject: string | null;
+    joinCode: string;
+    _count: {
+        students: number;
+    };
+    createdAt: Date;
+}
+
+interface TeacherClassroomListProps {
+    classrooms: Classroom[];
+}
+
+export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) {
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    const copyCode = (code: string, id: string) => {
+        navigator.clipboard.writeText(code);
+        setCopiedId(id);
+        toast.success("Join code copied!");
+        setTimeout(() => setCopiedId(null), 2000);
+    };
+
+    if (classrooms.length === 0) {
+        return (
+            <div className="text-center py-20 bg-gray-50/50 rounded-md border border-gray-100">
+                <h3 className="text-sm font-bold text-black uppercase tracking-widest">No Active Classrooms</h3>
+                <p className="text-xs text-gray-400 mt-2 font-medium">Create your first learning environment above.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {classrooms.map((classroom) => (
+                <div
+                    key={classroom.id}
+                    className="group flex flex-col bg-white border border-gray-100 p-6 rounded-md hover:border-orange-500 transition-all duration-300 shadow-sm"
+                >
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1">
+                                Classroom
+                            </span>
+                            <h3 className="text-xl font-bold text-black group-hover:text-orange-600 transition-colors">
+                                {classroom.name}
+                            </h3>
+                        </div>
+                        <div className="px-2 py-1 bg-gray-50 text-gray-400 text-[10px] font-bold uppercase rounded">
+                            {classroom._count.students} Students
+                        </div>
+                    </div>
+
+                    <div className="flex-grow flex flex-wrap gap-2 mb-6">
+                        {classroom.subject && (
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 py-1 bg-gray-50 rounded">
+                                {classroom.subject}
+                            </span>
+                        )}
+                        {classroom.section && (
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 py-1 bg-gray-50 rounded">
+                                Sec {classroom.section}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-4 pt-4 border-t border-gray-50">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <span className="text-[9px] font-bold text-gray-300 uppercase block">Code</span>
+                                <button
+                                    onClick={() => copyCode(classroom.joinCode, classroom.id)}
+                                    className="text-lg font-bold font-mono text-black hover:text-orange-600 transition-colors"
+                                >
+                                    {classroom.joinCode}
+                                    <span className="ml-2 text-[8px] font-bold text-orange-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {copiedId === classroom.id ? "Copied" : "Copy"}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <Link
+                            href={`/dashboard/classrooms/${classroom.id}`}
+                            className="w-full py-2.5 bg-black text-white text-center font-bold text-xs uppercase rounded-md hover:bg-orange-600 transition-all"
+                        >
+                            Open
+                        </Link>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}

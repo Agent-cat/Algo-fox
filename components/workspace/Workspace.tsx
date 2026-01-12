@@ -6,9 +6,15 @@ import TestCases from './TestCases';
 import { Problem, ProblemTestCase } from '@prisma/client';
 
 import WorkspaceHeader from './WorkspaceHeader';
+import ContestProtection from '../contest/ContestProtection';
+import ContestEntryModal from '../contest/ContestEntryModal';
+import ContestNavigationGuard from '../contest/ContestNavigationGuard';
+import ContestSidebar from './ContestSidebar';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { getParticipationStatus } from '@/actions/contest';
+import EditorSettingsModal from './EditorSettingsModal';
 
 interface FunctionTemplate {
     languageId: number;
@@ -25,11 +31,15 @@ interface WorkspaceProps {
         tags?: { name: string; slug: string }[];
     };
     isSolved: boolean;
+    contestId?: string;
+    contest?: any;
+    solvedProblemIds?: string[];
+    nextProblemSlug?: string | null;
+    prevProblemSlug?: string | null;
 }
 
 import { authClient } from '@/lib/auth-client';
 import { DEFAULT_LANGUAGE_ID } from '@/lib/languages';
-import { useEffect } from 'react';
 import { usePersistentSplit } from '@/hooks/use-layout';
 
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
@@ -61,11 +71,17 @@ function getStoredLanguageId(domain?: string): number {
 }
 
 
-export default function Workspace({ problem, isSolved }: WorkspaceProps) {
+export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
     const [code, setCode] = useState<string>("// Write your code here");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSolvedState, setIsSolvedState] = useState(isSolved);
+
+    // Contest session state
+    const [showEntryModal, setShowEntryModal] = useState(false);
+    const [contestSessionId, setContestSessionId] = useState<string | null>(null);
+    const [contestModeActive, setContestModeActive] = useState(false);
+
     // Start with default language to avoid hydration mismatch, then update from localStorage
     const [languageId, setLanguageId] = useState(
         problem.domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID
@@ -83,6 +99,41 @@ export default function Workspace({ problem, isSolved }: WorkspaceProps) {
         }
     }, [problem.domain]);
 
+    // Check existing contest participation on mount
+    useEffect(() => {
+        if (!contestId) return;
+
+        const checkParticipation = async () => {
+            const result = await getParticipationStatus(contestId);
+            if (result.success && result.participation) {
+                if (result.participation.sessionId && result.participation.acceptedRules) {
+                    // User has already started - activate contest mode
+                    setContestSessionId(result.participation.sessionId);
+                    setContestModeActive(true);
+                } else if (!result.participation.isFinished && !result.participation.isBlocked) {
+                    // Show entry modal for new participants
+                    setShowEntryModal(true);
+                }
+            } else {
+                // No participation yet - show entry modal
+                setShowEntryModal(true);
+            }
+        };
+
+        checkParticipation();
+    }, [contestId]);
+
+    const handleContestStart = (sessionId: string) => {
+        setContestSessionId(sessionId);
+        setContestModeActive(true);
+        setShowEntryModal(false);
+        toast.success("Contest mode activated! Good luck!");
+    };
+
+    const handleContestBlocked = () => {
+        // Just a callback, UI is handled by ContestProtection
+    };
+
     // Handle language change and persist to localStorage
     const handleLanguageChange = (newLanguageId: number) => {
         // For SQL problems, always use SQL language - don't allow changes
@@ -96,6 +147,40 @@ export default function Workspace({ problem, isSolved }: WorkspaceProps) {
             localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguageId.toString());
         } catch (e) {
             console.error('Failed to save language to localStorage', e);
+        }
+    };
+
+    // Editor Settings State
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [editorSettings, setEditorSettings] = useState({
+        fontSize: 14,
+        tabSize: 4,
+        theme: "vs-light" as "vs-light" | "vs-dark",
+        keybinding: "standard" as "standard" | "vim"
+    });
+
+    // Load settings from localStorage
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('algofox_editor_settings');
+            if (stored) {
+                setEditorSettings(JSON.parse(stored));
+            }
+        } catch (e) {
+            console.error('Failed to load editor settings', e);
+        }
+    }, []);
+
+    // Save settings to localStorage
+    const handleSettingsChange = (newSettings: Omit<typeof editorSettings, "theme"> & { theme?: "vs-light" | "vs-dark" }) => {
+        setEditorSettings({
+            ...newSettings,
+            theme: newSettings.theme || "vs-light"
+        });
+        try {
+            localStorage.setItem('algofox_editor_settings', JSON.stringify(newSettings));
+        } catch (e) {
+            console.error('Failed to save editor settings', e);
         }
     };
 
@@ -152,49 +237,31 @@ export default function Workspace({ problem, isSolved }: WorkspaceProps) {
                     problemId: problem.id,
                     languageId: languageId,
                     code: code,
-                    mode: mode
+                    mode: mode,
+                    contestId: contestId
                 })
             });
 
             if (!res.ok) throw new Error("Submission failed");
             const data = await res.json();
 
-            // HANDLE RUN MODE (Synchronous Response)
-            if (mode === "RUN") {
-                setIsRunning(false);
-                setSubmissionMode("RUN");
 
-                if (data.testCases) {
-                    setSubmissionResults(data.testCases);
-                }
-                if (data.status) {
-                    setSubmissionStatus(data.status);
 
-                    if (data.status === "ACCEPTED") {
-                        toast.success("Run Accepted!", {
-                            description: `Time: ${data.time?.toFixed(3)}s | Memory: ${data.memory}KB`
-                        });
-                    } else {
-                        toast.error(`Result: ${data.status}`);
-                    }
-                }
-                return;
-            }
-
-            // HANDLE SUBMIT MODE (Polling)
+            // HANDLE BOTH RUN & SUBMIT MODES (Polling)
             const { submissionId } = data;
 
             // 2. Poll for Results
             setSubmissionMode(mode);
-            setSubmissionResults(undefined); // Clear previous results
+            setSubmissionResults(undefined); // Clear results initially
             setSubmissionStatus(null);
+
             const interval = setInterval(async () => {
                 try {
-                    const pollRes = await fetch(`/api/submissions/${submissionId}`);
+                    const pollRes = await fetch(`/api/submissions/${submissionId}${contestId ? `?contestId=${contestId}` : ""}`);
                     if (!pollRes.ok) return;
                     const data = await pollRes.json();
 
-                    // Update results to display in TestCases component
+                    // Update results incrementally
                     if (data.testCases) {
                         setSubmissionResults(data.testCases);
                     }
@@ -205,27 +272,35 @@ export default function Workspace({ problem, isSolved }: WorkspaceProps) {
 
                     if (data.status !== "PENDING") {
                         clearInterval(interval);
-                        setIsSubmitting(false);
+                        // Reset loading states based on mode
+                        if (mode === "RUN") setIsRunning(false);
+                        else setIsSubmitting(false);
 
                         if (data.status === "ACCEPTED") {
-                            toast.success("Submitted Successfully!", {
-                                description: `Time: ${data.time}ms | Memory: ${data.memory}KB`
-                            });
-                            setIsSolvedState(true);
+                            // Helper text for success
+                            const desc = `Time: ${data.time?.toFixed(3) || 0}s | Memory: ${data.memory || 0}KB`;
+
                             if (mode === "SUBMIT") {
+                                toast.success("Submitted Successfully!", { description: desc });
+                                setIsSolvedState(true);
                                 setActiveTab("submissions");
-                                // Dispatch custom event to refresh user points
                                 window.dispatchEvent(new CustomEvent("pointsUpdated"));
+                            } else {
+                                toast.success("Run Accepted!", { description: desc });
                             }
                         } else {
-                            toast.error(`Result: ${data.status}`);
+                            // Show error toast only if it's not pending
+                             if (data.status !== "PENDING") {
+                                toast.error(`Result: ${data.status}`);
+                             }
                         }
                     }
                 } catch (e) {
                     clearInterval(interval);
-                    setIsSubmitting(false);
+                    if (mode === "RUN") setIsRunning(false);
+                    else setIsSubmitting(false);
                 }
-            }, 2000);
+            }, 500); // Poll every 500ms for faster feedback
 
         } catch (error) {
             console.error(error);
@@ -241,100 +316,154 @@ export default function Workspace({ problem, isSolved }: WorkspaceProps) {
 
     return (
         <div className="h-screen w-full bg-white flex flex-col overflow-hidden">
+            <EditorSettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                settings={editorSettings}
+                onSettingsChange={handleSettingsChange}
+            />
+
+            {/* Contest Entry Modal */}
+            {contestId && showEntryModal && (
+                <ContestEntryModal
+                    contestId={contestId}
+                    contestTitle={contest?.title || "Contest"}
+                    isOpen={showEntryModal}
+                    onClose={() => setShowEntryModal(false)}
+                    onStart={handleContestStart}
+                />
+            )}
+
+            {/* Contest Protection (only active after entry) */}
+            {contestId && contestModeActive && contestSessionId && (
+                <>
+                    <ContestProtection
+                        contestId={contestId}
+                        sessionId={contestSessionId}
+                        onBlocked={handleContestBlocked}
+                    />
+                    <ContestNavigationGuard
+                        contestId={contestId}
+                        allowedPaths={[
+                            `/problems/`,  // Allow all problem pages
+                            `/contest/${contestId}`,
+                        ]}
+                    />
+                </>
+            )}
+
             <WorkspaceHeader
                 onSubmit={() => handleSubmission("SUBMIT")}
                 onRun={() => handleSubmission("RUN")}
                 isSubmitting={isSubmitting}
                 isRunning={isRunning}
+                contestId={contestId}
+                endTime={contest?.endTime}
+                nextProblemSlug={nextProblemSlug}
+                prevProblemSlug={prevProblemSlug}
+                domain={problem.domain}
+                type={problem.type}
             />
-            <div className="flex-1 overflow-hidden">
-                <Split
-                    className="split flex h-full"
-                    sizes={mainSizes}
-                    minSize={300}
-                    gutterSize={4}
-                    snapOffset={30}
-                    onDragEnd={setMainSizes}
-                >
-                    {/* LEFT SIDE: DESCRIPTION */}
-                    <div className="h-full overflow-hidden">
-                        <ProblemDescription
-                            problem={problem}
-                            activeTab={activeTab}
-                            onTabChange={setActiveTab}
-                            isSolved={isSolvedState}
-                        />
-                    </div>
+            <div className="flex-1 overflow-hidden flex flex-row min-h-0">
+                {contest && (
+                    <ContestSidebar
+                        contest={contest}
+                        currentProblemId={problem.id}
+                        solvedProblemIds={solvedProblemIds}
+                    />
+                )}
+                <div className="flex-1 overflow-hidden min-w-0">
+                    <Split
+                        className="split flex h-full"
+                        sizes={mainSizes}
+                        minSize={300}
+                        gutterSize={4}
+                        snapOffset={30}
+                        onDragEnd={setMainSizes}
+                    >
+                        {/* LEFT SIDE: DESCRIPTION */}
+                        <div className="h-full overflow-hidden">
+                            <ProblemDescription
+                                problem={problem}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                isSolved={isSolvedState}
+                                contestId={contestId}
+                            />
+                        </div>
 
-                    {/* RIGHT SIDE: EDITOR + TESTCASES */}
-                    <div className="h-full overflow-hidden flex flex-col">
-                        <Split
-                            key={verticalLayoutKey} // Force remount if we programmatically resize
-                            className="split-vertical flex flex-col h-full"
-                            direction="vertical"
-                            sizes={verticalSizes}
-                            minSize={0} // Allow collapsing fully if needed
-                            gutterSize={4}
-                            onDragEnd={setVerticalSizes}
-                        >
-                            <div className="h-full overflow-hidden">
-                                <CodeEditor
-                                    key={`${problem.id}-${languageId}`} // Stable key: remount only when problem or language changes
-                                    value={code}
-                                    onChange={(value) => setCode(value || "")}
-                                    languageId={languageId}
-                                    onLanguageChange={handleLanguageChange}
-                                    problemId={problem.id}
-                                    domain={problem.domain}
-                                    functionTemplates={
-                                        problem.useFunctionTemplate && problem.functionTemplates
-                                            ? problem.functionTemplates
-                                            : undefined
-                                    }
-                                />
-                            </div>
-                            <div className="h-full overflow-hidden">
-                                <TestCases
-                                    cases={problem.testCases || []}
-                                    results={submissionResults}
-                                    mode={submissionMode}
-                                    status={submissionStatus}
-                                />
-                            </div>
-                        </Split>
-                    </div>
-                </Split>
+                        {/* RIGHT SIDE: EDITOR + TESTCASES */}
+                        <div className="h-full overflow-hidden flex flex-col">
+                            <Split
+                                key={verticalLayoutKey} // Force remount if we programmatically resize
+                                className="split-vertical flex flex-col h-full"
+                                direction="vertical"
+                                sizes={verticalSizes}
+                                minSize={0} // Allow collapsing fully if needed
+                                gutterSize={4}
+                                onDragEnd={setVerticalSizes}
+                            >
+                                <div className="h-full overflow-hidden">
+                                    <CodeEditor
+                                        key={`${problem.id}-${languageId}`} // Stable key: remount only when problem or language changes
+                                        value={code}
+                                        onChange={(value) => setCode(value || "")}
+                                        languageId={languageId}
+                                        onLanguageChange={handleLanguageChange}
+                                        problemId={problem.id}
+                                        domain={problem.domain}
+                                        functionTemplates={
+                                            problem.useFunctionTemplate && problem.functionTemplates
+                                                ? problem.functionTemplates
+                                                : undefined
+                                        }
+                                        settings={editorSettings}
+                                        onOpenSettings={() => setIsSettingsOpen(true)}
+                                    />
+                                </div>
+                                <div className="h-full overflow-hidden flex flex-col bg-white">
+                                    <TestCases
+                                        cases={problem.testCases}
+                                        results={submissionResults}
+                                        status={submissionStatus}
+                                        mode={submissionMode}
+                                    />
+                                </div>
+                            </Split>
+                        </div>
+                    </Split>
 
-                <style jsx global>{`
-                .split {
-                    display: flex; /* generally redundant with class above, but safe */
-                }
-                .split-vertical {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .gutter {
-                    background-color: #f3f4f6; /* gray-100 */
-                    background-repeat: no-repeat;
-                    background-position: 50%;
-                    transition: background-color 0.2s;
-                }
-                .gutter:hover {
-                    background-color: #e5e7eb; /* gray-200 */
-                }
-                .gutter.gutter-horizontal {
-                    cursor: col-resize;
-                    border-left: 1px solid #e5e7eb;
-                    border-right: 1px solid #e5e7eb;
-                     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZgmwIA6Jhouse1DAAAAABJRU5ErkJggg==');
-                }
-                .gutter.gutter-vertical {
-                    cursor: row-resize;
-                    border-top: 1px solid #e5e7eb;
-                    border-bottom: 1px solid #e5e7eb;
-                     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABoV83XAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjAAIALAAJy8wOmAAAAABJRU5ErkJggg==');
-                }
-            `}</style>
+                    <style jsx global>{`
+                    .split {
+                        display: flex;
+                    }
+                    .split-vertical {
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .gutter {
+                        background-color: #f3f4f6;
+                        background-repeat: no-repeat;
+                        background-position: 50%;
+                        transition: background-color 0.2s;
+                    }
+                    .gutter:hover {
+                        background-color: #e5e7eb;
+                    }
+                    .gutter.gutter-horizontal {
+                        cursor: col-resize;
+                        border-left: 1px solid #e5e7eb;
+                        border-right: 1px solid #e5e7eb;
+                        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZgmwIA6Jhouse1DAAAAABJRU5ErkJggg==');
+                    }
+                    .gutter.gutter-vertical {
+                        cursor: row-resize;
+                        border-top: 1px solid #e5e7eb;
+                        border-bottom: 1px solid #e5e7eb;
+                        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABoV83XAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjAAIALAAJy8wOmAAAAABJRU5ErkJggg==');
+                    }
+                `}</style>
+                </div>
             </div>
         </div>
     );

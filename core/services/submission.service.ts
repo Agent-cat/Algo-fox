@@ -10,7 +10,7 @@ const JUDGE0_URL = process.env.JUDGE0_URL || "http://localhost:2358";
 export class SubmissionService {
     private static languageCache = new Map<number, { id: number; name: string; judge0Id: number }>();
 
-    static async createSubmission(userId: string, problemId: string, judge0Id: number, code: string, mode: SubmissionMode = "SUBMIT") {
+    static async createSubmission(userId: string, problemId: string, judge0Id: number, code: string, mode: SubmissionMode = "SUBMIT", contestId?: string) {
         // Get language info from our language mapping
         const langInfo = getLanguageById(judge0Id);
         const languageName = langInfo?.name || `Language_${judge0Id}`;
@@ -76,6 +76,7 @@ export class SubmissionService {
                 code,
                 status: "PENDING",
                 mode,
+                contestId,
             },
             include: {
                 problem: {
@@ -318,8 +319,8 @@ export class SubmissionService {
         });
     }
 
-    static async getProblemSubmissions(problemId: string, userId: string) {
-        return prisma.submission.findMany({
+    static async getProblemSubmissions(problemId: string, userId: string, take: number = 20, cursor?: string) {
+        const query: any = {
             where: {
                 problemId,
                 userId,
@@ -332,9 +333,17 @@ export class SubmissionService {
                     }
                 }
             },
+            take,
             orderBy: {
                 createdAt: 'desc'
             }
-        });
+        };
+
+        if (cursor) {
+            query.cursor = { id: cursor };
+            query.skip = 1;
+        }
+
+        return prisma.submission.findMany(query);
     }
 }

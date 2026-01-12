@@ -48,11 +48,11 @@ export default function PracticeClient({
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(page < initialTotalPages);
     const [isLoading, setIsLoading] = useState(false);
-    const [localSearchTerm, setLocalSearchTerm] = useState(""); // Internal for debouncing if needed, but here we just rely on parent or direct effect? 
-    // Actually parent passes debounced term if SearchBar handles it, or raw term? 
-    // SearchBar in parent handles input. DsaProblemsClient state updates. 
-    // We should debounce in parent or here? SearchBar has internal debounce. DsaProblemsClient receives value *after* debounce? 
-    // Let's check SearchBar.tsx. It calls onSearch with debounced value. 
+    const [localSearchTerm, setLocalSearchTerm] = useState(""); // Internal for debouncing if needed, but here we just rely on parent or direct effect?
+    // Actually parent passes debounced term if SearchBar handles it, or raw term?
+    // SearchBar in parent handles input. DsaProblemsClient state updates.
+    // We should debounce in parent or here? SearchBar has internal debounce. DsaProblemsClient receives value *after* debounce?
+    // Let's check SearchBar.tsx. It calls onSearch with debounced value.
     // So searchTerm prop here is already debounced.
 
     const [searchResults, setSearchResults] = useState<ProblemWithStats[]>([]);
@@ -89,21 +89,28 @@ export default function PracticeClient({
 
     // Load more problems (pagination)
     const loadMore = useCallback(async () => {
-        if (isLoading || !hasMore || searchTerm) return;
+        if (isLoading || !hasMore || searchTerm || problems.length === 0) return;
 
         setIsLoading(true);
         try {
+            const lastProblem = problems[problems.length - 1];
             const nextPage = page + 1;
-            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain);
-            setProblems((prev) => [...prev, ...res.problems]);
-            setPage(nextPage);
-            setHasMore(nextPage < res.totalPages);
+            // Using lastProblem.id as the cursor for the next set of problems
+            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain, undefined, undefined, lastProblem.id);
+
+            if (res.problems.length > 0) {
+                setProblems((prev) => [...prev, ...res.problems]);
+                setPage(nextPage);
+                setHasMore(nextPage < res.totalPages);
+            } else {
+                setHasMore(false);
+            }
         } catch (error) {
             console.error("Failed to load more problems", error);
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, hasMore, page, type, domain, searchTerm]);
+    }, [isLoading, hasMore, page, type, domain, searchTerm, problems]);
 
     // Intersection Observer for infinite scroll
     useEffect(() => {

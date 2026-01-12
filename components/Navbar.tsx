@@ -2,20 +2,30 @@
 
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import UserPoints from "./UserPoints";
+import { ChevronDown } from "lucide-react";
 
 export default function Navbar() {
     const { data: session, isPending } = authClient.useSession();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
 
-    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-    if (isWorkspace) {
+    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
+    const isContestPage = pathname?.startsWith("/contest/") && pathname !== "/contests";
+
+    // If we're not mounted, we render the "standard" navbar to match the likely static shell.
+    // If it's a workspace or contest page, we hide it ONLY after mounting to avoid hydration mismatch.
+    if (mounted && (isWorkspace || isContestPage)) {
         return null;
     }
 
@@ -30,6 +40,27 @@ export default function Navbar() {
         });
     };
 
+    // Check for active nav link
+    const isActive = (path: string) => {
+        if (path === "/") return pathname === path;
+        return pathname?.startsWith(path);
+    };
+
+    const navLinkClass = (path: string) => {
+        const base = "text-sm font-medium transition-colors";
+        return isActive(path)
+            ? `${base} text-orange-600 font-semibold`
+            : `${base} text-gray-600 hover:text-black`;
+    };
+
+    // Role checks
+    const userRole = (session?.user as any)?.role;
+    const isAdmin = userRole === "ADMIN";
+    const isInstitutionManager = userRole === "INSTITUTION_MANAGER";
+    const isTeacher = userRole === "TEACHER";
+    const isContestManager = userRole === "CONTEST_MANAGER";
+    const canManage = isAdmin || isTeacher || isContestManager;
+
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-md border-b border-dashed border-gray-300 transition-all duration-300">
             <div className="max-w-7xl mx-auto  px-6 h-16 flex items-center justify-between">
@@ -39,18 +70,31 @@ export default function Navbar() {
                     </span>
                     <span className="tracking-tight text-gray-900">Algofox</span>
                 </Link>
+
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-6">
                     {!isPending && (
                         <>
                             {session ? (
                                 <div className="flex items-center gap-6">
-                                    <Link href="/problems" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                                        Problems
+                                    {/* Main Navigation Links */}
+                                    <Link href="/problems" className={navLinkClass("/problems")}>
+                                        Practice
                                     </Link>
-                                    <div className="flex items-center gap-6">
-                                        <div className="relative group">
-                                            <button className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
+                                    <Link href="/contests" className={navLinkClass("/contests")}>
+                                        Contests
+                                    </Link>
+                                    <Link href="/leaderboard" className={navLinkClass("/leaderboard")}>
+                                        Leaderboard
+                                    </Link>
+
+                                    <div className="flex items-center gap-4">
+                                        {/* User Dropdown */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+                                            >
                                                 <span className="text-sm font-semibold text-gray-700">{session.user.name}</span>
                                                 <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
                                                     {session.user.image ? (
@@ -63,21 +107,65 @@ export default function Navbar() {
                                                         session.user.name?.charAt(0).toUpperCase()
                                                     )}
                                                 </div>
+                                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                                             </button>
-                                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-1 group-hover:translate-y-0 transition-all duration-200 p-1">
-                                                {/* @ts-ignore */}
-                                                {session.user.role === "ADMIN" && (
-                                                    <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Admin Panel</Link>
-                                                )}
-                                                <Link href="/leaderboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Leaderboard</Link>
-                                                <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">Dashboard</Link>
-                                                <button
-                                                    onClick={handleSignOut}
-                                                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                                                >
-                                                    Sign Out
-                                                </button>
-                                            </div>
+
+                                            {isDropdownOpen && (
+                                                <>
+                                                    {/* Backdrop */}
+                                                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                                                    <div className="absolute right-0 top-full mt-1 w-52 bg-white border border-gray-100 rounded-xl shadow-lg z-50 p-1">
+                                                        {/* Primary Links */}
+                                                        <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                                                            My Dashboard
+                                                        </Link>
+                                                        <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                                                        My Classrooms
+                                                    </Link>
+
+                                                    {/* Role-specific management links */}
+                                                    {(canManage || isInstitutionManager) && (
+                                                        <>
+                                                            <div className="my-1 border-t border-gray-100" />
+                                                            <div className="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manage</div>
+                                                        </>
+                                                    )}
+
+                                                        {isTeacher && (
+                                                            <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                                                                Teacher Dashboard
+                                                            </Link>
+                                                        )}
+
+                                                        {isInstitutionManager && (
+                                                            <Link href="/dashboard/institution" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                                                                Institution
+                                                            </Link>
+                                                        )}
+
+                                                        {(isAdmin || isContestManager) && (
+                                                            <Link href="/dashboard/contests" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                                                                Contest Management
+                                                            </Link>
+                                                        )}
+
+                                                        {isAdmin && (
+                                                            <Link href="/admin" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 rounded-lg">
+                                                                Admin Panel
+                                                            </Link>
+                                                        )}
+
+                                                        {/* Bottom section */}
+                                                        <div className="my-1 border-t border-gray-100" />
+                                                        <button
+                                                            onClick={() => { setIsDropdownOpen(false); handleSignOut(); }}
+                                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                                                        >
+                                                            Sign Out
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                         <UserPoints />
                                     </div>
@@ -133,9 +221,53 @@ export default function Navbar() {
                                     </div>
                                     <UserPoints />
                                 </div>
-                                <Link href="/dashboard" className="text-base font-medium text-gray-800 hover:text-orange-600">Dashboard</Link>
-                                <Link href="/problems" className="text-base font-medium text-gray-800 hover:text-orange-600">Problems</Link>
-                                <button onClick={handleSignOut} className="text-base font-medium text-red-600 text-left hover:text-red-700">Sign Out</button>
+
+                                {/* Main Links */}
+                                <Link href="/problems" className={`text-base font-medium ${isActive("/problems") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
+                                    Practice
+                                </Link>
+                                <Link href="/contests" className={`text-base font-medium ${isActive("/contests") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
+                                    Contests
+                                </Link>
+                                <Link href="/leaderboard" className={`text-base font-medium ${isActive("/leaderboard") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
+                                    Leaderboard
+                                </Link>
+
+                                <div className="my-2 border-t border-gray-100" />
+
+                                <Link href="/dashboard" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                    My Dashboard
+                                </Link>
+                                <Link href="/dashboard/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                    My Classrooms
+                                </Link>
+
+                                {/* Role-specific Links */}
+                                {isAdmin && (
+                                    <Link href="/admin" className="text-base font-medium text-orange-600 hover:text-orange-700">
+                                        Admin Panel
+                                    </Link>
+                                )}
+                                {isInstitutionManager && (
+                                    <Link href="/dashboard/institution" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                        Institution
+                                    </Link>
+                                )}
+                                {isTeacher && (
+                                    <Link href="/dashboard/teacher/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                        Teacher Dashboard
+                                    </Link>
+                                )}
+                                {(isAdmin || isContestManager) && (
+                                    <Link href="/dashboard/contests" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                        Contest Management
+                                    </Link>
+                                )}
+
+                                <div className="my-2 border-t border-gray-100" />
+                                <button onClick={handleSignOut} className="text-base font-medium text-red-600 text-left hover:text-red-700">
+                                    Sign Out
+                                </button>
                             </>
                         ) : (
                             <>

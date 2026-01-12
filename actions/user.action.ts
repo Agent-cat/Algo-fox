@@ -10,10 +10,11 @@ import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
  * Get user's total score (cached for 5 minutes)
  * Cache is invalidated when user solves a problem via updateTag
  */
+
 export async function getUserScore(): Promise<number> {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes
-    
+
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -53,7 +54,7 @@ export async function recalculateUserScore(): Promise<{ success: boolean; newSco
  */
 export async function completeOnboarding(data: {
     bio?: string;
-    collageId: string;
+    collegeId: string;
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const problemId = searchParams.get("problemId");
+    const contestId = searchParams.get("contestId");
 
     if (!userId || !problemId) {
         return NextResponse.json({ error: "Missing params" }, { status: 400 });
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
             where: {
                 userId,
                 problemId,
+                contestId: contestId || null,
                 mode: "SUBMIT"
             },
             orderBy: { createdAt: 'desc' },
@@ -37,144 +39,45 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { userId, problemId, languageId, code, mode = "SUBMIT" } = body;
+        const { userId, problemId, languageId, code, mode = "SUBMIT", contestId } = body;
 
         if (!userId || !problemId || !languageId || !code) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // HANDLE RUN MODE (No DB Storage, Synchronous)
-        if (mode === "RUN") {
-            const problem = await prisma.problem.findUnique({
-                where: { id: problemId },
-                include: {
-                    testCases: true,
-                    functionTemplates: true // Include function templates for DSA
+        // CONTEST SECURITY CHECKS
+        if (contestId) {
+            const contest = await prisma.contest.findUnique({
+                where: { id: contestId },
+                select: { endTime: true }
+            });
+
+            if (!contest) {
+                return NextResponse.json({ error: "Contest not found" }, { status: 404 });
+            }
+
+            if (new Date() > contest.endTime) {
+                return NextResponse.json({ error: "Contest has already ended" }, { status: 403 });
+            }
+
+            const participation = await prisma.contestParticipation.findUnique({
+                where: {
+                    userId_contestId: {
+                        userId,
+                        contestId
+                    }
                 }
             });
 
-            if (!problem) {
-                return NextResponse.json({ error: "Problem not found" }, { status: 404 });
+            if (participation?.isFinished) {
+                return NextResponse.json({ error: "You have already ended your contest session" }, { status: 403 });
             }
-
-            // Filter test cases: for RUN mode, usually only public ones? 
-            // The worker does: testCasesToEvaluate = allTestCases.filter(tc => !tc.hidden);
-            // Let's mirror that behavior for consistency.
-            const testCasesToEvaluate = problem.testCases.filter(tc => !tc.hidden);
-
-            let codeToExecute = code;
-            if (problem.domain === "SQL") {
-                // Prepend hiddenQuery if exists
-                if (problem.hiddenQuery) {
-                    codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
-                }
-
-                // Convert SQL to SQLite-compatible syntax
-                const { convertBatchToSQLite } = await import("@/lib/sql-converter");
-                codeToExecute = convertBatchToSQLite(codeToExecute);
-            }
-            // For DSA problems with function templates, combine driver code + user's function
-            else if (problem.domain === "DSA" && problem.useFunctionTemplate && problem.functionTemplates?.length) {
-                // Find the template for the current language  
-                const template = problem.functionTemplates.find(
-                    t => t.languageId === languageId
-                );
-
-                if (template?.driverCode) {
-                    const langId = languageId;
-
-                    // Check if driver code uses placeholder for user code insertion
-                    if (template.driverCode.includes("{{USER_CODE}}")) {
-                        codeToExecute = template.driverCode.replace("{{USER_CODE}}", code);
-                    }
-                    // Go (60), Rust (73): Driver first (package/imports/fn main), then user function
-                    else if (langId === 60 || langId === 73) {
-                        codeToExecute = template.driverCode + "\n\n" + code;
-                    }
-                    // JavaScript (63), Python (71): User code first, then driver
-                    else if (langId === 63 || langId === 71) {
-                        codeToExecute = code + "\n\n" + template.driverCode;
-                    }
-                    // Java (62), C (50), C++ (54): Need placeholder or insert before closing brace
-                    else if (langId === 62 || langId === 50 || langId === 54) {
-                        codeToExecute = template.driverCode.replace(/}\s*$/, code + "\n}");
-                    }
-                    // Default: user code first, then driver
-                    else {
-                        codeToExecute = code + "\n\n" + template.driverCode;
-                    }
-                }
-            }
-
-            // Send to Judge0
-            const tokens = await SubmissionService.sendToJudge0(
-                languageId,
-                codeToExecute,
-                testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
-            );
-
-            // Wait for results (poll Judge0 internally)
-            let attempts = 0;
-            const maxAttempts = 10; // 2 seconds total roughly (if 200ms delay)
-            let results: any[] = [];
-
-            // Simple internal polling since we need to return the response
-            // For better performance/reliability, we might want to just wait a fixed time or use a smarter loop
-            // Judge0 is usually fast for small inputs.
-
-            while (attempts < maxAttempts) {
-                const batchResults = await SubmissionService.getBatchResults(tokens.map(t => t.token));
-
-                // Check if any vary still pending/processing
-                const isPending = batchResults.some(r => r.status.id <= 2); // 1=In Queue, 2=Processing
-
-                if (!isPending) {
-                    results = batchResults;
-                    break;
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-                attempts++;
-                results = batchResults; // Keep latest state
-            }
-
-            // Format results to match what frontend expects from polling
-            // Frontend expects: { status: "ACCEPTED" | ..., testCases: [...] }
-
-            const formattedTestCases = results.map((r, index) => {
-                const statusMap: Record<number, string> = {
-                    3: "ACCEPTED",
-                    4: "WRONG_ANSWER",
-                    5: "TIME_LIMIT_EXCEEDED",
-                    6: "COMPILE_ERROR",
-                    // Map others as needed
-                };
-
-                return {
-                    index,
-                    status: statusMap[r.status.id] || "RUNTIME_ERROR",
-                    time: parseFloat(r.time || "0"),
-                    memory: r.memory,
-                    stdout: r.stdout,
-                    errorMessage: r.stderr || r.compile_output
-                };
-            });
-
-            const overrideStatus = formattedTestCases.find(tc => tc.status !== "ACCEPTED")?.status || "ACCEPTED";
-            // Calculate totals
-            const totalTime = formattedTestCases.reduce((acc, curr) => acc + (curr.time || 0), 0);
-            const maxMemory = Math.max(...formattedTestCases.map(tc => tc.memory || 0));
-
-            return NextResponse.json({
-                status: overrideStatus,
-                testCases: formattedTestCases,
-                time: totalTime,
-                memory: maxMemory
-            });
         }
 
+
+
         // 1. Create Submission in DB (SUBMIT MODE)
-        const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode);
+        const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode, contestId);
 
         // 2. Add to Queue
         await addSubmissionJob(submission.id);

@@ -8,7 +8,7 @@ import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
 export async function getSubmission(id: string) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 86400, revalidate: 86400 }); // 24 hours (submissions are immutable generally)
-    
+
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -22,7 +22,7 @@ export async function getSubmission(id: string) {
     const submission = await SubmissionService.getSubmissionById(id);
 
     // Security check: Ensure the submission belongs to the user
-    // OR if we want to allow sharing, we might skip this. 
+    // OR if we want to allow sharing, we might skip this.
     // For now, assuming private submissions.
     if (submission && submission.userId !== session.user.id) {
         return null; // Or throw Unauthorized
@@ -31,10 +31,10 @@ export async function getSubmission(id: string) {
     return submission;
 }
 
-export async function getProblemSubmissionsAction(problemId: string) {
+export async function getProblemSubmissionsAction(problemId: string, take: number = 20, cursor?: string) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 60, revalidate: 60 }); // 1 minute default, but we rely on on-demand revalidation ideally
-    
+
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -45,9 +45,10 @@ export async function getProblemSubmissionsAction(problemId: string) {
 
     const userId = session.user.id;
 
-    cacheTag(`problem-submissions-${userId}-${problemId}`, `user-submissions-${userId}`, `problem-${problemId}`);
+    const tagKey = `problem-submissions-${userId}-${problemId}${cursor ? `-cursor-${cursor}` : ""}-take-${take}`;
+    cacheTag(tagKey, `user-submissions-${userId}`, `problem-${problemId}`);
 
-    return SubmissionService.getProblemSubmissions(problemId, userId);
+    return SubmissionService.getProblemSubmissions(problemId, userId, take, cursor);
 }
 
 export async function markConceptAsCompleted(problemId: string) {

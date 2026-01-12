@@ -16,21 +16,67 @@ const getProblemCacheKey = (slug: string) => `problem:${slug}`;
 export class ProblemService {
 
     // CACHED FETCHER FOR PUBLIC PROBLEM LIST
-    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = []) {
-        const cacheKey = getProblemsCacheKey(type, domain, page, diff, tags);
+    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = [], cursor?: string) {
+        // We use page for cache key primarily, but if cursor is used, it's for infinite scroll which often is bypass-cache or unique key
+        const cacheKey = cursor
+            ? `problems:list:${domain}:${type}:cursor:${cursor}:pageSize:${pageSize}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}`
+            : getProblemsCacheKey(type, domain, page, diff, tags);
+
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] Problems List: ${domain} ${type} Page ${page}`);
+                console.log(`[CACHE HIT] Problems List: ${domain} ${type} ${cursor ? 'Cursor ' + cursor : 'Page ' + page}`);
                 return JSON.parse(cached);
             }
         } catch (error) {
             console.error("Redis get error:", error);
         }
 
-        const skip = (page - 1) * pageSize;
+        const query: any = {
+            where: {
+                type,
+                domain,
+                difficulty: diff,
+                hidden: false,
+                tags: tags.length > 0 ? {
+                    some: {
+                        slug: { in: tags }
+                    }
+                } : undefined
+            },
+            take: pageSize,
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                difficulty: true,
+                score: true,
+                solved: true,
+                createdAt: true,
+                type: true,
+                _count: {
+                    select: { submissions: true }
+                },
+                tags: {
+                    select: {
+                        name: true,
+                        slug: true
+                    }
+                }
+            }
+        };
+
+        if (cursor) {
+            query.cursor = { id: cursor };
+            query.skip = 1; // Skip the item already fetched
+        } else {
+            query.skip = (page - 1) * pageSize;
+        }
+
         const [problems, total] = await Promise.all([
-            prisma.problem.findMany({
+            prisma.problem.findMany(query),
+            prisma.problem.count({
                 where: {
                     type,
                     domain,
@@ -41,36 +87,6 @@ export class ProblemService {
                             slug: { in: tags }
                         }
                     } : undefined
-                },
-                skip,
-                take: pageSize,
-                orderBy: { createdAt: 'desc' },
-                select: {
-                    id: true,
-                    title: true,
-                    slug: true,
-                    difficulty: true,
-                    score: true,
-                    solved: true,
-                    createdAt: true,
-                    type: true,
-                    _count: {
-                        select: { submissions: true }
-                    },
-                    tags: {
-                        select: {
-                            name: true,
-                            slug: true
-                        }
-                    }
-                }
-            }),
-            prisma.problem.count({
-                where: {
-                    type,
-                    domain,
-                    difficulty: diff,
-                    hidden: false
                 }
             })
         ]);
@@ -92,10 +108,11 @@ export class ProblemService {
         domain: ProblemDomain = "DSA",
         userId?: string,
         diff?: Difficulty,
-        tags: string[] = []
+        tags: string[] = [],
+        cursor?: string
     ) {
         // FETCHING PUBLIC DATA (CACHED)
-        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags);
+        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags, cursor);
 
         // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
         let solvedSet = new Set<string>();
@@ -119,8 +136,6 @@ export class ProblemService {
             return {
                 ...p,
                 isSolved: solvedSet.has(p.id),
-                // USING THE STORED 'SOLVED' COUNT WHICH IS NOW MAINTAINED BY WORKER
-                // FALLBACK TO 0 IF NULL
                 acceptance: p._count.submissions > 0
                     ? ((p.solved || 0) / p._count.submissions) * 100
                     : 0,
@@ -130,7 +145,8 @@ export class ProblemService {
         return {
             problems: problemsWithStats,
             totalPages: Math.ceil(total / pageSize),
-            currentPage: page
+            currentPage: page,
+            total
         };
     }
 
@@ -143,7 +159,7 @@ export class ProblemService {
     ) {
         const cacheKey = getAdminProblemsCacheKey(domain, page);
         // Note: cache key doesn't include excludeDifficulty which could be an issue if we vary it often,
-        // but for now only one usage pattern exists per page. 
+        // but for now only one usage pattern exists per page.
         // Ideally we should append it to cache key but let's keep it simple as per plan.
 
         try {
@@ -162,7 +178,7 @@ export class ProblemService {
         }
 
         const skip = (page - 1) * pageSize;
-        const where: any = domain ? { domain } : {};
+        const where: any = domain ? { domain, type: { not: "CONTEST" } } : { type: { not: "CONTEST" } };
         if (excludeDifficulty) {
             where.difficulty = { not: excludeDifficulty };
         }
@@ -328,6 +344,92 @@ export class ProblemService {
         } catch (error) {
             console.error("Failed to get problem by id:", error);
             return { success: false, error: "Failed to get problem by id" };
+        }
+    }
+
+    // GETTING NEXT PROBLEM
+    static async getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+        try {
+            const nextProblem = await prisma.problem.findFirst({
+                where: {
+                    domain,
+                    type,
+                    hidden: false,
+                    createdAt: {
+                        lt: currentCreatedAt
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                select: {
+                    slug: true
+                }
+            });
+            return nextProblem?.slug || null;
+        } catch (error) {
+            console.error("Failed to get next problem:", error);
+            return null;
+        }
+    }
+
+    // GETTING PREVIOUS PROBLEM
+    static async getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+        try {
+            const prevProblem = await prisma.problem.findFirst({
+                where: {
+                    domain,
+                    type,
+                    hidden: false,
+                    createdAt: {
+                        gt: currentCreatedAt
+                    }
+                },
+                orderBy: {
+                    createdAt: 'asc'
+                },
+                select: {
+                    slug: true
+                }
+            });
+            return prevProblem?.slug || null;
+        } catch (error) {
+            console.error("Failed to get previous problem:", error);
+            return null;
+        }
+    }
+
+    // GETTING RANDOM PROBLEM
+    static async getRandomProblem(domain: ProblemDomain, type: ProblemType) {
+        try {
+           // efficient random selection using raw query or count-based skip
+           const count = await prisma.problem.count({
+               where: {
+                   domain,
+                   type,
+                   hidden: false
+               }
+           });
+
+           if (count === 0) return null;
+
+           const skip = Math.floor(Math.random() * count);
+           const randomProblem = await prisma.problem.findFirst({
+               where: {
+                   domain,
+                   type,
+                   hidden: false
+               },
+               skip,
+               select: {
+                   slug: true
+               }
+           });
+
+           return randomProblem?.slug || null;
+        } catch (error) {
+            console.error("Failed to get random problem:", error);
+            return null;
         }
     }
 

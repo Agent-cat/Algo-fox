@@ -9,7 +9,7 @@ import { cacheTag, cacheLife } from "next/cache";
 export async function getDashboardStats() {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for dashboard stats
-    
+
     const session = await auth.api.getSession({
         headers: await headers()
     });

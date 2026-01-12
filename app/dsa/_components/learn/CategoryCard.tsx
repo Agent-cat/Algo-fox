@@ -36,21 +36,23 @@ export default function CategoryCard({ id, name, description, problemCount, solv
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const res = await getCategoryProblems(id, pageNum, 10);
+      const cursor = append && problems.length > 0 ? problems[problems.length - 1].id : undefined;
+      const res = await getCategoryProblems(id, pageNum, 10, cursor);
+
       if (append) {
         setProblems((prev) => [...prev, ...res.problems]);
       } else {
         setProblems(res.problems);
       }
       setPage(pageNum);
-      setHasMore(pageNum < res.totalPages);
+      setHasMore(res.problems.length > 0 && pageNum < res.totalPages);
     } catch (error) {
       console.error("Failed to load category problems:", error);
     } finally {
       setIsLoading(false);
       setIsInitialLoad(false);
     }
-  }, [id, isLoading]);
+  }, [id, isLoading, problems]);
 
   const handleToggle = () => {
     if (!isExpanded && problems.length === 0) {

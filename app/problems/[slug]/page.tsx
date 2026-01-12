@@ -1,6 +1,7 @@
-import { getProblem } from "@/actions/problems";
+import { getProblem, getNextProblem, getPreviousProblem } from "@/actions/problems";
+import { getContestDetail } from "@/actions/contest";
 import Workspace from "@/components/workspace/Workspace";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Laptop2 } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -13,6 +14,7 @@ import { Suspense } from "react";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ contestId?: string }>;
 }
 
 // GENERATING METADATA FOR THE PROBLEM PAGE (SEO)
@@ -32,13 +34,32 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-// Dynamic component that checks if problem is solved
-async function ProblemContent({ problem }: { problem: any }) {
+// Component that handles searchParams AND params access (wrapped in Suspense)
+async function ProblemContentWithParams({
+  params,
+  searchParams
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ contestId?: string }>;
+}) {
+  "use cache: private";
+  const { slug } = await params;
+  const { contestId } = await searchParams;
+
+  const problem = await getProblem(slug);
+
+  if (!problem) {
+    return notFound();
+  }
+
   const session = await auth.api.getSession({
     headers: await headers()
   });
 
   let isSolved = false;
+  let contestData = null;
+  let solvedProblemIds: string[] = [];
+
   if (session?.user) {
     if (session.user.role === "ADMIN") {
       isSolved = true;
@@ -52,6 +73,27 @@ async function ProblemContent({ problem }: { problem: any }) {
         }
       });
       isSolved = !!submission;
+    }
+
+    if (contestId) {
+      const contestResponse = await getContestDetail(contestId);
+      if (contestResponse.success) {
+        if ((contestResponse.contest as any).isFinished) {
+          return redirect(`/contest/${contestId}`);
+        }
+        contestData = contestResponse.contest;
+        // Fetch all solved problems in this contest for the user
+        const contestSolvedSubmissions = await prisma.submission.findMany({
+          where: {
+            userId: session.user.id,
+            status: "ACCEPTED",
+            mode: "SUBMIT",
+            problemId: { in: (contestResponse.contest as any).problems.map((p: any) => p.problem.id) }
+          },
+          select: { problemId: true }
+        });
+        solvedProblemIds = contestSolvedSubmissions.map(s => s.problemId);
+      }
     }
   }
 
@@ -73,20 +115,21 @@ async function ProblemContent({ problem }: { problem: any }) {
         </p>
       </div>
       <div className="hidden md:block">
-        <Workspace problem={problem} isSolved={isSolved} />
+        <Workspace
+          problem={problem}
+          isSolved={isSolved}
+          contestId={contestId}
+          contest={contestData}
+          solvedProblemIds={solvedProblemIds}
+          nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
+          prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
+        />
       </div>
     </>
   );
 }
 
-export default async function ProblemPage({ params }: PageProps) {
-  const { slug } = await params;
-  const problem = await getProblem(slug);
-
-  if (!problem) {
-    return notFound();
-  }
-
+export default function ProblemPage({ params, searchParams }: PageProps) {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -96,23 +139,37 @@ export default async function ProblemPage({ params }: PageProps) {
         </div>
       </div>
     }>
-      <ProblemContent problem={problem} />
+      <ProblemContentWithParams params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
 
+
 // PRE-GENERATING STATIC PAGES FOR TOP 50 PROBLEMS AT BUILD TIME
+// Note: Contest-specific problems (hidden: true) are not included here but will be handled dynamically
 
 export async function generateStaticParams() {
-  const problems = await prisma.problem.findMany({
-    where: { hidden: false },
-    select: { slug: true },
-    orderBy: { createdAt: 'desc' },
-    take: 50, // PRE-RENDER TOP 50 PROBLEMS
-  });
+  try {
+    const problems = await prisma.problem.findMany({
+      where: { hidden: false },
+      select: { slug: true },
+      orderBy: { createdAt: 'desc' },
+      take: 50, // PRE-RENDER TOP 50 PROBLEMS
+    });
 
-  return problems.map((p) => ({
-    slug: p.slug,
-  }));
+    // Next.js 16 requires at least one result for Cache Components
+    // If no problems exist, return a placeholder that will be handled by the dynamic route
+    if (problems.length === 0) {
+      return [{ slug: 'placeholder' }];
+    }
+
+    return problems.map((p) => ({
+      slug: p.slug,
+    }));
+  } catch (error) {
+    // Fallback to ensure we always return at least one result
+    console.error("Error generating static params for problems:", error);
+    return [{ slug: 'placeholder' }];
+  }
 }

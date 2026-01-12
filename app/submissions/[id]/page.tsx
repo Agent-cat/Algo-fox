@@ -10,6 +10,7 @@ interface PageProps {
 }
 
 async function SubmissionContent({ params }: PageProps) {
+    "use cache: private";
     const { id } = await params;
     const submission = await getSubmission(id);
 

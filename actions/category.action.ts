@@ -44,7 +44,8 @@ export async function getCategoryById(id: string) {
 export async function getCategoryProblems(
   categoryId: string,
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 10,
+  cursor?: string
 ) {
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
@@ -54,9 +55,10 @@ export async function getCategoryProblems(
   });
   const userId = session?.user?.id;
 
-  cacheTag(`category-problems-${categoryId}-page-${page}${userId ? `-user-${userId}` : ''}`, `category-${categoryId}`, 'categories-list');
+  const tagKey = `category-problems-${categoryId}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}`;
+  cacheTag(tagKey, `category-${categoryId}`, 'categories-list');
 
-  return CategoryService.getCategoryProblems(categoryId, page, pageSize, userId);
+  return CategoryService.getCategoryProblems(categoryId, page, pageSize, userId, cursor);
 }
 
 
