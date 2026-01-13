@@ -33,6 +33,7 @@ function OnboardingContent() {
     const [formData, setFormData] = useState({
         bio: "",
         collegeId: "",
+        year: "",
         leetCodeHandle: "",
         codeChefHandle: "",
         hackerrankHandle: "",
@@ -46,12 +47,12 @@ function OnboardingContent() {
         }
     }, [searchParams, router]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleNext = () => {
-        if (step === 1 && !formData.collegeId.trim()) {
+        if (step === 1 && (!formData.collegeId.trim() || !formData.year)) {
             return;
         }
         setStep(step + 1);
@@ -72,7 +73,7 @@ function OnboardingContent() {
         }
     };
 
-    const isStep1Valid = !!formData.collegeId.trim();
+    const isStep1Valid = !!formData.collegeId.trim() && !!formData.year;
 
     return (
         <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -131,6 +132,23 @@ function OnboardingContent() {
                                                 placeholder="e.g. IIT Delhi"
                                                 autoFocus
                                             />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">Academic Year *</label>
+                                            <select
+                                                name="year"
+                                                value={formData.year}
+                                                onChange={handleChange}
+                                                className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all rounded-none"
+                                                required
+                                            >
+                                                <option value="">Select your year</option>
+                                                <option value="1">1st Year</option>
+                                                <option value="2">2nd Year</option>
+                                                <option value="3">3rd Year</option>
+                                                <option value="4">4th Year</option>
+                                                <option value="5">5th Year</option>
+                                            </select>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">Bio</label>

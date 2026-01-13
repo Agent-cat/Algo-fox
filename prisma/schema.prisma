@@ -18,9 +18,9 @@ model User {
   totalScore     Int @default(0)
   problemsSolved Int @default(0)
 
-  goldBadges     Int @default(0)
-  silverBadges   Int @default(0)
-  bronzeBadges   Int @default(0)
+  goldBadges   Int @default(0)
+  silverBadges Int @default(0)
+  bronzeBadges Int @default(0)
 
   tags          String[] @default(["student"])
   emailVerified Boolean  @default(false)
@@ -34,6 +34,7 @@ model User {
   role                Role    @default(STUDENT)
   onboardingCompleted Boolean @default(false)
   bio                 String?
+  year                Int? // Academic year: 1, 2, 3, 4, etc.
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,9 +46,9 @@ model User {
   institution   Institution? @relation(fields: [institutionId], references: [id])
   problems      Problem[]
 
-  taughtClassrooms   Classroom[] @relation("TeacherClassrooms")
-  enrolledClassrooms Classroom[] @relation("StudentClassrooms")
-  contests           Contest[]
+  taughtClassrooms      Classroom[]            @relation("TeacherClassrooms")
+  enrolledClassrooms    Classroom[]            @relation("StudentClassrooms")
+  contests              Contest[]
   contestParticipations ContestParticipation[]
 
   @@index([collegeId])
@@ -432,7 +433,7 @@ model Contest {
   creatorId String
   creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  problems ContestProblem[]
+  problems     ContestProblem[]
   participants ContestParticipation[]
 
   createdAt   DateTime     @default(now())
@@ -464,12 +465,12 @@ model ContestProblem {
 }
 
 model ContestParticipation {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   userId    String
   contestId String
 
-  acceptedRules Boolean @default(false)
-  isFinished    Boolean @default(false)
+  acceptedRules Boolean   @default(false)
+  isFinished    Boolean   @default(false)
   finishedAt    DateTime?
 
   // Session tracking for multi-tab detection
@@ -490,10 +491,10 @@ model ContestParticipation {
   isBlocked Boolean @default(false)
 
   // Tiered blocking
-  tempBlockedUntil   DateTime?  // When temp block expires (null = not temp blocked)
-  permanentlyBlocked Boolean @default(false)  // Requires manager to unblock
-  unblockedBy        String?    // Manager who unblocked
-  unblockedAt        DateTime?  // When they were unblocked
+  tempBlockedUntil   DateTime? // When temp block expires (null = not temp blocked)
+  permanentlyBlocked Boolean   @default(false) // Requires manager to unblock
+  unblockedBy        String? // Manager who unblocked
+  unblockedAt        DateTime? // When they were unblocked
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -523,6 +524,21 @@ model ContestViolation {
   @@index([participationId])
   @@index([type])
   @@map("contest_violation")
+}
+
+// Course Allocation - Maps which courses/domains are available to which academic years
+model CourseAllocation {
+  id     String        @id @default(cuid())
+  year   Int // Academic year: 1, 2, 3, 4, etc.
+  domain ProblemDomain // Course/Domain: DSA, SQL, etc.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, domain]) // Prevent duplicate allocations
+  @@index([year])
+  @@index([domain])
+  @@map("course_allocation")
 }
 
 enum ViolationType {

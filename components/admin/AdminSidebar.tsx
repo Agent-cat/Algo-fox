@@ -49,6 +49,11 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    name: "Allocate Courses",
+    icon: BookOpen,
+    href: "/admin/course-allocation",
+  },
+  {
     name: "Institutions",
     icon: Building2,
     href: "/admin/institutions",

@@ -55,6 +55,7 @@ export async function recalculateUserScore(): Promise<{ success: boolean; newSco
 export async function completeOnboarding(data: {
     bio?: string;
     collegeId: string;
+    year?: string;
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;

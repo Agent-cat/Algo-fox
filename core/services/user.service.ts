@@ -101,6 +101,7 @@ export class UserService {
     static async completeOnboarding(userId: string, data: {
         bio?: string;
         collegeId: string;
+        year?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string;
@@ -111,6 +112,7 @@ export class UserService {
                 where: { id: userId },
                 data: {
                     collegeId: data.collegeId || null,
+                    year: data.year ? parseInt(data.year) : null,
                     bio: data.bio || null,
                     leetCodeHandle: data.leetCodeHandle || null,
                     codeChefHandle: data.codeChefHandle || null,
