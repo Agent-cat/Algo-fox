@@ -54,6 +54,9 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
         );
     }
 
+    const isFinalized = res.success && 'isFinalized' in res ? res.isFinalized : false;
+    const userRole = session?.user?.role;
+
     return (
         <div className="container mx-auto py-10 px-4 min-h-screen">
             {/* Breadcrumbs */}
@@ -67,6 +70,9 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
                 <ContestStandings
                     students={res.students as any}
                     currentUserId={session.user.id}
+                    contestId={id}
+                    isFinalized={isFinalized}
+                    userRole={userRole}
                 />
             </div>
         </div>

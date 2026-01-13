@@ -33,38 +33,38 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
     return (
         <div className="space-y-10">
             {/* Search and Tabs Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white border border-gray-100 p-2 rounded-2xl shadow-xl shadow-gray-200/50 relative z-20">
-                <div className="flex bg-gray-50 p-1 rounded-xl w-fit">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white border border-gray-200 p-2 rounded-2xl shadow-sm relative z-20 max-w-5xl mx-auto -mt-20">
+                <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
                     <button
                         onClick={() => setActiveTab("active")}
-                        className={`px-8 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${activeTab === "active"
-                            ? "bg-white text-orange-600 shadow-lg shadow-orange-500/5 ring-1 ring-gray-100"
-                            : "text-gray-400 hover:text-gray-600 hover:bg-white/50"
+                        className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === "active"
+                            ? "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        <Clock className={`w-4 h-4 ${activeTab === "active" ? "animate-pulse" : ""}`} />
+                        <Clock className={`w-3.5 h-3.5 ${activeTab === "active" ? "text-orange-600" : ""}`} />
                         Active
                     </button>
                     <button
                         onClick={() => setActiveTab("past")}
-                        className={`px-8 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${activeTab === "past"
-                            ? "bg-white text-orange-600 shadow-lg shadow-orange-500/5 ring-1 ring-gray-100"
-                            : "text-gray-400 hover:text-gray-600 hover:bg-white/50"
+                        className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === "past"
+                            ? "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        <Calendar className="w-4 h-4" />
-                        Previous
+                        <Calendar className={`w-3.5 h-3.5 ${activeTab === "past" ? "text-orange-600" : ""}`} />
+                        Archive
                     </button>
                 </div>
 
-                <div className="relative group flex-1 max-w-md">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                <div className="relative group flex-1 max-w-sm">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-600 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search for an arena..."
+                        placeholder="Search contests..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-6 py-3.5 bg-gray-50/50 border border-transparent rounded-xl focus:outline-none focus:bg-white focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500/20 transition-all text-sm font-bold placeholder:text-gray-400"
+                        className="w-full pl-10 pr-4 py-2.5 bg-transparent border-none focus:outline-none text-sm font-medium placeholder:text-gray-400"
                     />
                 </div>
             </div>

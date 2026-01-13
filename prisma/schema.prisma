@@ -18,6 +18,10 @@ model User {
   totalScore     Int @default(0)
   problemsSolved Int @default(0)
 
+  goldBadges     Int @default(0)
+  silverBadges   Int @default(0)
+  bronzeBadges   Int @default(0)
+
   tags          String[] @default(["student"])
   emailVerified Boolean  @default(false)
   image         String?
@@ -416,6 +420,7 @@ model Contest {
   prizes          String? @db.Text
   rules           String? @db.Text
   hidden          Boolean @default(false)
+  isFinalized     Boolean @default(false)
 
   visibility    ContestVisibility @default(PUBLIC)
   institutionId String?

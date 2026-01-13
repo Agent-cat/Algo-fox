@@ -86,7 +86,8 @@ export async function createCategory(data: {
 
   if (result.success) {
     // REVALIDATING THE PATHS
-    revalidatePath("/dsa");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
     updateTag('categories-list');
   }
@@ -110,7 +111,8 @@ export async function updateCategory(id: string, data: { name?: string; descript
 
   if (result.success) {
     // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
-    revalidatePath("/dsa");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
     updateTag('categories-list');
     if (data.slug) {
@@ -138,7 +140,8 @@ export async function deleteCategory(id: string) {
 
   if (result.success) {
     // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
-    revalidatePath("/dsa");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
     updateTag('categories-list');
     if (result.slug) {
@@ -169,8 +172,8 @@ export async function addProblemToCategory(
   const result = await CategoryService.addProblemToCategory(categoryId, problemId, order);
 
   if (result.success) {
-    revalidatePath("/dsa");
-    revalidatePath("/sql");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath(`/admin/categories/${categoryId}`);
     revalidatePath(`/admin/dsa/categories/${categoryId}`);
     revalidatePath(`/admin/sql/categories/${categoryId}`);
@@ -201,7 +204,8 @@ export async function removeProblemFromCategory(
   const result = await CategoryService.removeProblemFromCategory(categoryId, problemId);
 
   if (result.success) {
-    revalidatePath("/dsa");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath(`/admin/categories/${categoryId}`);
   }
 
@@ -233,8 +237,8 @@ export async function createProblemAndAddToCategory(
   const result = await CategoryService.createProblemAndAddToCategory(categoryId, data);
 
   if (result.success) {
-    revalidatePath("/dsa");
-    revalidatePath("/sql");
+    revalidatePath("/problems/dsa");
+    revalidatePath("/problems/sql");
     revalidatePath(`/admin/categories/${categoryId}`);
     revalidatePath(`/admin/dsa/categories/${categoryId}`);
     revalidatePath(`/admin/sql/categories/${categoryId}`);

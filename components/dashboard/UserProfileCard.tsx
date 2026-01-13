@@ -9,10 +9,15 @@ interface UserProfileCardProps {
     codeChefHandle?: string | null;
     hackerrankHandle?: string | null;
     githubHandle?: string | null;
+    leetCodeHandle?: string | null;
+    codeChefHandle?: string | null;
+    hackerrankHandle?: string | null;
+    githubHandle?: string | null;
+    readonly?: boolean;
 }
 
 export function UserProfileCard(props: UserProfileCardProps) {
-    const { name, email, image, bio } = props;
+    const { name, email, image, bio, readonly } = props;
 
     return (
         <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -32,7 +37,7 @@ export function UserProfileCard(props: UserProfileCardProps) {
                 <p className="text-sm text-gray-500 mb-2">{email}</p>
                 {bio && <p className="text-xs text-gray-400 mb-4 line-clamp-2 px-4">{bio}</p>}
 
-                <ProfileActions user={props} />
+                <ProfileActions user={props} readonly={readonly} />
             </div>
         </div>
     );

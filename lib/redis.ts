@@ -1,9 +1,10 @@
 import IORedis from "ioredis";
 
-const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
-
-const connection = new IORedis(REDIS_URL, {
+const connection = new IORedis({
+  host: process.env.REDIS_HOST || "127.0.0.1",
+  port: parseInt(process.env.REDIS_PORT || "6379"),
   maxRetriesPerRequest: null,
+  enableReadyCheck: false,
 });
 
 connection.on("error", (error) => {

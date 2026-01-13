@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Trophy, Medal, User, Crown, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { FinalizeContestButton } from "./FinalizeContestButton";
 
 interface ContestStudent {
     id: string;
@@ -15,14 +17,20 @@ interface ContestStudent {
 interface ContestStandingsProps {
     students: ContestStudent[];
     currentUserId?: string;
+    contestId: string;
+    isFinalized?: boolean;
+    userRole?: string;
 }
 
 const ITEMS_PER_LOAD = 20;
 
-export function ContestStandings({ students, currentUserId }: ContestStandingsProps) {
+export function ContestStandings({ students, currentUserId, contestId, isFinalized = false, userRole }: ContestStandingsProps) {
     const [displayCount, setDisplayCount] = useState(ITEMS_PER_LOAD);
     const [isLoading, setIsLoading] = useState(false);
     const observerTarget = useRef<HTMLDivElement>(null);
+
+    // Check for permissions
+    const canFinalize = ["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(userRole || "");
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -92,9 +100,15 @@ export function ContestStandings({ students, currentUserId }: ContestStandingsPr
                     <Trophy className="w-6 h-6 text-orange-600" />
                     <h2 className="text-2xl font-bold text-gray-900">Live Standings</h2>
                 </div>
-                <span className="px-4 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold border border-orange-200 uppercase tracking-wider">
-                    {students.length} Participants
-                </span>
+
+                <div className="flex items-center gap-3">
+                    {canFinalize && (
+                        <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
+                    )}
+                    <span className="px-4 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold border border-orange-200 uppercase tracking-wider">
+                        {students.length} Participants
+                    </span>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3">
@@ -117,7 +131,10 @@ export function ContestStandings({ students, currentUserId }: ContestStandingsPr
 
                             {/* Student Info */}
                             <div className="flex items-center gap-3 md:gap-4">
-                                <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-gray-100 border-2 border-white shadow-sm transition-transform group-hover:scale-105">
+                                <Link
+                                    href={`/profile/${student.id}`}
+                                    className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-gray-100 border-2 border-white shadow-sm transition-transform group-hover:scale-105"
+                                >
                                     {student.image ? (
                                         <Image
                                             src={student.image}
@@ -130,11 +147,14 @@ export function ContestStandings({ students, currentUserId }: ContestStandingsPr
                                             <User className="w-6 h-6" />
                                         </div>
                                     )}
-                                </div>
+                                </Link>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 md:text-lg">
+                                    <Link
+                                        href={`/profile/${student.id}`}
+                                        className="font-bold text-gray-900 md:text-lg hover:text-orange-600 transition-colors"
+                                    >
                                         {student.name || "Anonymous Warrior"}
-                                    </h4>
+                                    </Link>
                                     <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
                                         <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                         {student.solvedCount} Solved

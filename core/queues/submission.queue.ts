@@ -157,7 +157,7 @@ const worker = new Worker(
             }));
             await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
-            // 4. Poll and Incremental Update
+// 4. Poll and Incremental Update
             let isComplete = false;
             let attempts = 0;
             const MAX_ATTEMPTS = 160; // ~40s timeout (160 * 250ms)
@@ -170,13 +170,13 @@ const worker = new Worker(
             let compilationError = false;
 
             while (!isComplete && attempts < MAX_ATTEMPTS) {
-                await new Promise(r => setTimeout(r, 250)); // Poll every 250ms for faster feedback
+                await new Promise(r => setTimeout(r, 250)); // Poll every 250ms
                 attempts++;
 
                 const uniqueTokens = testCaseRecords.map(tc => tc.judge0TrackingId);
                 const batchResults = await SubmissionService.getBatchResults(uniqueTokens);
 
-                // Check for global compilation error (usually on the first result if it exists)
+                // Check for global compilation error
                 if (!compilationError) {
                     const firstResult = batchResults[0];
                     const firstStatus = mapJudge0StatusToDb(firstResult.status.id);
@@ -188,8 +188,8 @@ const worker = new Worker(
                 }
 
                 let pendingCount = 0;
-
                 const updatesToApply: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage: string | null, stdout: string | null }[] = [];
+                const publishedUpdates: any[] = [];
 
                 for (let i = 0; i < batchResults.length; i++) {
                     const result = batchResults[i];
@@ -215,18 +215,14 @@ const worker = new Worker(
 
                         // --- Error Message Logic ---
                         let errorMessage: string | null = null;
-
                         if (compilationError) {
                             errorMessage = globalErrorMessage;
                         } else if (status === "COMPILE_ERROR") {
-                            // Prioritize compile_output for compilation errors
                             errorMessage = result.compile_output || result.stderr || "Compilation Error";
                         } else if (status === "RUNTIME_ERROR") {
                             const description = result.status.description || "Runtime Error";
                             const stderr = result.stderr?.trim();
                             errorMessage = stderr ? `${description}\n\n${stderr}` : description;
-
-                            // Add hints
                             if (description.includes("SIGSEGV")) errorMessage += "\n\nPossible causes:\n- Accessing array out of bounds\n- Null pointer";
                             if (description.includes("SIGFPE")) errorMessage += "\n\nPossible causes:\n- Division by zero";
                         } else if (status === "TIME_LIMIT_EXCEEDED") {
@@ -234,16 +230,13 @@ const worker = new Worker(
                         } else if (status === "MEMORY_LIMIT_EXCEEDED") {
                             errorMessage = "Memory Limit Exceeded";
                         } else if (result.stderr && status !== "ACCEPTED") {
-                            // Capture stderr for other non-accepted statuses if present
                             errorMessage = result.stderr;
                         }
 
-                        // If we have a compile_output even for non-compile errors (rare but possible), append it if no error yet
-                        if (!errorMessage && result.compile_output && status !== "ACCEPTED") {
+                         if (!errorMessage && result.compile_output && status !== "ACCEPTED") {
                             errorMessage = result.compile_output;
                         }
 
-                        // Fallback checking
                         if ((status === "RUNTIME_ERROR" || status === "COMPILE_ERROR") && !errorMessage) {
                             errorMessage = "Unknown Error Occurred";
                         }
@@ -251,20 +244,27 @@ const worker = new Worker(
                         const statusToUse = compilationError ? "COMPILE_ERROR" : (status || "RUNTIME_ERROR");
 
                         // Add to batch
-                        updatesToApply.push({
+                        const updateData = {
                             judge0TrackingId: result.token,
                             status: statusToUse,
                             time,
                             memory,
                             errorMessage,
                             stdout: result.stdout
+                        };
+                        updatesToApply.push(updateData);
+
+                        // Prepare for Redis Publish
+                         publishedUpdates.push({
+                            ...updateData,
+                            index: localRecord.index
                         });
 
                         // Accumulate stats
                         totalTime += time;
                         maxMemory = Math.max(maxMemory, memory);
 
-                        // Determine Submission Status (Priority: Compile Error > Runtime Error > TLE > WA > Accepted)
+                        // Determine Submission Status
                         if (!compilationError && status !== "ACCEPTED") {
                             if (finalStatus === "ACCEPTED") {
                                 if (status === "WRONG_ANSWER") finalStatus = "WRONG_ANSWER";
@@ -277,6 +277,16 @@ const worker = new Worker(
 
                 if (updatesToApply.length > 0) {
                     await SubmissionService.updateTestCasesBatch(updatesToApply);
+
+                    // Publish incremental updates to Redis
+                    // Using connection (ioredis) from imports
+                    // We publish the entire list of new updates
+                    if (publishedUpdates.length > 0) {
+                         await connection.publish(`submission:${submissionId}`, JSON.stringify({
+                             type: "CASE_UPDATE",
+                             data: publishedUpdates
+                         }));
+                    }
                 }
 
                 if (pendingCount === 0) {
@@ -288,17 +298,43 @@ const worker = new Worker(
                 const avgTime = totalTime / testCaseRecords.length;
                 await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
 
+                // Publish Completion Event
+                await connection.publish(`submission:${submissionId}`, JSON.stringify({
+                    type: "COMPLETE",
+                    data: {
+                        status: finalStatus,
+                        time: avgTime,
+                        memory: maxMemory
+                    }
+                }));
+
                 // Only award points for SUBMIT mode and only on first accepted solution
                 if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
                     await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
                 }
             } else {
                 await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
+                 await connection.publish(`submission:${submissionId}`, JSON.stringify({
+                    type: "COMPLETE",
+                    data: {
+                        status: "TIME_LIMIT_EXCEEDED",
+                        time: 0,
+                        memory: 0
+                    }
+                }));
             }
 
         } catch (error) {
             console.error(`Error processing submission ${submissionId}`, error);
-            await SubmissionService.updateSubmissionStatus(submissionId, "RUNTIME_ERROR"); // Or system error
+            await SubmissionService.updateSubmissionStatus(submissionId, "RUNTIME_ERROR");
+             await connection.publish(`submission:${submissionId}`, JSON.stringify({
+                    type: "COMPLETE",
+                    data: {
+                        status: "RUNTIME_ERROR",
+                        time: 0,
+                        memory: 0
+                    }
+                }));
         }
     },
     { connection }

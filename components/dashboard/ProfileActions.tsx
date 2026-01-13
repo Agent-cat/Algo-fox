@@ -15,10 +15,13 @@ interface ProfileActionsProps {
         hackerrankHandle?: string | null;
         githubHandle?: string | null;
     };
+    readonly?: boolean;
 }
 
-export function ProfileActions({ user }: ProfileActionsProps) {
+export function ProfileActions({ user, readonly }: ProfileActionsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    if (readonly) return null;
 
     return (
         <>

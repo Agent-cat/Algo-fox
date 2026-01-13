@@ -36,12 +36,6 @@ export default function RootLayout({
       >
         <NetworkStatus />
         {/* <DevToolsBlocker /> */}
-        <Suspense fallback={null}>
-          <Navbar />
-          <LayoutSpacer>
-            <Breadcrumbs />
-          </LayoutSpacer>
-        </Suspense>
         <Toaster
           position="top-right"
           toastOptions={{

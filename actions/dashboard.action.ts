@@ -24,3 +24,22 @@ export async function getDashboardStats() {
 
     return DashboardService.getDashboardStats(userId);
 }
+
+// GET USER PROFILE (PUBLIC READ-ONLY)
+export async function getUserProfile(userId: string) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    // Still require authentication to view profiles
+    if (!session?.user) {
+        return null;
+    }
+
+    cacheTag(`dashboard-${userId}`, 'dashboard-stats');
+
+    return DashboardService.getDashboardStats(userId);
+}

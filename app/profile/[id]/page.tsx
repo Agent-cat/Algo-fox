@@ -1,40 +1,42 @@
-import { getDashboardStats } from "@/actions/dashboard.action";
-import { getStudentClassrooms } from "@/actions/classroom";
+import { getUserProfile } from "@/actions/dashboard.action";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
 import { UserProfileCard } from "@/components/dashboard/UserProfileCard";
 import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { LanguagesCard } from "@/components/dashboard/LanguagesCard";
 import { ProblemOverviewCard } from "@/components/dashboard/ProblemOverviewCard";
 import { RecentSubmissionsCard } from "@/components/dashboard/RecentSubmissionsCard";
-import { ClassroomDropdown } from "@/components/classroom/ClassroomDropdown";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { Suspense } from "react";
-import DashboardLoading from "./loading";
-import Link from "next/link";
-import { School, ArrowRight } from "lucide-react";
+import DashboardLoading from "@/app/(main)/dashboard/loading";
+import { BackButton } from "@/components/ui/BackButton";
 
-async function DashboardContent() {
-    const [stats, classroomsRes] = await Promise.all([
-        getDashboardStats(),
-        getStudentClassrooms()
-    ]);
+interface ProfilePageProps {
+    params: Promise<{ id: string }>;
+}
+
+async function ProfileContent({ params }: ProfilePageProps) {
+    const { id } = await params;
+    const stats = await getUserProfile(id);
 
     if (!stats) {
-        redirect("/signin");
+        notFound();
     }
 
     const user = stats;
     const submissions = user.submissions;
-    const classrooms = classroomsRes.success ? classroomsRes.classrooms : [];
-    const canCreateClassroom = ["ADMIN", "INSTITUTION_MANAGER", "TEACHER"].includes(user.role);
 
     return (
-        <div className="min-h-screen bg-white transition-colors">
+        <div className="min-h-screen bg-gray-50/50 transition-colors">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
+                {/* Header with Back Button */}
+                <div className="mb-6">
+                    <BackButton>Back to Contest</BackButton>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <aside className="lg:col-span-3 space-y-6">
-                        {/* PROFILE SECTION */}
+                        {/* PROFILE SECTION (Read Only) */}
                         <section>
                             <UserProfileCard
                                 name={user.name}
@@ -45,35 +47,17 @@ async function DashboardContent() {
                                 codeChefHandle={user.codeChefHandle}
                                 hackerrankHandle={user.hackerrankHandle}
                                 githubHandle={user.githubHandle}
+                                readonly={true}
                             />
-                        </section>
-
-                        {/* TEACHER DASHBOARD LINK */}
-                        {canCreateClassroom && (
-                            <section>
-                                <Link
-                                    href="/dashboard/teacher/classrooms"
-                                    className="flex items-center justify-between p-4 bg-gray-900 rounded-2xl text-white hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/10 group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white/20 rounded-lg">
-                                            <School className="w-5 h-5" />
-                                        </div>
-                                        <span className="font-bold">Teacher Center</span>
-                                    </div>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                            </section>
-                        )}
-
-                        {/* CLASSROOMS SECTION */}
-                        <section>
-                            <ClassroomDropdown classrooms={classrooms as any} />
                         </section>
 
                         {/* ACHIEVEMENTS SECTION */}
                         <section>
-                            <AchievementsCard />
+                             <AchievementsCard badges={{
+                                gold: user.goldBadges,
+                                silver: user.silverBadges,
+                                bronze: user.bronzeBadges
+                            }} />
                         </section>
 
                         {/* LANGUAGES SECTION */}
@@ -121,10 +105,10 @@ async function DashboardContent() {
     );
 }
 
-export default async function Dashboard() {
+export default function ProfilePage({ params }: ProfilePageProps) {
     return (
         <Suspense fallback={<DashboardLoading />}>
-            <DashboardContent />
+            <ProfileContent params={params} />
         </Suspense>
     );
 }

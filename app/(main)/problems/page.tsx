@@ -19,7 +19,7 @@ export default function ProblemsSelectionPage() {
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* DSA Card */}
-          <Link href="/dsa" className="w-full">
+          <Link href="/problems/dsa" className="w-full">
             <motion.div
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.99 }}
@@ -63,7 +63,7 @@ export default function ProblemsSelectionPage() {
           </Link>
 
           {/* SQL Card */}
-          <Link href="/sql" className="w-full">
+          <Link href="/problems/sql" className="w-full">
             <motion.div
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.99 }}

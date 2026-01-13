@@ -140,7 +140,7 @@ export default function WorkspaceHeader({
         {!contestId && (
           <div className="hidden md:flex items-center gap-2">
             <Link
-              href="/dsa"
+              href={domain === "SQL" ? "/problems/sql" : "/problems/dsa"}
               className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1"
             >
               <span className="sr-only">List</span>

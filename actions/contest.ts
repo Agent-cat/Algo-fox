@@ -210,25 +210,16 @@ export async function getContestLeaderboard(contestId: string) {
     try {
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
-            select: { endTime: true }
+            select: { endTime: true, isFinalized: true }
         });
 
         if (!contest) {
             return { success: false, error: "Contest not found" };
         }
 
-        const submissions = await prisma.submission.findMany({
-            where: {
-                contestId,
-                status: "ACCEPTED",
-                mode: "SUBMIT",
-                createdAt: {
-                    lte: contest.endTime
-                },
-                user: {
-                    role: "STUDENT"
-                }
-            },
+        // 1. Fetch all participants
+        const participants = await prisma.contestParticipation.findMany({
+            where: { contestId },
             include: {
                 user: {
                     select: {
@@ -237,7 +228,35 @@ export async function getContestLeaderboard(contestId: string) {
                         image: true,
                         role: true,
                     }
-                },
+                }
+            }
+        });
+
+        // 2. Initialize scores for everyone
+        const userScores: Record<string, any> = {};
+        participants.forEach(p => {
+             userScores[p.userId] = {
+                id: p.userId,
+                name: p.user.name,
+                image: p.user.image,
+                totalScore: 0,
+                solvedCount: 0,
+                role: p.user.role // useful for debugging or filtering in UI if needed
+            };
+        });
+
+        // 3. Fetch submissions (Accepted only, within time limit)
+        // We remove the user role filter to ensure staff/test users also show up if participating
+        const submissions = await prisma.submission.findMany({
+            where: {
+                contestId,
+                status: "ACCEPTED",
+                mode: "SUBMIT",
+                createdAt: {
+                    lte: contest.endTime
+                }
+            },
+            include: {
                 problem: {
                     select: {
                         score: true
@@ -246,27 +265,36 @@ export async function getContestLeaderboard(contestId: string) {
             }
         });
 
-        const userScores: Record<string, any> = {};
+        // 4. Update scores
         submissions.forEach(sub => {
-            if (!userScores[sub.userId]) {
-                userScores[sub.userId] = {
-                    id: sub.userId,
-                    name: sub.user.name,
-                    image: sub.user.image,
-                    totalScore: 0,
-                    solvedCount: 0,
-                };
+            // Only update if the user is a participant (should be always true if data integrity holds)
+            if (userScores[sub.userId]) {
+                // Determine if this is a unique solve for the user (simple count check or set)
+                // The current logic simply adds score. If a user submits matched problem multiple times,
+                // typically we should only count unique problems.
+                // However, the previous logic was: totalScore += sub.problem.score.
+                // Let's improve it to be unique problems only to be accurate.
+
+                if (!userScores[sub.userId].solvedProblems) {
+                    userScores[sub.userId].solvedProblems = new Set();
+                }
+
+                const problemSet = userScores[sub.userId].solvedProblems as Set<string>;
+                if (!problemSet.has(sub.problemId)) {
+                    problemSet.add(sub.problemId);
+                    userScores[sub.userId].totalScore += sub.problem.score;
+                    userScores[sub.userId].solvedCount += 1;
+                }
             }
-            userScores[sub.userId].totalScore += sub.problem.score;
-            userScores[sub.userId].solvedCount += 1;
         });
 
+        // 5. Convert to array and sort
         const students = Object.values(userScores).sort((a: any, b: any) => {
             if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
             return b.solvedCount - a.solvedCount;
         });
 
-        return { success: true, students };
+        return { success: true, students, isFinalized: contest.isFinalized };
     } catch (error) {
         console.error("Failed to fetch contest leaderboard:", error);
         return { success: false, error: "Failed to fetch leaderboard" };
@@ -496,6 +524,99 @@ export async function finishContestAction(contestId: string) {
         return { success: true };
     } catch (error) {
         return { success: false, error: "Failed to finish contest" };
+    }
+}
+
+/**
+ * Finalize Contest & Award Badges
+ * - Calculates leaderboard
+ * - Awards Gold, Silver, Bronze to Top 3
+ * - Marks contest as finalized
+ */
+export async function finalizeContest(contestId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    // Only admins or contest managers can finalize
+    const currentUser = session.user as any;
+    if (!["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(currentUser.role)) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+        const contest = await prisma.contest.findUnique({
+             where: { id: contestId },
+             select: { isFinalized: true, title: true }
+        });
+
+        if (!contest) return { success: false, error: "Contest not found" };
+        if (contest.isFinalized) return { success: false, error: "Contest is already finalized" };
+
+        // Reuse leaderboard logic to get rankings
+        const leaderboard = await getContestLeaderboard(contestId);
+        if (!leaderboard.success || !leaderboard.students) {
+            return { success: false, error: "Failed to fetch leaderboard" };
+        }
+
+        const students = leaderboard.students as any[];
+
+        // At least 1 student needed
+        if (students.length === 0) {
+             await prisma.contest.update({
+                 where: { id: contestId },
+                 data: { isFinalized: true }
+             });
+             return { success: true, message: "Contest finalized (no participants)" };
+        }
+
+        // Top 3 IDs
+        const goldUserId = students[0]?.id;
+        const silverUserId = students[1]?.id;
+        const bronzeUserId = students[2]?.id;
+
+        await prisma.$transaction(async (tx) => {
+            // Award Gold
+            if (goldUserId) {
+                await tx.user.update({
+                    where: { id: goldUserId },
+                    data: { goldBadges: { increment: 1 } }
+                });
+            }
+            // Award Silver
+            if (silverUserId) {
+                await tx.user.update({
+                    where: { id: silverUserId },
+                    data: { silverBadges: { increment: 1 } }
+                });
+            }
+            // Award Bronze
+            if (bronzeUserId) {
+                await tx.user.update({
+                    where: { id: bronzeUserId },
+                    data: { bronzeBadges: { increment: 1 } }
+                });
+            }
+
+            // Mark Finalized
+            await tx.contest.update({
+                where: { id: contestId },
+                data: { isFinalized: true }
+            });
+        });
+
+        revalidatePath(`/dashboard`);
+        revalidatePath(`/profile/${goldUserId}`);
+        if(silverUserId) revalidatePath(`/profile/${silverUserId}`);
+        if(bronzeUserId) revalidatePath(`/profile/${bronzeUserId}`);
+        revalidatePath(`/contest/${contestId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to finalize contest:", error);
+        return { success: false, error: "Failed to finalize contest" };
     }
 }
 

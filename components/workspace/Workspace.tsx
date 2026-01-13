@@ -247,60 +247,68 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
 
 
-            // HANDLE BOTH RUN & SUBMIT MODES (Polling)
+            // HANDLE BOTH RUN & SUBMIT MODES (SSE)
             const { submissionId } = data;
 
-            // 2. Poll for Results
             setSubmissionMode(mode);
-            setSubmissionResults(undefined); // Clear results initially
+            setSubmissionResults(undefined);
             setSubmissionStatus(null);
 
-            const interval = setInterval(async () => {
-                try {
-                    const pollRes = await fetch(`/api/submissions/${submissionId}${contestId ? `?contestId=${contestId}` : ""}`);
-                    if (!pollRes.ok) return;
-                    const data = await pollRes.json();
+            // Connect to SSE
+            const eventSource = new EventSource(`/api/sse/submission/${submissionId}`);
 
-                    // Update results incrementally
-                    if (data.testCases) {
-                        setSubmissionResults(data.testCases);
-                    }
-                    // Update overall status
-                    if (data.status) {
-                        setSubmissionStatus(data.status);
-                    }
+            eventSource.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
 
-                    if (data.status !== "PENDING") {
-                        clearInterval(interval);
-                        // Reset loading states based on mode
-                        if (mode === "RUN") setIsRunning(false);
-                        else setIsSubmitting(false);
+                if (payload.type === "CASE_UPDATE") {
+                    // payload.data is array of updated cases
+                    setSubmissionResults(prev => {
+                        const current = prev ? [...prev] : [];
+                        const updates = payload.data as any[];
 
-                        if (data.status === "ACCEPTED") {
-                            // Helper text for success
-                            const desc = `Time: ${data.time?.toFixed(3) || 0}s | Memory: ${data.memory || 0}KB`;
-
-                            if (mode === "SUBMIT") {
-                                toast.success("Submitted Successfully!", { description: desc });
-                                setIsSolvedState(true);
-                                setActiveTab("submissions");
-                                window.dispatchEvent(new CustomEvent("pointsUpdated"));
-                            } else {
-                                toast.success("Run Accepted!", { description: desc });
-                            }
-                        } else {
-                            // Show error toast only if it's not pending
-                             if (data.status !== "PENDING") {
-                                toast.error(`Result: ${data.status}`);
+                        updates.forEach(update => {
+                             // Find if exists
+                             const idx = current.findIndex(c => c.index === update.index);
+                             if (idx >= 0) {
+                                 current[idx] = update;
+                             } else {
+                                 current.push(update);
                              }
-                        }
-                    }
-                } catch (e) {
-                    clearInterval(interval);
-                    if (mode === "RUN") setIsRunning(false);
-                    else setIsSubmitting(false);
+                        });
+                        // Sort by index just in case
+                        return current.sort((a, b) => a.index - b.index);
+                    });
+                } else if (payload.type === "COMPLETE") {
+                     eventSource.close();
+                     setSubmissionStatus(payload.data.status);
+
+                     if (mode === "RUN") setIsRunning(false);
+                     else setIsSubmitting(false);
+
+                     if (payload.data.status === "ACCEPTED") {
+                         const desc = `Time: ${payload.data.time?.toFixed(3) || 0}s | Memory: ${payload.data.memory || 0}KB`;
+                         if (mode === "SUBMIT") {
+                             toast.success("Submitted Successfully!", { description: desc });
+                             setIsSolvedState(true);
+                             setActiveTab("submissions");
+                             window.dispatchEvent(new CustomEvent("pointsUpdated"));
+                         } else {
+                             toast.success("Run Accepted!", { description: desc });
+                         }
+                     } else {
+                          toast.error(`Result: ${payload.data.status}`);
+                     }
                 }
-            }, 500); // Poll every 500ms for faster feedback
+            };
+
+            eventSource.onerror = (err) => {
+                console.error("SSE Error:", err);
+                eventSource.close();
+                // Fallback polling or simple completion check could go here if needed
+                // For now, just stop the spinner
+                if (mode === "RUN") setIsRunning(false);
+                else setIsSubmitting(false);
+            };
 
         } catch (error) {
             console.error(error);

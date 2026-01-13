@@ -36,6 +36,9 @@ export class DashboardService {
                 problemsSolved: true,
                 totalScore: true,
                 bio: true,
+                goldBadges: true,
+                silverBadges: true,
+                bronzeBadges: true,
                 leetCodeHandle: true,
                 codeChefHandle: true,
                 hackerrankHandle: true,
@@ -81,7 +84,7 @@ export class DashboardService {
 
         // 2. LANGUAGE COUNTS
         const languageStatsPromise = prisma.$queryRaw<any[]>`
-            SELECT 
+            SELECT
                 l."name",
                 CAST(COUNT(DISTINCT s."problemId") AS INTEGER) as "count"
             FROM "Submission" s

@@ -119,8 +119,8 @@ export async function createProblem(data: {
 
     if (result.success) {
         revalidatePath("/problems");
-        revalidatePath("/dsa");
-        revalidatePath("/sql");
+        revalidatePath("/problems/dsa");
+        revalidatePath("/problems/sql");
         revalidatePath("/admin/problems");
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
@@ -181,8 +181,8 @@ export async function updateProblem(id: string, data: any) {
 
     if (result.success) {
         revalidatePath("/problems");
-        revalidatePath("/dsa");
-        revalidatePath("/sql");
+        revalidatePath("/problems/dsa");
+        revalidatePath("/problems/sql");
         revalidatePath(`/admin/problems`);
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
@@ -213,8 +213,8 @@ export async function deleteProblem(id: string) {
 
     if (result.success) {
         revalidatePath("/problems");
-        revalidatePath("/dsa");
-        revalidatePath("/sql");
+        revalidatePath("/problems/dsa");
+        revalidatePath("/problems/sql");
         revalidatePath(`/admin/problems`);
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");

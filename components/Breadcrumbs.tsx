@@ -14,13 +14,9 @@ export default function Breadcrumbs() {
         setMounted(true);
     }, []);
 
-    // Don't show breadcrumbs on the home page or workspace pages (individual problems)
-    // Also hide on auth pages as requested
-    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
-
-    // During SSR/Hydration, pathname might be null or we might be on a path that should be hidden.
-    // We return null if we're not mounted or if any hide condition is met.
-    if (!mounted || !pathname || pathname === "/" || isWorkspace || pathname === "/signin" || pathname === "/signup" || pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin")) return null;
+    // During SSR/Hydration, pathname might be null.
+    // We return null if we're not mounted or on the home page.
+    if (!mounted || !pathname || pathname === "/" || pathname === "/signin" || pathname === "/signup") return null;
 
     const pathSegments = pathname.split("/").filter((segment) => segment !== "");
 
@@ -40,7 +36,9 @@ export default function Breadcrumbs() {
                     {pathSegments.map((segment, index) => {
                         const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
                         const isLast = index === pathSegments.length - 1;
-                        const title = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+                        let title = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+                        if (title === "Dsa") title = "DSA";
+                        if (title === "Sql") title = "SQL";
 
                         return (
                             <Fragment key={path}>

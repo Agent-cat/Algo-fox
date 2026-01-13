@@ -82,8 +82,8 @@ export async function markConceptAsCompleted(problemId: string) {
         await SubmissionService.incrementProblemSolved(problemId, userId);
 
         revalidatePath("/problems");
-        revalidatePath("/dsa");
-        revalidatePath("/sql");
+        revalidatePath("/problems/dsa");
+        revalidatePath("/problems/sql");
         updateTag(`problem-${problemId}`);
         updateTag(`user-submissions-${userId}`);
         updateTag(`problem-submissions-${userId}-${problemId}`);

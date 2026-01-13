@@ -20,14 +20,7 @@ export default function Navbar() {
         setMounted(true);
     }, []);
 
-    const isWorkspace = pathname?.startsWith("/problems/") && pathname !== "/problems";
-    const isContestPage = pathname?.startsWith("/contest/") && pathname !== "/contests";
 
-    // If we're not mounted, we render the "standard" navbar to match the likely static shell.
-    // If it's a workspace or contest page, we hide it ONLY after mounting to avoid hydration mismatch.
-    if (mounted && (isWorkspace || isContestPage)) {
-        return null;
-    }
 
     const handleSignOut = async () => {
         await authClient.signOut({
