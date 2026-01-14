@@ -17,7 +17,7 @@ class AlgoFoxDB extends Dexie {
 
     constructor() {
         super(DB_NAME);
-        
+
         // Version 2: new schema with id as primary key
         // Start directly at version 2 to avoid primary key migration issues
         this.version(2).stores({
@@ -34,15 +34,15 @@ function getDB(): AlgoFoxDB {
     if (typeof window === 'undefined') {
         throw new Error('IndexedDB is only available in browser environment');
     }
-    
+
     if (!db) {
         db = new AlgoFoxDB();
-        
+
         // Initialize database with error handling for schema migration
         db.open().catch(async (error: any) => {
             // If migration fails due to primary key change, delete and recreate
-            if (error.name === 'UpgradeError' || 
-                error.message?.includes('primary key') || 
+            if (error.name === 'UpgradeError' ||
+                error.message?.includes('primary key') ||
                 error.message?.includes('Not yet support for changing primary key')) {
                 console.warn('Database schema migration failed, recreating database...');
                 try {
@@ -59,30 +59,33 @@ function getDB(): AlgoFoxDB {
             }
         });
     }
-    
+
     return db;
 }
 
 // Export getter function that only creates DB in browser
 export { getDB };
 
-export async function saveCodeDraft(problemId: string, languageId: number, code: string) {
+export async function saveCodeDraft(userId: string, problemId: string, languageId: number, code: string) {
     // Only save in browser environment
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !userId) {
         return;
     }
-    
+
     try {
         const db = getDB();
         if (!db.isOpen()) {
             await db.open();
         }
-        
+
         const now = Date.now();
-        const id = `${problemId}_${languageId}`;
+        const id = `${userId}_${problemId}_${languageId}`;
 
         // Clean up expired entries (optimistic, don't wait)
         db.codeDrafts.where('updatedAt').below(now - EXPIRATION_TIME_MS).delete();
+
+        // Also verify if we need to migrate/cleanup old format entries (optional but nice)
+        // For now, simple key change is sufficient to segregate data.
 
         await db.codeDrafts.put({
             id,
@@ -97,19 +100,19 @@ export async function saveCodeDraft(problemId: string, languageId: number, code:
     }
 }
 
-export async function getCodeDraft(problemId: string, languageId: number): Promise<string | null> {
+export async function getCodeDraft(userId: string, problemId: string, languageId: number): Promise<string | null> {
     // Only get in browser environment
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !userId) {
         return null;
     }
-    
+
     try {
         const db = getDB();
         if (!db.isOpen()) {
             await db.open();
         }
-        
-        const id = `${problemId}_${languageId}`;
+
+        const id = `${userId}_${problemId}_${languageId}`;
         const draft = await db.codeDrafts.get(id);
 
         if (!draft) return null;

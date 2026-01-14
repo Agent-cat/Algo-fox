@@ -16,6 +16,40 @@ export default function Error({
     console.error('Application Error:', error);
   }, [error]);
 
+  if (error.message?.toLowerCase().includes("banned")) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-white px-6">
+          <div className="text-center max-w-lg w-full">
+            <div className="relative mb-8 mx-auto w-32 h-32">
+              <div className="absolute inset-0 bg-red-100 rounded-full animate-pulse opacity-50"></div>
+              <div className="relative z-10 w-32 h-32 bg-red-50 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-16 h-16 text-red-500" />
+              </div>
+            </div>
+
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">Account Suspended</h1>
+
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-6 mb-8 text-left">
+              <h3 className="text-red-800 font-semibold mb-2">Access Restricted</h3>
+              <p className="text-red-700/80 text-sm leading-relaxed">
+                {error.message || "Your account has been suspended."}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <Link
+                  href="/"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors"
+                >
+                  <Home className="w-4 h-4" />
+                  Go Home
+                </Link>
+            </div>
+          </div>
+        </div>
+      );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-6">
       <div className="text-center max-w-md">

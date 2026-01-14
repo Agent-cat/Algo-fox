@@ -9,10 +9,7 @@ interface UserProfileCardProps {
     codeChefHandle?: string | null;
     hackerrankHandle?: string | null;
     githubHandle?: string | null;
-    leetCodeHandle?: string | null;
-    codeChefHandle?: string | null;
-    hackerrankHandle?: string | null;
-    githubHandle?: string | null;
+
     readonly?: boolean;
 }
 

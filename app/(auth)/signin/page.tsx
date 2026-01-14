@@ -2,7 +2,7 @@
 
 import { authClient } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeftIcon } from "lucide-react";
@@ -13,6 +13,16 @@ function SignInContent() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam === "AccessDenied") {
+        setError("Your account has been blocked or access is denied.");
+    } else if (errorParam) {
+        setError("Authentication failed: " + errorParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (session) {

@@ -9,12 +9,14 @@ import { revalidatePath } from "next/cache";
 const contestSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().optional(),
-    startTime: z.date(),
-    endTime: z.date(),
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
     visibility: z.enum(["PUBLIC", "INSTITUTION", "CLASSROOM"]),
     classroomId: z.string().optional(),
     institutionId: z.string().optional().nullable(),
     problems: z.array(z.string()).min(1, "Select at least one problem"),
+    contestPassword: z.string().optional(),
+    randomizeQuestions: z.boolean().default(false),
 });
 
 const contestWithProblemsSchema = z.object({
@@ -31,6 +33,8 @@ const contestWithProblemsSchema = z.object({
     prizes: z.string().optional(),
     rules: z.string().optional(),
     problems: z.array(z.any()), // Full problem data objects
+    contestPassword: z.string().optional(),
+    randomizeQuestions: z.boolean().default(false),
 });
 
 /**
@@ -109,6 +113,9 @@ export async function getVisibleContests() {
 /**
  * Fetches a single contest's details with authorization.
  */
+/**
+ * Fetches a single contest's details with authorization.
+ */
 export async function getContestDetail(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -183,18 +190,67 @@ export async function getContestDetail(contestId: string) {
             return { success: false, error: "Unauthorized access to this contest." };
         }
 
-        const canSeeProblems = hasStarted || isAdmin || isCreator;
+        const canSeeProblems = (hasStarted || isAdmin || isCreator) && (participation?.acceptedRules || isCreator || isAdmin);
+
+        // Fix: If the contest is over, allowed roles should check participation properly,
+        // but typically allows viewing if public/authorized.
+        // But for "Live" contests, the current logic is correct.
+
+        const requiresPassword = !!contest.contestPassword;
+
+        // Shuffle problems if randomizeQuestions is enabled
+        // Use a simple seeded shuffle based on userId + contestId for consistency
+        let visibleProblems = canSeeProblems ? contest.problems : [];
+
+        if (contest.randomizeQuestions && currentUser && visibleProblems.length > 0 && !isAdmin && !isCreator) {
+            // Simple string hash function for seeding
+            const seedStr = `${currentUser.id}-${contestId}`;
+            let seed = 0;
+            for (let i = 0; i < seedStr.length; i++) {
+                seed = ((seed << 5) - seed) + seedStr.charCodeAt(i);
+                seed |= 0;
+            }
+
+            // Deterministic shuffle
+            visibleProblems = [...visibleProblems].sort((a, b) => {
+                const x = Math.sin(seed++) * 10000;
+                return (x - Math.floor(x)) - 0.5;
+            });
+        }
+
+        // Fetch user's solved problems for this contest
+        const solvedProblemIds = new Set<string>();
+        if (currentUser) {
+            const solvedSubmissions = await prisma.submission.findMany({
+                where: {
+                    userId: currentUser.id,
+                    contestId: contestId,
+                    status: "ACCEPTED",
+                    problemId: {
+                        in: visibleProblems.map(p => p.problem.id)
+                    }
+                },
+                select: { problemId: true }
+            });
+            solvedSubmissions.forEach(s => solvedProblemIds.add(s.problemId));
+        }
 
         return {
             success: true,
             contest: {
                 ...contest,
-                problems: canSeeProblems ? contest.problems : [],
+                problems: visibleProblems.map(vp => ({
+                    ...vp,
+                    isSolved: solvedProblemIds.has(vp.problem.id)
+                })),
                 hasStarted,
                 hasEnded: now > contest.endTime,
                 canManage: isAdmin || isCreator,
                 hasAcceptedRules: participation?.acceptedRules || false,
                 isFinished: participation?.isFinished || false,
+                requiresPassword,
+                contestPassword: null, // Never return plain password
+                sessionId: participation?.sessionId // Return sessionId for protection
             }
         };
     } catch (error) {
@@ -203,103 +259,11 @@ export async function getContestDetail(contestId: string) {
     }
 }
 
-/**
- * Fetches the leaderboard for a specific contest.
- */
-export async function getContestLeaderboard(contestId: string) {
-    try {
-        const contest = await prisma.contest.findUnique({
-            where: { id: contestId },
-            select: { endTime: true, isFinalized: true }
-        });
+// ... existing code ...
 
-        if (!contest) {
-            return { success: false, error: "Contest not found" };
-        }
+// ... existing code ...
 
-        // 1. Fetch all participants
-        const participants = await prisma.contestParticipation.findMany({
-            where: { contestId },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        image: true,
-                        role: true,
-                    }
-                }
-            }
-        });
-
-        // 2. Initialize scores for everyone
-        const userScores: Record<string, any> = {};
-        participants.forEach(p => {
-             userScores[p.userId] = {
-                id: p.userId,
-                name: p.user.name,
-                image: p.user.image,
-                totalScore: 0,
-                solvedCount: 0,
-                role: p.user.role // useful for debugging or filtering in UI if needed
-            };
-        });
-
-        // 3. Fetch submissions (Accepted only, within time limit)
-        // We remove the user role filter to ensure staff/test users also show up if participating
-        const submissions = await prisma.submission.findMany({
-            where: {
-                contestId,
-                status: "ACCEPTED",
-                mode: "SUBMIT",
-                createdAt: {
-                    lte: contest.endTime
-                }
-            },
-            include: {
-                problem: {
-                    select: {
-                        score: true
-                    }
-                }
-            }
-        });
-
-        // 4. Update scores
-        submissions.forEach(sub => {
-            // Only update if the user is a participant (should be always true if data integrity holds)
-            if (userScores[sub.userId]) {
-                // Determine if this is a unique solve for the user (simple count check or set)
-                // The current logic simply adds score. If a user submits matched problem multiple times,
-                // typically we should only count unique problems.
-                // However, the previous logic was: totalScore += sub.problem.score.
-                // Let's improve it to be unique problems only to be accurate.
-
-                if (!userScores[sub.userId].solvedProblems) {
-                    userScores[sub.userId].solvedProblems = new Set();
-                }
-
-                const problemSet = userScores[sub.userId].solvedProblems as Set<string>;
-                if (!problemSet.has(sub.problemId)) {
-                    problemSet.add(sub.problemId);
-                    userScores[sub.userId].totalScore += sub.problem.score;
-                    userScores[sub.userId].solvedCount += 1;
-                }
-            }
-        });
-
-        // 5. Convert to array and sort
-        const students = Object.values(userScores).sort((a: any, b: any) => {
-            if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-            return b.solvedCount - a.solvedCount;
-        });
-
-        return { success: true, students, isFinalized: contest.isFinalized };
-    } catch (error) {
-        console.error("Failed to fetch contest leaderboard:", error);
-        return { success: false, error: "Failed to fetch leaderboard" };
-    }
-}
+// ... existing code ...
 
 export async function createContest(data: z.infer<typeof contestSchema>) {
     const session = await auth.api.getSession({
@@ -319,10 +283,14 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
     try {
         const validatedData = contestSchema.parse(data);
 
+        // Generate a more robust unique slug
+        const baseSlug = validatedData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const uniqueSlug = `${baseSlug}-${Date.now()}`;
+
         const contest = await prisma.contest.create({
             data: {
                 title: validatedData.title,
-                slug: validatedData.title.toLowerCase().replace(/ /g, "-"),
+                slug: uniqueSlug,
                 description: validatedData.description,
                 startTime: validatedData.startTime,
                 endTime: validatedData.endTime,
@@ -330,6 +298,8 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
                 institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
                 classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
                 creatorId: currentUser.id,
+                contestPassword: validatedData.contestPassword || null,
+                randomizeQuestions: validatedData.randomizeQuestions || false,
                 problems: {
                     create: validatedData.problems.map((problemId, index) => ({
                         problemId,
@@ -342,11 +312,19 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
         revalidatePath("/dashboard/contests");
         revalidatePath("/contest");
         return { success: true, contestId: contest.id };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to create contest:", error);
-        return { success: false, error: "Failed to create contest" };
+        // Return clearer error messages
+        let errorMessage = "Failed to create contest";
+        if (error instanceof z.ZodError) {
+             errorMessage = (error as any).errors.map((e: any) => e.message).join(", ");
+        } else if (error instanceof Error) {
+             errorMessage = error.message;
+        }
+        return { success: false, error: errorMessage };
     }
-}
+    }
+
 
 export async function createContestWithProblems(data: z.infer<typeof contestWithProblemsSchema>) {
     const session = await auth.api.getSession({
@@ -382,6 +360,8 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
                     institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
                     classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
                     creatorId: currentUser.id,
+                    contestPassword: validatedData.contestPassword || null,
+                    randomizeQuestions: validatedData.randomizeQuestions || false,
                 }
             });
 
@@ -620,14 +600,10 @@ export async function finalizeContest(contestId: string) {
     }
 }
 
-// ============================================
-// CONTEST SECURITY - SESSION & VIOLATION MANAGEMENT
-// ============================================
-
 /**
- * Start a contest session - validates time bounds and creates session ID
+ * Verify contest password without starting session.
  */
-export async function startContestSession(contestId: string) {
+export async function verifyContestPassword(contestId: string, password?: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -637,10 +613,44 @@ export async function startContestSession(contestId: string) {
     try {
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
-            select: { startTime: true, endTime: true }
+            select: { contestPassword: true }
         });
 
         if (!contest) return { success: false, error: "Contest not found" };
+
+        if (contest.contestPassword && contest.contestPassword !== password) {
+            return { success: false, error: "Invalid contest password" };
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to verify contest password:", error);
+        return { success: false, error: "Failed to verify password" };
+    }
+}
+
+
+/**
+ * Start a contest session - validates time bounds and creates session ID
+ */
+export async function startContestSession(contestId: string, password?: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    try {
+        const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            select: { startTime: true, endTime: true, contestPassword: true }
+        });
+
+        if (!contest) return { success: false, error: "Contest not found" };
+
+        if (contest.contestPassword && contest.contestPassword !== password) {
+            return { success: false, error: "Invalid contest password" };
+        }
 
         const now = new Date();
 
@@ -751,6 +761,27 @@ export async function logContestViolation(
 
         // Use transaction to ensure atomic update
         const result = await prisma.$transaction(async (tx) => {
+            // Check last violation time to prevent rapid-fire duplicates (Server-side debounce)
+            const lastViolation = await tx.contestViolation.findFirst({
+                where: { participationId: participation.id },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (lastViolation) {
+                const timeDiff = Date.now() - lastViolation.createdAt.getTime();
+                // If less than 2 seconds since last violation, ignore this one
+                if (timeDiff < 2000) {
+                    return {
+                        ...participation, // Return existing state
+                        isFlagged: participation.isFlagged,
+                        isBlocked: participation.isBlocked,
+                        totalViolations: participation.totalViolations,
+                        permanentlyBlocked: participation.permanentlyBlocked,
+                        tempBlockedUntil: participation.tempBlockedUntil
+                    };
+                }
+            }
+
             // Create violation record
             await tx.contestViolation.create({
                 data: {
@@ -1174,5 +1205,155 @@ export async function getParticipantViolations(contestId: string, userId: string
         return { success: true, participation };
     } catch (error) {
         return { success: false, error: "Failed to get violations" };
+    }
+}
+
+/**
+ * Calculate contest leaderboard
+ * - Fetches all participations
+ * - Fetches all relevant submissions
+ * - Calculates scores
+ */
+export async function getContestLeaderboard(contestId: string) {
+    try {
+        const participations = await prisma.contestParticipation.findMany({
+            where: {
+                contestId,
+                // startedAt: { not: null } // Only started participants (Fix if field exists, otherwise rely on created)
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                }
+            }
+        });
+
+        const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            include: {
+                problems: {
+                    include: {
+                        problem: {
+                            select: {
+                                id: true,
+                                score: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!contest) return { success: false, error: "Contest not found" };
+
+        const leaderboard = await Promise.all(participations.map(async (p) => {
+            // Get valid submissions for this user in this contest
+            const submissions = await prisma.submission.findMany({
+                where: {
+                    userId: p.userId,
+                    problem: {
+                        contestProblems: {
+                            some: { contestId }
+                        }
+                    },
+                    createdAt: {
+                        gte: contest.startTime,
+                        lte: contest.endTime
+                    }
+                },
+                select: {
+                    id: true,
+                    status: true,
+                    // score: true, // Removed as it doesn't exist on Submission
+                    problemId: true,
+                    createdAt: true
+                }
+            });
+
+            // Calculate total score
+            // Logic: Best submission per problem counts
+            const problemScores = new Map<string, number>();
+            const problemSolveTimes = new Map<string, Date>();
+
+            submissions.forEach(sub => {
+                if (sub.status === "ACCEPTED") {
+                    const currentBest = problemScores.get(sub.problemId) || 0;
+                    // Find max score for this problem from contest definition
+                    const problemDef = contest.problems.find(cp => cp.problemId === sub.problemId);
+                    const maxScore = problemDef?.problem.score || 0; // Default if not found, though should be
+
+                    // If full score or better partial (if we supported partials)
+                    if (maxScore > currentBest) {
+                         problemScores.set(sub.problemId, maxScore);
+                         // Keep earliest time for best score
+                         const currentBestTime = problemSolveTimes.get(sub.problemId);
+                         if (!currentBestTime || sub.createdAt < currentBestTime) {
+                             problemSolveTimes.set(sub.problemId, sub.createdAt);
+                         }
+                    }
+                }
+            });
+
+            let totalScore = 0;
+            let totalTimeMs = 0; // Time from contest start to last accepted submission
+
+            problemScores.forEach((score, problemId) => {
+                totalScore += score;
+                const solventTime = problemSolveTimes.get(problemId);
+                if (solventTime) {
+                    totalTimeMs += (solventTime.getTime() - contest.startTime.getTime());
+                }
+            });
+
+            // Add penalty for wrong submissions on solved problems? (Optional, skipping for now)
+
+            return {
+                ...p.user,
+                score: totalScore,
+                timeTaken: totalTimeMs,
+                problemsSolved: problemScores.size
+            };
+        }));
+
+        // Sort: High score first, then low time taken
+        leaderboard.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.timeTaken - b.timeTaken;
+        });
+
+        return { success: true, students: leaderboard, isFinalized: contest.isFinalized };
+
+    } catch (error) {
+        console.error("Leaderboard error:", error);
+        return { success: false, error: "Failed to generate leaderboard" };
+    }
+}
+
+/**
+ * Get current user's ranking in a contest
+ */
+export async function getContestRanking(contestId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    try {
+        const result = await getContestLeaderboard(contestId);
+
+        if (!result.success || !result.students) {
+            return { success: false, error: "Failed to get ranking" };
+        }
+
+        const rank = result.students.findIndex((s: any) => s.id === session.user.id) + 1;
+
+        return { success: true, rank: rank > 0 ? rank : null };
+    } catch (error) {
+         return { success: false, error: "Failed to get ranking" };
     }
 }

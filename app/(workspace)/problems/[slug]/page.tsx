@@ -61,20 +61,6 @@ async function ProblemContentWithParams({
   let solvedProblemIds: string[] = [];
 
   if (session?.user) {
-    if (session.user.role === "ADMIN") {
-      isSolved = true;
-    } else {
-      const submission = await prisma.submission.findFirst({
-        where: {
-          problemId: problem.id,
-          userId: session.user.id,
-          status: "ACCEPTED",
-          mode: "SUBMIT"
-        }
-      });
-      isSolved = !!submission;
-    }
-
     if (contestId) {
       const contestResponse = await getContestDetail(contestId);
       if (contestResponse.success) {
@@ -82,18 +68,66 @@ async function ProblemContentWithParams({
           return redirect(`/contest/${contestId}`);
         }
         contestData = contestResponse.contest;
+
+        // Contextual Check: Is this problem solved IN THIS SPECIFIC CONTEST?
+        if (session.user.role === "ADMIN") {
+             isSolved = true;
+        } else {
+            const contestSubmission = await prisma.submission.findFirst({
+              where: {
+                problemId: problem.id,
+                userId: session.user.id,
+                status: "ACCEPTED",
+                mode: "SUBMIT",
+                contestId: contestId
+              }
+            });
+            isSolved = !!contestSubmission;
+        }
+
         // Fetch all solved problems in this contest for the user
         const contestSolvedSubmissions = await prisma.submission.findMany({
           where: {
             userId: session.user.id,
             status: "ACCEPTED",
             mode: "SUBMIT",
+            contestId: contestId,
             problemId: { in: (contestResponse.contest as any).problems.map((p: any) => p.problem.id) }
           },
           select: { problemId: true }
         });
         solvedProblemIds = contestSolvedSubmissions.map(s => s.problemId);
+      } else {
+           // Fallback if contest not found
+           if (session.user.role === "ADMIN") {
+                isSolved = true;
+            } else {
+                const submission = await prisma.submission.findFirst({
+                    where: {
+                    problemId: problem.id,
+                    userId: session.user.id,
+                    status: "ACCEPTED",
+                    mode: "SUBMIT"
+                    }
+                });
+                isSolved = !!submission;
+            }
       }
+    } else {
+        // Global Check (Not in a contest context)
+        if (session.user.role === "ADMIN") {
+            isSolved = true;
+        } else {
+            const submission = await prisma.submission.findFirst({
+                where: {
+                problemId: problem.id,
+                userId: session.user.id,
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+                }
+            });
+            isSolved = !!submission;
+        }
     }
   }
 

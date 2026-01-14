@@ -61,7 +61,12 @@ export default function ContestNavigationGuard({
                 const href = anchor.getAttribute("href");
 
                 // Check if navigation is to an allowed path
-                if (href && !allowedPaths.some(path => href.startsWith(path))) {
+                // Ignore hash links, empty links, or javascript:void, or disabled links
+                if (href &&
+                    href !== "#" &&
+                    href.trim() !== "" &&
+                    !href.startsWith("javascript:") &&
+                    !allowedPaths.some(path => href.startsWith(path))) {
                     e.preventDefault();
                     e.stopPropagation();
 

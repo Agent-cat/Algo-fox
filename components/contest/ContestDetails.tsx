@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { Clock, ChevronRight, Lock, AlertCircle, Medal, ChevronLeft, X, CheckCircle2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import { acceptContestRules } from "@/actions/contest";
+import { useRouter } from "next/navigation";
+import ContestEntryModal from "./ContestEntryModal";
+import ContestProtection from './ContestProtection';
+import ContestNavigationGuard from './ContestNavigationGuard';
+
+import { finishContestAction } from "@/actions/contest";
 
 interface ContestDetailsProps {
     contest: any;
@@ -14,11 +19,26 @@ interface ContestDetailsProps {
 const PROBLEMS_PER_PAGE = 20;
 
 export default function ContestDetails({ contest, user }: ContestDetailsProps) {
+    const router = useRouter();
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showRulesPopup, setShowRulesPopup] = useState(false);
     const [hasAcceptedRules, setHasAcceptedRules] = useState(contest.hasAcceptedRules || false);
+    const [isSubmittingContest, setIsSubmittingContest] = useState(false);
     const isFinished = contest.isFinished || false;
+
+    // Protection State
+    const [sessionId, setSessionId] = useState<string | null>(contest.sessionId || null);
+
+    // DEBUG: Log protection conditions
+    useEffect(() => {
+        console.log('[ContestProtection Debug]', {
+            hasAcceptedRules,
+            sessionId,
+            isFinished,
+            willRenderProtection: hasAcceptedRules && sessionId && !isFinished
+        });
+    }, [hasAcceptedRules, sessionId, isFinished, contest.canManage]);
 
     const now = new Date();
     const startTime = new Date(contest.startTime);
@@ -26,21 +46,50 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     const hasStarted = now >= startTime;
     const hasEnded = now > endTime;
 
+    const [showEndModal, setShowEndModal] = useState(false);
+    const [endConfirmText, setEndConfirmText] = useState("");
+
+    const handleContestFinish = () => {
+        setShowEndModal(true);
+    };
+
+    const confirmEndContest = async () => {
+        if (endConfirmText.toLowerCase() !== "end") {
+            toast.error("Please type 'end' to confirm");
+            return;
+        }
+
+        setIsSubmittingContest(true);
+        try {
+            const res = await finishContestAction(contest.id);
+            if (res.success) {
+                toast.success("Contest submitted successfully!");
+                router.push("/");
+            } else {
+                toast.error("Failed to submit contest");
+                setIsSubmittingContest(false);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong");
+            setIsSubmittingContest(false);
+        }
+        setShowEndModal(false);
+    };
+
     useEffect(() => {
         if (isFinished) return;
         const accepted = localStorage.getItem(`contest-rules-${contest.id}`);
-        if (accepted === "true") {
-            setHasAcceptedRules(true);
-            if (hasStarted && !hasEnded) {
-                toast.info("Contest Mode Reactivated", {
-                    description: "Proctoring is active. Fullscreen recommended.",
-                    icon: <ShieldAlert className="w-5 h-5 text-orange-600" />,
-                });
-            }
+        // If we have local storage record AND the server says we accepted rules (or we rely on server only)
+        // But let's trust server state 'hasAcceptedRules' primarily if available
+        if (hasAcceptedRules) {
+             if (hasStarted && !hasEnded) {
+                // Already started logic
+             }
         } else if (hasStarted && !hasEnded) {
             setShowRulesPopup(true);
         }
-    }, [contest.id, hasStarted, hasEnded]);
+    }, [contest.id, hasStarted, hasEnded, hasAcceptedRules, isFinished]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -65,49 +114,20 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         return () => clearInterval(timer);
     }, [hasStarted, startTime, endTime]);
 
-    const handleAcceptRules = async () => {
-        try {
-            const res = await acceptContestRules(contest.id);
-            if (!res.success) {
-                toast.error(res.error || "Failed to accept rules");
-                return;
-            }
+    const handleContestStart = (newSessionId: string) => {
+        localStorage.setItem(`contest-rules-${contest.id}`, "true");
+        setHasAcceptedRules(true);
+        setShowRulesPopup(false);
+        setSessionId(newSessionId);
 
-            localStorage.setItem(`contest-rules-${contest.id}`, "true");
-            setHasAcceptedRules(true);
-            setShowRulesPopup(false);
-
-            // CONTEST MODE ACTIVATION
-            toast.info("Contest Mode Activated", {
-                description: "Proctoring is now active. Fullscreen enabled.",
-                duration: 5000,
-                icon: <ShieldAlert className="w-5 h-5 text-orange-600" />,
-            });
-
-            // Request Fullscreen
-            if (typeof document !== 'undefined' && !document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => {
-                    console.warn("Fullscreen deferred: user must interact with the page first.");
-                });
-            }
-        } catch (err) {
-            toast.error("An error occurred");
-        }
+        // Reload page to refresh questions (if shuffled) or unlock content
+        window.location.reload();
     };
 
     const totalPages = Math.ceil(contest.problems.length / PROBLEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * PROBLEMS_PER_PAGE;
     const endIndex = startIndex + PROBLEMS_PER_PAGE;
     const currentProblems = contest.problems.slice(startIndex, endIndex);
-
-    const defaultRules = [
-        "Each challenge has a point value based on difficulty.",
-        "Submissions are graded instantly.",
-        "Penalty of 10 minutes for each wrong submission.",
-        "Ranking is based on total points and time taken."
-    ];
-
-    const rules = contest.rules ? contest.rules.split('\n').filter((r: string) => r.trim()) : defaultRules;
 
     const getStatusBadge = () => {
         if (isFinished) {
@@ -133,41 +153,31 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
 
     return (
         <>
-            {/* Rules Popup */}
-            {showRulesPopup && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg max-w-2xl w-full shadow-xl">
-                        <div className="flex items-center justify-between p-6 border-b">
-                            <h2 className="text-xl font-semibold text-gray-900">Contest Rules</h2>
-                            <button
-                                onClick={() => setShowRulesPopup(false)}
-                                className="w-8 h-8 rounded hover:bg-gray-100 flex items-center justify-center"
-                            >
-                                <X className="w-5 h-5 text-gray-500" />
-                            </button>
-                        </div>
+            <ContestEntryModal
+                contestId={contest.id}
+                contestTitle={contest.title}
+                requiresPassword={contest.requiresPassword}
+                isOpen={showRulesPopup}
+                onClose={() => setShowRulesPopup(false)}
+                onStart={handleContestStart}
+            />
 
-                        <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
-                            {rules.map((rule: string, i: number) => (
-                                <div key={i} className="flex gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded bg-orange-600 text-white font-semibold flex items-center justify-center text-sm">
-                                        {i + 1}
-                                    </span>
-                                    <p className="text-gray-700 text-sm leading-relaxed pt-0.5">{rule}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="p-6 border-t">
-                            <button
-                                onClick={handleAcceptRules}
-                                className="w-full py-3 bg-orange-600 text-white rounded font-semibold hover:bg-orange-700 transition-colors"
-                            >
-                                Accept & Continue
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Contest Protection on Dashboard - Active for all participants during live contest */}
+            {hasAcceptedRules && sessionId && !isFinished && (
+                <>
+                    <ContestProtection
+                        contestId={contest.id}
+                        sessionId={sessionId}
+                        paused={isSubmittingContest || showEndModal}
+                    />
+                    <ContestNavigationGuard
+                        contestId={contest.id}
+                        allowedPaths={[
+                            `/problems/`,
+                            `/contest/${contest.id}`,
+                        ]}
+                    />
+                </>
             )}
 
             <div className="min-h-screen bg-white py-8">
@@ -222,19 +232,28 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                             <span className="text-gray-500">Time:</span>
                             <span className="ml-2 text-gray-900 font-medium font-mono">{timeLeft}</span>
                         </div>
+
+
                         <div className="ml-auto flex gap-2">
-                            <button
-                                onClick={() => setShowRulesPopup(true)}
-                                className="px-4 py-2 border rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                                Rules
-                            </button>
-                            <Link
-                                href={`/contest/${contest.id}/standings`}
-                                className="px-4 py-2 bg-orange-600 text-white rounded text-sm font-medium hover:bg-orange-700 transition-colors"
-                            >
-                                {hasEnded ? "Leaderboard" : "Standings"}
-                            </Link>
+                            {/* Submit Button for Active Participants */}
+                            {hasAcceptedRules && hasStarted && !hasEnded && !isFinished && (
+                                <button
+                                    onClick={handleContestFinish}
+                                    className="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    End Contest
+                                </button>
+                            )}
+
+                            {hasEnded && (
+                                <Link
+                                    href={`/contest/${contest.id}/standings`}
+                                    className="px-4 py-2 bg-orange-600 text-white rounded text-sm font-medium hover:bg-orange-700 transition-colors"
+                                >
+                                    Leaderboard
+                                </Link>
+                            )}
                         </div>
                     </div>
 
@@ -261,16 +280,28 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                 {currentProblems.map((cp: any, index: number) => {
                                     const globalIndex = startIndex + index;
                                     const canAccess = (hasAcceptedRules || contest.canManage || !hasStarted || hasEnded) && (!isFinished || contest.canManage);
+                                    const isSolved = (cp as any).isSolved; // Access the property we added
+
+                                    // If problem is solved, block access (even for managers during testing/consistency)
+                                    const isBlockedByCompletion = isSolved;
 
                                     return (
                                         <Link
                                             key={cp.problem.id}
-                                            href={(canAccess && (hasStarted || contest.canManage)) ? `/problems/${cp.problem.slug}?contestId=${contest.id}` : "#"}
+                                            href={(canAccess && (hasStarted || contest.canManage) && !isBlockedByCompletion) ? `/problems/${cp.problem.slug}?contestId=${contest.id}` : "#"}
                                             onClick={(e) => {
                                                 if (isFinished && !contest.canManage) {
                                                     e.preventDefault();
                                                     toast.error("Contest session ended", {
-                                                        description: "You have already completed this contest and cannot re-enter the problem arena."
+                                                        description: "You have already completed this contest."
+                                                    });
+                                                    return;
+                                                }
+                                                // Prevent re-attempting solved problems
+                                                if (isBlockedByCompletion) {
+                                                    e.preventDefault();
+                                                    toast.success("Problem Solved!", {
+                                                        description: "You have already completed this challenge. Great job!"
                                                     });
                                                     return;
                                                 }
@@ -279,16 +310,25 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                                     setShowRulesPopup(true);
                                                 }
                                             }}
-                                            className={`grid grid-cols-12 gap-4 px-6 py-4 rounded-xl items-center transition-all duration-200 ${canAccess && (hasStarted || contest.canManage)
+                                            className={`grid grid-cols-12 gap-4 px-6 py-4 rounded-xl items-center transition-all duration-200 ${
+                                                canAccess && (hasStarted || contest.canManage) && !isBlockedByCompletion
                                                 ? "hover:bg-gray-50/50 cursor-pointer"
-                                                : "opacity-50 cursor-not-allowed"
-                                                }`}
+                                                : isSolved ? "opacity-75 bg-emerald-50/30 cursor-not-allowed" : "opacity-50 cursor-not-allowed"
+                                            }`}
                                         >
                                             <div className="col-span-1 text-sm text-gray-500 font-medium">
                                                 {globalIndex + 1}
                                             </div>
-                                            <div className="col-span-6 md:col-span-7 font-medium text-gray-900 hover:text-orange-600 transition-colors flex items-center gap-2">
-                                                <span className="truncate">{cp.problem.title}</span>
+                                            <div className="col-span-6 md:col-span-7 font-medium text-gray-900 flex items-center gap-2">
+                                                <span className={`truncate ${canAccess && !isBlockedByCompletion ? "hover:text-orange-600 transition-colors" : ""}`}>
+                                                    {cp.problem.title}
+                                                </span>
+                                                {isSolved && (
+                                                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                                        <CheckCircle2 className="w-3 h-3" />
+                                                        Solved
+                                                     </span>
+                                                )}
                                             </div>
                                             <div className="col-span-3 md:col-span-2">
                                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(cp.problem.difficulty)}`}>
@@ -296,7 +336,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                                 </span>
                                             </div>
                                             <div className="col-span-2 md:col-span-2 text-sm text-gray-500">
-                                                {canAccess && (hasStarted || contest.canManage) ? (
+                                                {isSolved ? (
+                                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                                ) : canAccess && (hasStarted || contest.canManage) ? (
                                                     <ChevronRight className="w-5 h-5 text-gray-400" />
                                                 ) : (
                                                     <Lock className="w-4 h-4 text-gray-400" />
@@ -350,6 +392,49 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                     )}
                 </div>
             </div>
+
+            {/* End Contest Confirmation Modal */}
+            {showEndModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 transform scale-100 transition-all">
+                        <div className="flex items-center gap-3 mb-4 text-red-600">
+                            <ShieldAlert className="w-8 h-8" />
+                            <h3 className="text-xl font-bold text-gray-900">End Contest Session?</h3>
+                        </div>
+
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to end your session? You will <strong>NOT</strong> be able to re-enter or solve more problems after this.
+                            <br /><br />
+                            Type <span className="font-mono font-bold text-red-600">end</span> below to confirm.
+                        </p>
+
+                        <input
+                            type="text"
+                            placeholder="Type 'end' to confirm"
+                            value={endConfirmText}
+                            onChange={(e) => setEndConfirmText(e.target.value)}
+                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
+                            autoFocus
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
+                                className="flex-1 px-4 py-3 border rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmEndContest}
+                                disabled={endConfirmText.toLowerCase() !== "end" || isSubmittingContest}
+                                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-red-500/20"
+                            >
+                                {isSubmittingContest ? "Ending..." : "End Contest"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

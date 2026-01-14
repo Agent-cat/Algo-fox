@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LayoutGrid, List, LogOut } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LayoutGrid, List, LogOut, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { finishContestAction } from "@/actions/contest";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
     const [isOpen, setIsOpen] = useState(true);
     const [visitedProblemIds, setVisitedProblemIds] = useState<string[]>([]);
     const [isMounted, setIsMounted] = useState(false);
+    const [showEndModal, setShowEndModal] = useState(false);
+    const [endConfirmText, setEndConfirmText] = useState("");
+    const [isEnding, setIsEnding] = useState(false);
 
     useEffect(() => {
         // Persist sidebar state
@@ -53,24 +56,35 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
         return "bg-gray-100 text-gray-500 border-gray-200 hover:border-orange-300 hover:bg-white";
     };
 
-    const handleEndContest = async () => {
-        if (window.confirm("Are you sure you want to end the contest? You won't be able to submit more solutions once you exit this session.")) {
-            try {
-                const res = await finishContestAction(contest.id);
-                if (res.success) {
-                    // Exit fullscreen if active
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen().catch(() => {});
-                    }
-                    router.push(`/contest/${contest.id}`);
-                    toast.success("Contest ended successfully");
-                } else {
-                    toast.error(res.error || "Failed to end contest");
-                }
-            } catch (err) {
-                toast.error("An error occurred while ending the contest");
-            }
+    const handleEndContest = () => {
+        setShowEndModal(true);
+    };
+
+    const confirmEndContest = async () => {
+        if (endConfirmText.toLowerCase() !== "end") {
+            toast.error("Please type 'end' to confirm");
+            return;
         }
+
+        setIsEnding(true);
+        try {
+            const res = await finishContestAction(contest.id);
+            if (res.success) {
+                // Exit fullscreen if active
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+                router.push(`/contest/${contest.id}`);
+                toast.success("Contest ended successfully");
+            } else {
+                toast.error(res.error || "Failed to end contest");
+                setIsEnding(false);
+            }
+        } catch (err) {
+            toast.error("An error occurred while ending the contest");
+            setIsEnding(false);
+        }
+        setShowEndModal(false);
     };
 
     return (
@@ -104,11 +118,18 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                                 return (
                                     <Link
                                         key={cp.problem.id}
-                                        href={`/problems/${cp.problem.slug}?contestId=${contest.id}`}
+                                        href={isSolved ? "#" : `/problems/${cp.problem.slug}?contestId=${contest.id}`}
+                                        onClick={(e) => {
+                                            if (isSolved) {
+                                                e.preventDefault();
+                                                toast.success("Problem Solved!", { description: "You have already completed this challenge." });
+                                            }
+                                        }}
                                         className={`
                                             aspect-square flex flex-col items-center justify-center rounded-xl border-2 text-sm font-black transition-all transform active:scale-90 relative
                                             ${isCurrent ? 'ring-2 ring-orange-500 ring-offset-2 scale-105 z-10' : ''}
                                             ${getStatusColor(cp.problem.id)}
+                                            ${isSolved ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'}
                                         `}
                                     >
                                         {index + 1}
@@ -165,6 +186,49 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                         <LogOut className="w-5 h-5" />
                     </button>
                 </motion.div>
+            )}
+
+            {/* End Contest Confirmation Modal */}
+            {showEndModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 transform scale-100 transition-all">
+                        <div className="flex items-center gap-3 mb-4 text-red-600">
+                            <ShieldAlert className="w-8 h-8" />
+                            <h3 className="text-xl font-bold text-gray-900">End Contest Session?</h3>
+                        </div>
+
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to end your session? You will <strong>NOT</strong> be able to submit more solutions.
+                            <br /><br />
+                            Type <span className="font-mono font-bold text-red-600">end</span> below to confirm.
+                        </p>
+
+                        <input
+                            type="text"
+                            placeholder="Type 'end' to confirm"
+                            value={endConfirmText}
+                            onChange={(e) => setEndConfirmText(e.target.value)}
+                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
+                            autoFocus
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
+                                className="flex-1 px-4 py-3 border rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmEndContest}
+                                disabled={endConfirmText.toLowerCase() !== "end" || isEnding}
+                                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-red-500/20"
+                            >
+                                {isEnding ? "Ending..." : "End Contest"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

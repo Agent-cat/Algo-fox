@@ -36,6 +36,10 @@ model User {
   bio                 String?
   year                Int? // Academic year: 1, 2, 3, 4, etc.
 
+  banned       Boolean?
+  banReason    String?
+  banExpires   DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -70,6 +74,8 @@ model Session {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -422,6 +428,9 @@ model Contest {
   rules           String? @db.Text
   hidden          Boolean @default(false)
   isFinalized     Boolean @default(false)
+
+  contestPassword    String? // Optional password/access code
+  randomizeQuestions Boolean @default(false)
 
   visibility    ContestVisibility @default(PUBLIC)
   institutionId String?

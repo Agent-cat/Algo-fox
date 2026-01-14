@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getParticipationStatus } from '@/actions/contest';
 import EditorSettingsModal from './EditorSettingsModal';
+import { useRouter } from 'next/navigation';
 
 interface FunctionTemplate {
     languageId: number;
@@ -73,6 +74,7 @@ function getStoredLanguageId(domain?: string): number {
 
 export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
+    const router = useRouter();
     const [code, setCode] = useState<string>("// Write your code here");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSolvedState, setIsSolvedState] = useState(isSolved);
@@ -292,6 +294,14 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                              setIsSolvedState(true);
                              setActiveTab("submissions");
                              window.dispatchEvent(new CustomEvent("pointsUpdated"));
+
+                             // If in contest and submitted successfully, redirect back to contest dashboard
+                             if (contestId) {
+                                toast.success("Problem Solved! Returning to contest...", { duration: 2000 });
+                                setTimeout(() => {
+                                    router.push(`/contest/${contestId}`);
+                                }, 1500);
+                             }
                          } else {
                              toast.success("Run Accepted!", { description: desc });
                          }
@@ -330,17 +340,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 settings={editorSettings}
                 onSettingsChange={handleSettingsChange}
             />
-
-            {/* Contest Entry Modal */}
-            {contestId && showEntryModal && (
-                <ContestEntryModal
-                    contestId={contestId}
-                    contestTitle={contest?.title || "Contest"}
-                    isOpen={showEntryModal}
-                    onClose={() => setShowEntryModal(false)}
-                    onStart={handleContestStart}
-                />
-            )}
 
             {/* Contest Protection (only active after entry) */}
             {contestId && contestModeActive && contestSessionId && (
@@ -427,6 +426,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                         }
                                         settings={editorSettings}
                                         onOpenSettings={() => setIsSettingsOpen(true)}
+                                        readOnly={isSubmitting}
+                                        userId={session?.user?.id || ""}
                                     />
                                 </div>
                                 <div className="h-full overflow-hidden flex flex-col bg-white">
@@ -435,6 +436,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                         results={submissionResults}
                                         status={submissionStatus}
                                         mode={submissionMode}
+                                        problemId={problem.id}
                                     />
                                 </div>
                             </Split>

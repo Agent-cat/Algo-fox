@@ -208,39 +208,32 @@ export class CategoryService {
                 }
             }
 
-            const query: any = {
-                where: { categoryId },
-                take: pageSize,
-                orderBy: { order: "asc" },
-                include: {
-                    problem: {
-                        include: {
-                            _count: { select: { submissions: true } },
-                            ...(userId ? {
-                                submissions: {
-                                    where: {
-                                        userId,
-                                        status: "ACCEPTED",
-                                        mode: "SUBMIT"
-                                    },
-                                    take: 1,
-                                    select: { id: true }
-                                }
-                            } : {})
+            const [categoryProblems, total] = await Promise.all([
+                prisma.categoryProblem.findMany({
+                    where: { categoryId },
+                    take: pageSize,
+                    orderBy: { order: "asc" },
+                    skip: cursor ? 1 : (page - 1) * pageSize,
+                    ...(cursor ? { cursor: { id: cursor } } : {}),
+                    include: {
+                        problem: {
+                            include: {
+                                _count: { select: { submissions: true } },
+                                ...(userId ? {
+                                    submissions: {
+                                        where: {
+                                            userId,
+                                            status: "ACCEPTED",
+                                            mode: "SUBMIT"
+                                        },
+                                        take: 1,
+                                        select: { id: true }
+                                    }
+                                } : {})
+                            }
                         }
                     }
-                }
-            };
-
-            if (cursor) {
-                query.cursor = { id: cursor };
-                query.skip = 1;
-            } else {
-                query.skip = (page - 1) * pageSize;
-            }
-
-            const [categoryProblems, total] = await Promise.all([
-                prisma.categoryProblem.findMany(query),
+                }),
                 prisma.categoryProblem.count({ where: { categoryId } })
             ]);
 

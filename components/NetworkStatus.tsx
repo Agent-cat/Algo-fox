@@ -14,27 +14,42 @@ export default function NetworkStatus() {
     setIsOnline(initialOnline);
     setShowBanner(!initialOnline);
 
-    // Listen for online/offline events
     const handleOnline = () => {
       setIsOnline(true);
       setShowBanner(true); // Show success message
-      // Hide after 2 seconds
-      setTimeout(() => {
-        setShowBanner(false);
-      }, 2000);
+      setTimeout(() => setShowBanner(false), 2000);
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      setShowBanner(true); // Always show when offline
+      setShowBanner(true);
     };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    // Global fetch interceptor to catch 403 banned
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        const response = await originalFetch(...args);
+        // Better Auth typically returns 403 or specific JSON for bans
+        if (response.status === 403) {
+             const clone = response.clone();
+             try {
+                const text = await clone.text();
+                // Check if body is banned message
+                if (text.includes("banned")) {
+                     window.location.href = "/banned";
+                }
+             } catch(e) {}
+        }
+        return response;
+    };
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.fetch = originalFetch; // Restore
     };
   }, []);
 

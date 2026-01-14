@@ -35,7 +35,8 @@ interface CodeEditorProps {
     problemId?: string;
     domain?: ProblemDomain;
     functionTemplates?: FunctionTemplate[];
-    readOnly?: boolean; // Ensure readOnly is in the interface too
+    readOnly?: boolean;
+    userId?: string; // Add userId to props
     settings?: {
         fontSize: number;
         tabSize: number;
@@ -58,7 +59,8 @@ export default function CodeEditor({
     functionTemplates,
     readOnly = false,
     settings,
-    onOpenSettings
+    onOpenSettings,
+    userId = ""
 }: CodeEditorProps) {
     // Filter languages based on domain: SQL problems only show SQL language
     const availableLanguages = domain === "SQL"
@@ -207,7 +209,7 @@ export default function CodeEditor({
     // Handle full screen change
     useEffect(() => {
         const handleFullScreenChange = () => {
-            setIsFullScreen(!!document.fullscreenElement);
+            setIsFullScreen(document.fullscreenElement === editorContainerRef.current);
         };
 
         document.addEventListener('fullscreenchange', handleFullScreenChange);
@@ -266,7 +268,7 @@ export default function CodeEditor({
                 if (retryCount === 0) setIsRestoring(true); // Helper spinner can still show
 
                 // Fetch draft in background
-                const savedCode = await getCodeDraft(problemId!, effectiveLanguageId);
+                const savedCode = await getCodeDraft(userId, problemId!, effectiveLanguageId);
 
                 // Check if component is still mounted and effect hasn't been cancelled
                 if (!isMounted || cancelled) {
@@ -331,7 +333,7 @@ export default function CodeEditor({
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [problemId, effectiveLanguageId, readOnly, isMounted]);
+    }, [problemId, effectiveLanguageId, readOnly, isMounted, userId]);
 
     // HANDLE AUTOSAVE (Only if NOT readOnly)
     const debouncedSave = (value: string) => {
@@ -346,7 +348,7 @@ export default function CodeEditor({
             try {
                 // Save to DB and wait for at least 500ms to show the spinner
                 await Promise.all([
-                    saveCodeDraft(problemId, effectiveLanguageId, value),
+                    saveCodeDraft(userId, problemId, effectiveLanguageId, value),
                     new Promise(resolve => setTimeout(resolve, 500))
                 ]);
             } catch (err) {
@@ -476,7 +478,7 @@ export default function CodeEditor({
         }
 
         if (problemId) {
-            saveCodeDraft(problemId, effectiveLanguageId, resetCode).then(() => {
+            saveCodeDraft(userId, problemId, effectiveLanguageId, resetCode).then(() => {
                 toast.success("Code reset to default");
             });
         }

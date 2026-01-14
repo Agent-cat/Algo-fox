@@ -18,6 +18,8 @@ const contestSchema = z.object({
     startTime: z.string().min(1, "Start time is required"),
     endTime: z.string().min(1, "End time is required"),
     visibility: z.enum(["PUBLIC", "INSTITUTION", "CLASSROOM"]),
+    contestPassword: z.string().optional(),
+    randomizeQuestions: z.boolean().default(false),
     classroomId: z.string().optional(),
     problems: z.array(z.string()).min(1, "Select at least one problem"),
 });
@@ -39,12 +41,13 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
     const [isSearchingProblems, setIsSearchingProblems] = useState(false);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
-        resolver: zodResolver(contestSchema),
+        resolver: zodResolver(contestSchema) as any,
         defaultValues: {
             title: "",
             description: "",
             visibility: "PUBLIC",
             problems: [],
+            randomizeQuestions: false,
         }
     });
 
@@ -167,6 +170,31 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                                 </div>
                                 {errors.endTime && <p className="text-xs text-red-500 mt-1">{errors.endTime.message}</p>}
                             </div>
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-gray-100">
+                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Access Password (Optional)</label>
+                                <input
+                                    {...register("contestPassword")}
+                                    type="text"
+                                    className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                    placeholder="Leave empty for open access"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">If set, users must enter this password to join.</p>
+                            </div>
+
+                             <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    {...register("randomizeQuestions")}
+                                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                />
+                                <div>
+                                    <span className="block text-sm font-medium text-gray-900">Randomize Questions</span>
+                                    <span className="text-xs text-gray-500">Problems will be shown in a different order for each user.</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </section>

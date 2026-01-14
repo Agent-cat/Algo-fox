@@ -40,7 +40,7 @@ export async function getCoursesByYear(year: number) {
     };
   } catch (error) {
     console.error("Error fetching courses by year:", error);
-    return { success: false, error: "Failed to fetch courses", domains: [] };
+    return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[] };
   }
 }
 
@@ -54,7 +54,7 @@ export async function getUserAllocatedCourses() {
   });
 
   if (!session?.user) {
-    return { success: false, error: "Unauthorized", domains: [] };
+    return { success: false, error: "Unauthorized", domains: [] as ProblemDomain[] };
   }
 
   const userId = session.user.id;
@@ -68,7 +68,7 @@ export async function getUserAllocatedCourses() {
     });
 
     if (!user) {
-      return { success: false, error: "User not found", domains: [] };
+      return { success: false, error: "User not found", domains: [] as ProblemDomain[] };
     }
 
     // Admins, teachers, institution managers, and contest managers can see all courses
@@ -85,7 +85,7 @@ export async function getUserAllocatedCourses() {
     if (!user.year) {
       return {
         success: true,
-        domains: [], // No courses until year is set
+        domains: [] as ProblemDomain[], // No courses until year is set
         isPrivileged: false,
       };
     }
@@ -103,7 +103,7 @@ export async function getUserAllocatedCourses() {
     };
   } catch (error) {
     console.error("Error fetching user allocated courses:", error);
-    return { success: false, error: "Failed to fetch courses", domains: [] };
+    return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[] };
   }
 }
 

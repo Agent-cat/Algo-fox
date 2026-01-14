@@ -63,6 +63,11 @@ const menuItems: MenuItem[] = [
     icon: Trophy,
     href: "/dashboard/contests",
   },
+  {
+    name: "Users",
+    icon: Users,
+    href: "/admin/users",
+  },
 ];
 
 export default function AdminSidebar() {

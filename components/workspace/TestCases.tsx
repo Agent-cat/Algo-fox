@@ -3,15 +3,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2 } from 'lucide-react';
 import { ProblemTestCase, TestCase } from '@prisma/client';
+import PeerComparisonCard from '@/components/analytics/PeerComparisonCard';
 
 interface TestCasesProps {
     cases?: ProblemTestCase[];
     results?: TestCase[];
     mode?: "RUN" | "SUBMIT" | null;
     status?: string | null;
+    problemId?: string;
 }
 
-export default function TestCases({ cases, results, mode, status }: TestCasesProps) {
+export default function TestCases({ cases, results, mode, status, problemId }: TestCasesProps) {
     const [activeTab, setActiveTab] = useState<number | "console">(0);
 
     // Check if there's any compilation error or error message
@@ -145,6 +147,14 @@ export default function TestCases({ cases, results, mode, status }: TestCasesPro
         }
     }, [hasError, results]);
 
+    // Calculate runtime and memory
+    const { submissionRuntime, submissionMemory } = useMemo(() => {
+        if (!results || status !== "ACCEPTED") return { submissionRuntime: 0, submissionMemory: 0 };
+        const time = results.reduce((acc, curr) => acc + (curr.time || 0), 0);
+        const mem = results.reduce((max, curr) => Math.max(max, curr.memory || 0), 0);
+        return { submissionRuntime: time, submissionMemory: mem };
+    }, [results, status]);
+
     // Ensure cases is always an array
     const safeCases = cases || [];
 
@@ -243,6 +253,17 @@ export default function TestCases({ cases, results, mode, status }: TestCasesPro
                         );
                     })}
                 </div>
+
+                {/* Peer Comparison Stats (Only on Accepted Submission) */}
+                {status === "ACCEPTED" && mode === "SUBMIT" && problemId && (
+                    <div className="mb-4">
+                        <PeerComparisonCard
+                            problemId={problemId}
+                            runtime={submissionRuntime}
+                            memory={submissionMemory}
+                        />
+                    </div>
+                )}
 
                 {/* Content */}
                 <div className="flex-1 overflow-hidden">

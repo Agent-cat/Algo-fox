@@ -10,6 +10,7 @@ interface ContestProtectionProps {
     sessionId: string;
     onAutoSubmit?: () => void;
     onBlocked?: () => void;
+    paused?: boolean;
 }
 
 interface ViolationState {
@@ -41,7 +42,8 @@ export default function ContestProtection({
     contestId,
     sessionId,
     onAutoSubmit,
-    onBlocked
+    onBlocked,
+    paused = false
 }: ContestProtectionProps) {
     const [violations, setViolations] = useState<ViolationState>({
         total: 0,
@@ -61,18 +63,29 @@ export default function ContestProtection({
     const isProcessingViolation = useRef(false);
     const isRefreshing = useRef(false);
 
-    // Global debounce - only ONE violation allowed every 15 seconds
+    // Ref to track fullscreen needs for event listeners (avoids stale closures)
+    const needsFullscreenRef = useRef(false);
+
+    useEffect(() => {
+        needsFullscreenRef.current = needsFullscreen;
+    }, [needsFullscreen]);
+
+    // Global debounce - only ONE violation allowed every 2 seconds
     const canLogViolation = useCallback(() => {
         const now = Date.now();
+        if (paused) return false;
 
-        // If already processing a violation, block
+        // If already processing or locked - DO NOT log more violations
         if (isProcessingViolation.current) return false;
+        if (isEditorLocked) return false;
+        // NOTE: We allow logging even if showWarningPopup is true (e.g. for tab switching while popup is open)
+        // Violations are logged even during temp block to allow escalation to permanent block
 
-        // 15 second global cooldown
-        if (now - lastViolationTime.current < 15000) return false;
+        // 2 second global cooldown to prevent double-logging same event
+        if (now - lastViolationTime.current < 2000) return false;
 
         return true;
-    }, []);
+    }, [isEditorLocked, paused]);
 
     // Log violation to server and update state
     const handleViolation = useCallback(async (
@@ -141,40 +154,35 @@ export default function ContestProtection({
             if (result.success && result.participation) {
                 const p = result.participation as any;
 
+                // ALWAYS sync the violation counts and flags
+                const newViolationState = {
+                    total: p.totalViolations || 0,
+                    isFlagged: p.isFlagged || false,
+                    isBlocked: false,
+                    tempBlockedUntil: null,
+                    permanentlyBlocked: false
+                };
+
                 if (p.permanentlyBlocked) {
-                    setViolations({
-                        total: p.totalViolations || 0,
-                        isFlagged: p.isFlagged,
-                        isBlocked: true,
-                        tempBlockedUntil: null,
-                        permanentlyBlocked: true
-                    });
+                    newViolationState.isBlocked = true;
+                    newViolationState.permanentlyBlocked = true;
                     setIsEditorLocked(true);
                     onBlocked?.();
                 } else if (p.tempBlockedUntil) {
                     const blockEnd = new Date(p.tempBlockedUntil);
                     if (blockEnd > new Date()) {
-                        setViolations({
-                            total: p.totalViolations || 0,
-                            isFlagged: p.isFlagged,
-                            isBlocked: true,
-                            tempBlockedUntil: p.tempBlockedUntil,
-                            permanentlyBlocked: false
-                        });
+                        newViolationState.isBlocked = true;
+                        newViolationState.tempBlockedUntil = p.tempBlockedUntil;
                         setIsEditorLocked(true);
                         const timeLeft = blockEnd.getTime() - Date.now();
                         setTempBlockTimeLeft(Math.max(0, Math.floor(timeLeft / 1000)));
                     }
                 } else if (p.isBlocked) {
-                    setViolations({
-                        total: p.totalViolations || 0,
-                        isFlagged: p.isFlagged,
-                        isBlocked: true,
-                        tempBlockedUntil: null,
-                        permanentlyBlocked: false
-                    });
+                    newViolationState.isBlocked = true;
                     setIsEditorLocked(true);
                 }
+
+                setViolations(newViolationState);
             }
         };
 
@@ -210,6 +218,7 @@ export default function ContestProtection({
             // After refresh, check if we need to re-enter fullscreen
             if (!document.fullscreenElement && !isRefreshing.current) {
                 setNeedsFullscreen(true);
+                needsFullscreenRef.current = true; // Immediate sync for event listeners
             }
         }, 3000);
 
@@ -319,8 +328,40 @@ export default function ContestProtection({
         window.addEventListener("blur", handleWindowBlur);
 
         // =============================================
-        // 6. DEVTOOLS DETECTION
+        // 5b. INTERACTION-BASED COMPLIANCE (Optimized)
         // =============================================
+        // =============================================
+        // 5b. INTERACTION-BASED COMPLIANCE (Optimization: Throttled)
+        // =============================================
+        let lastCheck = 0;
+        const checkCompliance = () => {
+             const now = Date.now();
+             // Throttle: Max once per 2 seconds during active interaction
+             if (now - lastCheck < 2000) return;
+             lastCheck = now;
+
+             if (!isMounted.current) return;
+             // Skip if already processing/blocked OR if waiting for fullscreen (using Ref for live value) OR PAUSED
+             if (paused || isProcessingViolation.current || isEditorLocked || showWarningPopup || needsFullscreenRef.current) return;
+
+             // 1. Check Fullscreen
+             if (!document.fullscreenElement && !isRefreshing.current) {
+                 handleViolation("FULLSCREEN_EXIT", "You must stay in fullscreen mode");
+                 return;
+             }
+        };
+
+        // Event-driven checks are sufficient without polling overhead
+        document.addEventListener("mousedown", checkCompliance);
+        document.addEventListener("keydown", checkCompliance);
+        document.addEventListener("touchstart", checkCompliance);
+
+        // No polling heartbeat needed - visibilitychange and fullscreenchange handle the critical events instantly
+
+        // =============================================
+        // 6. DEVTOOLS DETECTION (Event-Driven)
+        // =============================================
+        let resizeTimeout: NodeJS.Timeout;
         const checkDevTools = () => {
             if (!isMounted.current) return;
             const threshold = 160;
@@ -332,7 +373,12 @@ export default function ContestProtection({
             }
         };
 
-        const devToolsInterval = setInterval(checkDevTools, 3000);
+        const handleResize = () => {
+             clearTimeout(resizeTimeout);
+             resizeTimeout = setTimeout(checkDevTools, 500); // Debounce resize check
+        };
+
+        window.addEventListener("resize", handleResize);
 
         // =============================================
         // 7. CONTEXT MENU DISABLE
@@ -347,10 +393,11 @@ export default function ContestProtection({
         // 8. BEFOREUNLOAD WARNING
         // =============================================
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            isRefreshing.current = true; // Mark as refreshing before the browser shows the dialog
-            e.preventDefault();
-            e.returnValue = "You are in contest mode. Are you sure you want to leave?";
-            return e.returnValue;
+            isRefreshing.current = true; // Mark as refreshing/navigating
+            // DISABLE LEAVE CONFIRMATION
+            // e.preventDefault();
+            // e.returnValue = "You are in contest mode. Are you sure you want to leave?";
+            // return e.returnValue;
         };
         window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -367,7 +414,7 @@ export default function ContestProtection({
         // Cleanup
         return () => {
             clearTimeout(mountTimeout);
-            clearInterval(devToolsInterval);
+            clearTimeout(resizeTimeout);
             broadcastChannel.current?.close();
             document.removeEventListener("fullscreenchange", handleFullscreenChange);
             document.removeEventListener("copy", preventClipboard);
@@ -376,6 +423,12 @@ export default function ContestProtection({
             document.removeEventListener("keydown", handleKeyDown, true);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             window.removeEventListener("blur", handleWindowBlur);
+            window.removeEventListener("resize", handleResize);
+
+            document.removeEventListener("mousedown", checkCompliance);
+            document.removeEventListener("keydown", checkCompliance);
+            document.removeEventListener("touchstart", checkCompliance);
+
             document.removeEventListener("contextmenu", preventContextMenu);
             window.removeEventListener("beforeunload", handleBeforeUnload);
             document.removeEventListener("dragover", preventDragDrop);
@@ -384,11 +437,20 @@ export default function ContestProtection({
     }, [contestId, sessionId, handleViolation]);
 
     const handleDismissWarning = () => {
-        setShowWarningPopup(false);
-        // Re-enter fullscreen
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-        }
+        // Only allow dismissing if we successfully enter fullscreen
+        const enterFullscreen = async () => {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                }
+                // Only if successful, close popup
+                setShowWarningPopup(false);
+            } catch (err) {
+                 // If user denies fullscreen or it fails, keep popup open
+                 // Maybe show a toast or shake animation in future
+            }
+        };
+        enterFullscreen();
     };
 
     const handleReEnterFullscreen = () => {
@@ -403,119 +465,111 @@ export default function ContestProtection({
 
     return (
         <>
-            {/* Unified Warning/Block Card */}
+            {/* Unified Warning/Block Card - Redesigned */}
             {(isEditorLocked || showWarningPopup) && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden border border-orange-100">
-                        {/* Orange accent bar */}
-                        <div className="h-1.5 bg-gradient-to-r from-orange-400 to-orange-500" />
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-orange-100 transform transition-all scale-100">
 
-                        <div className="p-6">
-                            {/* Header with icon */}
-                            <div className="flex items-center gap-4 mb-5">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        {/* Status Bar Top */}
+                         <div className={`h-2 w-full ${
+                                violations.permanentlyBlocked ? 'bg-red-500' : 'bg-orange-500'
+                            }`}
+                        />
+
+                        <div className="p-6 md:p-8">
+                            <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                                {/* Large Icon Box */}
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
                                     violations.permanentlyBlocked
-                                        ? 'bg-red-50'
-                                        : 'bg-orange-50'
+                                        ? 'bg-red-50 text-red-500'
+                                        : 'bg-orange-50 text-orange-500'
                                 }`}>
                                     {violations.permanentlyBlocked ? (
-                                        <Ban className="w-6 h-6 text-red-500" />
+                                        <Ban className="w-8 h-8" />
                                     ) : tempBlockTimeLeft > 0 ? (
-                                        <Clock className="w-6 h-6 text-orange-500" />
+                                        <Clock className="w-8 h-8 animate-pulse" />
                                     ) : isEditorLocked ? (
-                                        <Lock className="w-6 h-6 text-orange-500" />
+                                        <Lock className="w-8 h-8" />
                                     ) : (
-                                        <AlertTriangle className="w-6 h-6 text-orange-500" />
+                                        <AlertTriangle className="w-8 h-8" />
                                     )}
                                 </div>
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-900">
+
+                                <div className="flex-1 space-y-1">
+                                    <h2 className="text-xl font-bold text-gray-900 leading-tight">
                                         {violations.permanentlyBlocked
-                                            ? 'Session Blocked'
+                                            ? 'Contest Session Terminated'
                                             : tempBlockTimeLeft > 0
-                                                ? 'Temporary Block'
-                                                : isEditorLocked
-                                                    ? 'Access Suspended'
-                                                    : 'Action Blocked'
+                                                ? 'Temporary Suspension'
+                                                : 'Violation Detected'
                                         }
                                     </h2>
-                                    <p className="text-sm text-gray-500">
-                                        {violations.permanentlyBlocked
-                                            ? 'Contact contest manager'
+                                    <p className="text-gray-500 font-medium text-sm">
+                                         {violations.permanentlyBlocked
+                                            ? 'Multiple violations detected. Your session has been permanently blocked.'
                                             : tempBlockTimeLeft > 0
-                                                ? 'Please wait for timer'
-                                                : isEditorLocked
-                                                    ? 'Too many violations'
-                                                    : currentViolationType || 'This action is not allowed'
+                                                ? 'Please wait for the timer to expire before continuing.'
+                                                : currentViolationType || 'This action is prohibited during the contest.'
                                         }
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Timer - For temp block */}
+                            {/* Timer Section */}
                             {tempBlockTimeLeft > 0 && (
-                                <div className="bg-orange-50 border border-orange-100 rounded-xl p-5 mb-5 text-center">
-                                    <p className="text-xs text-orange-600 uppercase tracking-wide mb-2">Time Remaining</p>
-                                    <div className="flex items-center justify-center gap-3">
-                                        <Clock className="w-7 h-7 text-orange-500" />
-                                        <span className="text-4xl font-bold text-orange-600 font-mono tracking-tight">
-                                            {Math.floor(tempBlockTimeLeft / 60)}:{String(tempBlockTimeLeft % 60).padStart(2, '0')}
-                                        </span>
+                                <div className="mt-8 p-6 bg-orange-50 rounded-xl border border-orange-100 flex flex-col items-center justify-center">
+                                    <span className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">Access Resumes In</span>
+                                    <div className="text-5xl font-black text-orange-500 font-mono tracking-tighter tabular-nums">
+                                        {Math.floor(tempBlockTimeLeft / 60)}:{String(tempBlockTimeLeft % 60).padStart(2, '0')}
                                     </div>
-                                    <p className="text-xs text-orange-500 mt-3">
-                                        You can continue after the timer expires
-                                    </p>
                                 </div>
                             )}
 
-                            {/* Permanent block info */}
-                            {violations.permanentlyBlocked && (
-                                <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-5">
-                                    <p className="text-red-700 font-medium text-sm">Maximum violations reached ({violations.total})</p>
-                                    <p className="text-xs text-red-600 mt-1">
-                                        Contact your contest manager for assistance
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Violation progress - Not for permanent block or timer */}
+                             {/* Progress Bar (Only if not perma-blocked and no timer active) */}
                             {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 && (
-                                <div className="mb-5">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs text-gray-500">Violations</span>
-                                        <span className="text-xs font-semibold text-gray-700">{violations.total} / {MAX_WARNINGS}</span>
+                                <div className="mt-8 space-y-3">
+                                    <div className="flex justify-between items-end">
+                                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Warning Level</span>
+                                        <span className="text-sm font-bold text-gray-900">{violations.total} <span className="text-gray-400 font-normal">/ {MAX_WARNINGS}</span></span>
                                     </div>
-                                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 transition-all duration-300"
+                                            className={`h-full transition-all duration-500 ease-out ${
+                                                violations.total >= 4 ? 'bg-red-500' : 'bg-orange-500'
+                                            }`}
                                             style={{ width: `${Math.min((violations.total / MAX_WARNINGS) * 100, 100)}%` }}
                                         />
                                     </div>
-                                    {violations.total >= 3 && violations.total < 4 && (
-                                        <p className="text-xs text-orange-600 mt-2">⚠️ Next violation will trigger a 5-minute block</p>
-                                    )}
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-gray-400">Low Risk</span>
+                                        {violations.total >= 4 ? (
+                                             <span className="text-red-500 font-medium">Critical Risk</span>
+                                        ) : (
+                                            <span className="text-orange-500 font-medium">Caution</span>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 
-                            {/* Continue button - Only when not permanently blocked and no timer */}
-                            {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 && (
-                                <button
-                                    onClick={handleDismissWarning}
-                                    className="w-full py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
-                                >
-                                    I Understand, Continue
-                                </button>
-                            )}
-
-                            {/* Waiting state during timer */}
-                            {tempBlockTimeLeft > 0 && (
-                                <button
-                                    disabled
-                                    className="w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-semibold cursor-not-allowed"
-                                >
-                                    Please wait...
-                                </button>
-                            )}
+                            {/* Actions */}
+                            <div className="mt-8">
+                                {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 ? (
+                                    <button
+                                        onClick={handleDismissWarning}
+                                        className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all transform active:scale-[0.98] shadow-lg shadow-gray-200"
+                                    >
+                                        Acknowledge & Continue
+                                    </button>
+                                ) : tempBlockTimeLeft > 0 ? (
+                                     <button disabled className="w-full py-4 bg-gray-100 text-gray-400 rounded-xl font-bold cursor-not-allowed">
+                                        Suspended
+                                    </button>
+                                ) : (
+                                    <button className="w-full py-4 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 cursor-not-allowed">
+                                        Contact Administrator
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

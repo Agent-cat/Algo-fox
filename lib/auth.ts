@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { admin } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
@@ -8,6 +9,7 @@ export const auth = betterAuth({
   }),
 
   trustedOrigins: ["http://localhost:3000"],
+  baseURL: "http://localhost:3000",
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
@@ -23,7 +25,7 @@ export const auth = betterAuth({
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
     },
-    
+
   },
   user: {
     additionalFields: {
@@ -44,4 +46,12 @@ export const auth = betterAuth({
       },
     },
   },
+
+  plugins: [
+    admin({
+      adminRoles: ["ADMIN"],
+      defaultRole: "STUDENT",
+      adminUserIds: ["iDwVXlDKSzltqI0YfMH5E0in5o9bWmj9"], // vishnu
+    })
+  ]
 });

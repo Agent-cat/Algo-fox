@@ -72,7 +72,7 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
                     currentUserId={session.user.id}
                     contestId={id}
                     isFinalized={isFinalized}
-                    userRole={userRole}
+                    userRole={userRole || undefined}
                 />
             </div>
         </div>

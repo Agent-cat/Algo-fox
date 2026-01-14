@@ -34,6 +34,8 @@ const contestSchema = z.object({
         title: z.string(),
         domain: z.enum(["DSA", "SQL"]),
     })).optional(), // Optional in schema, validated manually on step 3
+    contestPassword: z.string().optional(),
+    randomizeQuestions: z.boolean().default(false),
 });
 
 type FormData = z.infer<typeof contestSchema>;
@@ -61,7 +63,7 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
     const [isCreatingProblem, setIsCreatingProblem] = useState(false);
 
     const { register, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
-        resolver: zodResolver(contestSchema),
+        resolver: zodResolver(contestSchema) as any,
         defaultValues: {
             title: "",
             slug: "",
@@ -485,6 +487,41 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                                         {errors.classroomId && <p className="text-xs text-red-500 mt-1">{errors.classroomId.message}</p>}
                                     </div>
                                 )}
+                            </div>
+
+
+                            {/* Contest Security & Options */}
+                            <div className="border-t pt-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-4">Security & Options</label>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                            <span className="text-gray-900">Contest Password (Optional)</span>
+                                        </label>
+                                        <input
+                                            {...register("contestPassword")}
+                                            type="text"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
+                                            placeholder="Enter a password to restrict access..."
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">If set, participants will need to enter this password to join.</p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            {...register("randomizeQuestions")}
+                                            id="randomizeQuestions"
+                                            className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                        />
+                                        <label htmlFor="randomizeQuestions" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                            Randomize Question Order
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-gray-500 ml-7 -mt-3">
+                                        If enabled, each participant will see questions in a different random order.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

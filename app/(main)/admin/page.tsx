@@ -89,6 +89,13 @@ async function AdminDashboardStats() {
                         <span className="font-semibold text-gray-700 group-hover:text-orange-600">SQL Problems</span>
                         <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />
                     </Link>
+                    <Link
+                        href="/admin/users"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group"
+                    >
+                        <span className="font-semibold text-gray-700 group-hover:text-orange-600">Manage Users</span>
+                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />
+                    </Link>
                 </div>
             </div>
         </div>
