@@ -89,9 +89,9 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-72 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
+    <aside className="w-72 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white/80 dark:bg-[#141414]/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-[#262626] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
       <div className="px-6 mb-6">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Main Menu</p>
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Main Menu</p>
       </div>
       <nav className="px-4 space-y-1">
         {menuItems.map((item) => {
@@ -106,12 +106,12 @@ export default function AdminSidebar() {
                 <button
                   onClick={() => toggleSection(item.name)}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${hasActiveChild
-                    ? "bg-orange-50 text-orange-700 shadow-sm shadow-orange-100"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 shadow-sm shadow-orange-100 dark:shadow-none"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-gray-900 dark:hover:text-gray-200"
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-1.5 rounded-lg transition-colors ${hasActiveChild ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm"
+                    <div className={`p-1.5 rounded-lg transition-colors ${hasActiveChild ? "bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400" : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 group-hover:bg-white dark:group-hover:bg-[#262626] group-hover:shadow-sm"
                       }`}>
                       <item.icon className="w-4 h-4" />
                     </div>
@@ -130,7 +130,7 @@ export default function AdminSidebar() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="ml-4 pl-4 border-l-2 border-gray-100 my-1 space-y-1">
+                      <div className="ml-4 pl-4 border-l-2 border-gray-100 dark:border-[#262626] my-1 space-y-1">
                         {item.children.map((child) => {
                           const isActive =
                             pathname === child.href || pathname?.startsWith(child.href + "/");
@@ -139,8 +139,8 @@ export default function AdminSidebar() {
                               key={child.href}
                               href={child.href}
                               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${isActive
-                                ? "text-orange-600 bg-orange-50 font-medium translate-x-1"
-                                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 hover:translate-x-1"
+                                ? "text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 font-medium translate-x-1"
+                                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:translate-x-1"
                                 }`}
                             >
                               {isActive && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
@@ -164,11 +164,11 @@ export default function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 mb-1 group ${isActive
-                ? "bg-orange-600 text-white shadow-lg shadow-orange-200"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                ? "bg-orange-600 text-white shadow-lg shadow-orange-200 dark:shadow-none"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
             >
-              <div className={`p-1.5 rounded-lg transition-colors ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500 group-hover:bg-white group-hover:shadow-sm"
+              <div className={`p-1.5 rounded-lg transition-colors ${isActive ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 group-hover:bg-white dark:group-hover:bg-[#262626] group-hover:shadow-sm"
                 }`}>
                 <Icon className="w-4 h-4" />
               </div>
@@ -179,7 +179,7 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Decorative bg element */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-[#141414] to-transparent pointer-events-none" />
     </aside>
   );
 }

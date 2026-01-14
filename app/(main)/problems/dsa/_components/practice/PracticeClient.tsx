@@ -140,7 +140,7 @@ export default function PracticeClient({
     return (
         <div className="w-full">
             {/* List Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 dark:border-[#262626] text-[11px] font-bold text-gray-400 uppercase tracking-widest">
                 <div className="col-span-8 md:col-span-6">Title</div>
                 <div className="col-span-2 md:col-span-3">Difficulty</div>
                 <div className="col-span-2 md:col-span-3">Acceptance</div>
@@ -166,8 +166,8 @@ export default function PracticeClient({
                     </>
                 ) : (
                     <div className="text-center py-20">
-                        <div className="text-gray-400 mb-2">No problems found</div>
-                        <p className="text-sm text-gray-500">
+                        <div className="text-gray-400">No problems found</div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             {searchTerm ? "Try adjusting your search terms." : "No problems available."}
                         </p>
                     </div>

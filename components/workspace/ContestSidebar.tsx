@@ -51,9 +51,9 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
     }, [currentProblemId, contest.id]);
 
     const getStatusColor = (problemId: string) => {
-        if (solvedProblemIds.includes(problemId)) return "bg-emerald-500 text-white border-emerald-600";
-        if (visitedProblemIds.includes(problemId)) return "bg-amber-400 text-white border-amber-500";
-        return "bg-gray-100 text-gray-500 border-gray-200 hover:border-orange-300 hover:bg-white";
+        if (solvedProblemIds.includes(problemId)) return "bg-emerald-500 text-white border-emerald-600 dark:border-emerald-500";
+        if (visitedProblemIds.includes(problemId)) return "bg-amber-400 text-white border-amber-500 dark:border-amber-400";
+        return "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-[#333] hover:border-orange-300 dark:hover:border-orange-500/50 hover:bg-white dark:hover:bg-[#262626]";
     };
 
     const handleEndContest = () => {
@@ -94,16 +94,16 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                     initial={false}
                     animate={{ width: 280, opacity: 1 }}
                     transition={isMounted ? { duration: 0.3 } : { duration: 0 }}
-                    className="h-full bg-white border-r border-dashed border-gray-200 flex flex-col overflow-hidden"
+                    className="h-full bg-white dark:bg-[#0a0a0a] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col overflow-hidden"
                 >
-                    <div className="p-4 border-b border-dashed border-gray-100 bg-orange-50/50 flex items-center justify-between">
+                    <div className="p-4 border-b border-dashed border-gray-100 dark:border-[#262626] bg-orange-50/50 dark:bg-orange-500/5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <LayoutGrid className="w-4 h-4 text-orange-600" />
-                            <span className="text-sm font-black uppercase tracking-tighter text-gray-900">Navigator</span>
+                            <LayoutGrid className="w-4 h-4 text-orange-600 dark:text-orange-500" />
+                            <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-gray-100">Navigator</span>
                         </div>
                         <button
                             onClick={() => toggleSidebar(false)}
-                            className="p-1 hover:bg-orange-100 rounded-md text-orange-600 transition-colors"
+                            className="p-1 hover:bg-orange-100 dark:hover:bg-orange-500/10 rounded-md text-orange-600 dark:text-orange-500 transition-colors"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -140,14 +140,14 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                         </div>
                     </div>
 
-                    <div className="p-4 space-y-4 bg-gray-50 border-t border-dashed border-gray-200">
+                    <div className="p-4 space-y-4 bg-gray-50 dark:bg-[#111] border-t border-dashed border-gray-200 dark:border-[#262626]">
                         <div>
-                            <div className="text-[10px] font-black text-orange-600 uppercase mb-1 tracking-widest">Contest Progress</div>
-                            <div className="flex items-center justify-between text-xs font-bold text-gray-900 mb-2">
+                            <div className="text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase mb-1 tracking-widest">Contest Progress</div>
+                            <div className="flex items-center justify-between text-xs font-bold text-gray-900 dark:text-gray-100 mb-2">
                                 <span>{solvedProblemIds.length} / {contest.problems.length} Solved</span>
                                 <span>{Math.round((solvedProblemIds.length / contest.problems.length) * 100)}%</span>
                             </div>
-                            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-gray-200 dark:bg-[#333] rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-orange-500 transition-all duration-500"
                                     style={{ width: `${(solvedProblemIds.length / contest.problems.length) * 100}%` }}
@@ -157,7 +157,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
 
                         <button
                             onClick={handleEndContest}
-                            className="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 flex items-center justify-center gap-2 transition-all group"
+                            className="w-full py-2.5 px-4 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-500/30 flex items-center justify-center gap-2 transition-all group"
                         >
                             <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                             <span className="text-xs font-black uppercase tracking-tight">End Contest</span>
@@ -169,18 +169,18 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                     initial={false}
                     animate={{ width: 48 }}
                     transition={isMounted ? { duration: 0.3 } : { duration: 0 }}
-                    className="h-full bg-white border-r border-dashed border-gray-200 flex flex-col items-center py-4 gap-4 overflow-hidden"
+                    className="h-full bg-white dark:bg-[#0a0a0a] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col items-center py-4 gap-4 overflow-hidden"
                 >
                     <button
                         onClick={() => toggleSidebar(true)}
-                        className="p-2 hover:bg-orange-50 rounded-lg text-orange-600 transition-colors"
+                        className="p-2 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg text-orange-600 dark:text-orange-500 transition-colors"
                     >
                         <List className="w-5 h-5" />
                     </button>
                     <div className="flex-1" />
                     <button
                         onClick={handleEndContest}
-                        className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors mb-2"
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-red-600 dark:text-red-400 transition-colors mb-2"
                         title="End Contest"
                     >
                         <LogOut className="w-5 h-5" />
@@ -191,16 +191,16 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
             {/* End Contest Confirmation Modal */}
             {showEndModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 transform scale-100 transition-all">
-                        <div className="flex items-center gap-3 mb-4 text-red-600">
+                    <div className="bg-white dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
+                        <div className="flex items-center gap-3 mb-4 text-red-600 dark:text-red-500">
                             <ShieldAlert className="w-8 h-8" />
-                            <h3 className="text-xl font-bold text-gray-900">End Contest Session?</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">End Contest Session?</h3>
                         </div>
 
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
                             Are you sure you want to end your session? You will <strong>NOT</strong> be able to submit more solutions.
                             <br /><br />
-                            Type <span className="font-mono font-bold text-red-600">end</span> below to confirm.
+                            Type <span className="font-mono font-bold text-red-600 dark:text-red-400">end</span> below to confirm.
                         </p>
 
                         <input
@@ -208,14 +208,14 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                             placeholder="Type 'end' to confirm"
                             value={endConfirmText}
                             onChange={(e) => setEndConfirmText(e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
+                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 dark:bg-[#0a0a0a] border-gray-200 dark:border-[#333] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
                             autoFocus
                         />
 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
-                                className="flex-1 px-4 py-3 border rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="flex-1 px-4 py-3 border rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] border-gray-200 dark:border-[#333] transition-colors"
                             >
                                 Cancel
                             </button>

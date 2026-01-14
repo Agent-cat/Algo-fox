@@ -33,13 +33,13 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
     return (
         <div className="space-y-10">
             {/* Search and Tabs Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white border border-gray-200 p-2 rounded-2xl shadow-sm relative z-20 max-w-5xl mx-auto -mt-20">
-                <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-2 rounded-2xl shadow-sm relative z-20 max-w-5xl mx-auto -mt-20">
+                <div className="flex bg-gray-100 dark:bg-[#0a0a0a] p-1 rounded-xl w-fit">
                     <button
                         onClick={() => setActiveTab("active")}
                         className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === "active"
-                            ? "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
-                            : "text-gray-500 hover:text-gray-700"
+                            ? "bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-black/5 dark:ring-white/5"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                             }`}
                     >
                         <Clock className={`w-3.5 h-3.5 ${activeTab === "active" ? "text-orange-600" : ""}`} />
@@ -48,8 +48,8 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
                     <button
                         onClick={() => setActiveTab("past")}
                         className={`px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${activeTab === "past"
-                            ? "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
-                            : "text-gray-500 hover:text-gray-700"
+                            ? "bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-black/5 dark:ring-white/5"
+                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                             }`}
                     >
                         <Calendar className={`w-3.5 h-3.5 ${activeTab === "past" ? "text-orange-600" : ""}`} />
@@ -64,21 +64,21 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
                         placeholder="Search contests..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-transparent border-none focus:outline-none text-sm font-medium placeholder:text-gray-400"
+                        className="w-full pl-10 pr-4 py-2.5 bg-transparent border-none focus:outline-none text-sm font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100"
                     />
                 </div>
             </div>
 
             {/* Contests Grid */}
             {filteredContests.length === 0 ? (
-                <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-3xl p-20 text-center shadow-sm">
-                    <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Trophy className="w-10 h-10 text-orange-200" />
+                <div className="bg-white/80 dark:bg-[#141414] backdrop-blur-sm border border-gray-100 dark:border-[#262626] rounded-3xl p-20 text-center shadow-sm">
+                    <div className="w-20 h-20 bg-orange-50 dark:bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Trophy className="w-10 h-10 text-orange-200 dark:text-orange-500/50" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {searchQuery ? "No matching contests" : `No ${activeTab} contests`}
                     </h3>
-                    <p className="text-gray-500 max-w-sm mx-auto">
+                    <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
                         {searchQuery
                             ? "We couldn't find any contests matching your search criteria. Try a different keyword."
                             : activeTab === "active"

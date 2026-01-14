@@ -53,7 +53,7 @@ function SignInContent() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -64,22 +64,22 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="absolute top-8 left-8">
-          <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-medium">
+          <Link href="/" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors font-medium">
             <ArrowLeftIcon className="w-5 h-5" />
             Back
           </Link>
         </div>
 
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-black mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to continue your journey</p>
+          <h1 className="text-4xl font-bold text-black dark:text-white mb-2">Welcome Back</h1>
+          <p className="text-gray-600 dark:text-gray-400">Sign in to continue your journey</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm text-center border border-red-100">
+          <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-4 rounded-xl text-sm text-center border border-red-100 dark:border-red-500/20">
             {error}
           </div>
         )}
@@ -107,7 +107,7 @@ function SignInContent() {
           <button
             onClick={() => handleSignIn("microsoft")}
             disabled={!!loading}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black text-white font-semibold rounded-xl hover:bg-gray-900 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
           >
             {loading === "microsoft" ? (
               <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -124,7 +124,7 @@ function SignInContent() {
           </button>
         </div>
 
-        <p className="text-center text-gray-500 text-sm">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
@@ -135,7 +135,7 @@ function SignInContent() {
 export default function SignIn() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>

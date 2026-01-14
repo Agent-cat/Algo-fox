@@ -193,10 +193,10 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
     const indices = Array.from({ length: totalCount }, (_, i) => i);
 
     return (
-        <div className="h-full flex flex-col bg-white border-t border-gray-200">
+        <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-[#262626]">
             {/* Header */}
-            <div className="flex items-center gap-4 px-4 py-2 bg-gray-50/50 border-b border-gray-100">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <div className="flex items-center gap-4 px-4 py-2 bg-gray-50/50 dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-[#1a1a1a]">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     <Terminal className="w-4 h-4 text-orange-500" />
                     Test Cases
                 </div>
@@ -237,11 +237,11 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                 className={`
                                     flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap border
                                     ${activeTab === displayIndex
-                                        ? 'bg-gray-100 text-gray-900 border-gray-200 shadow-sm'
-                                        : 'text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-700'
+                                        ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#262626] shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300'
                                     }
-                                    ${status === 'ACCEPTED' ? 'bg-green-50 border-green-200' : ''}
-                                    ${status && status !== 'ACCEPTED' && status !== 'PENDING' ? 'bg-red-50 border-red-200' : ''}
+                                    ${status === 'ACCEPTED' ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' : ''}
+                                    ${status && status !== 'ACCEPTED' && status !== 'PENDING' ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30' : ''}
                                 `}
                             >
                                 {status === 'ACCEPTED' && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
@@ -270,11 +270,11 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                     {activeTab === "console" && hasError ? (
                         errorDetails ? (
                             /* Console Content - Full error details */
-                            <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                            <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-[#262626] overflow-hidden shadow-sm">
                                 {/* Console Header */}
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-200">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626]">
                                     <Code2 className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm font-semibold text-gray-700">Console Output</span>
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Console Output</span>
                                     <div className="ml-auto flex items-center gap-2">
                                         <div className={`px-2 py-0.5 rounded text-xs font-medium ${errorDetails.status === "COMPILE_ERROR" || errorDetails.status === "RUNTIME_ERROR"
                                             ? "bg-red-50 text-red-700 border border-red-200"
@@ -322,8 +322,8 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
 
                                         {/* Error Message */}
                                         <div className="mt-4">
-                                            <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">Error Details</div>
-                                            <div className="bg-red-50/50 border border-red-100 rounded-lg p-4 font-mono text-sm text-red-900 whitespace-pre-wrap overflow-x-auto">
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide font-semibold">Error Details</div>
+                                            <div className="bg-red-50/50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/30 rounded-lg p-4 font-mono text-sm text-red-900 dark:text-red-300 whitespace-pre-wrap overflow-x-auto">
                                                 {errorDetails.message}
                                             </div>
                                         </div>
@@ -433,7 +433,7 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                 )}
 
                                 {(isHidden || hideContents) ? (
-                                    <div className="flex flex-col items-center justify-center p-8 text-gray-400 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50">
+                                    <div className="flex flex-col items-center justify-center p-8 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-100 dark:border-[#262626] rounded-xl bg-gray-50/50 dark:bg-[#141414]">
                                         <Lock className="w-8 h-8 mb-2 opacity-50" />
                                         <span className="text-sm font-medium">
                                             {hideContents ? "Test case contents are hidden" : "This test case is hidden"}
@@ -442,8 +442,8 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                 ) : (
                                     <>
                                         <div>
-                                            <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Input</div>
-                                            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap">
+                                            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Input</div>
+                                            <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-lg p-3 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
                                                 {testCase.input}
                                             </div>
                                         </div>
@@ -451,20 +451,20 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                         {/* Output Display Grid */}
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Expected Output</div>
-                                                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap h-full">
+                                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Expected Output</div>
+                                                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-lg p-3 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap h-full">
                                                     {testCase.output}
                                                 </div>
                                             </div>
                                             <div>
-                                                <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Your Output</div>
+                                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Your Output</div>
                                                 <div className={`
                                                     border rounded-lg p-3 font-mono text-sm whitespace-pre-wrap h-full
                                                     ${result?.status === 'ACCEPTED'
-                                                        ? 'bg-green-50/50 border-green-100 text-green-900'
+                                                        ? 'bg-green-50/50 dark:bg-green-500/10 border-green-100 dark:border-green-500/30 text-green-900 dark:text-green-300'
                                                         : result?.status === 'WRONG_ANSWER'
-                                                            ? 'bg-red-50/50 border-red-100 text-red-900'
-                                                            : 'bg-gray-50 border-gray-100 text-gray-800'
+                                                            ? 'bg-red-50/50 dark:bg-red-500/10 border-red-100 dark:border-red-500/30 text-red-900 dark:text-red-300'
+                                                            : 'bg-gray-50 dark:bg-[#141414] border-gray-100 dark:border-[#262626] text-gray-800 dark:text-gray-300'
                                                     }
                                                 `}>
                                                     {/* Prioritize showing stdout if available, otherwise show "No output" or similar placeholder */}

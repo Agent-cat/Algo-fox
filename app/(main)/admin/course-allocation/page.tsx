@@ -74,23 +74,23 @@ export default function CourseAllocationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] flex items-center justify-center transition-colors">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading allocations...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading allocations...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Course Allocation Management
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
             Allocate courses to different academic years. Students will only see courses allocated to their year.
           </p>
         </div>
@@ -99,10 +99,10 @@ export default function CourseAllocationPage() {
           {years.map((year) => (
             <div
               key={year}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              className="bg-white dark:bg-[#141414] rounded-lg shadow-sm border border-gray-200 dark:border-[#262626] p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Year {year}
                 </h2>
                 <button
@@ -125,12 +125,12 @@ export default function CourseAllocationPage() {
                       onClick={() => toggleDomain(year, domain)}
                       className={`p-4 rounded-lg border-2 transition-all text-left ${
                         isSelected
-                          ? "border-orange-500 bg-orange-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10"
+                          : "border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#444]"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">
                           {domain}
                         </span>
                         {isSelected && (
@@ -157,10 +157,10 @@ export default function CourseAllocationPage() {
           ))}
         </div>
 
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="mt-8 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg p-4">
           <div className="flex">
             <svg
-              className="w-5 h-5 text-blue-500 mt-0.5"
+              className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -173,7 +173,7 @@ export default function CourseAllocationPage() {
               />
             </svg>
             <div className="ml-3">
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>Note:</strong> Students will only see courses allocated to their academic year.
                 Admins, teachers, institution managers, and contest managers can view all courses regardless of allocations.
               </p>

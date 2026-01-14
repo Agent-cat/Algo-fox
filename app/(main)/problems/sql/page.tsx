@@ -34,15 +34,15 @@ async function SqlProblemsContent({
         if (!allocatedCourses.domains.includes("SQL")) {
             // User doesn't have access to SQL
             return (
-                <div className="min-h-screen bg-white flex items-center justify-center px-4">
+                <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center px-4">
                     <div className="max-w-md text-center">
                         <div className="mb-6">
                             <svg className="w-20 h-20 mx-auto text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-3">Access Restricted</h1>
-                        <p className="text-gray-600 mb-6">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">Access Restricted</h1>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
                             SQL course is not allocated to your academic year. Please contact your administrator if you believe this is an error.
                         </p>
                         <Link
@@ -89,10 +89,10 @@ export default async function SqlProblemsPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">
+        <Suspense fallback={<div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
             <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading problems...</p>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading problems...</p>
             </div>
         </div>}>
             <SqlProblemsContent searchParams={searchParams} />

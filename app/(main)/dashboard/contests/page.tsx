@@ -37,14 +37,14 @@ async function ContestsContent() {
 
 export default async function ContestsPage() {
     return (
-        <div className="min-h-screen bg-white pb-12">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-12">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626]">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Contest Management</h1>
-                            <p className="text-sm text-gray-500">Create, edit, and manage coding competitions</p>
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Contest Management</h1>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Create, edit, and manage coding competitions</p>
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ export default async function ContestsPage() {
                     <div className="flex items-center justify-center py-12">
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Loading contests...</p>
+                            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading contests...</p>
                         </div>
                     </div>
                 }>

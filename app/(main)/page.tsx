@@ -57,9 +57,9 @@ LIMIT 10;`,
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-black font-sans pt-20 transition-colors relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans pt-20 transition-colors relative overflow-hidden">
       {/* Animated Code Snippets Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08]">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08] dark:opacity-[0.12]">
         {codeSnippets.map((snippet, index) => (
           <div
             key={index}
@@ -72,11 +72,11 @@ export default function Home() {
               animationDelay: snippet.position.delay,
             }}
           >
-            <div className="bg-white/50 rounded-lg p-4 border-2 border-orange-500/30 backdrop-blur-[2px] shadow-lg">
+            <div className="bg-white/50 dark:bg-[#1a1a1a]/50 rounded-lg p-4 border-2 border-orange-500/30 backdrop-blur-[2px] shadow-lg">
               <div className="text-orange-500 mb-2 text-xs font-bold uppercase tracking-wider">
                 {snippet.language}
               </div>
-              <pre className="text-black/70 whitespace-pre-wrap leading-relaxed">
+              <pre className="text-black/70 dark:text-white/70 whitespace-pre-wrap leading-relaxed">
                 <code>{snippet.code}</code>
               </pre>
             </div>
@@ -104,7 +104,7 @@ export default function Home() {
             </Link>
             <Link
               href="/problems"
-              className="px-8 py-4 bg-black text-white text-lg font-semibold rounded-xl hover:bg-gray-900 transition-all border-2 border-black text-center hover:scale-105 transform"
+              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all border-2 border-black dark:border-white text-center hover:scale-105 transform"
             >
               Explore Problems
             </Link>

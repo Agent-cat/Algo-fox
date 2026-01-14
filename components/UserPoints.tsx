@@ -50,7 +50,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
 
         window.addEventListener("focus", handleFocus);
         window.addEventListener("pointsUpdated", handlePointsUpdated);
-        
+
         return () => {
             window.removeEventListener("focus", handleFocus);
             window.removeEventListener("pointsUpdated", handlePointsUpdated);
@@ -61,7 +61,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
         return (
             <div className={`flex items-center gap-2 ${className}`}>
                 <Coins className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-semibold text-gray-600">...</span>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">...</span>
             </div>
         );
     }
@@ -69,8 +69,8 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <Coins className="w-4 h-4 text-amber-500" />
-            <span className="text-sm font-semibold text-gray-700">{points?.toLocaleString() || 0}</span>
-            <span className="text-xs text-gray-500">pts</span>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{points?.toLocaleString() || 0}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">pts</span>
         </div>
     );
 }

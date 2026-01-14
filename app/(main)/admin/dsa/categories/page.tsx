@@ -74,18 +74,18 @@ export default function DsaAdminCategoriesPage() {
           { label: "Actions", className: "text-right" }
         ]}
         renderItem={(category) => (
-          <tr key={category.id} className="hover:bg-gray-50/50 transition-colors group">
+          <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
             <td className="px-6 py-4">
-              <div className="font-semibold text-gray-900">{category.name}</div>
-              <div className="text-xs text-gray-400 font-mono mt-0.5">{category.slug}</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">{category.name}</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{category.slug}</div>
             </td>
             <td className="px-6 py-4">
-              <div className="text-sm text-gray-600 max-w-md truncate">
-                {category.description || <span className="text-gray-400 italic">No description</span>}
+              <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md truncate">
+                {category.description || <span className="text-gray-400 dark:text-gray-600 italic">No description</span>}
               </div>
             </td>
             <td className="px-6 py-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1a1a1a] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
                 {category._count.categoryProblems} problems
               </span>
             </td>
@@ -93,21 +93,21 @@ export default function DsaAdminCategoriesPage() {
               <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Link
                   href={`/admin/dsa/categories/${category.id}`}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
                   title="View Problems"
                 >
                   <Eye className="w-4 h-4" />
                 </Link>
                 <Link
                   href={`/admin/dsa/categories/${category.id}/edit`}
-                  className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-colors"
                   title="Edit"
                 >
                   <Pencil className="w-4 h-4" />
                 </Link>
                 <button
                   onClick={() => handleDelete(category.id, category.name)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                   title="Delete"
                 >
                   <Trash2 className="w-4 h-4" />

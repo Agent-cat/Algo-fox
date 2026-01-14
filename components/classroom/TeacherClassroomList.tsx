@@ -32,9 +32,9 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
 
     if (classrooms.length === 0) {
         return (
-            <div className="text-center py-20 bg-gray-50/50 rounded-md border border-gray-100">
-                <h3 className="text-sm font-bold text-black uppercase tracking-widest">No Active Classrooms</h3>
-                <p className="text-xs text-gray-400 mt-2 font-medium">Create your first learning environment above.</p>
+            <div className="text-center py-20 bg-gray-50/50 dark:bg-[#141414]/50 rounded-md border border-gray-100 dark:border-[#262626]">
+                <h3 className="text-sm font-bold text-black dark:text-white uppercase tracking-widest">No Active Classrooms</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">Create your first learning environment above.</p>
             </div>
         );
     }
@@ -44,42 +44,42 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
             {classrooms.map((classroom) => (
                 <div
                     key={classroom.id}
-                    className="group flex flex-col bg-white border border-gray-100 p-6 rounded-md hover:border-orange-500 transition-all duration-300 shadow-sm"
+                    className="group flex flex-col bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] p-6 rounded-md hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 shadow-sm dark:shadow-none"
                 >
                     <div className="flex justify-between items-start mb-6">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1">
                                 Classroom
                             </span>
-                            <h3 className="text-xl font-bold text-black group-hover:text-orange-600 transition-colors">
+                            <h3 className="text-xl font-bold text-black dark:text-white group-hover:text-orange-600 transition-colors">
                                 {classroom.name}
                             </h3>
                         </div>
-                        <div className="px-2 py-1 bg-gray-50 text-gray-400 text-[10px] font-bold uppercase rounded">
+                        <div className="px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase rounded">
                             {classroom._count.students} Students
                         </div>
                     </div>
 
                     <div className="flex-grow flex flex-wrap gap-2 mb-6">
                         {classroom.subject && (
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 py-1 bg-gray-50 rounded">
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] rounded">
                                 {classroom.subject}
                             </span>
                         )}
                         {classroom.section && (
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 py-1 bg-gray-50 rounded">
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] rounded">
                                 Sec {classroom.section}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-4 pt-4 border-t border-gray-50">
+                    <div className="flex flex-col gap-4 pt-4 border-t border-gray-50 dark:border-[#262626]">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <span className="text-[9px] font-bold text-gray-300 uppercase block">Code</span>
+                                <span className="text-[9px] font-bold text-gray-300 dark:text-gray-600 uppercase block">Code</span>
                                 <button
                                     onClick={() => copyCode(classroom.joinCode, classroom.id)}
-                                    className="text-lg font-bold font-mono text-black hover:text-orange-600 transition-colors"
+                                    className="text-lg font-bold font-mono text-black dark:text-white hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
                                 >
                                     {classroom.joinCode}
                                     <span className="ml-2 text-[8px] font-bold text-orange-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity">
@@ -91,7 +91,7 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
 
                         <Link
                             href={`/dashboard/classrooms/${classroom.id}`}
-                            className="w-full py-2.5 bg-black text-white text-center font-bold text-xs uppercase rounded-md hover:bg-orange-600 transition-all"
+                            className="w-full py-2.5 bg-black dark:bg-white text-white dark:text-black text-center font-bold text-xs uppercase rounded-md hover:bg-orange-600 dark:hover:bg-gray-200 transition-all"
                         >
                             Open
                         </Link>

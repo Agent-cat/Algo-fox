@@ -21,9 +21,9 @@ export default function Breadcrumbs() {
     const pathSegments = pathname.split("/").filter((segment) => segment !== "");
 
     return (
-        <nav aria-label="Breadcrumb" className="w-full bg-white border-dashed border-b border-gray-300">
+        <nav aria-label="Breadcrumb" className="w-full bg-white dark:bg-[#0a0a0a] border-dashed border-b border-gray-300 dark:border-[#262626]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-                <ol className="flex items-center space-x-2 text-xs text-gray-500">
+                <ol className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
                     <li>
                         <Link href="/" className="hover:text-orange-600 transition-colors flex items-center">
                             <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,7 +43,7 @@ export default function Breadcrumbs() {
                         return (
                             <Fragment key={path}>
                                 <li>
-                                    <svg className="w-3 h-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-3 h-3 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                 </li>

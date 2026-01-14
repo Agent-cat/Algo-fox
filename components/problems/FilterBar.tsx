@@ -56,7 +56,7 @@ export function FilterBar() {
             <select
                 value={difficulty || ""}
                 onChange={(e) => updateFilters("difficulty", e.target.value || null)}
-                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="px-3 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
                 <option value="">All Difficulties</option>
                 <option value="EASY">Easy</option>
@@ -76,10 +76,10 @@ export function FilterBar() {
                     }}
                     onFocus={() => setShowTagSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
-                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm w-48 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="px-3 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-lg text-sm w-48 focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 />
                 {showTagSuggestions && tagSuggestions.length > 0 && (
-                    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-100 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                    <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                         {tagSuggestions.map(tag => (
                             <button
                                 key={tag.slug}
@@ -89,7 +89,7 @@ export function FilterBar() {
                                     }
                                     setTagInput("");
                                 }}
-                                className="w-full text-left px-3 py-2 text-sm hover:bg-orange-50 text-gray-700 flex items-center justify-between"
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-500/10 text-gray-700 dark:text-gray-300 flex items-center justify-between"
                             >
                                 {tag.name}
                                 {tags.includes(tag.slug) && <Check className="w-3 h-3 text-orange-600" />}
@@ -102,11 +102,11 @@ export function FilterBar() {
             {/* Selected Tags */}
             <div className="flex flex-wrap gap-2">
                 {tags.map(slug => (
-                    <span key={slug} className="flex items-center gap-1 px-2.5 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
+                    <span key={slug} className="flex items-center gap-1 px-2.5 py-1 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 rounded-full text-xs font-medium border border-orange-100 dark:border-orange-500/30">
                         {slug}
                         <button
                             onClick={() => updateFilters("tags", tags.filter(t => t !== slug))}
-                            className="hover:bg-orange-100 rounded-full p-0.5"
+                            className="hover:bg-orange-100 dark:hover:bg-orange-500/20 rounded-full p-0.5"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -123,7 +123,7 @@ export function FilterBar() {
                         params.set("page", "1");
                         router.push(`${pathname}?${params.toString()}`);
                     }}
-                    className="text-sm text-gray-500 hover:text-gray-900 border-b border-gray-300 hover:border-gray-900 transition-colors"
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border-b border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 transition-colors"
                 >
                     Clear filters
                 </button>

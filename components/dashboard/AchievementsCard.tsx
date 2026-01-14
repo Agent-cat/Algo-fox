@@ -21,9 +21,9 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
     const hasBadges = earnedBadges.length > 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-300 hover:shadow-lg transition-shadow duration-300 overflow-hidden h-full flex flex-col">
-            <div className="px-6 py-5 border-b border-dashed border-gray-200 bg-gray-50/50 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-900">Achievements</h3>
+        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-lg transition-shadow duration-300 overflow-hidden h-full flex flex-col">
+            <div className="px-6 py-5 border-b border-dashed border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a] flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Achievements</h3>
                 {hasBadges && (
                     <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-200">
                         {earnedBadges.reduce((acc, curr) => acc + curr.count, 0)} Badges
@@ -44,12 +44,12 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
                                 className="relative flex flex-col items-center group cursor-default"
                             >
                                 {/* Main Badge Circle */}
-                                <div className={`w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br ${badge.color} text-white shadow-md ${badge.shadow} border-2 border-white ring-1 ring-gray-100`}>
+                                <div className={`w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br ${badge.color} text-white shadow-md ${badge.shadow} border-2 border-white dark:border-[#262626] ring-1 ring-gray-100 dark:ring-[#333]`}>
                                     <badge.icon className="w-8 h-8 drop-shadow-sm" strokeWidth={2} />
                                 </div>
 
                                 {/* Pill Count Indicator */}
-                                <div className="absolute -bottom-2 bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full border-2 border-white shadow-sm text-[10px] font-bold tracking-tight z-10">
+                                <div className="absolute -bottom-2 bg-orange-100 dark:bg-orange-500/20 text-orange-800 dark:text-orange-400 px-2 py-0.5 rounded-full border-2 border-white dark:border-[#262626] shadow-sm text-[10px] font-bold tracking-tight z-10">
                                     x{badge.count}
                                 </div>
                             </motion.div>
@@ -67,8 +67,8 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
                                 <Lock className="w-4 h-4 text-gray-400" />
                             </div>
                         </motion.div>
-                        <p className="text-gray-900 font-bold mb-1">Locked</p>
-                        <p className="text-xs text-gray-500 max-w-[200px] mx-auto">
+                        <p className="text-gray-900 dark:text-gray-100 font-bold mb-1">Locked</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 max-w-[200px] mx-auto">
                             Finish in the Top 3 of a contest to unlock your first badge.
                         </p>
                     </div>

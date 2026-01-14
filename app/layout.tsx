@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LayoutSpacer from "@/components/LayoutSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 import { Suspense } from "react";
 
@@ -30,30 +31,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased select-none `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased select-none bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 transition-colors`}
       >
-        <NetworkStatus />
-        {/* <DevToolsBlocker /> */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: 'white',
-              color: 'black',
-              border: '1px solid #f97316',
-            },
-            classNames: {
-              toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:text-black group-[.toaster]:border-orange-500 group-[.toaster]:shadow-lg',
-              description: 'group-[.toast]:text-gray-500',
-              actionButton: 'group-[.toast]:bg-orange-500 group-[.toast]:text-white',
-              cancelButton: 'group-[.toast]:bg-gray-100 group-[.toast]:text-gray-500',
-            }
-          }}
-        />
-        {children}
+        <ThemeProvider>
+          <NetworkStatus />
+          {/* <DevToolsBlocker /> */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: 'var(--toast-bg)',
+                color: 'var(--toast-color)',
+                border: '1px solid var(--toast-border)',
+              },
+              classNames: {
+                toast: 'group toast group-[.toaster]:bg-white dark:group-[.toaster]:bg-[#1a1a1a] group-[.toaster]:text-gray-900 dark:group-[.toaster]:text-gray-100 group-[.toaster]:border-orange-500 group-[.toaster]:shadow-lg',
+                description: 'group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400',
+                actionButton: 'group-[.toast]:bg-orange-500 group-[.toast]:text-white',
+                cancelButton: 'group-[.toast]:bg-gray-100 dark:group-[.toast]:bg-[#262626] group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400',
+              }
+            }}
+          />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

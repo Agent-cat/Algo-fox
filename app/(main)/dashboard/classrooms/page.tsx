@@ -88,7 +88,7 @@ export default function ClassroomsPage() {
     }, [searchQuery]);
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] selection:bg-orange-100 pb-24">
+        <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0a0a0a] selection:bg-orange-100 dark:selection:bg-orange-500/30 pb-24">
             {/* Premium Header */}
             <div className="pt-24 pb-12 px-6">
                 <div className="max-w-7xl mx-auto">
@@ -98,10 +98,10 @@ export default function ClassroomsPage() {
                                 <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
                                 Interactive Hub
                             </div>
-                            <h1 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tight leading-none mb-4">
+                            <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-none mb-4">
                                 Classrooms
                             </h1>
-                            <p className="text-gray-500 font-medium text-lg max-w-xl">
+                            <p className="text-gray-500 dark:text-gray-400 font-medium text-lg max-w-xl">
                                 Your dedicated area for collaborative learning, batch activities, and performance tracking.
                             </p>
                         </div>
@@ -111,7 +111,7 @@ export default function ClassroomsPage() {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setIsJoinModalOpen(true)}
-                                className="px-8 py-4 bg-gray-900 text-white font-black text-sm rounded-2xl hover:bg-orange-600 transition-all shadow-2xl shadow-gray-200 flex items-center gap-3 uppercase tracking-widest"
+                                className="px-8 py-4 bg-gray-900 dark:bg-orange-600 text-white font-black text-sm rounded-2xl hover:bg-orange-600 dark:hover:bg-orange-700 transition-all shadow-2xl shadow-gray-200 dark:shadow-orange-500/20 flex items-center gap-3 uppercase tracking-widest"
                             >
                                 <Plus className="w-5 h-5" />
                                 Join Classroom
@@ -131,7 +131,7 @@ export default function ClassroomsPage() {
                         placeholder="Search for classrooms, mentors, or subjects..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-16 pr-6 py-5 bg-white border border-gray-100 rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-sm font-bold shadow-xl shadow-gray-100/50 placeholder:text-gray-300"
+                        className="w-full pl-16 pr-6 py-5 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-sm font-bold shadow-xl shadow-gray-100/50 dark:shadow-none placeholder:text-gray-300 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100"
                     />
                 </div>
 
@@ -139,7 +139,7 @@ export default function ClassroomsPage() {
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                            <div key={i} className="aspect-[4/5] bg-white border border-gray-100 rounded-[3rem] animate-pulse shadow-sm" />
+                            <div key={i} className="aspect-[4/5] bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-[3rem] animate-pulse shadow-sm" />
                         ))}
                     </div>
                 ) : filteredClassrooms.length > 0 ? (
@@ -154,44 +154,44 @@ export default function ClassroomsPage() {
                                 >
                                     <Link
                                         href={`/dashboard/classrooms/${classroom.id}`}
-                                        className="group block bg-white border border-gray-100 rounded-[3rem] p-8 hover:border-orange-500 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 h-full flex flex-col relative overflow-hidden"
+                                        className="group block bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-[3rem] p-8 hover:border-orange-500 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 h-full flex flex-col relative overflow-hidden"
                                     >
                                         {/* Dynamic Background Hint */}
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-orange-500/10 transition-colors duration-500" />
 
                                         <div className="flex items-center justify-between mb-8">
-                                            <div className="px-3 py-1 bg-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest rounded-full group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors">
+                                            <div className="px-3 py-1 bg-gray-50 dark:bg-[#1a1a1a] text-[10px] font-black text-gray-400 uppercase tracking-widest rounded-full group-hover:bg-orange-50 dark:group-hover:bg-orange-500/10 group-hover:text-orange-600 transition-colors">
                                                 Active
                                             </div>
-                                            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                                            <div className="w-10 h-10 rounded-2xl bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center text-gray-400 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500 shadow-sm">
                                                 <ArrowRight className="w-5 h-5" />
                                             </div>
                                         </div>
 
                                         <div className="flex-1">
-                                            <div className="w-16 h-16 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner group-hover:bg-orange-50 transition-all duration-500">
-                                                <BookOpen className="w-7 h-7 text-gray-300 group-hover:text-orange-600 transition-all duration-500" />
+                                            <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-[2rem] flex items-center justify-center mb-8 shadow-inner group-hover:bg-orange-50 dark:group-hover:bg-orange-500/10 transition-all duration-500">
+                                                <BookOpen className="w-7 h-7 text-gray-300 dark:text-gray-500 group-hover:text-orange-600 transition-all duration-500" />
                                             </div>
-                                            <h3 className="text-2xl font-black text-gray-900 leading-tight mb-3 group-hover:text-orange-600 transition-colors tracking-tight">
+                                            <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 leading-tight mb-3 group-hover:text-orange-600 transition-colors tracking-tight">
                                                 {classroom.name}
                                             </h3>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">{classroom.subject || "Logic & Coding"}</span>
+                                                <span className="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase tracking-[0.2em]">{classroom.subject || "Logic & Coding"}</span>
                                             </div>
                                         </div>
 
-                                        <div className="mt-8 pt-8 border-t border-gray-50 flex items-center justify-between">
+                                        <div className="mt-8 pt-8 border-t border-gray-50 dark:border-[#262626] flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-orange-100 border-2 border-white flex items-center justify-center text-orange-600 font-black text-sm shadow-sm">
+                                                <div className="w-10 h-10 rounded-2xl bg-orange-100 dark:bg-orange-500/20 border-2 border-white dark:border-[#141414] flex items-center justify-center text-orange-600 font-black text-sm shadow-sm">
                                                     {classroom.teacher.name?.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none mb-1">Mentor</span>
-                                                    <span className="text-sm font-bold text-gray-800">{classroom.teacher.name || "Teacher"}</span>
+                                                    <span className="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Mentor</span>
+                                                    <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{classroom.teacher.name || "Teacher"}</span>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end">
-                                                <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none mb-1">Code</span>
+                                                <span className="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Code</span>
                                                 <span className="text-xs font-mono font-black text-orange-600 uppercase tracking-widest">{classroom.joinCode}</span>
                                             </div>
                                         </div>
@@ -201,11 +201,11 @@ export default function ClassroomsPage() {
                         </AnimatePresence>
                     </div>
                 ) : (
-                    <div className="text-center py-40 bg-white border border-gray-100 rounded-[4rem] shadow-sm">
-                        <div className="w-24 h-24 bg-orange-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
-                            <Layers className="w-10 h-10 text-orange-200" />
+                    <div className="text-center py-40 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-[4rem] shadow-sm">
+                        <div className="w-24 h-24 bg-orange-50 dark:bg-orange-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
+                            <Layers className="w-10 h-10 text-orange-200 dark:text-orange-500/50" />
                         </div>
-                        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">The hub is waiting...</h2>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-gray-100 mb-4 tracking-tight">The hub is waiting...</h2>
                         <p className="text-gray-400 max-w-sm mx-auto font-medium mb-12 text-lg">
                             You haven't joined any classrooms yet. Get a join code from your mentor to start.
                         </p>
@@ -213,7 +213,7 @@ export default function ClassroomsPage() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setIsJoinModalOpen(true)}
-                            className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-sm hover:bg-orange-600 transition-all shadow-2xl shadow-gray-200 uppercase tracking-widest"
+                            className="bg-gray-900 dark:bg-orange-600 text-white px-12 py-5 rounded-2xl font-black text-sm hover:bg-orange-600 dark:hover:bg-orange-700 transition-all shadow-2xl shadow-gray-200 dark:shadow-orange-500/20 uppercase tracking-widest"
                         >
                             Join Your First Classroom
                         </motion.button>
@@ -229,12 +229,12 @@ export default function ClassroomsPage() {
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                             disabled={currentPage === 1}
-                            className="w-14 h-14 flex items-center justify-center bg-white border border-gray-100 rounded-2xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm"
+                            className="w-14 h-14 flex items-center justify-center bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm"
                         >
-                            <ChevronLeft className="w-5 h-5 text-gray-900" />
+                            <ChevronLeft className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                         </button>
 
-                        <div className="px-8 h-14 flex items-center justify-center bg-gray-900 rounded-2xl text-xs font-black text-white shadow-xl shadow-gray-200 uppercase tracking-widest">
+                        <div className="px-8 h-14 flex items-center justify-center bg-gray-900 dark:bg-[#1a1a1a] rounded-2xl text-xs font-black text-white shadow-xl shadow-gray-200 dark:shadow-none uppercase tracking-widest border dark:border-[#262626]">
                             Page <span className="text-orange-500 ml-1">{currentPage}</span> / {totalPages}
                         </div>
 
@@ -244,9 +244,9 @@ export default function ClassroomsPage() {
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                             disabled={currentPage === totalPages}
-                            className="w-14 h-14 flex items-center justify-center bg-white border border-gray-100 rounded-2xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm"
+                            className="w-14 h-14 flex items-center justify-center bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm"
                         >
-                            <ChevronRight className="w-5 h-5 text-gray-900" />
+                            <ChevronRight className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                         </button>
                     </div>
                 )}
@@ -267,15 +267,15 @@ export default function ClassroomsPage() {
                             initial={{ opacity: 0, scale: 0.9, y: 40 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 40 }}
-                            className="relative w-full max-w-lg bg-white rounded-[4rem] p-12 shadow-2xl overflow-hidden border border-gray-100"
+                            className="relative w-full max-w-lg bg-white dark:bg-[#141414] rounded-[4rem] p-12 shadow-2xl overflow-hidden border border-gray-100 dark:border-[#262626]"
                         >
                             <div className="absolute top-0 left-0 w-full h-3 bg-linear-to-r from-orange-400 to-orange-600" />
 
                             <div className="text-center mb-12">
-                                <div className="w-20 h-20 bg-orange-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+                                <div className="w-20 h-20 bg-orange-50 dark:bg-orange-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                                     <School className="w-10 h-10 text-orange-600" />
                                 </div>
-                                <h2 className="text-4xl font-black text-gray-900 mb-3 tracking-tight leading-none">Join Classroom</h2>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 mb-3 tracking-tight leading-none">Join Classroom</h2>
                                 <p className="text-gray-400 font-medium text-lg leading-relaxed">Enter the 6-character code from your teacher.</p>
                             </div>
 
@@ -288,21 +288,21 @@ export default function ClassroomsPage() {
                                         onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                                         placeholder="ABCDEF"
                                         maxLength={6}
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-[2.5rem] px-8 py-8 focus:bg-white focus:outline-none focus:ring-[12px] focus:ring-orange-500/5 focus:border-orange-500 transition-all font-mono text-center tracking-[0.6em] text-4xl placeholder:tracking-normal placeholder:font-sans placeholder:text-gray-200 uppercase font-black"
+                                        className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] px-8 py-8 focus:bg-white dark:focus:bg-[#0a0a0a] focus:outline-none focus:ring-[12px] focus:ring-orange-500/5 focus:border-orange-500 transition-all font-mono text-center tracking-[0.6em] text-4xl placeholder:tracking-normal placeholder:font-sans placeholder:text-gray-200 dark:placeholder:text-gray-600 uppercase font-black text-gray-900 dark:text-gray-100"
                                     />
                                 </div>
                                 <div className="flex gap-4">
                                     <button
                                         type="button"
                                         onClick={() => setIsJoinModalOpen(false)}
-                                        className="flex-1 py-5 text-sm font-black text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest"
+                                        className="flex-1 py-5 text-sm font-black text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors uppercase tracking-widest"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={isJoining || joinCode.length < 6}
-                                        className="flex-[2] bg-gray-900 hover:bg-black disabled:bg-gray-100 text-white font-black py-5 rounded-[2rem] transition-all shadow-2xl shadow-gray-200 flex items-center justify-center gap-3 group uppercase tracking-widest text-sm"
+                                        className="flex-[2] bg-gray-900 dark:bg-orange-600 hover:bg-black dark:hover:bg-orange-700 disabled:bg-gray-100 dark:disabled:bg-[#262626] text-white font-black py-5 rounded-[2rem] transition-all shadow-2xl shadow-gray-200 dark:shadow-orange-500/20 flex items-center justify-center gap-3 group uppercase tracking-widest text-sm"
                                     >
                                         {isJoining ? (
                                             <Loader2 className="w-5 h-5 animate-spin" />

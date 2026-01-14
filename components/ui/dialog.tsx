@@ -28,7 +28,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="z-50 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
+            className="z-50 w-full max-w-lg rounded-xl bg-white dark:bg-[#141414] p-6 shadow-xl border border-gray-100 dark:border-[#262626]\"
           >
             {children}
           </motion.div>

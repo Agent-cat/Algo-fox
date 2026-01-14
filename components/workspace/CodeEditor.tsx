@@ -6,6 +6,7 @@ import { getCodeDraft, saveCodeDraft } from '@/lib/db';
 import { toast } from 'sonner';
 import { LANGUAGES, getLanguageById, DEFAULT_LANGUAGE_ID } from '@/lib/languages';
 import { ProblemDomain } from '@prisma/client';
+import { useTheme } from 'next-themes';
 
 // Dynamically import Monaco Editor to prevent SSR issues
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.default), {
@@ -62,6 +63,12 @@ export default function CodeEditor({
     onOpenSettings,
     userId = ""
 }: CodeEditorProps) {
+    // Get system theme
+    const { resolvedTheme } = useTheme();
+
+    // Determine the effective Monaco theme - use system dark mode if settings.theme not explicitly set
+    const effectiveTheme = settings?.theme || (resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light');
+
     // Filter languages based on domain: SQL problems only show SQL language
     const availableLanguages = domain === "SQL"
         ? LANGUAGES.filter(lang => lang.id === SQL_LANGUAGE_ID)
@@ -501,27 +508,27 @@ export default function CodeEditor({
     return (
         <div
             ref={editorContainerRef}
-            className={`h-full flex flex-col bg-white border-l border-gray-200 ${isFullScreen ? 'fixed inset-0 z-50' : ''}`}
+            className={`h-full flex flex-col bg-white dark:bg-[#1e1e1e] border-l border-gray-200 dark:border-[#262626] ${isFullScreen ? 'fixed inset-0 z-50' : ''}`}
         >
             {/* EDITOR TOOLBAR */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
                 <div className="flex items-center gap-3">
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => !readOnly && setIsDropdownOpen(!isDropdownOpen)}
                             disabled={readOnly}
-                            className={`flex items-center gap-2 text-xs font-medium text-gray-700 px-2 py-1 rounded transition-colors ${readOnly ? 'opacity-70 cursor-default' : 'hover:bg-gray-200'}`}
+                            className={`flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 rounded transition-colors ${readOnly ? 'opacity-70 cursor-default' : 'hover:bg-gray-200 dark:hover:bg-[#262626]'}`}
                         >
                             {currentLanguage.name}
                             {!readOnly && <ChevronDown className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />}
                         </button>
                         {isDropdownOpen && !readOnly && (
-                            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[120px]">
+                            <div className="absolute top-full left-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-lg shadow-lg z-50 min-w-[120px]">
                                 {availableLanguages.map((lang) => (
                                     <button
                                         key={lang.id}
                                         onClick={() => handleLanguageChange(lang.id)}
-                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 transition-colors first:rounded-t-lg last:rounded-b-lg ${effectiveLanguageId === lang.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
+                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors first:rounded-t-lg last:rounded-b-lg ${effectiveLanguageId === lang.id ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium' : 'text-gray-700 dark:text-gray-300'
                                             }`}
                                     >
                                         {lang.name}
@@ -542,7 +549,7 @@ export default function CodeEditor({
                     {isRestoring && <Loader2 className="w-3 h-3 animate-spin text-gray-400 mr-2" />}
                     <button
                         onClick={handleFormat}
-                        className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
                         title="Format Code"
                     >
                         <AlignLeft className="w-4 h-4" />
@@ -550,7 +557,7 @@ export default function CodeEditor({
                     {!readOnly && (
                         <button
                             onClick={handleReset}
-                            className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
                             title="Reset to Default"
                         >
                             <RotateCcw className="w-4 h-4" />
@@ -558,7 +565,7 @@ export default function CodeEditor({
                     )}
                     <button
                         onClick={handleFullScreen}
-                        className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
                         title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
                     >
                         {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -566,7 +573,7 @@ export default function CodeEditor({
                     {!readOnly && (
                         <button
                             onClick={onOpenSettings}
-                            className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
                             title="Editor Settings"
                         >
                             <Settings className="w-4 h-4" />
@@ -578,16 +585,16 @@ export default function CodeEditor({
             {/* MONACO EDITOR */}
             <div className="flex-1 relative">
                 {isLoading ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
                         <div className="flex flex-col items-center gap-3">
                             <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                            <p className="text-sm text-gray-500 font-medium">Loading your code...</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading your code...</p>
                         </div>
                     </div>
                 ) : editorError && mountRetryRef.current >= MAX_RETRIES ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
                         <div className="flex flex-col items-center gap-3 text-center p-4">
-                            <p className="text-sm text-gray-500 font-medium">Editor failed to load. Please refresh the page.</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Editor failed to load. Please refresh the page.</p>
                             <button
                                 onClick={() => {
                                     setEditorError(false);
@@ -606,7 +613,7 @@ export default function CodeEditor({
                         height="100%"
                         language={currentLanguage.monacoLanguage}
                         value={code}
-                        theme={settings?.theme || "vs-light"}
+                        theme={effectiveTheme}
                         onMount={handleEditorDidMount}
                         beforeMount={handleEditorWillMount}
                         onChange={(value) => {
@@ -631,10 +638,10 @@ export default function CodeEditor({
                         onValidate={() => {}} // Suppress validation errors during disposal
                     />
                 ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
                         <div className="flex flex-col items-center gap-3">
                             <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                            <p className="text-sm text-gray-500 font-medium">Initializing editor...</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Initializing editor...</p>
                         </div>
                     </div>
                 )}

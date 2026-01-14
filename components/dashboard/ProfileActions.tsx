@@ -32,7 +32,7 @@ export function ProfileActions({ user, readonly }: ProfileActionsProps) {
                 >
                     Edit Profile
                 </button>
-                <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-gray-600">
+                <button className="p-2 border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors text-gray-600 dark:text-gray-400">
                     <Settings2 className="w-5 h-5" />
                 </button>
             </div>

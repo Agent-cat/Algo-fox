@@ -65,10 +65,10 @@ export default function ProblemsSelectionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading courses...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading courses...</p>
         </div>
       </div>
     );
@@ -76,13 +76,13 @@ export default function ProblemsSelectionPage() {
 
   if (displayedCourses.length === 0) {
     return (
-      <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight sm:text-5xl mb-4">
               Practice Problems
             </h1>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
               No courses have been allocated to your year yet. Please contact your administrator.
             </p>
           </div>
@@ -92,14 +92,14 @@ export default function ProblemsSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8">
 
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight sm:text-5xl mb-4">
             Practice Problems
           </h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
             Select a category to start practicing and improving your coding skills.
           </p>
         </div>
@@ -112,8 +112,8 @@ export default function ProblemsSelectionPage() {
                 whileTap={{ scale: 0.99 }}
                 className={`relative overflow-hidden rounded-xl h-80 w-full cursor-pointer group shadow-lg ${
                   course.id === "dsa"
-                    ? "border border-orange-200 bg-white"
-                    : "border border-gray-200 bg-white"
+                    ? "border border-orange-200 dark:border-orange-500/30 bg-white dark:bg-[#141414]"
+                    : "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414]"
                 }`}
               >
                 {course.id === "dsa" && (
@@ -164,10 +164,10 @@ export default function ProblemsSelectionPage() {
                   </div>
 
                   <div className="text-left">
-                    <h2 className={`text-4xl font-bold ${course.id === "dsa" ? "text-white" : "text-gray-900"} mb-2 tracking-tight`}>
+                    <h2 className={`text-4xl font-bold ${course.id === "dsa" ? "text-white" : "text-gray-900 dark:text-gray-100"} mb-2 tracking-tight`}>
                       {course.title}
                     </h2>
-                    <p className={`${course.id === "dsa" ? "text-orange-50" : "text-gray-600"} font-medium text-lg mb-6`}>
+                    <p className={`${course.id === "dsa" ? "text-orange-50" : "text-gray-600 dark:text-gray-400"} font-medium text-lg mb-6`}>
                       {course.description}
                     </p>
                     <div className={`inline-flex items-center gap-2 ${course.buttonBg} ${course.buttonText} px-6 py-3 rounded-lg font-bold shadow-md ${course.buttonHover} transition-colors`}>

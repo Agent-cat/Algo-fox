@@ -22,8 +22,8 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
     if (!stats) return null;
 
     return (
-        <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl p-5 shadow-sm dark:shadow-none space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-orange-500" />
                 Submission Performance
             </h4>
@@ -31,14 +31,14 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
             {/* Runtime Stat */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                        <span className="font-medium">Runtime: <span className="text-gray-900">{runtime.toFixed(2)}ms</span></span>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Runtime: <span className="text-gray-900 dark:text-gray-200">{runtime.toFixed(2)}ms</span></span>
                     </div>
                     <div className="text-right">
-                        <span className="font-bold text-gray-900">Beats {stats.runtimePercentile}%</span>
+                        <span className="font-bold text-gray-900 dark:text-white">Beats {stats.runtimePercentile}%</span>
                     </div>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
                     <div
                         className="h-full bg-orange-500 rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${stats.runtimePercentile}%` }}
@@ -49,14 +49,14 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
             {/* Memory Stat */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                        <span className="font-medium">Memory: <span className="text-gray-900">{memory.toFixed(1)}KB</span></span>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Memory: <span className="text-gray-900 dark:text-gray-200">{memory.toFixed(1)}KB</span></span>
                     </div>
                     <div className="text-right">
-                        <span className="font-bold text-gray-900">Beats {stats.memoryPercentile}%</span>
+                        <span className="font-bold text-gray-900 dark:text-white">Beats {stats.memoryPercentile}%</span>
                     </div>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 dark:bg-[#262626] rounded-full overflow-hidden">
                     <div
                         className="h-full bg-orange-500 rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${stats.memoryPercentile}%` }}
@@ -65,7 +65,7 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
             </div>
 
             {(stats.runtimePercentile > 80 || stats.memoryPercentile > 80) && (
-                 <p className="text-xs text-gray-500 text-center pt-2 border-t border-dashed">
+                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-dashed border-gray-200 dark:border-[#333]">
                     🚀 Incredible! Your solution is highly optimized.
                 </p>
             )}

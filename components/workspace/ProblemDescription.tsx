@@ -26,20 +26,20 @@ interface ProblemDescriptionProps {
 export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved, contestId }: ProblemDescriptionProps) {
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
-            case "EASY": return "text-emerald-600 bg-emerald-50 border-emerald-100";
-            case "MEDIUM": return "text-amber-600 bg-amber-50 border-amber-100";
-            case "HARD": return "text-rose-600 bg-rose-50 border-rose-100";
-            default: return "text-gray-600 bg-gray-50 border-gray-100";
+            case "EASY": return "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/30";
+            case "MEDIUM": return "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/30";
+            case "HARD": return "text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/30";
+            default: return "text-gray-600 bg-gray-50 dark:bg-gray-500/10 border-gray-100 dark:border-gray-500/30";
         }
     };
 
     return (
-        <div className="h-full flex flex-col bg-white">
+        <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a]">
             {/* HEADER TABS */}
-            <div className={`flex items-center gap-1 border-b border-gray-300 border-dashed px-4 py-2 ${contestId ? 'bg-orange-50/30' : 'bg-gray-50/50'}`}>
+            <div className={`flex items-center gap-1 border-b border-gray-300 dark:border-[#262626] border-dashed px-4 py-2 ${contestId ? 'bg-orange-50/30 dark:bg-orange-500/5' : 'bg-gray-50/50 dark:bg-[#0a0a0a]'}`}>
                 <button
                     onClick={() => onTabChange("description")}
-                    className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "description" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"}`}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "description" ? "bg-white dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border-transparent"}`}
                 >
                     <FileText className="w-4 h-4" />
                     Description
@@ -47,7 +47,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                 {!contestId && (
                     <button
                         onClick={() => onTabChange("solutions")}
-                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
                         disabled={problem.difficulty === "CONCEPT"}
                     >
                         <BadgeCheck className="w-4 h-4" />
@@ -56,13 +56,13 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                 )}
                 <button
                     onClick={() => onTabChange("submissions")}
-                    className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "submissions" ? "bg-white text-gray-900 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-900 border-transparent"}`}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "submissions" ? "bg-white dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border-transparent"}`}
                 >
                     <List className="w-4 h-4" />
                     {contestId ? "My Verdicts" : "Submissions"}
                 </button>
                 {contestId && (
-                    <div className="ml-auto flex items-center gap-2 px-2 py-1 bg-orange-100 rounded text-orange-700 font-bold text-[10px] uppercase tracking-wider">
+                    <div className="ml-auto flex items-center gap-2 px-2 py-1 bg-orange-100 dark:bg-orange-500/20 rounded text-orange-700 dark:text-orange-400 font-bold text-[10px] uppercase tracking-wider">
                         <ShieldAlert className="w-3 h-3" />
                         Secure
                     </div>
@@ -74,20 +74,20 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                 {activeTab === "description" && (
                     <div className="px-6 py-6 space-y-6">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 mb-4">{problem.title}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{problem.title}</h1>
                             <div className="flex items-center gap-3">
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(problem.difficulty)}`}>
                                     {problem.difficulty.charAt(0) + problem.difficulty.slice(1).toLowerCase()}
                                 </span>
-                                <span className="text-sm text-gray-600 font-medium">
+                                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                                     {getPointsLabel(problem.difficulty)}
                                 </span>
 
                                 {problem.tags && problem.tags.length > 0 && (
                                     <div className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-gray-300" />
+                                        <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
                                         {problem.tags.map(tag => (
-                                            <span key={tag.slug} className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">
+                                            <span key={tag.slug} className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#1a1a1a] px-2.5 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
                                                 {tag.name}
                                             </span>
                                         ))}
@@ -96,7 +96,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                             </div>
                         </div>
 
-                        <div className="prose prose-[1rem] max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-code:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono  prose-pre:bg-gray-50 prose-pre:text-gray-900 prose-pre:border prose-pre:border-gray-200">
+                        <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
                             <Markdown
                                 remarkPlugins={[remarkGfm, remarkBreaks]}
                             >
@@ -111,24 +111,24 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                 {activeTab === "solutions" && (
                     <div className="px-6 py-6 space-y-6">
                         {isSolved ? (
-                            <div className="prose prose-[1rem] max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-code:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 prose-pre:text-gray-900 prose-pre:border prose-pre:border-gray-200">
+                            <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
                                 {problem.solution ? (
                                     <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                                         {problem.solution}
                                     </Markdown>
                                 ) : (
-                                    <div className="text-gray-500 italic text-center py-10">
+                                    <div className="text-gray-500 dark:text-gray-400 italic text-center py-10">
                                         No solution has been provided for this problem yet.
                                     </div>
                                 )}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 px-10 text-center space-y-4">
-                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                <div className="w-16 h-16 bg-gray-100 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center">
                                     <BadgeCheck className="w-8 h-8 text-gray-400" />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900">Solution Locked</h2>
-                                <p className="text-gray-600 max-w-xs">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Solution Locked</h2>
+                                <p className="text-gray-600 dark:text-gray-400 max-w-xs">
                                     You need to successfully solve this problem to unlock the official solution.
                                 </p>
                             </div>

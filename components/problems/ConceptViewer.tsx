@@ -42,29 +42,29 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50 bg-grid pt-20 pb-12">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] bg-grid pt-20 pb-12">
             <div className="max-w-4xl mx-auto px-6">
                 {/* Back Button */}
                 <button
                     onClick={() => router.back()}
-                    className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                    className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back
                 </button>
 
                 {/* Header */}
-                <div className="mb-8 border-b border-gray-100 pb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">{problem.title}</h1>
+                <div className="mb-8 border-b border-gray-100 dark:border-[#262626] pb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{problem.title}</h1>
                     <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30">
                             Concept
                         </span>
                         {problem.tags && problem.tags.length > 0 && (
                             <div className="flex items-center gap-2">
-                                <div className="w-1 h-1 rounded-full bg-gray-300" />
+                                <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
                                 {problem.tags.map(tag => (
-                                    <span key={tag.slug} className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">
+                                    <span key={tag.slug} className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#262626] px-2.5 py-1 rounded-full border border-gray-200 dark:border-[#333]">
                                         {tag.name}
                                     </span>
                                 ))}
@@ -74,7 +74,7 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                 </div>
 
                 {/* Content */}
-                <article className="prose prose-[1.05rem] max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-800 prose-code:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono  prose-pre:bg-gray-50 prose-pre:text-gray-900 prose-pre:border prose-pre:border-gray-200 prose-img:rounded-xl">
+                <article className="prose prose-[1.05rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-200 prose-code:bg-gray-100 dark:prose-code:bg-[#262626] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono  prose-pre:bg-gray-50 dark:prose-pre:bg-[#1a1a1a] prose-pre:text-gray-900 dark:prose-pre:text-gray-200 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#333] prose-img:rounded-xl">
                     <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                         {problem.description}
                     </Markdown>
@@ -88,8 +88,8 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                         className={`
                             flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all transform active:scale-95
                             ${isSolved
-                                ? "bg-green-100 text-green-700 border border-green-200 cursor-default"
-                                : "bg-orange-600 text-white hover:bg-orange-700 shadow-orange-200"
+                                ? "bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/30 cursor-default"
+                                : "bg-orange-600 text-white hover:bg-orange-700 shadow-orange-200 dark:shadow-none"
                             }
                         `}
                     >

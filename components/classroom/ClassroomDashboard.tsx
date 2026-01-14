@@ -56,7 +56,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
     };
 
     return (
-        <div className="flex flex-col md:flex-row min-h-[850px] bg-white border-2 border-orange-50 shadow-2xl shadow-orange-950/5 overflow-hidden">
+        <div className="flex flex-col md:flex-row min-h-[850px] bg-white dark:bg-[#141414] border-2 border-orange-50 dark:border-[#262626] shadow-2xl shadow-orange-950/5 dark:shadow-none overflow-hidden">
             {/* Minimal Sidebar */}
             <ClassroomSidebar
                 activeTab={activeTab}
@@ -68,7 +68,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
             />
 
             {/* Viewport - Minimal Workspace */}
-            <div className="flex-1 overflow-auto bg-gray-50/30 p-0 md:p-12 lg:p-16">
+            <div className="flex-1 overflow-auto bg-gray-50/30 dark:bg-[#0a0a0a] p-0 md:p-12 lg:p-16">
                 <AnimatePresence mode="wait">
                     {activeTab === 'leaderboard' ? (
                         <motion.div
@@ -77,7 +77,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.25 }}
-                            className="bg-white border-2 border-orange-50 shadow-sm min-h-full"
+                            className="bg-white dark:bg-[#141414] border-2 border-orange-50 dark:border-[#262626] shadow-sm dark:shadow-none min-h-full"
                         >
                             <ClassroomLeaderboard students={classroom.students} />
                         </motion.div>

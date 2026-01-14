@@ -85,7 +85,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
 
     // 3. Color scale
     const getIntensityClass = (count: number) => {
-        if (count === 0) return "bg-gray-100";
+        if (count === 0) return "bg-gray-100 dark:bg-[#262626]";
         if (count <= 2) return "bg-orange-200";
         if (count <= 5) return "bg-orange-300";
         if (count <= 8) return "bg-orange-400";
@@ -95,7 +95,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
     return (
         <div className="w-full overflow-x-auto overflow-y-hidden pb-2">
             <div className="min-w-fit">
-                <div className="flex text-xs text-gray-400 mb-2 relative h-4">
+                <div className="flex text-xs text-gray-400 dark:text-gray-500 mb-2 relative h-4">
                     {monthLabels.map((label, i) => (
                         <span
                             key={`${label.month}-${i}`}
@@ -111,7 +111,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
 
                 <div className="flex gap-2">
                     {/* Day Labels (Mon, Wed, Fri) */}
-                    <div className="flex flex-col gap-[3px] text-[10px] text-gray-500 mt-[1px]">
+                    <div className="flex flex-col gap-[3px] text-[10px] text-gray-500 dark:text-gray-400 mt-[1px]">
                         {/* 7 slots, align with grid rows */}
                         <span className="h-3 leading-3 invisible">Sun</span> {/* Spacer */}
                         <span className="h-3 leading-3">Mon</span>
@@ -146,7 +146,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
                                         >
                                             {/* Simple Tooltip */}
                                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 whitespace-nowrap">
-                                                <div className="bg-gray-900 text-white text-xs py-1 px-2 rounded shadow-lg">
+                                                <div className="bg-gray-900 dark:bg-white text-white dark:text-black text-xs py-1 px-2 rounded shadow-lg">
                                                     <span className="font-semibold">{count} contributions</span> on {titleDate}
                                                 </div>
                                             </div>
@@ -159,10 +159,10 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
                 </div>
 
                 {/* Legend */}
-                <div className="flex items-center gap-2 mt-4 text-xs text-gray-400 justify-end mr-4">
+                <div className="flex items-center gap-2 mt-4 text-xs text-gray-400 dark:text-gray-500 justify-end mr-4">
                     <span>Less</span>
                     <div className="flex gap-[3px]">
-                        <div className="w-3 h-3 rounded-[2px] bg-gray-100" />
+                        <div className="w-3 h-3 rounded-[2px] bg-gray-100 dark:bg-[#262626]" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-200" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-300" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-400" />

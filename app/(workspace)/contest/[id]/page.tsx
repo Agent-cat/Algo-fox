@@ -38,8 +38,8 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
         }
         return (
             <div className="container mx-auto py-20 px-4 text-center">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-                <p className="text-gray-600 mb-8">{res.error}</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Access Denied</h1>
+                <p className="text-gray-600 dark:text-gray-400 mb-8">{res.error}</p>
                 <Link href={backLink} className="text-orange-600 font-bold hover:underline">
                     Back to Contests
                 </Link>
@@ -51,7 +51,7 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
         <div className="container mx-auto py-10 px-4 min-h-screen">
             {/* Breadcrumbs */}
             <div className="mb-8">
-                <BackButton className="text-gray-500 hover:text-orange-600 font-bold">
+                <BackButton className="text-gray-500 dark:text-gray-400 hover:text-orange-600 font-bold">
                     {isAdminOrInstructor ? "All Arenas" : "Back to Contests"}
                 </BackButton>
             </div>
@@ -69,7 +69,7 @@ export default function ContestDetailPage({ params }: PageProps) {
         <Suspense fallback={
             <div className="container mx-auto py-20 px-4 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading contest details...</p>
+                <p className="text-gray-600 dark:text-gray-400">Loading contest details...</p>
             </div>
         }>
             <ContestDetailContent params={params} />

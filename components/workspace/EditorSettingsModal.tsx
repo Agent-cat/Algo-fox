@@ -61,14 +61,14 @@ export default function EditorSettingsModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="w-full max-w-md bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden"
+                        className="w-full max-w-md bg-white dark:bg-[#141414] rounded-xl shadow-2xl border border-gray-200 dark:border-[#262626] overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                            <h2 className="text-lg font-bold text-gray-900">Editor Settings</h2>
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1a1a1a]">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Editor Settings</h2>
                             <button
                                 onClick={onClose}
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -88,8 +88,8 @@ export default function EditorSettingsModal({
                                         onClick={() => onSettingsChange({ ...settings, theme: "vs-light" })}
                                         className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2 ${
                                             settings.theme === "vs-light" || !settings.theme
-                                                ? "bg-orange-50 border-orange-200 text-orange-700 shadow-sm"
-                                                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                                                ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 shadow-sm"
+                                                : "bg-white dark:bg-[#1e1e1e] border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#262626] hover:border-gray-300 dark:hover:border-[#444]"
                                         }`}
                                     >
                                         <Sun className="w-4 h-4" /> Light
@@ -98,8 +98,8 @@ export default function EditorSettingsModal({
                                         onClick={() => onSettingsChange({ ...settings, theme: "vs-dark" })}
                                         className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2 ${
                                             settings.theme === "vs-dark"
-                                                ? "bg-gray-800 border-gray-700 text-white shadow-sm"
-                                                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                                                ? "bg-gray-800 dark:bg-[#262626] border-gray-700 dark:border-[#333] text-white shadow-sm"
+                                                : "bg-white dark:bg-[#1e1e1e] border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#262626] hover:border-gray-300 dark:hover:border-[#444]"
                                         }`}
                                     >
                                         <Moon className="w-4 h-4" /> Dark
@@ -107,11 +107,11 @@ export default function EditorSettingsModal({
                                 </div>
                             </div>
 
-                            <hr className="border-gray-100" />
+                            <hr className="border-gray-100 dark:border-[#262626]" />
 
                             {/* Font Size */}
                             <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                                     <Type className="w-4 h-4 text-orange-500" />
                                     <span>Font Size</span>
                                     <span className="ml-auto text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
@@ -148,8 +148,8 @@ export default function EditorSettingsModal({
                                             onClick={() => onSettingsChange({ ...settings, tabSize: size })}
                                             className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all ${
                                                 settings.tabSize === size
-                                                    ? "bg-orange-50 border-orange-200 text-orange-700 shadow-sm"
-                                                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                                                    ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 shadow-sm"
+                                                    : "bg-white dark:bg-[#1e1e1e] border-gray-200 dark:border-[#333] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#262626] hover:border-gray-300 dark:hover:border-[#444]"
                                             }`}
                                         >
                                             {size} Spaces
@@ -179,10 +179,10 @@ export default function EditorSettingsModal({
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <div className="px-6 py-4 bg-gray-50 dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-[#262626] flex justify-end">
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-lg hover:bg-black transition-colors"
+                                className="px-4 py-2 text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-black rounded-lg hover:bg-black dark:hover:bg-gray-200 transition-colors"
                             >
                                 Done
                             </button>

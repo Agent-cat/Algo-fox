@@ -110,7 +110,7 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                         <button
                             type="button"
                             onClick={() => handleRemoveTag(tag.slug)}
-                            className="hover:bg-orange-100 rounded-full p-0.5 transition-colors"
+                            className="ml-2"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -133,13 +133,13 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                         if (inputValue.trim()) setShowSuggestions(true);
                     }}
                     onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-gray-400"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#333] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white"
                     placeholder={placeholder}
                 />
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && inputValue.trim() && (
-                    <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-100 dark:border-[#333] max-h-60 overflow-y-auto">
                         {isSearching ? (
                             <div className="p-4 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" /> Searching...
@@ -151,7 +151,7 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                                         key={tag.slug}
                                         type="button"
                                         onClick={() => handleSelectTag(tag)}
-                                        className="w-full text-left px-4 py-2 hover:bg-orange-50 text-gray-700 text-sm transition-colors flex items-center justify-between group"
+                                        className="w-full text-left px-4 py-2 hover:bg-orange-50 dark:hover:bg-[#262626] text-gray-700 dark:text-gray-300 text-sm transition-colors flex items-center justify-between group"
                                     >
                                         <span>{tag.name}</span>
                                         <Plus className="w-3 h-3 opacity-0 group-hover:opacity-100 text-orange-500" />
@@ -162,7 +162,7 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                                     <button
                                         type="button"
                                         onClick={handleCreateTag}
-                                        className="w-full text-left px-4 py-3 hover:bg-orange-50 text-orange-600 text-sm transition-colors flex items-center gap-2 border-t border-gray-50 font-medium"
+                                        className="w-full text-left px-4 py-3 hover:bg-orange-50 dark:hover:bg-[#262626] text-orange-600 dark:text-orange-400 text-sm transition-colors flex items-center gap-2 border-t border-gray-50 dark:border-[#262626] font-medium"
                                     >
                                         <Plus className="w-4 h-4" />
                                         Create "{inputValue}"

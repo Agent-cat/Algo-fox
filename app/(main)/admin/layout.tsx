@@ -7,8 +7,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50">
-      <Suspense fallback={<div className="w-72 h-screen bg-white" />}>
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#0a0a0a] dark:to-[#141414]">
+      <Suspense fallback={<div className="w-72 h-screen bg-white dark:bg-[#141414]" />}>
         <AdminSidebar />
       </Suspense>
       <main className="flex-1 ml-64 p-8">

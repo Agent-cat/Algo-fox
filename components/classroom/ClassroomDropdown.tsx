@@ -57,12 +57,12 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group shadow-lg ${isOpen
-                    ? "bg-gray-900 text-white shadow-gray-200"
-                    : "bg-white text-gray-700 border border-gray-200 hover:border-orange-500 hover:shadow-orange-100"
+                    ? "bg-gray-900 dark:bg-[#0a0a0a] text-white shadow-gray-200 dark:shadow-none"
+                    : "bg-white dark:bg-[#141414] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] hover:border-orange-500 dark:hover:border-orange-500 hover:shadow-orange-100 dark:hover:shadow-none"
                     }`}
             >
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl transition-colors duration-300 ${isOpen ? "bg-white/10" : "bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white"
+                    <div className={`p-2 rounded-xl transition-colors duration-300 ${isOpen ? "bg-white/10" : "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 group-hover:bg-orange-600 group-hover:text-white"
                         }`}>
                         <School className="w-5 h-5" />
                     </div>
@@ -70,7 +70,7 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     {classrooms.length > 0 && !isOpen && (
-                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                        <span className="px-2 py-0.5 bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
                             {classrooms.length} {classrooms.length === 1 ? "Batch" : "Batches"}
                         </span>
                     )}
@@ -84,7 +84,7 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-200 rounded-3xl shadow-2xl shadow-gray-200/50 z-50 overflow-hidden"
+                        className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-none z-50 overflow-hidden"
                     >
                         <div className="p-2 space-y-1">
                             {/* Join Classroom Section */}
@@ -92,8 +92,8 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                 <button
                                     onClick={() => setIsJoinExpanded(!isJoinExpanded)}
                                     className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all ${isJoinExpanded
-                                        ? "bg-orange-50 text-orange-700"
-                                        : "hover:bg-gray-50 text-gray-600"
+                                        ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                                        : "hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -118,12 +118,13 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                                                     placeholder="ENTER 6-DIGIT CODE"
                                                     maxLength={6}
-                                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-mono text-center tracking-[0.3em] uppercase placeholder:text-gray-300 placeholder:tracking-normal placeholder:font-sans text-sm"
+                                                    maxLength={6}
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#0a0a0a] focus:bg-white dark:text-white dark:focus:bg-[#0a0a0a] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-mono text-center tracking-[0.3em] uppercase placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal placeholder:font-sans text-sm"
                                                 />
                                                 <button
                                                     type="submit"
                                                     disabled={isLoading || code.length < 6}
-                                                    className="w-full py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                    className="w-full py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold hover:bg-black dark:hover:bg-gray-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                                 >
                                                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify & Join"}
                                                 </button>
@@ -133,7 +134,7 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                 </AnimatePresence>
                             </div>
 
-                            <div className="h-px bg-gray-100 mx-4" />
+                            <div className="h-px bg-gray-100 dark:bg-[#262626] mx-4" />
 
                             {/* Classrooms List */}
                             <div className="max-h-[300px] overflow-y-auto p-2 pt-1 space-y-1 custom-scrollbar">
@@ -146,15 +147,15 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                             <Link
                                                 key={classroom.id}
                                                 href={`/dashboard/classrooms/${classroom.id}`}
-                                                className="flex items-center justify-between p-3 rounded-2xl hover:bg-orange-50 border border-transparent hover:border-orange-100 transition-all group"
+                                                className="flex items-center justify-between p-3 rounded-2xl hover:bg-orange-50 dark:hover:bg-[#1a1a1a] border border-transparent hover:border-orange-100 dark:hover:border-[#262626] transition-all group"
                                                 onClick={() => setIsOpen(false)}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
-                                                        <BookOpen className="w-4 h-4 text-gray-400 group-hover:text-orange-600" />
+                                                    <div className="p-2 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg group-hover:bg-white dark:group-hover:bg-[#262626] transition-colors">
+                                                        <BookOpen className="w-4 h-4 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-500" />
                                                     </div>
                                                     <div>
-                                                        <div className="text-sm font-bold text-gray-900 group-hover:text-orange-700 transition-colors">
+                                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors">
                                                             {classroom.name}
                                                         </div>
                                                         <div className="flex items-center gap-2 mt-0.5">
@@ -172,7 +173,7 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                             <Link
                                                 href="/dashboard/classrooms"
                                                 onClick={() => setIsOpen(false)}
-                                                className="flex items-center justify-center gap-2 p-3 mt-1 rounded-2xl bg-orange-50 text-orange-600 hover:bg-orange-100 transition-all font-bold text-xs group"
+                                                className="flex items-center justify-center gap-2 p-3 mt-1 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-all font-bold text-xs group"
                                             >
                                                 Show {classrooms.length - 3} more batches
                                                 <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
@@ -181,8 +182,8 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                     </>
                                 ) : (
                                     <div className="py-8 text-center px-4">
-                                        <School className="w-8 h-8 text-gray-100 mx-auto mb-2" />
-                                        <p className="text-xs text-gray-400 font-medium leading-relaxed">
+                                        <School className="w-8 h-8 text-gray-100 dark:text-[#262626] mx-auto mb-2" />
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium leading-relaxed">
                                             No classes joined yet. Use a code to get started.
                                         </p>
                                     </div>

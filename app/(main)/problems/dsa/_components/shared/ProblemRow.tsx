@@ -34,9 +34,9 @@ function ProblemRowComponent({
     return (
         <Link
             href={`/problems/${slug}`}
-            className="grid grid-cols-12 gap-4 px-6 py-4 rounded-xl items-center transition-all duration-200 hover:bg-gray-50/50"
+            className="grid grid-cols-12 gap-4 px-6 py-4 rounded-xl items-center transition-all duration-200 hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a]"
         >
-            <div className="col-span-8 md:col-span-6 font-medium text-gray-900 hover:text-orange-600 transition-colors flex items-center gap-2">
+            <div className="col-span-8 md:col-span-6 font-medium text-gray-900 dark:text-gray-100 hover:text-orange-600 transition-colors flex items-center gap-2">
                 {isSolved && <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />}
                 <span className="truncate">{title}</span>
             </div>
@@ -45,7 +45,7 @@ function ProblemRowComponent({
                     {getDifficultyLabel(difficulty)}
                 </span>
             </div>
-            <div className="col-span-2 md:col-span-3 text-sm text-gray-500">
+            <div className="col-span-2 md:col-span-3 text-sm text-gray-500 dark:text-gray-400">
                 {acceptance.toFixed(1)}%
             </div>
         </Link>

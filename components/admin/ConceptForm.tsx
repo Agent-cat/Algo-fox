@@ -59,32 +59,32 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
     return (
         <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
             <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Concept Title</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Concept Title</label>
                 <input
                     {...register("title")}
                     placeholder="e.g. Introduction to Arrays"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all placeholder:text-gray-400 font-medium text-gray-900"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#0a0a0a]"
                 />
                 {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Slug</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Slug</label>
                 <input
                     {...register("slug")}
                     placeholder="e.g. intro-arrays"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all placeholder:text-gray-400 font-medium text-gray-900"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#0a0a0a]"
                 />
                 {errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Content (Markdown)</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Content (Markdown)</label>
                 <textarea
                     {...register("description")}
                     rows={12}
                     placeholder="# Introduction..."
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition-all font-mono text-sm leading-relaxed text-gray-900"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all font-mono text-sm leading-relaxed text-gray-900 dark:text-gray-100 bg-white dark:bg-[#0a0a0a] placeholder:text-gray-400 dark:placeholder:text-gray-600"
                 />
                 {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
             </div>

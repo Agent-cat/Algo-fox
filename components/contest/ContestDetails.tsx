@@ -131,23 +131,23 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
 
     const getStatusBadge = () => {
         if (isFinished) {
-            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Completed</span>;
+            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">Completed</span>;
         }
         if (hasEnded) {
-            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Ended</span>;
+            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400">Ended</span>;
         }
         if (hasStarted) {
-            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">Live</span>;
+            return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400">Live</span>;
         }
-        return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Upcoming</span>;
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">Upcoming</span>;
     };
 
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
-            case "EASY": return "bg-emerald-100 text-emerald-700";
-            case "MEDIUM": return "bg-orange-100 text-orange-700";
-            case "HARD": return "bg-red-100 text-red-700";
-            default: return "bg-gray-100 text-gray-700";
+            case "EASY": return "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400";
+            case "MEDIUM": return "bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400";
+            case "HARD": return "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400";
+            default: return "bg-gray-100 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400";
         }
     };
 
@@ -180,34 +180,34 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                 </>
             )}
 
-            <div className="min-h-screen bg-white py-8">
+            <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8">
                 <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
                     {/* Header */}
                     <div className="mb-8">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300">
                                 {contest.visibility}
                             </span>
                             {getStatusBadge()}
                         </div>
 
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                             {contest.title}
                         </h1>
 
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                             {contest.description || "Test your skills in this competitive programming arena."}
                         </p>
                     </div>
 
                     {isFinished && (
-                        <div className="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-4">
-                            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                        <div className="mb-8 p-6 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-emerald-900">Contest Session Completed</h3>
-                                <p className="text-emerald-700 text-sm">
+                                <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-400">Contest Session Completed</h3>
+                                <p className="text-emerald-700 dark:text-emerald-500 text-sm">
                                     You have successfully ended your session. Your submissions have been recorded and you can view the final standings once the contest ends.
                                 </p>
                             </div>
@@ -215,22 +215,22 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                     )}
 
                     {/* Stats Bar */}
-                    <div className="flex flex-wrap items-center gap-6 mb-6 pb-6 border-b text-sm">
+                    <div className="flex flex-wrap items-center gap-6 mb-6 pb-6 border-b border-gray-200 dark:border-[#262626] text-sm">
                         <div>
-                            <span className="text-gray-500">Start:</span>
-                            <span className="ml-2 text-gray-900 font-medium">{startTime.toLocaleString()}</span>
+                            <span className="text-gray-500 dark:text-gray-400">Start:</span>
+                            <span className="ml-2 text-gray-900 dark:text-gray-100 font-medium">{startTime.toLocaleString()}</span>
                         </div>
                         <div>
-                            <span className="text-gray-500">End:</span>
-                            <span className="ml-2 text-gray-900 font-medium">{endTime.toLocaleString()}</span>
+                            <span className="text-gray-500 dark:text-gray-400">End:</span>
+                            <span className="ml-2 text-gray-900 dark:text-gray-100 font-medium">{endTime.toLocaleString()}</span>
                         </div>
                         <div>
-                            <span className="text-gray-500">Problems:</span>
-                            <span className="ml-2 text-gray-900 font-medium">{contest._count.problems}</span>
+                            <span className="text-gray-500 dark:text-gray-400">Problems:</span>
+                            <span className="ml-2 text-gray-900 dark:text-gray-100 font-medium">{contest._count.problems}</span>
                         </div>
                         <div>
-                            <span className="text-gray-500">Time:</span>
-                            <span className="ml-2 text-gray-900 font-medium font-mono">{timeLeft}</span>
+                            <span className="text-gray-500 dark:text-gray-400">Time:</span>
+                            <span className="ml-2 text-gray-900 dark:text-gray-100 font-medium font-mono">{timeLeft}</span>
                         </div>
 
 
@@ -239,7 +239,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                             {hasAcceptedRules && hasStarted && !hasEnded && !isFinished && (
                                 <button
                                     onClick={handleContestFinish}
-                                    className="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+                                    className="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2 shadow-lg shadow-red-500/20"
                                 >
                                     <CheckCircle2 className="w-4 h-4" />
                                     End Contest
@@ -249,7 +249,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                             {hasEnded && (
                                 <Link
                                     href={`/contest/${contest.id}/standings`}
-                                    className="px-4 py-2 bg-orange-600 text-white rounded text-sm font-medium hover:bg-orange-700 transition-colors"
+                                    className="px-4 py-2 bg-orange-600 text-white rounded text-sm font-medium hover:bg-orange-700 transition-colors shadow-lg shadow-orange-500/20"
                                 >
                                     Leaderboard
                                 </Link>
@@ -258,17 +258,17 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                     </div>
 
                     {!hasStarted && !contest.canManage ? (
-                        <div className="text-center py-20 border rounded-lg">
-                            <Lock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Problems Locked</h3>
-                            <p className="text-gray-500">
+                        <div className="text-center py-20 border border-gray-200 dark:border-[#262626] rounded-lg bg-white dark:bg-[#141414]">
+                            <Lock className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Problems Locked</h3>
+                            <p className="text-gray-500 dark:text-gray-400">
                                 Problems will be revealed when the contest starts.
                             </p>
                         </div>
                     ) : (
                         <>
                             {/* Table Header */}
-                            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 dark:border-[#262626] text-[11px] font-bold text-gray-400 uppercase tracking-widest">
                                 <div className="col-span-1">#</div>
                                 <div className="col-span-6 md:col-span-7">Title</div>
                                 <div className="col-span-3 md:col-span-2">Difficulty</div>
@@ -312,19 +312,19 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                             }}
                                             className={`grid grid-cols-12 gap-4 px-6 py-4 rounded-xl items-center transition-all duration-200 ${
                                                 canAccess && (hasStarted || contest.canManage) && !isBlockedByCompletion
-                                                ? "hover:bg-gray-50/50 cursor-pointer"
-                                                : isSolved ? "opacity-75 bg-emerald-50/30 cursor-not-allowed" : "opacity-50 cursor-not-allowed"
+                                                ? "hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] cursor-pointer"
+                                                : isSolved ? "opacity-75 bg-emerald-50/30 dark:bg-emerald-500/5 cursor-not-allowed" : "opacity-50 cursor-not-allowed"
                                             }`}
                                         >
-                                            <div className="col-span-1 text-sm text-gray-500 font-medium">
+                                            <div className="col-span-1 text-sm text-gray-500 dark:text-gray-400 font-medium">
                                                 {globalIndex + 1}
                                             </div>
-                                            <div className="col-span-6 md:col-span-7 font-medium text-gray-900 flex items-center gap-2">
+                                            <div className="col-span-6 md:col-span-7 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                                 <span className={`truncate ${canAccess && !isBlockedByCompletion ? "hover:text-orange-600 transition-colors" : ""}`}>
                                                     {cp.problem.title}
                                                 </span>
                                                 {isSolved && (
-                                                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                                                         <CheckCircle2 className="w-3 h-3" />
                                                         Solved
                                                      </span>
@@ -335,7 +335,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                                     {cp.problem.difficulty === "MEDIUM" ? "Med." : cp.problem.difficulty.charAt(0) + cp.problem.difficulty.slice(1).toLowerCase()}
                                                 </span>
                                             </div>
-                                            <div className="col-span-2 md:col-span-2 text-sm text-gray-500">
+                                            <div className="col-span-2 md:col-span-2 text-sm text-gray-500 dark:text-gray-400">
                                                 {isSolved ? (
                                                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                                 ) : canAccess && (hasStarted || contest.canManage) ? (
@@ -355,9 +355,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                     <button
                                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                         disabled={currentPage === 1}
-                                        className={`p-2 border rounded transition-colors ${currentPage === 1
-                                            ? "text-gray-300 cursor-not-allowed"
-                                            : "text-gray-700 hover:bg-gray-50"
+                                        className={`p-2 border border-gray-200 dark:border-[#262626] rounded transition-colors ${currentPage === 1
+                                            ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
                                             }`}
                                     >
                                         <ChevronLeft className="w-4 h-4" />
@@ -369,7 +369,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                             onClick={() => setCurrentPage(page)}
                                             className={`w-9 h-9 rounded text-sm font-medium transition-colors ${currentPage === page
                                                 ? "bg-orange-600 text-white"
-                                                : "border text-gray-700 hover:bg-gray-50"
+                                                : "border border-gray-200 dark:border-[#262626] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
                                                 }`}
                                         >
                                             {page}
@@ -379,9 +379,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                     <button
                                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                         disabled={currentPage === totalPages}
-                                        className={`p-2 border rounded transition-colors ${currentPage === totalPages
-                                            ? "text-gray-300 cursor-not-allowed"
-                                            : "text-gray-700 hover:bg-gray-50"
+                                        className={`p-2 border border-gray-200 dark:border-[#262626] rounded transition-colors ${currentPage === totalPages
+                                            ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
                                             }`}
                                     >
                                         <ChevronRight className="w-4 h-4" />
@@ -396,16 +396,16 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
             {/* End Contest Confirmation Modal */}
             {showEndModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 transform scale-100 transition-all">
-                        <div className="flex items-center gap-3 mb-4 text-red-600">
+                    <div className="bg-white dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
+                        <div className="flex items-center gap-3 mb-4 text-red-600 dark:text-red-400">
                             <ShieldAlert className="w-8 h-8" />
-                            <h3 className="text-xl font-bold text-gray-900">End Contest Session?</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">End Contest Session?</h3>
                         </div>
 
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
                             Are you sure you want to end your session? You will <strong>NOT</strong> be able to re-enter or solve more problems after this.
                             <br /><br />
-                            Type <span className="font-mono font-bold text-red-600">end</span> below to confirm.
+                            Type <span className="font-mono font-bold text-red-600 dark:text-red-400">end</span> below to confirm.
                         </p>
 
                         <input
@@ -413,14 +413,14 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                             placeholder="Type 'end' to confirm"
                             value={endConfirmText}
                             onChange={(e) => setEndConfirmText(e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
+                            className="w-full px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg mb-6 bg-gray-50 dark:bg-[#1a1a1a] focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal text-gray-900 dark:text-gray-100"
                             autoFocus
                         />
 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
-                                className="flex-1 px-4 py-3 border rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
                             >
                                 Cancel
                             </button>

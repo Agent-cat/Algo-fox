@@ -65,13 +65,13 @@ export default function AdminListPage<T extends { id: string }>({
     return (
         <div className="animate-fade-in-up">
             {/* Header Section with Glassmorphism */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-6 shadow-xl shadow-gray-200/30">
+            <div className="bg-white/70 dark:bg-[#141414]/70 backdrop-blur-xl border border-white/20 dark:border-[#262626] rounded-2xl p-6 mb-6 shadow-xl shadow-gray-200/30 dark:shadow-none">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                             {title}
                         </h1>
-                        <p className="text-gray-500 text-sm mt-1">{subtitle}</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{subtitle}</p>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -83,7 +83,7 @@ export default function AdminListPage<T extends { id: string }>({
                                 placeholder={searchPlaceholder}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-64 pl-10 pr-4 py-2.5 bg-white/80 backdrop-blur border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all"
+                                className="w-64 pl-10 pr-4 py-2.5 bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all"
                             />
                             {searchQuery && (
                                 <button
@@ -108,14 +108,14 @@ export default function AdminListPage<T extends { id: string }>({
 
                 {/* Search results count */}
                 {debouncedSearch && (
-                    <div className="mt-4 text-sm text-gray-500">
-                        Found <span className="font-semibold text-gray-700">{filteredData.length}</span> result{filteredData.length !== 1 ? 's' : ''} for "<span className="font-medium">{debouncedSearch}</span>"
+                    <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        Found <span className="font-semibold text-gray-700 dark:text-gray-300">{filteredData.length}</span> result{filteredData.length !== 1 ? 's' : ''} for "<span className="font-medium">{debouncedSearch}</span>"
                     </div>
                 )}
             </div>
 
             {/* Table Section with Glassmorphism */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl shadow-gray-200/30 overflow-hidden">
+            <div className="bg-white/70 dark:bg-[#141414]/70 backdrop-blur-xl border border-white/20 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/30 dark:shadow-none overflow-hidden">
                 {isLoading ? (
                     <div className="p-16 flex flex-col items-center justify-center gap-3">
                         <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
@@ -123,10 +123,10 @@ export default function AdminListPage<T extends { id: string }>({
                     </div>
                 ) : filteredData.length === 0 ? (
                     <div className="p-16 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                            <Search className="w-8 h-8 text-gray-400" />
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center">
+                            <Search className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                         </div>
-                        <p className="text-gray-500">{debouncedSearch ? "No matching results found." : emptyMessage}</p>
+                        <p className="text-gray-500 dark:text-gray-400">{debouncedSearch ? "No matching results found." : emptyMessage}</p>
                         {debouncedSearch && (
                             <button
                                 onClick={() => setSearchQuery("")}
@@ -140,18 +140,18 @@ export default function AdminListPage<T extends { id: string }>({
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-gray-50/80 border-b border-gray-100">
+                                <tr className="bg-gray-50/80 dark:bg-[#1a1a1a]/80 border-b border-gray-100 dark:border-[#262626]">
                                     {columns.map((col, idx) => (
                                         <th
                                             key={idx}
-                                            className={`px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider ${col.className || ""}`}
+                                            className={`px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col.className || ""}`}
                                         >
                                             {col.label}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-[#262626]">
                                 {filteredData.map((item, index) => renderItem(item, index))}
                             </tbody>
                         </table>
@@ -161,7 +161,7 @@ export default function AdminListPage<T extends { id: string }>({
 
             {/* Footer Stats */}
             {!isLoading && data.length > 0 && (
-                <div className="mt-4 text-sm text-gray-500 text-center">
+                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
                     Showing {filteredData.length} of {data.length} items
                 </div>
             )}

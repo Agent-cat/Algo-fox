@@ -492,7 +492,7 @@ export default function ContestProtection({
             {/* Unified Warning/Block Card - Redesigned */}
             {(isEditorLocked || showWarningPopup) && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-orange-100 transform transition-all scale-100">
+                    <div className="bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-orange-100 dark:border-orange-500/20 transform transition-all scale-100">
 
                         {/* Status Bar Top */}
                          <div className={`h-2 w-full ${
@@ -505,8 +505,8 @@ export default function ContestProtection({
                                 {/* Large Icon Box */}
                                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
                                     violations.permanentlyBlocked
-                                        ? 'bg-red-50 text-red-500'
-                                        : 'bg-orange-50 text-orange-500'
+                                        ? 'bg-red-50 dark:bg-red-500/10 text-red-500'
+                                        : 'bg-orange-50 dark:bg-orange-500/10 text-orange-500'
                                 }`}>
                                     {violations.permanentlyBlocked ? (
                                         <Ban className="w-8 h-8" />
@@ -520,7 +520,7 @@ export default function ContestProtection({
                                 </div>
 
                                 <div className="flex-1 space-y-1">
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
                                         {violations.permanentlyBlocked
                                             ? 'Contest Session Terminated'
                                             : tempBlockTimeLeft > 0
@@ -528,7 +528,7 @@ export default function ContestProtection({
                                                 : 'Violation Detected'
                                         }
                                     </h2>
-                                    <p className="text-gray-500 font-medium text-sm">
+                                    <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
                                          {violations.permanentlyBlocked
                                             ? 'Multiple violations detected. Your session has been permanently blocked.'
                                             : tempBlockTimeLeft > 0
@@ -541,7 +541,7 @@ export default function ContestProtection({
 
                             {/* Timer Section */}
                             {tempBlockTimeLeft > 0 && (
-                                <div className="mt-8 p-6 bg-orange-50 rounded-xl border border-orange-100 flex flex-col items-center justify-center">
+                                <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 flex flex-col items-center justify-center">
                                     <span className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-2">Access Resumes In</span>
                                     <div className="text-5xl font-black text-orange-500 font-mono tracking-tighter tabular-nums">
                                         {Math.floor(tempBlockTimeLeft / 60)}:{String(tempBlockTimeLeft % 60).padStart(2, '0')}
@@ -554,9 +554,9 @@ export default function ContestProtection({
                                 <div className="mt-8 space-y-3">
                                     <div className="flex justify-between items-end">
                                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Warning Level</span>
-                                        <span className="text-sm font-bold text-gray-900">{violations.total} <span className="text-gray-400 font-normal">/ {MAX_WARNINGS}</span></span>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-white">{violations.total} <span className="text-gray-400 font-normal">/ {MAX_WARNINGS}</span></span>
                                     </div>
-                                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-3 bg-gray-100 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
                                         <div
                                             className={`h-full transition-all duration-500 ease-out ${
                                                 violations.total >= 4 ? 'bg-red-500' : 'bg-orange-500'
@@ -580,16 +580,16 @@ export default function ContestProtection({
                                 {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 ? (
                                     <button
                                         onClick={handleDismissWarning}
-                                        className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all transform active:scale-[0.98] shadow-lg shadow-gray-200"
+                                        className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-gray-200 transition-all transform active:scale-[0.98] shadow-lg shadow-gray-200 dark:shadow-none"
                                     >
                                         Acknowledge & Continue
                                     </button>
                                 ) : tempBlockTimeLeft > 0 ? (
-                                     <button disabled className="w-full py-4 bg-gray-100 text-gray-400 rounded-xl font-bold cursor-not-allowed">
+                                     <button disabled className="w-full py-4 bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 rounded-xl font-bold cursor-not-allowed">
                                         Suspended
                                     </button>
                                 ) : (
-                                    <button className="w-full py-4 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 cursor-not-allowed">
+                                    <button className="w-full py-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500 rounded-xl font-bold border border-red-100 dark:border-red-500/20 cursor-not-allowed">
                                         Contact Administrator
                                     </button>
                                 )}
@@ -609,7 +609,7 @@ export default function ContestProtection({
                         </div>
 
                         <div className="p-6 text-center">
-                            <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <div className="w-20 h-20 bg-orange-50 dark:bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <ShieldX className="w-10 h-10 text-orange-500" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">Re-activate Proctoring</h3>
@@ -635,11 +635,11 @@ export default function ContestProtection({
 
 
             {/* Proctoring Indicator - Clean white style */}
-            <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-lg shadow-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-gray-700 font-medium">Proctored</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Proctored</span>
                 {violations.total > 0 && (
-                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold">
+                    <span className="px-2 py-0.5 bg-orange-100 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 rounded text-xs font-semibold">
                         {violations.total}
                     </span>
                 )}

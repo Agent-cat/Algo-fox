@@ -11,6 +11,7 @@ import {
   Clock,
   Send,
   Moon,
+  Sun,
   ShieldAlert,
   Shuffle,
   Play
@@ -21,6 +22,38 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import UserPoints from "@/components/UserPoints";
+import { useTheme } from "next-themes";
+
+// Theme toggle button component
+function ThemeToggleButton() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <button className="p-2 text-gray-500 opacity-50 cursor-default">
+         <Moon className="w-5 h-5" />
+      </button>
+    );
+  }
+
+  const isDark = resolvedTheme === 'dark';
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
+}
 
 interface WorkspaceHeaderProps {
   onSubmit: () => void;
@@ -122,7 +155,7 @@ export default function WorkspaceHeader({
   };
 
   return (
-    <div className="h-16 bg-white border-b border-dashed border-gray-200 flex items-center justify-between px-4 z-10 relative">
+    <div className="h-16 bg-white dark:bg-[#0a0a0a] border-b border-dashed border-gray-200 dark:border-[#262626] flex items-center justify-between px-4 z-10 relative">
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-4 ${contestId ? 'w-1/3' : ''}`}>
         <Link href={contestId ? `/contest/${contestId}` : "/"} className="flex items-center gap-2 group mr-4">
@@ -132,7 +165,7 @@ export default function WorkspaceHeader({
           {contestId && (
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-widest text-orange-600 leading-none">Contest</span>
-              <span className="text-xs font-bold text-gray-900 leading-tight">Arena Active</span>
+              <span className="text-xs font-bold text-gray-900 dark:text-gray-100 leading-tight">Arena Active</span>
             </div>
           )}
         </Link>
@@ -141,15 +174,15 @@ export default function WorkspaceHeader({
           <div className="hidden md:flex items-center gap-2">
             <Link
               href={domain === "SQL" ? "/problems/sql" : "/problems/dsa"}
-              className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1"
+              className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors flex items-center gap-1"
             >
               <span className="sr-only">List</span>
               Problem List
             </Link>
-            <span className="text-gray-300">|</span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
             {/* PREVIOUS - NEWER PROBLEM */}
             <button
-              className={`p-1 rounded-lg transition-colors ${prevProblemSlug ? 'hover:bg-gray-100 text-gray-500' : 'text-gray-300 cursor-not-allowed'}`}
+              className={`p-1 rounded-lg transition-colors ${prevProblemSlug ? 'hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-gray-500' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
               disabled={!prevProblemSlug}
               onClick={() => prevProblemSlug && router.push(`/problems/${prevProblemSlug}`)}
               title="Previous Problem"
@@ -158,14 +191,14 @@ export default function WorkspaceHeader({
             </button>
             {/* NEXT - OLDER PROBLEM */}
             <button
-              className={`p-1 rounded-lg transition-colors ${nextProblemSlug ? 'hover:bg-gray-100 text-gray-500' : 'text-gray-300 cursor-not-allowed'}`}
+              className={`p-1 rounded-lg transition-colors ${nextProblemSlug ? 'hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-gray-500' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
               disabled={!nextProblemSlug}
               onClick={() => nextProblemSlug && router.push(`/problems/${nextProblemSlug}`)}
               title="Next Problem"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <span className="text-gray-300">|</span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
             <button
               onClick={() => {
                 if (domain && type) {
@@ -177,7 +210,7 @@ export default function WorkspaceHeader({
                 }
               }}
               disabled={isRandomizing}
-              className={`p-1 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
+              className={`p-1 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
               title="Random Problem"
             >
               <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
@@ -189,7 +222,7 @@ export default function WorkspaceHeader({
       {/* CENTER / RIGHT: ACTIONS */}
       <div className={`flex items-center gap-2 ${contestId ? 'flex-1 justify-center' : ''}`}>
         <button
-          className={`flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold rounded-lg transition-all disabled:opacity-50 ${contestId ? 'border border-gray-200 shadow-sm' : ''}`}
+          className={`flex items-center gap-2 px-6 py-2 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg transition-all disabled:opacity-50 ${contestId ? 'border border-gray-200 dark:border-[#262626] shadow-sm' : ''}`}
           onClick={onRun}
           disabled={isRunning || isSubmitting}
         >
@@ -215,9 +248,9 @@ export default function WorkspaceHeader({
         </button>
 
         {contestId && timeLeft && (
-          <div className="flex flex-col items-center justify-center px-4 py-1.5 bg-orange-50 rounded-lg border border-orange-200 ml-6">
+          <div className="flex flex-col items-center justify-center px-4 py-1.5 bg-orange-50 dark:bg-orange-500/10 rounded-lg border border-orange-200 dark:border-orange-500/30 ml-6">
             <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest leading-none mb-0.5">Time Left</span>
-            <span className="text-sm font-mono font-bold text-gray-900 leading-none">{timeLeft}</span>
+            <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 leading-none">{timeLeft}</span>
           </div>
         )}
       </div>
@@ -226,21 +259,19 @@ export default function WorkspaceHeader({
       <div className={`flex items-center gap-4 ${contestId ? 'w-1/3 justify-end' : ''}`}>
         {!contestId && (
           <>
-            <button className="p-2 text-gray-500 hover:text-gray-900 transition-colors">
-              <Moon className="w-5 h-5" />
-            </button>
+            <ThemeToggleButton />
 
             {session ? (
               <div className="flex items-center gap-4">
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
                   >
-                    <span className="text-sm font-semibold text-gray-700 hidden md:block">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden md:block">
                       {session.user.name}
                     </span>
-                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs ring-offset-1">
+                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#0a0a0a] bg-orange-50 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center font-bold text-xs ring-offset-1">
                       {session.user.image ? (
                         <img
                           src={session.user.image}
@@ -260,12 +291,12 @@ export default function WorkspaceHeader({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg p-1 z-50 origin-top-right"
+                        className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-lg p-1 z-50 origin-top-right"
                       >
                         {(session.user as any).role === "ADMIN" && (
                           <Link
                             href="/admin"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg"
                             onClick={() => setProfileOpen(false)}
                           >
                             Admin Panel
@@ -273,14 +304,14 @@ export default function WorkspaceHeader({
                         )}
                         <Link
                           href="/dashboard"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg"
                           onClick={() => setProfileOpen(false)}
                         >
                           Dashboard
                         </Link>
                         <button
                           onClick={handleSignOut}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg"
                         >
                           Sign Out
                         </button>
@@ -293,7 +324,7 @@ export default function WorkspaceHeader({
             ) : (
               <Link
                 href="/signin"
-                className="text-sm font-semibold text-gray-700 hover:text-orange-600"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-orange-600"
               >
                 Sign In
               </Link>
@@ -301,9 +332,9 @@ export default function WorkspaceHeader({
           </>
         )}
         {contestId && (
-          <div className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100">
+          <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-500/30">
             <ShieldAlert className="w-4 h-4 text-orange-600" />
-            <span className="text-[10px] font-black text-orange-700 uppercase tracking-tighter">Proctored Mode</span>
+            <span className="text-[10px] font-black text-orange-700 dark:text-orange-400 uppercase tracking-tighter">Proctored Mode</span>
           </div>
         )}
       </div>

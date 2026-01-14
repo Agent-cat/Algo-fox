@@ -333,7 +333,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     }
 
     return (
-        <div className="h-screen w-full bg-white flex flex-col overflow-hidden">
+        <div className="h-screen w-full bg-white dark:bg-[#0a0a0a] flex flex-col overflow-hidden">
             <EditorSettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
@@ -430,7 +430,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                         userId={session?.user?.id || ""}
                                     />
                                 </div>
-                                <div className="h-full overflow-hidden flex flex-col bg-white">
+                                <div className="h-full overflow-hidden flex flex-col bg-white dark:bg-[#0a0a0a]">
                                     <TestCases
                                         cases={problem.testCases}
                                         results={submissionResults}
@@ -457,8 +457,14 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                         background-position: 50%;
                         transition: background-color 0.2s;
                     }
+                    .dark .gutter {
+                        background-color: #1a1a1a;
+                    }
                     .gutter:hover {
                         background-color: #e5e7eb;
+                    }
+                    .dark .gutter:hover {
+                        background-color: #262626;
                     }
                     .gutter.gutter-horizontal {
                         cursor: col-resize;
@@ -466,11 +472,19 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                         border-right: 1px solid #e5e7eb;
                         background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZgmwIA6Jhouse1DAAAAABJRU5ErkJggg==');
                     }
+                    .dark .gutter.gutter-horizontal {
+                        border-left: 1px solid #262626;
+                        border-right: 1px solid #262626;
+                    }
                     .gutter.gutter-vertical {
                         cursor: row-resize;
                         border-top: 1px solid #e5e7eb;
                         border-bottom: 1px solid #e5e7eb;
                         background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABoV83XAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjAAIALAAJy8wOmAAAAABJRU5ErkJggg==');
+                    }
+                    .dark .gutter.gutter-vertical {
+                        border-top: 1px solid #262626;
+                        border-bottom: 1px solid #262626;
                     }
                 `}</style>
                 </div>

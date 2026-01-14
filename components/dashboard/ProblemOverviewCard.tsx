@@ -40,42 +40,42 @@ export function ProblemOverviewCard({
     const hardArc = (hardPct / 100) * circumference;
 
     return (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-6 hover:shadow-md transition-all duration-300">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Problem Solving Overview</h3>
+        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-md transition-all duration-300">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Problem Solving Overview</h3>
             <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-8 h-full">
 
 
                 <div className="w-full sm:w-auto min-w-[140px] space-y-3 self-center">
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626]">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span className="text-xs font-semibold text-green-600">Easy</span>
+                            <span className="text-xs font-semibold text-green-600 dark:text-green-500">Easy</span>
                         </div>
                         <div className="text-right flex items-baseline gap-1 pl-4">
-                            <span className="text-sm font-bold text-gray-900">{solvedByDifficulty.EASY}</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{solvedByDifficulty.EASY}</span>
                             <span className="text-[10px] text-gray-400">/ {totalProblems.EASY}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626]">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                            <span className="text-xs font-semibold text-orange-600">Med.</span>
+                            <span className="text-xs font-semibold text-orange-600 dark:text-orange-500">Med.</span>
                         </div>
                         <div className="text-right flex items-baseline gap-1 pl-4">
-                            <span className="text-sm font-bold text-gray-900">{solvedByDifficulty.MEDIUM}</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{solvedByDifficulty.MEDIUM}</span>
                             <span className="text-[10px] text-gray-400">/ {totalProblems.MEDIUM}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626]">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            <span className="text-xs font-semibold text-red-600">Hard</span>
+                            <span className="text-xs font-semibold text-red-600 dark:text-red-500">Hard</span>
                         </div>
                         <div className="text-right flex items-baseline gap-1 pl-4">
-                            <span className="text-sm font-bold text-gray-900">{solvedByDifficulty.HARD}</span>
-                            <span className="text-[#3c3c3c] text-xs">/ {totalProblems.HARD}</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{solvedByDifficulty.HARD}</span>
+                            <span className="text-[#3c3c3c] dark:text-gray-500 text-xs">/ {totalProblems.HARD}</span>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,7 @@ export function ProblemOverviewCard({
                                 cy="50%"
                                 r={radius}
                                 fill="none"
-                                stroke="#f3f4f6" // gray-100
+                                className="stroke-gray-100 dark:stroke-[#262626]"
                                 strokeWidth="20"
                             />
 
@@ -144,7 +144,7 @@ export function ProblemOverviewCard({
 
 
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">
+                            <span className="text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
                                 {percentage}%
                             </span>
                             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider mt-1">

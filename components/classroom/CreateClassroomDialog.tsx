@@ -56,16 +56,16 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-lg overflow-hidden border border-gray-100 rounded-md shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-                <div className="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 dark:bg-black/50 backdrop-blur-sm">
+            <div className="bg-white dark:bg-[#141414] w-full max-w-lg overflow-hidden border border-gray-100 dark:border-[#262626] rounded-md shadow-2xl dark:shadow-black/50 animate-in fade-in zoom-in-95 duration-300">
+                <div className="px-8 py-6 border-b border-gray-50 dark:border-[#262626] flex justify-between items-center">
                     <div>
-                        <h2 className="text-xl font-bold text-black tracking-tight">New Classroom</h2>
-                        <p className="text-xs text-gray-400 font-medium mt-1">Setup your learning environment.</p>
+                        <h2 className="text-xl font-bold text-black dark:text-white tracking-tight">New Classroom</h2>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-1">Setup your learning environment.</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-[10px] font-bold text-gray-300 hover:text-black uppercase tracking-widest transition-colors"
+                        className="text-[10px] font-bold text-gray-300 dark:text-gray-600 hover:text-black dark:hover:text-white uppercase tracking-widest transition-colors"
                     >
                         Close
                     </button>
@@ -74,12 +74,12 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                 <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
                     {/* Name */}
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-black uppercase tracking-widest block">
+                        <label className="text-[10px] font-bold text-black dark:text-gray-300 uppercase tracking-widest block">
                             Name
                         </label>
                         <input
                             {...register("name")}
-                            className="w-full px-4 py-2 bg-gray-50/50 border border-gray-100 rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200"
+                            className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                             placeholder="e.g. Data Structures"
                         />
                         {errors.name && <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">{errors.name.message}</p>}
@@ -88,24 +88,24 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                     <div className="grid grid-cols-2 gap-6">
                         {/* Subject */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-black uppercase tracking-widest block">
+                            <label className="text-[10px] font-bold text-black dark:text-gray-300 uppercase tracking-widest block">
                                 Subject
                             </label>
                             <input
                                 {...register("subject")}
-                                className="w-full px-4 py-2 bg-gray-50/50 border border-gray-100 rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. CS-101"
                             />
                         </div>
 
                         {/* Section */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-black uppercase tracking-widest block">
+                            <label className="text-[10px] font-bold text-black dark:text-gray-300 uppercase tracking-widest block">
                                 Section
                             </label>
                             <input
                                 {...register("section")}
-                                className="w-full px-4 py-2 bg-gray-50/50 border border-gray-100 rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. A"
                             />
                         </div>
@@ -115,14 +115,14 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                         <button
                             type="button"
                             onClick={onClose}
-                            className="text-[10px] font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-colors"
+                            className="text-[10px] font-bold text-gray-400 dark:text-gray-600 hover:text-black dark:hover:text-white uppercase tracking-widest transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-6 py-2.5 bg-black text-white rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading ? "Creating..." : "Confirm"}
                         </button>

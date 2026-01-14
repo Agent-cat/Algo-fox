@@ -118,53 +118,53 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
         <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Basic Info Section */}
-                <section className="bg-white border border-gray-200 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <section className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                         <BookOpen className="w-5 h-5 text-orange-600" />
                         Basic Information
                     </h2>
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Contest Title</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contest Title</label>
                             <input
                                 {...register("title")}
-                                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                 placeholder="e.g. Weekly DSA Challenge #1"
                             />
                             {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                             <textarea
                                 {...register("description")}
                                 rows={4}
-                                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
+                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
                                 placeholder="Describe the rules, topics, and prizes..."
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Time</label>
                                 <div className="relative">
                                     <input
                                         type="datetime-local"
                                         {...register("startTime")}
-                                        className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                        className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all [color-scheme:light] dark:[color-scheme:dark]"
                                     />
                                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
                                 {errors.startTime && <p className="text-xs text-red-500 mt-1">{errors.startTime.message}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Time</label>
                                 <div className="relative">
                                     <input
                                         type="datetime-local"
                                         {...register("endTime")}
-                                        className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                        className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all [color-scheme:light] dark:[color-scheme:dark]"
                                     />
                                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
@@ -172,27 +172,27 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                             </div>
                         </div>
 
-                        <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-[#262626]">
                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Access Password (Optional)</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Access Password (Optional)</label>
                                 <input
                                     {...register("contestPassword")}
                                     type="text"
-                                    className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                    className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                     placeholder="Leave empty for open access"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">If set, users must enter this password to join.</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">If set, users must enter this password to join.</p>
                             </div>
 
-                             <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer">
+                             <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#333] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     {...register("randomizeQuestions")}
-                                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                    className="w-4 h-4 text-orange-600 border-gray-300 dark:border-gray-600 rounded focus:ring-orange-500 bg-white dark:bg-[#0a0a0a]"
                                 />
                                 <div>
-                                    <span className="block text-sm font-medium text-gray-900">Randomize Questions</span>
-                                    <span className="text-xs text-gray-500">Problems will be shown in a different order for each user.</span>
+                                    <span className="block text-sm font-medium text-gray-900 dark:text-white">Randomize Questions</span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Problems will be shown in a different order for each user.</span>
                                 </div>
                             </label>
                         </div>
@@ -200,47 +200,47 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                 </section>
 
                 {/* Audience & Scope Section */}
-                <section className="bg-white border border-gray-200 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <section className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                         <Users className="w-5 h-5 text-orange-600" />
                         Target Audience
                     </h2>
 
                     <div className="space-y-3">
-                        <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'PUBLIC' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                        <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'PUBLIC' ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10' : 'border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444]'}`}>
                             <input type="radio" {...register("visibility")} value="PUBLIC" className="hidden" />
-                            <div className={`p-2 ${visibility === 'PUBLIC' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-2 ${visibility === 'PUBLIC' ? 'bg-orange-600 text-white' : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400'}`}>
                                 <Globe className="w-4 h-4" />
                             </div>
                             <div className="flex-1">
-                                <span className="block font-semibold text-gray-900">Public</span>
-                                <span className="text-xs text-gray-500">Visible to everyone</span>
+                                <span className={`block font-semibold ${visibility === 'PUBLIC' ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>Public</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">Visible to everyone</span>
                             </div>
                             {visibility === 'PUBLIC' && <CheckCircle2 className="w-5 h-5 text-orange-600" />}
                         </label>
 
                         {institutionId && (
                             <>
-                                <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'INSTITUTION' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'INSTITUTION' ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10' : 'border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444]'}`}>
                                     <input type="radio" {...register("visibility")} value="INSTITUTION" className="hidden" />
-                                    <div className={`p-2 ${visibility === 'INSTITUTION' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                    <div className={`p-2 ${visibility === 'INSTITUTION' ? 'bg-orange-600 text-white' : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400'}`}>
                                         <School className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1">
-                                        <span className="block font-semibold text-gray-900">Entire Institute</span>
-                                        <span className="text-xs text-gray-500">Only for your organization</span>
+                                        <span className={`block font-semibold ${visibility === 'INSTITUTION' ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>Entire Institute</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">Only for your organization</span>
                                     </div>
                                     {visibility === 'INSTITUTION' && <CheckCircle2 className="w-5 h-5 text-orange-600" />}
                                 </label>
 
-                                <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'CLASSROOM' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-all ${visibility === 'CLASSROOM' ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10' : 'border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-[#444]'}`}>
                                     <input type="radio" {...register("visibility")} value="CLASSROOM" className="hidden" />
-                                    <div className={`p-2 ${visibility === 'CLASSROOM' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                    <div className={`p-2 ${visibility === 'CLASSROOM' ? 'bg-orange-600 text-white' : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400'}`}>
                                         <Users className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1">
-                                        <span className="block font-semibold text-gray-900">Specific Classroom</span>
-                                        <span className="text-xs text-gray-500">Target a single batch</span>
+                                        <span className={`block font-semibold ${visibility === 'CLASSROOM' ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>Specific Classroom</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">Target a single batch</span>
                                     </div>
                                     {visibility === 'CLASSROOM' && <CheckCircle2 className="w-5 h-5 text-orange-600" />}
                                 </label>
@@ -249,14 +249,14 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
 
                         {visibility === "CLASSROOM" && (
                             <div className="pt-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Select Classroom</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Classroom</label>
                                 <select
                                     {...register("classroomId")}
-                                    className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                    className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                                 >
-                                    <option value="">Choose a classroom...</option>
+                                    <option value="" className="bg-white dark:bg-[#1a1a1a]">Choose a classroom...</option>
                                     {classrooms.map((c) => (
-                                        <option key={c.id} value={c.id}>
+                                        <option key={c.id} value={c.id} className="bg-white dark:bg-[#1a1a1a]">
                                             {c.name} {c.section ? `(${c.section})` : ""}
                                         </option>
                                     ))}
@@ -269,16 +269,16 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
             </div>
 
             {/* Problem Selection Section */}
-            <section className="bg-white border border-gray-200 p-6">
+            <section className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <Plus className="w-5 h-5 text-orange-600" />
                             Contest Problems
                         </h2>
-                        <p className="text-xs text-gray-500 mt-1">Search and select problems for this contest</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Search and select problems for this contest</p>
                     </div>
-                    <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs font-semibold border border-orange-100">
+                    <span className="px-3 py-1 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 text-xs font-semibold border border-orange-100 dark:border-orange-500/20">
                         {selectedProblems.length} Selected
                     </span>
                 </div>
@@ -290,35 +290,35 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                             <input
                                 value={problemSearch}
                                 onChange={(e) => setProblemSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+                                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
                                 placeholder="Search by problem name or slug..."
                             />
                         </div>
 
-                        <div className="border border-gray-200 overflow-hidden min-h-[200px] max-h-[400px] overflow-y-auto">
+                        <div className="border border-gray-200 dark:border-[#333] overflow-hidden min-h-[200px] max-h-[400px] overflow-y-auto">
                             {isSearchingProblems ? (
                                 <div className="flex items-center justify-center h-40">
                                     <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
                                 </div>
                             ) : selectableProblems.length > 0 ? (
-                                <div className="divide-y divide-gray-200">
+                                <div className="divide-y divide-gray-200 dark:divide-[#333]">
                                     {selectableProblems.map((problem) => {
                                         const isSelected = selectedProblems.some(p => p.id === problem.id);
                                         return (
                                             <div
                                                 key={problem.id}
                                                 onClick={() => toggleProblem(problem)}
-                                                className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${isSelected ? 'bg-orange-50' : 'hover:bg-gray-50'}`}
+                                                className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${isSelected ? 'bg-orange-50 dark:bg-orange-500/10' : 'hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'}`}
                                             >
                                                 <div>
-                                                    <p className="font-semibold text-gray-900 text-sm">{problem.title}</p>
-                                                    <span className={`text-xs font-semibold ${problem.difficulty === 'EASY' ? 'text-emerald-600' :
-                                                        problem.difficulty === 'MEDIUM' ? 'text-amber-600' : 'text-rose-600'
+                                                    <p className="font-semibold text-gray-900 dark:text-white text-sm">{problem.title}</p>
+                                                    <span className={`text-xs font-semibold ${problem.difficulty === 'EASY' ? 'text-emerald-600 dark:text-emerald-500' :
+                                                        problem.difficulty === 'MEDIUM' ? 'text-amber-600 dark:text-amber-500' : 'text-rose-600 dark:text-rose-500'
                                                         }`}>
                                                         {problem.difficulty}
                                                     </span>
                                                 </div>
-                                                <button type="button" className={`p-1.5 transition-all ${isSelected ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                                <button type="button" className={`p-1.5 transition-all ${isSelected ? 'bg-orange-600 text-white' : 'bg-gray-100 dark:bg-[#333] text-gray-400 dark:text-gray-500'}`}>
                                                     <Plus className={`w-4 h-4 transition-transform ${isSelected ? 'rotate-45' : ''}`} />
                                                 </button>
                                             </div>
@@ -327,30 +327,30 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-40 text-center px-6">
-                                    <Search className="w-8 h-8 text-gray-300 mb-2" />
-                                    <p className="text-sm text-gray-500">Type to search for problems</p>
+                                    <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Type to search for problems</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-gray-700">Selected Problems</h3>
-                        <div className="border-2 border-dashed border-gray-200 min-h-[250px] p-4">
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected Problems</h3>
+                        <div className="border-2 border-dashed border-gray-200 dark:border-[#333] min-h-[250px] p-4">
                             {selectedProblems.length > 0 ? (
                                 <div className="space-y-2">
                                     {selectedProblems.map((problem, index) => (
-                                        <div key={problem.id} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200">
+                                        <div key={problem.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333]">
                                             <div className="flex items-center gap-3">
-                                                <span className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 text-xs font-semibold text-gray-600">
+                                                <span className="w-6 h-6 flex items-center justify-center bg-white dark:bg-[#141414] border border-gray-300 dark:border-[#333] text-xs font-semibold text-gray-600 dark:text-gray-400">
                                                     {index + 1}
                                                 </span>
-                                                <p className="font-semibold text-gray-900 text-sm">{problem.title}</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white text-sm">{problem.title}</p>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => toggleProblem(problem)}
-                                                className="p-1.5 hover:bg-gray-200 text-gray-400 hover:text-red-600 transition-colors"
+                                                className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#333] text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>
@@ -359,8 +359,8 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-40 text-center opacity-40">
-                                    <Layers className="w-10 h-10 text-gray-300 mb-2" />
-                                    <p className="text-sm text-gray-500">No problems added yet</p>
+                                    <Layers className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-2" />
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">No problems added yet</p>
                                 </div>
                             )}
                         </div>
@@ -370,11 +370,11 @@ export function CreateContestForm({ institutionId, userId }: CreateContestFormPr
             </section>
 
             {/* Submit Section */}
-            <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-[#262626]">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                    className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     Cancel
                 </button>

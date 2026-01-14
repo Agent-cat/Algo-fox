@@ -46,14 +46,14 @@ function SearchBarComponent({
             <input
                 type="text"
                 placeholder={placeholder}
-                className="block w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl leading-5 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-400 sm:text-sm transition-all shadow-sm"
+                className="block w-full pl-10 pr-3 py-2.5 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl leading-5 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-[#1a1a1a] focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/20 focus:border-orange-400 sm:text-sm transition-all shadow-sm text-gray-900 dark:text-gray-100"
                 value={localSearch}
                 onChange={handleChange}
                 autoComplete="off"
             />
             {localSearch && localSearch !== debouncedSearch && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-600 border-t-transparent rounded-full animate-spin" />
                 </div>
             )}
         </div>

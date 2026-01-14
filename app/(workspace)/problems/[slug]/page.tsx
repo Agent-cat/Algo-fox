@@ -1,7 +1,8 @@
 import { getProblem, getNextProblem, getPreviousProblem } from "@/actions/problems";
 import { getContestDetail } from "@/actions/contest";
-import Workspace from "@/components/workspace/Workspace";
+
 import { notFound, redirect } from "next/navigation";
+import WorkspaceClientWrapper from "@/components/workspace/WorkspaceClientWrapper";
 import { prisma } from "@/lib/prisma";
 import { Laptop2 } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -139,17 +140,17 @@ async function ProblemContentWithParams({
 
   return (
     <>
-      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50">
-        <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-          <Laptop2 className="w-8 h-8 text-orange-600" />
+      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#0a0a0a]">
+        <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+          <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Desktop Required</h1>
-        <p className="text-gray-600 max-w-sm mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Desktop Required</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
           For the best coding experience, please open this problem on a desktop or laptop device.
         </p>
       </div>
       <div className="hidden md:block">
-        <Workspace
+        <WorkspaceClientWrapper
           problem={problem}
           isSolved={isSolved}
           contestId={contestId}
@@ -166,10 +167,10 @@ async function ProblemContentWithParams({
 export default function ProblemPage({ params, searchParams }: PageProps) {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading problem...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading problem...</p>
         </div>
       </div>
     }>

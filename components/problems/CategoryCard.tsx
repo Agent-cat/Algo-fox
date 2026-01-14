@@ -101,17 +101,17 @@ export default function CategoryCard({ id, name, description, problemCount }: Ca
     <div className="w-full max-w-6xl mx-auto mb-6">
       <motion.button
         onClick={handleToggle}
-        className="w-full bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-orange-300 transition-all text-left shadow-sm hover:shadow-md"
+        className="w-full bg-white dark:bg-[#141414] border-2 border-gray-200 dark:border-[#262626] rounded-2xl p-6 hover:border-orange-300 dark:hover:border-orange-500/50 transition-all text-left shadow-sm hover:shadow-md"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{name}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{name}</h3>
             {description && (
-              <p className="text-gray-600 text-sm mb-2">{description}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{description}</p>
             )}
-            <p className="text-gray-500 text-sm">{problemCount} problems</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{problemCount} problems</p>
           </div>
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -135,13 +135,13 @@ export default function CategoryCard({ id, name, description, problemCount }: Ca
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="mt-4 bg-gray-50 rounded-xl p-6 border border-gray-100">
+            <div className="mt-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl p-6 border border-gray-100 dark:border-[#262626]">
               {isInitialLoad ? (
                 <div className="flex justify-center py-8">
                   <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : problems.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   No problems in this category yet.
                 </div>
               ) : (
@@ -156,13 +156,13 @@ export default function CategoryCard({ id, name, description, problemCount }: Ca
                       >
                         <Link
                           href={`/problems/${problem.slug}`}
-                          className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+                          className="flex items-center justify-between p-4 bg-white dark:bg-[#141414] rounded-lg hover:bg-gray-50 dark:hover:bg-[#262626] transition-colors border border-gray-100 dark:border-[#262626]"
                         >
                           <div className="flex items-center gap-3 flex-1">
                             {problem.isSolved && (
                               <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                             )}
-                            <span className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
+                            <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">
                               {problem.title}
                             </span>
                           </div>

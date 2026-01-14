@@ -73,39 +73,43 @@ export default function CreateUserDialog() {
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Name</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                         <Input
                             required
                             placeholder="John Doe"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Email</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <Input
                             required
                             type="email"
                             placeholder="john@example.com"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Password</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                         <Input
                             required
                             type="password"
                             placeholder="••••••••"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Role</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
                         <Select
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
                         >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>

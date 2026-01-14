@@ -68,9 +68,9 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
     }, [isLive, isPast, startTime, endTime]);
 
     const getStatus = () => {
-        if (isPast) return { label: "Ended", color: "bg-gray-100 text-gray-600", badge: "bg-gray-200 text-gray-600" };
-        if (isLive) return { label: "Live", color: "bg-rose-50 text-rose-600", badge: "bg-rose-600 text-white animate-pulse" };
-        return { label: "Upcoming", color: "bg-indigo-50 text-indigo-600", badge: "bg-indigo-600 text-white" };
+        if (isPast) return { label: "Ended", color: "bg-gray-100 dark:bg-gray-500/10 text-gray-600 dark:text-gray-400", badge: "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300" };
+        if (isLive) return { label: "Live", color: "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400", badge: "bg-rose-600 text-white animate-pulse" };
+        return { label: "Upcoming", color: "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400", badge: "bg-indigo-600 text-white" };
     };
 
     const getVisibilityLabel = () => {
@@ -79,25 +79,25 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                 return {
                     label: "Open to everyone",
                     icon: Globe,
-                    color: "text-blue-600",
-                    bg: "bg-blue-50"
+                    color: "text-blue-600 dark:text-blue-400",
+                    bg: "bg-blue-50 dark:bg-blue-500/10"
                 };
             case "INSTITUTION":
                 return {
                     label: contest.institution?.name ? `For ${contest.institution.name}` : "For your institution",
                     icon: School,
-                    color: "text-purple-600",
-                    bg: "bg-purple-50"
+                    color: "text-purple-600 dark:text-purple-400",
+                    bg: "bg-purple-50 dark:bg-purple-500/10"
                 };
             case "CLASSROOM":
                 return {
                     label: contest.classroom?.name ? `For ${contest.classroom.name}` : "For your classroom",
                     icon: Users,
-                    color: "text-green-600",
-                    bg: "bg-green-50"
+                    color: "text-green-600 dark:text-green-400",
+                    bg: "bg-green-50 dark:bg-green-500/10"
                 };
             default:
-                return { label: "Open to everyone", icon: Globe, color: "text-blue-600", bg: "bg-blue-50" };
+                return { label: "Open to everyone", icon: Globe, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10" };
         }
     };
 
@@ -108,7 +108,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
     const duration = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
 
     return (
-        <div className="group bg-white rounded-2xl border border-gray-100 p-8 shadow-sm hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all duration-500 relative overflow-hidden flex flex-col h-full">
+        <div className="group bg-white dark:bg-[#141414] rounded-2xl border border-gray-100 dark:border-[#262626] p-8 shadow-sm hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-1 transition-all duration-500 relative overflow-hidden flex flex-col h-full">
             <div className="flex items-start justify-between mb-8 relative z-10">
                 <div className={`p-4 rounded-xl ${status.color} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
                     <Trophy className="w-7 h-7" />
@@ -120,7 +120,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                     {/* Live Countdown Timer */}
                     {!isPast && (
                         <div className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-md ${
-                            isLive ? 'bg-rose-50 text-rose-600' : 'bg-orange-50 text-orange-600'
+                            isLive ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
                         }`}>
                             <Clock className="w-3 h-3" />
                             <span>{isLive ? 'Ends in ' : 'Starts in '}</span>
@@ -132,7 +132,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
 
             <div className="space-y-6 flex-1 relative z-10">
                 <div className="space-y-3">
-                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-orange-600 transition-colors leading-tight tracking-tight">
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 group-hover:text-orange-600 transition-colors leading-tight tracking-tight">
                         {contest.title}
                     </h3>
                     {/* Visibility Label - Human Readable */}
@@ -142,17 +142,17 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6 py-6 border-y border-gray-50 bg-gray-50/50 -mx-8 px-8 group-hover:bg-white transition-colors duration-500">
+                <div className="grid grid-cols-2 gap-6 py-6 border-y border-gray-50 dark:border-[#262626] bg-gray-50/50 dark:bg-[#0a0a0a]/50 -mx-8 px-8 group-hover:bg-white dark:group-hover:bg-[#1a1a1a] transition-colors duration-500">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                             <Calendar className="w-3.5 h-3.5 text-orange-500" />
                             Start Date
                         </div>
                         <div>
-                            <div className="text-sm font-black text-gray-900 leading-none">
+                            <div className="text-sm font-black text-gray-900 dark:text-gray-100 leading-none">
                                 {format(startTime, "MMM d, yyyy")}
                             </div>
-                            <div className="text-[11px] font-bold text-gray-500 mt-1">
+                            <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1">
                                 {format(startTime, "HH:mm")} (IST)
                             </div>
                         </div>
@@ -163,10 +163,10 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                             Duration
                         </div>
                         <div>
-                            <div className="text-sm font-black text-gray-900 leading-none">
+                            <div className="text-sm font-black text-gray-900 dark:text-gray-100 leading-none">
                                 {duration} {duration === 1 ? "Hour" : "Hours"}
                             </div>
-                            <div className="text-[11px] font-bold text-gray-500 mt-1">
+                            <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1">
                                 Ends {format(endTime, "MMM d, HH:mm")}
                             </div>
                         </div>
@@ -177,7 +177,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                     <div className="flex items-center gap-3">
                         <div className="flex -space-x-2">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400">
+                                <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-[#141414] bg-gray-100 dark:bg-[#262626] flex items-center justify-center text-[8px] font-black text-gray-400">
                                     ?
                                 </div>
                             ))}
@@ -190,7 +190,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                     {isPast ? (
                         <Link
                             href={`/contest/${contest.id}/standings`}
-                            className="flex items-center gap-2 px-6 py-3 text-xs font-black text-gray-700 bg-gray-100/80 hover:bg-gray-200 rounded-xl transition-all duration-300 uppercase tracking-widest group/btn"
+                            className="flex items-center gap-2 px-6 py-3 text-xs font-black text-gray-700 dark:text-gray-300 bg-gray-100/80 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#333333] rounded-xl transition-all duration-300 uppercase tracking-widest group/btn"
                         >
                             Results
                             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
@@ -206,7 +206,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
                     ) : (
                         <Link
                             href={`/contest/${contest.id}`}
-                            className="flex items-center gap-2 px-6 py-3 text-xs font-black text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all duration-300 border-2 border-orange-100 hover:border-orange-200 uppercase tracking-widest group/btn"
+                            className="flex items-center gap-2 px-6 py-3 text-xs font-black text-orange-600 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 rounded-xl transition-all duration-300 border-2 border-orange-100 dark:border-orange-500/30 hover:border-orange-200 dark:hover:border-orange-500/50 uppercase tracking-widest group/btn"
                         >
                             <Clock className="w-4 h-4" />
                             Details

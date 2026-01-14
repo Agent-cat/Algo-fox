@@ -6,10 +6,10 @@ export const INTERSECTION_THRESHOLD = 0.1;
 
 // Difficulty colors
 export const DIFFICULTY_COLORS = {
-    EASY: "text-emerald-500 bg-emerald-50/50",
-    MEDIUM: "text-amber-500 bg-amber-50/50",
-    HARD: "text-rose-500 bg-rose-50/50",
-    CONCEPT: "text-indigo-500 bg-indigo-50/50",
+    EASY: "text-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/10",
+    MEDIUM: "text-amber-500 bg-amber-50/50 dark:bg-amber-500/10",
+    HARD: "text-rose-500 bg-rose-50/50 dark:bg-rose-500/10",
+    CONCEPT: "text-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10",
 } as const;
 
 // Animation configurations

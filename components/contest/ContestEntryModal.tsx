@@ -143,16 +143,16 @@ export default function ContestEntryModal({
                         </div>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-6 bg-white dark:bg-[#141414]">
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contest Password</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contest Password</label>
                                 <input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-mono text-lg"
+                                    className="w-full px-4 py-3 border border-gray-200 dark:border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-mono text-lg bg-gray-50 dark:bg-[#1a1a1a] text-gray-900 dark:text-white"
                                     placeholder="••••••••"
                                     autoFocus
                                 />
@@ -161,10 +161,10 @@ export default function ContestEntryModal({
                             <button
                                 onClick={handleVerifyPassword}
                                 disabled={isLoading || !password}
-                                className="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-semibold hover:bg-black dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white dark:border-black/30 dark:border-t-black rounded-full animate-spin" />
                                 ) : (
                                     <>
                                         Continue <ArrowRight className="w-4 h-4" />
@@ -203,25 +203,25 @@ export default function ContestEntryModal({
                     </div>
                 </div>
 
-                <div className="p-8">
+                <div className="p-8 bg-white dark:bg-[#141414]">
                     <div className="grid md:grid-cols-2 gap-8">
                         <div>
                             <div className="mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Contest Rules & Requirements</h3>
-                                <p className="text-gray-500 text-sm">Please review the following rules carefully before starting. Violation of these rules may result in disqualification.</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Contest Rules & Requirements</h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">Please review the following rules carefully before starting. Violation of these rules may result in disqualification.</p>
                             </div>
 
                             <div className="space-y-4">
                                 {RULES.map((rule, index) => {
                                     const Icon = rule.icon;
                                     return (
-                                        <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-                                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shrink-0 border border-gray-200 shadow-sm">
-                                                <Icon className="w-5 h-5 text-gray-700" />
+                                        <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333] transition-colors">
+                                            <div className="w-10 h-10 bg-white dark:bg-[#262626] rounded-lg flex items-center justify-center shrink-0 border border-gray-200 dark:border-[#333] shadow-sm dark:shadow-none">
+                                                <Icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-gray-900 text-sm mb-1">{rule.title}</p>
-                                                <p className="text-xs text-gray-500 leading-relaxed">{rule.description}</p>
+                                                <p className="font-semibold text-gray-900 dark:text-gray-200 text-sm mb-1">{rule.title}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{rule.description}</p>
                                             </div>
                                         </div>
                                     );
@@ -231,28 +231,28 @@ export default function ContestEntryModal({
 
                         <div className="flex flex-col h-full">
                              <div className="flex-1">
-                                <div className="p-5 bg-orange-50 rounded-xl border border-orange-100 mb-6">
+                                <div className="p-5 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 mb-6">
                                     <div className="flex gap-3">
-                                        <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0" />
+                                        <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-500 shrink-0" />
                                         <div>
-                                            <p className="text-sm font-bold text-orange-900 mb-1">
+                                            <p className="text-sm font-bold text-orange-900 dark:text-orange-400 mb-1">
                                                 Active Monitoring
                                             </p>
-                                            <p className="text-sm text-orange-800/80 leading-relaxed">
+                                            <p className="text-sm text-orange-800/80 dark:text-orange-400/80 leading-relaxed">
                                                 Once you start, contest protection will be activated. Violations such as switching tabs, exiting fullscreen, or using developer tools will be logged and may impact your score.
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="p-5 bg-red-50 rounded-xl border border-red-100 mb-6">
+                                <div className="p-5 bg-red-50 dark:bg-red-500/10 rounded-xl border border-red-100 dark:border-red-500/20 mb-6">
                                     <div className="flex gap-3">
-                                        <Shield className="w-5 h-5 text-red-600 shrink-0" />
+                                        <Shield className="w-5 h-5 text-red-600 dark:text-red-500 shrink-0" />
                                         <div>
-                                            <p className="text-sm font-bold text-red-900 mb-1">
+                                            <p className="text-sm font-bold text-red-900 dark:text-red-400 mb-1">
                                                 Automatic Disqualification
                                             </p>
-                                            <p className="text-sm text-red-800/80 leading-relaxed">
+                                            <p className="text-sm text-red-800/80 dark:text-red-400/80 leading-relaxed">
                                                 <strong>Escalation Policy:</strong> 3+ violations will flag your session for review. 5+ violations will automatically submit your contest and block further access.
                                             </p>
                                         </div>
@@ -261,25 +261,25 @@ export default function ContestEntryModal({
                              </div>
 
                              <div className="mt-auto">
-                                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors mb-6 group">
+                                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors mb-6 group">
                                     <div className="relative flex items-center">
                                         <input
                                             type="checkbox"
                                             checked={agreed}
                                             onChange={(e) => setAgreed(e.target.checked)}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 transition-all checked:border-orange-500 checked:bg-orange-500"
+                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 transition-all checked:border-orange-500 checked:bg-orange-500"
                                         />
                                         <CheckCircle2 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" />
                                     </div>
-                                    <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors select-none">
-                                        I have read and agree to the <span className="font-semibold text-gray-900">contest rules</span> and understand the <span className="font-semibold text-gray-900">proctoring terms</span>.
+                                    <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors select-none">
+                                        I have read and agree to the <span className="font-semibold text-gray-900 dark:text-gray-100">contest rules</span> and understand the <span className="font-semibold text-gray-900 dark:text-gray-100">proctoring terms</span>.
                                     </span>
                                 </label>
 
                                 <div className="flex gap-3">
                                     <button
                                         onClick={onClose}
-                                        className="flex-1 py-3.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm"
+                                        className="flex-1 py-3.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-[#262626] hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
                                     >
                                         Cancel
                                     </button>

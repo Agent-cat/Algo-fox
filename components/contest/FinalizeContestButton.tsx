@@ -17,7 +17,7 @@ export function FinalizeContestButton({ contestId, isFinalized }: FinalizeContes
 
     if (isFinalized) {
         return (
-            <div className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-xs font-bold border border-green-200 uppercase tracking-wider flex items-center gap-2">
+            <div className="px-4 py-2 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-lg text-xs font-bold border border-green-200 dark:border-green-500/20 uppercase tracking-wider flex items-center gap-2">
                 <Award className="w-4 h-4" />
                 Results Finalized
             </div>

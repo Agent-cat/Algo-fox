@@ -105,7 +105,7 @@ export default function CategoryCard({ id, name, description, problemCount, solv
     >
       <motion.button
         onClick={handleToggle}
-        className="w-full bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-all text-left hover:shadow-md"
+        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333333] transition-all text-left hover:shadow-md"
         whileHover={{ scale: 1.005, y: -1 }}
         whileTap={{ scale: 0.998 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -113,7 +113,7 @@ export default function CategoryCard({ id, name, description, problemCount, solv
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-base font-semibold text-gray-900">{name}</h3>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{name}</h3>
               {isCompleted && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -128,7 +128,7 @@ export default function CategoryCard({ id, name, description, problemCount, solv
             {/* Progress Bar */}
             <div className="mb-2">
               <div className="flex items-center gap-2.5 mb-1.5">
-                <div className="flex-1 bg-white/40 backdrop-blur-sm rounded-full h-2 overflow-hidden border border-gray-200/50 shadow-inner relative">
+                <div className="flex-1 bg-white/40 dark:bg-[#1a1a1a] backdrop-blur-sm rounded-full h-2 overflow-hidden border border-gray-200/50 dark:border-[#333333] shadow-inner relative">
                   <motion.div
                     className="h-full bg-gradient-to-r from-orange-500/90 to-orange-600/90 rounded-full relative overflow-hidden"
                     initial={{ width: 0 }}
@@ -138,15 +138,15 @@ export default function CategoryCard({ id, name, description, problemCount, solv
                     <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent" />
                   </motion.div>
                 </div>
-                <span className="text-xs text-gray-600 font-medium min-w-[40px] text-right">
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium min-w-[40px] text-right">
                   {Math.round(progressPercentage)}%
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-gray-700 text-xs font-medium">{solvedCount}/{problemCount}</span>
-              <span className="text-gray-500 text-xs">problems solved</span>
+              <span className="text-gray-700 dark:text-gray-300 text-xs font-medium">{solvedCount}/{problemCount}</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs">problems solved</span>
             </div>
           </div>
           <motion.div
@@ -171,11 +171,11 @@ export default function CategoryCard({ id, name, description, problemCount, solv
             }}
             className="overflow-hidden"
           >
-            <div className="mt-3 bg-gradient-to-b from-gray-50 to-white rounded-xl p-4 border border-gray-200 shadow-sm">
+            <div className="mt-3 bg-gradient-to-b from-gray-50 dark:from-[#1a1a1a] to-white dark:to-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626] shadow-sm">
               {isInitialLoad ? (
                 <LoadingSpinner size="md" className="py-6" />
               ) : problems.length === 0 ? (
-                <div className="text-center py-6 text-gray-500 text-sm">
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
                   No problems in this category yet.
                 </div>
               ) : (
@@ -191,13 +191,13 @@ export default function CategoryCard({ id, name, description, problemCount, solv
                       >
                         <Link
                           href={`/problems/${problem.slug}`}
-                          className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-50 transition-all border border-gray-100 hover:border-gray-200 hover:shadow-sm"
+                          className="flex items-center justify-between p-3 bg-white dark:bg-[#141414] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333333] hover:shadow-sm"
                         >
                           <div className="flex items-center gap-2.5 flex-1">
                             {problem.isSolved && (
                               <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                             )}
-                            <span className="font-medium text-gray-900 text-sm group-hover:text-gray-700 transition-colors">
+                            <span className="font-medium text-gray-900 dark:text-gray-100 text-sm group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                               {problem.title}
                             </span>
                           </div>
@@ -212,7 +212,7 @@ export default function CategoryCard({ id, name, description, problemCount, solv
                                 : problem.difficulty.charAt(0) +
                                 problem.difficulty.slice(1).toLowerCase()}
                             </span>
-                            <span className="text-xs text-gray-500 min-w-[50px] text-right">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 min-w-[50px] text-right">
                               {problem.acceptance.toFixed(1)}%
                             </span>
                           </div>

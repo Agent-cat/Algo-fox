@@ -14,10 +14,14 @@ import {
 import { useEffect, useState } from "react";
 import { getUserProgressHistory } from "@/actions/analytics";
 import { Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function ProgressLineChart({ userId }: { userId?: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDark = currentTheme === 'dark';
 
   useEffect(() => {
     getUserProgressHistory(userId).then((res) => {
@@ -36,7 +40,7 @@ export default function ProgressLineChart({ userId }: { userId?: string }) {
 
   if (data.length < 2) {
       return (
-          <div className="h-64 flex flex-col items-center justify-center text-gray-400 text-sm border border-dashed rounded-xl">
+          <div className="h-64 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 text-sm border border-dashed border-gray-200 dark:border-[#333] rounded-xl">
               <p>Not enough data yet.</p>
               <p>Keep solving!</p>
           </div>
@@ -61,21 +65,26 @@ export default function ProgressLineChart({ userId }: { userId?: string }) {
               <stop offset="95%" stopColor="#ea580c" stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#333" : "#f3f4f6"} />
           <XAxis
             dataKey="date"
-            tick={{ fill: "#9ca3af", fontSize: 10 }}
+            tick={{ fill: isDark ? "#9ca3af" : "#9ca3af", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            tick={{ fill: "#9ca3af", fontSize: 10 }}
+            tick={{ fill: isDark ? "#9ca3af" : "#9ca3af", fontSize: 10 }}
             tickLine={false}
             axisLine={false}
           />
           <Tooltip
-            contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
-            labelStyle={{ color: "#6b7280", fontSize: "12px" }}
+            contentStyle={{
+                borderRadius: "8px",
+                border: isDark ? "1px solid #333" : "none",
+                backgroundColor: isDark ? "#141414" : "#fff",
+                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)"
+            }}
+            labelStyle={{ color: isDark ? "#9ca3af" : "#6b7280", fontSize: "12px" }}
           />
           <Area
             type="monotone"
