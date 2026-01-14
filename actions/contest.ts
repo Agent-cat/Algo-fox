@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { cacheTag, cacheLife } from "next/cache";
 
 const contestSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -311,6 +312,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
 
         revalidatePath("/dashboard/contests");
         revalidatePath("/contest");
+        revalidateTag("contests", "max");
         return { success: true, contestId: contest.id };
     } catch (error: any) {
         console.error("Failed to create contest:", error);
@@ -403,6 +405,7 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
         revalidatePath("/dashboard/contests");
         revalidatePath("/contests");
         revalidatePath("/contest");
+        revalidateTag("contests", "max");
         return { success: true, contestId: contest.id };
     } catch (error) {
         console.error("Failed to create contest with problems:", error);
@@ -592,6 +595,8 @@ export async function finalizeContest(contestId: string) {
         if(silverUserId) revalidatePath(`/profile/${silverUserId}`);
         if(bronzeUserId) revalidatePath(`/profile/${bronzeUserId}`);
         revalidatePath(`/contest/${contestId}`);
+        revalidateTag(`contest-${contestId}`, "max");
+        revalidateTag(`leaderboard-${contestId}`, "max");
 
         return { success: true };
     } catch (error) {
@@ -1215,6 +1220,10 @@ export async function getParticipantViolations(contestId: string, userId: string
  * - Calculates scores
  */
 export async function getContestLeaderboard(contestId: string) {
+    "use cache"
+    cacheTag(`leaderboard-${contestId}`)
+    cacheLife("leaderboard")
+
     try {
         const participations = await prisma.contestParticipation.findMany({
             where: {

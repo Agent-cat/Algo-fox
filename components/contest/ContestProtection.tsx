@@ -62,6 +62,7 @@ export default function ContestProtection({
     const lastViolationTime = useRef<number>(0);
     const isProcessingViolation = useRef(false);
     const isRefreshing = useRef(false);
+    const isNavigating = useRef(false); // Track internal navigation to problem pages
 
     // Ref to track fullscreen needs for event listeners (avoids stale closures)
     const needsFullscreenRef = useRef(false);
@@ -92,7 +93,8 @@ export default function ContestProtection({
         type: "TAB_SWITCH" | "FULLSCREEN_EXIT" | "COPY_PASTE" | "DEVTOOLS_OPEN" | "KEYBOARD_SHORTCUT" | "NAVIGATION_ATTEMPT" | "MULTI_TAB",
         message: string
     ) => {
-        if (!isMounted.current || isRefreshing.current) return;
+        // Skip if navigating internally (prevents false positives when clicking problems)
+        if (!isMounted.current || isRefreshing.current || isNavigating.current) return;
 
         // Always show popup for user awareness
         setCurrentViolationType(message);
@@ -390,6 +392,27 @@ export default function ContestProtection({
         document.addEventListener("contextmenu", preventContextMenu);
 
         // =============================================
+        // 8. INTERNAL NAVIGATION TRACKING
+        // =============================================
+        // Track clicks on links to prevent false positives when navigating to problems
+        const handleLinkClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const link = target.closest('a');
+            if (link) {
+                const href = link.getAttribute('href');
+                // If it's an internal link (same origin or relative path)
+                if (href && (href.startsWith('/') || href.startsWith(window.location.origin))) {
+                    isNavigating.current = true;
+                    // Reset after a short delay in case navigation is cancelled
+                    setTimeout(() => {
+                        isNavigating.current = false;
+                    }, 2000);
+                }
+            }
+        };
+        document.addEventListener("click", handleLinkClick, true);
+
+        // =============================================
         // 8. BEFOREUNLOAD WARNING
         // =============================================
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -430,6 +453,7 @@ export default function ContestProtection({
             document.removeEventListener("touchstart", checkCompliance);
 
             document.removeEventListener("contextmenu", preventContextMenu);
+            document.removeEventListener("click", handleLinkClick, true);
             window.removeEventListener("beforeunload", handleBeforeUnload);
             document.removeEventListener("dragover", preventDragDrop);
             document.removeEventListener("drop", preventDragDrop);
