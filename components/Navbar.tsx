@@ -56,7 +56,7 @@ export default function Navbar() {
     const canManage = isAdmin || isTeacher || isContestManager;
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#0a0a0a] backdrop-blur-md border-b border-dashed border-gray-300 dark:border-[#262626] transition-all duration-300">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#0a0a0a] backdrop-blur-md border-b border-dashed border-gray-300 dark:border-[#262626]">
             <div className="max-w-7xl mx-auto  px-6 h-16 flex items-center justify-between">
                 <Link href="/" className="text-xl font-bold flex items-center gap-2 group">
                     <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">

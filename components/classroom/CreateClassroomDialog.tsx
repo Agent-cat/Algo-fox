@@ -79,7 +79,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                         </label>
                         <input
                             {...register("name")}
-                            className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                            className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                             placeholder="e.g. Data Structures"
                         />
                         {errors.name && <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">{errors.name.message}</p>}
@@ -93,7 +93,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                             </label>
                             <input
                                 {...register("subject")}
-                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. CS-101"
                             />
                         </div>
@@ -105,7 +105,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                             </label>
                             <input
                                 {...register("section")}
-                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none transition-all font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. A"
                             />
                         </div>
@@ -122,7 +122,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-orange-600 dark:hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isLoading ? "Creating..." : "Confirm"}
                         </button>

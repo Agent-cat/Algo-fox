@@ -149,3 +149,126 @@ export async function getInstitutionStatsAction(institutionId: string) {
     return { success: false, error: "Failed to fetch stats" };
   }
 }
+
+export async function deleteStaffMember(userId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const currentUser = session.user as any;
+    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!targetUser) return { success: false, error: "User not found" };
+
+    // Security check
+    if (currentUser.role !== "ADMIN") {
+      if (
+        currentUser.role !== "INSTITUTION_MANAGER" ||
+        currentUser.institutionId !== targetUser.institutionId
+      ) {
+        return { success: false, error: "Unauthorized" };
+      }
+    }
+
+    // Only allow removing form institution, not deleting user entirely?
+    // User requested "delete", but usually we just remove from institution.
+    // If we remove from institution, we set institutionId to null and role to STUDENT?
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            institutionId: null,
+            role: "STUDENT" // Reset to student
+        }
+    });
+
+    revalidatePath("/dashboard/institution");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to remove staff member:", error);
+    return { success: false, error: "Failed to remove member" };
+  }
+}
+
+
+export async function getInstitutionUsers(
+    institutionId: string,
+    role: "TEACHER" | "CONTEST_MANAGER" | "STUDENT",
+    page: number = 1,
+    limit: number = 20
+) {
+    try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (!session?.user) {
+        return { success: false, error: "Unauthorized" };
+      }
+
+      const currentUser = session.user as any;
+
+      if (currentUser.role !== "ADMIN") {
+        if (
+          currentUser.role !== "INSTITUTION_MANAGER" ||
+          currentUser.institutionId !== institutionId
+        ) {
+          return { success: false, error: "Unauthorized" };
+        }
+      }
+
+      const skip = (page - 1) * limit;
+
+      const [users, total] = await Promise.all([
+          prisma.user.findMany({
+            where: {
+              institutionId,
+              role: role,
+            },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              image: true,
+              createdAt: true,
+              _count: {
+                  select: {
+                      taughtClassrooms: true
+                  }
+              }
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+            skip,
+            take: limit
+          }),
+          prisma.user.count({
+              where: {
+                  institutionId,
+                  role: role
+              }
+          })
+      ]);
+
+      return {
+          success: true,
+          users,
+          pagination: {
+              total,
+              pages: Math.ceil(total / limit),
+              current: page,
+              limit
+          }
+      };
+    } catch (error) {
+      console.error(`Failed to fetch institution ${role}s:`, error);
+      return { success: false, error: "Failed to fetch users" };
+    }
+  }

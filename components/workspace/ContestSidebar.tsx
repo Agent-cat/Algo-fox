@@ -41,7 +41,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
         // Track visited problems in localStorage
         const visitedKey = `contest-visited-${contest.id}`;
         const stored = localStorage.getItem(visitedKey);
-        let visited = stored ? JSON.parse(stored) : [];
+        const visited = stored ? JSON.parse(stored) : [];
 
         if (!visited.includes(currentProblemId)) {
             visited.push(currentProblemId);

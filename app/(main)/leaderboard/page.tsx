@@ -93,7 +93,7 @@ export default function LeaderboardPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.03 }}
-                                    className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                                    className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] group"
                                 >
                                     {/* Rank */}
                                     <div className="col-span-1 flex justify-center">

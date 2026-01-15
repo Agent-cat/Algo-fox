@@ -57,7 +57,7 @@ LIMIT 10;`,
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans pt-20 transition-colors relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans pt-20 relative overflow-hidden">
       {/* Animated Code Snippets Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08] dark:opacity-[0.12]">
         {codeSnippets.map((snippet, index) => (

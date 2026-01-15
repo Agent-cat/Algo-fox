@@ -5,6 +5,8 @@ interface UserProfileCardProps {
     email: string;
     image?: string | null;
     bio?: string | null;
+    role?: string;
+    institutionName?: string;
     leetCodeHandle?: string | null;
     codeChefHandle?: string | null;
     hackerrankHandle?: string | null;
@@ -14,7 +16,7 @@ interface UserProfileCardProps {
 }
 
 export function UserProfileCard(props: UserProfileCardProps) {
-    const { name, email, image, bio, readonly } = props;
+    const { name, email, image, bio, role, institutionName, readonly } = props;
 
     return (
         <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -31,7 +33,31 @@ export function UserProfileCard(props: UserProfileCardProps) {
                 </div>
 
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">{name}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{email}</p>
+                <div className="flex flex-col items-center gap-1 mb-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{email}</p>
+
+                    {(role || institutionName) && (
+                        <div className="flex items-center gap-2 text-xs font-semibold mt-1">
+                            {role && (
+                                <span className={`px-2 py-0.5 rounded-full ${
+                                    role === 'ADMIN' ? 'bg-red-100 text-red-600 dark:bg-red-900/30' :
+                                    role === 'INSTITUTION_MANAGER' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' :
+                                    role === 'TEACHER' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30' :
+                                    'bg-blue-100 text-blue-600 dark:bg-blue-900/30'
+                                }`}>
+                                    {role.replace('_', ' ')}
+                                </span>
+                            )}
+                            {institutionName && (
+                                <span className="text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                    <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                                    {institutionName}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 {bio && <p className="text-xs text-gray-400 mb-4 line-clamp-2 px-4">{bio}</p>}
 
                 <ProfileActions user={props} readonly={readonly} />

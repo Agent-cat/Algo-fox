@@ -33,6 +33,12 @@ export class DashboardService {
                 name: true,
                 email: true,
                 image: true,
+                role: true,
+                institution: {
+                    select: {
+                        name: true
+                    }
+                },
                 problemsSolved: true,
                 totalScore: true,
                 bio: true,

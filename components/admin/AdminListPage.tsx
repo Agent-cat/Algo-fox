@@ -83,7 +83,7 @@ export default function AdminListPage<T extends { id: string }>({
                                 placeholder={searchPlaceholder}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-64 pl-10 pr-4 py-2.5 bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all"
+                                className="w-64 pl-10 pr-4 py-2.5 bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
                             />
                             {searchQuery && (
                                 <button

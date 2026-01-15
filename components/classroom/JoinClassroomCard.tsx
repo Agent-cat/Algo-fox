@@ -33,10 +33,10 @@ export function JoinClassroomCard() {
     };
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-none transition-all duration-300">
+        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-none">
             <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 bg-indigo-50 dark:bg-[#1a1a1a] rounded-xl text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                    <div className="p-2.5 bg-indigo-50 dark:bg-[#1a1a1a] rounded-xl text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white">
                         <School className="w-6 h-6" />
                     </div>
                     <div>
@@ -53,13 +53,13 @@ export function JoinClassroomCard() {
                             onChange={(e) => setCode(e.target.value.toUpperCase())}
                             placeholder="6-DIGIT CODE"
                             maxLength={6}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-mono text-center text-xl tracking-[0.5em] uppercase placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal placeholder:font-sans"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 font-mono text-center text-xl tracking-[0.5em] uppercase placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal placeholder:font-sans"
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={isLoading || code.length < 6}
-                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed group/btn shadow-lg shadow-indigo-100"
+                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed group/btn shadow-lg shadow-indigo-100"
                     >
                         {isLoading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />

@@ -32,9 +32,9 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
 
     if (classrooms.length === 0) {
         return (
-            <div className="text-center py-20 bg-gray-50/50 dark:bg-[#141414]/50 rounded-md border border-gray-100 dark:border-[#262626]">
-                <h3 className="text-sm font-bold text-black dark:text-white uppercase tracking-widest">No Active Classrooms</h3>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-medium">Create your first learning environment above.</p>
+            <div className="text-center py-20 bg-gray-50/50 dark:bg-[#141414] rounded-2xl border border-dashed border-gray-200 dark:border-[#262626]">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-2">No Active Classrooms</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Create your first learning environment above.</p>
             </div>
         );
     }
@@ -44,7 +44,7 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
             {classrooms.map((classroom) => (
                 <div
                     key={classroom.id}
-                    className="group flex flex-col bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] p-6 rounded-md hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 shadow-sm dark:shadow-none"
+                    className="group flex flex-col bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] p-6 rounded-md hover:border-orange-500 dark:hover:border-orange-500 shadow-sm dark:shadow-none"
                 >
                     <div className="flex justify-between items-start mb-6">
                         <div className="flex flex-col">

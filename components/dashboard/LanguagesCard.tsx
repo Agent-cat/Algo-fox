@@ -58,7 +58,7 @@ export function LanguagesCard({ languageCounts }: LanguagesCardProps) {
                         return (
                             <div
                                 key={index}
-                                className={`flex items-center justify-between p-3 rounded-xl border border-dashed ${bgColor} hover:shadow-sm transition-all duration-200`}
+                                className={`flex items-center justify-between p-3 rounded-xl border border-dashed ${bgColor} hover:shadow-sm`}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${colorClass}`}>

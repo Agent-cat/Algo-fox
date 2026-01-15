@@ -118,7 +118,7 @@ export function ClassroomDropdown({ classrooms }: ClassroomDropdownProps) {
                                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                                                     placeholder="ENTER 6-DIGIT CODE"
                                                     maxLength={6}
-                                                    maxLength={6}
+                                                    
                                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#0a0a0a] focus:bg-white dark:text-white dark:focus:bg-[#0a0a0a] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-mono text-center tracking-[0.3em] uppercase placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal placeholder:font-sans text-sm"
                                                 />
                                                 <button

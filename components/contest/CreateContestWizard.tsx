@@ -203,6 +203,7 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
     return (
         <div className="max-w-5xl mx-auto">
             {/* Problem Form Modal - Outside main form to avoid nested forms */}
+            {showProblemForm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
                     <div className="bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-w-4xl w-full my-8 relative max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-[#262626]">
                         <div className="sticky top-0 bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626] p-6 flex items-center justify-between z-10 rounded-t-2xl">
@@ -218,7 +219,9 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                         <div className="p-6">
                             <ProblemForm
                                 onSubmit={async (data) => {
-                                    await handleProblemSubmit(data, showProblemForm);
+                                    if (showProblemForm) {
+                                        await handleProblemSubmit(data, showProblemForm);
+                                    }
                                     return { success: true };
                                 }}
                                 submitLabel={`Add ${showProblemForm} Problem`}

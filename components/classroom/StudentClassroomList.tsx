@@ -43,7 +43,7 @@ export function StudentClassroomList({ classrooms }: StudentClassroomListProps) 
                     <Link
                         key={classroom.id}
                         href={`/dashboard/classrooms/${classroom.id}`}
-                        className="group bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] p-5 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 flex items-center justify-between"
+                        className="group bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] p-5 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 flex items-center justify-between"
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-indigo-50 dark:bg-[#1a1a1a] rounded-xl text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">

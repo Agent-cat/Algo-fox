@@ -77,7 +77,7 @@ export function RecentSubmissionsCard({ submissions }: RecentSubmissionsCardProp
                                     href={`/submissions/${submission.id}`}
                                     className="block"
                                 >
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl hover:bg-gray-100 dark:hover:bg-[#262626] transition-all duration-200 border border-dashed border-transparent hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm group">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl hover:bg-gray-100 dark:hover:bg-[#262626] border border-dashed border-transparent hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm group">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">

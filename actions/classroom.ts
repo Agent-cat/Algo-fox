@@ -119,6 +119,18 @@ export async function joinClassroom(code: string) {
             return { success: false, error: "You are already enrolled in this classroom." };
         }
 
+
+        // Institution Check:
+        // 1. If user belongs to an institution, they can only join classrooms from THAT institution.
+        // 2. If user has NO institution, they are assigned to this classroom's institution.
+
+        if (currentUser.institutionId && currentUser.institutionId !== classroom.institutionId) {
+             return {
+                success: false,
+                error: "You cannot join this classroom because it belongs to a different institution."
+             };
+        }
+
         // Add student to classroom
         await prisma.classroom.update({
             where: { id: classroom.id },
@@ -353,6 +365,7 @@ export async function getClassroomLiveTracking(classroomId: string) {
         };
     });
 
+
     return {
         success: true,
         isTrackingActive: classroom.isTrackingActive,
@@ -360,3 +373,84 @@ export async function getClassroomLiveTracking(classroomId: string) {
         students: studentsData
     };
 }
+
+export async function getInstitutionClassrooms() {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const currentUser = session.user as any;
+
+    if (currentUser.role !== "ADMIN" && currentUser.role !== "INSTITUTION_MANAGER") {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+        const classrooms = await prisma.classroom.findMany({
+            where: { institutionId: currentUser.institutionId },
+            include: {
+                teacher: {
+                    select: { name: true, email: true }
+                },
+                _count: {
+                    select: { students: true }
+                }
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        return { success: true, classrooms };
+    } catch (error) {
+        console.error("Failed to fetch institution classrooms:", error);
+        return { success: false, error: "Failed to fetch classrooms" };
+    }
+}
+
+export async function removeStudentFromClassroom(classroomId: string, studentId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const currentUser = session.user as any;
+    const isPowerful = ["ADMIN", "INSTITUTION_MANAGER"].includes(currentUser.role);
+
+    try {
+        const classroom = await prisma.classroom.findUnique({
+            where: { id: classroomId },
+            select: { teacherId: true },
+        });
+
+        if (!classroom) {
+            return { success: false, error: "Classroom not found" };
+        }
+
+        // Only allow if powerful role OR if current user is the teacher
+        if (!isPowerful && classroom.teacherId !== currentUser.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        await prisma.classroom.update({
+            where: { id: classroomId },
+            data: {
+                students: {
+                    disconnect: { id: studentId },
+                },
+            },
+        });
+
+        revalidatePath(`/dashboard/classrooms/${classroomId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to remove student:", error);
+        return { success: false, error: "Failed to remove student" };
+    }
+}
+

@@ -40,7 +40,7 @@ export function ProblemOverviewCard({
     const hardArc = (hardPct / 100) * circumference;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-md transition-all duration-300">
+        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-md">
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">Problem Solving Overview</h3>
             <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-8 h-full">
 

@@ -33,7 +33,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
         const weeksArr = [];
         const monthsArr = [];
 
-        let currentDate = new Date(startDate);
+        const currentDate = new Date(startDate);
         let currentWeek = [];
         let weekIndex = 0;
 
@@ -86,10 +86,10 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
     // 3. Color scale
     const getIntensityClass = (count: number) => {
         if (count === 0) return "bg-gray-100 dark:bg-[#262626]";
-        if (count <= 2) return "bg-orange-200";
-        if (count <= 5) return "bg-orange-300";
-        if (count <= 8) return "bg-orange-400";
-        return "bg-orange-500";
+        if (count <= 2) return "bg-orange-200 dark:bg-orange-900/50";
+        if (count <= 5) return "bg-orange-300 dark:bg-orange-700";
+        if (count <= 8) return "bg-orange-400 dark:bg-orange-600";
+        return "bg-orange-500 dark:bg-orange-500";
     };
 
     return (
@@ -142,7 +142,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
                                             initial={{ opacity: 0, scale: 0.5 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: (wIndex * 7 + dIndex) * 0.0005 }} // Staggered animation
-                                            className={`w-3 h-3 rounded-[2px] ${getIntensityClass(count)} hover:ring-2 ring-offset-1 ring-orange-300 transition-all cursor-pointer relative group`}
+                                            className={`w-3 h-3 rounded-[2px] ${getIntensityClass(count)} hover:ring-2 ring-offset-1 ring-orange-300 cursor-pointer relative group`}
                                         >
                                             {/* Simple Tooltip */}
                                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 whitespace-nowrap">
@@ -163,10 +163,10 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
                     <span>Less</span>
                     <div className="flex gap-[3px]">
                         <div className="w-3 h-3 rounded-[2px] bg-gray-100 dark:bg-[#262626]" />
-                        <div className="w-3 h-3 rounded-[2px] bg-orange-200" />
-                        <div className="w-3 h-3 rounded-[2px] bg-orange-300" />
-                        <div className="w-3 h-3 rounded-[2px] bg-orange-400" />
-                        <div className="w-3 h-3 rounded-[2px] bg-orange-500" />
+                        <div className="w-3 h-3 rounded-[2px] bg-orange-200 dark:bg-orange-900/50" />
+                        <div className="w-3 h-3 rounded-[2px] bg-orange-300 dark:bg-orange-700" />
+                        <div className="w-3 h-3 rounded-[2px] bg-orange-400 dark:bg-orange-600" />
+                        <div className="w-3 h-3 rounded-[2px] bg-orange-500 dark:bg-orange-500" />
                     </div>
                     <span>More</span>
                 </div>

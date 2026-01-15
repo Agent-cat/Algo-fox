@@ -1,4 +1,5 @@
 "use client";
+// Force rebuild
 
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -28,14 +29,14 @@ export default function ProblemsSelectionPage() {
       domain: "DSA" as ProblemDomain,
       title: "DSA",
       description: "Master Data Structures & Algorithms with curated problems.",
-      bgFrom: "from-orange-500",
-      bgTo: "to-orange-600",
-      buttonBg: "bg-white",
-      buttonText: "text-orange-600",
-      buttonHover: "hover:bg-orange-50",
+      bgFrom: "from-orange-500 dark:from-orange-500/10",
+      bgTo: "to-orange-600 dark:to-orange-500/5",
+      buttonBg: "bg-white dark:bg-orange-600",
+      buttonText: "text-orange-600 dark:text-white",
+      buttonHover: "hover:bg-orange-50 dark:hover:bg-orange-700",
       badge: "Popular",
       icon: (
-        <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-8 h-8 text-white dark:text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
         </svg>
       ),
@@ -48,12 +49,12 @@ export default function ProblemsSelectionPage() {
       description: "Master Database Management and SQL Queries.",
       bgFrom: "",
       bgTo: "",
-      buttonBg: "bg-black",
-      buttonText: "text-white",
-      buttonHover: "hover:bg-gray-900",
+      buttonBg: "bg-black dark:bg-white",
+      buttonText: "text-white dark:text-black",
+      buttonHover: "hover:bg-gray-900 dark:hover:bg-gray-200",
       badge: "New",
       icon: (
-        <svg className="w-8 h-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-8 h-8 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
         </svg>
       ),
@@ -112,7 +113,7 @@ export default function ProblemsSelectionPage() {
                 whileTap={{ scale: 0.99 }}
                 className={`relative overflow-hidden rounded-xl h-80 w-full cursor-pointer group shadow-lg ${
                   course.id === "dsa"
-                    ? "border border-orange-200 dark:border-orange-500/30 bg-white dark:bg-[#141414]"
+                    ? "border border-orange-200 dark:border-orange-900/30 bg-white dark:bg-[#141414]"
                     : "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414]"
                 }`}
               >
@@ -124,8 +125,8 @@ export default function ProblemsSelectionPage() {
                     </div>
                     <div className="absolute right-0 bottom-0 opacity-10">
                       <svg width="200" height="200" viewBox="0 0 200 200">
-                        <rect x="50" y="50" width="100" height="100" stroke="white" strokeWidth="2" fill="none" />
-                        <rect x="70" y="70" width="60" height="60" stroke="white" strokeWidth="2" fill="none" />
+                        <rect x="50" y="50" width="100" height="100" stroke="currentColor" className="text-white dark:text-orange-500" strokeWidth="2" fill="none" />
+                        <rect x="70" y="70" width="60" height="60" stroke="currentColor" className="text-white dark:text-orange-500" strokeWidth="2" fill="none" />
                       </svg>
                     </div>
                   </>
@@ -149,25 +150,33 @@ export default function ProblemsSelectionPage() {
                   <div className="flex justify-between items-start">
                     <div className={`w-16 h-16 ${
                       course.id === "dsa"
-                        ? "bg-white/20 backdrop-blur-md border-white/30"
-                        : "bg-gray-100 border-gray-200"
-                    } rounded-lg flex items-center justify-center border transform group-hover:rotate-12 transition-transform duration-300`}>
+                        ? "bg-white/20 backdrop-blur-md border border-white/30 dark:bg-orange-500/10 dark:border-orange-500/20"
+                        : "bg-gray-100 dark:bg-[#202020] border-gray-200 dark:border-[#333]"
+                    } rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300`}>
                       {course.icon}
                     </div>
                     <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${
                       course.id === "dsa"
-                        ? "bg-white/20 text-white backdrop-blur-md"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-white/20 text-white backdrop-blur-md dark:bg-orange-500/10 dark:text-orange-500"
+                        : "bg-gray-100 text-gray-600 dark:bg-[#202020] dark:text-gray-400"
                     } px-3 py-1 rounded-full text-xs font-semibold`}>
                       {course.badge}
                     </div>
                   </div>
 
                   <div className="text-left">
-                    <h2 className={`text-4xl font-bold ${course.id === "dsa" ? "text-white" : "text-gray-900 dark:text-gray-100"} mb-2 tracking-tight`}>
+                    <h2 className={`text-4xl font-bold ${
+                      course.id === "dsa"
+                        ? "text-white dark:text-white"
+                        : "text-gray-900 dark:text-white"
+                    } mb-2 tracking-tight`}>
                       {course.title}
                     </h2>
-                    <p className={`${course.id === "dsa" ? "text-orange-50" : "text-gray-600 dark:text-gray-400"} font-medium text-lg mb-6`}>
+                    <p className={`${
+                      course.id === "dsa"
+                        ? "text-orange-50 dark:text-gray-400"
+                        : "text-gray-600 dark:text-gray-400"
+                    } font-medium text-lg mb-6`}>
                       {course.description}
                     </p>
                     <div className={`inline-flex items-center gap-2 ${course.buttonBg} ${course.buttonText} px-6 py-3 rounded-lg font-bold shadow-md ${course.buttonHover} transition-colors`}>

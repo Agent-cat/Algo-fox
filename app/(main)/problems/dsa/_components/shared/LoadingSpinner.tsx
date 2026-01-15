@@ -25,7 +25,7 @@ function LoadingSpinnerComponent({
                 className={`${sizeClasses[size]} border-2 border-orange-500 border-t-transparent rounded-full animate-spin`}
                 aria-label="Loading"
             />
-            {message && <span className="text-sm text-gray-500">{message}</span>}
+            {message && <span className="text-sm text-gray-500 dark:text-gray-400">{message}</span>}
         </div>
     );
 }

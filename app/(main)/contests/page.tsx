@@ -2,10 +2,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getVisibleContests } from "@/actions/contest";
-import { StudentContestCard } from "@/components/contest/StudentContestCard";
 import { ContestsPageContent } from "@/components/contest/ContestsPageContent";
 import { Suspense } from "react";
-import { Trophy, Search } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 async function StudentContestsContent() {
     "use cache: private";
@@ -28,7 +27,7 @@ export default async function StudentContestsPage() {
     return (
         <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] pb-20 pt-24">
             {/* Header */}
-            <div className="relative mb-12 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-[#262626] pb-16 pt-12 overflow-hidden">
+            <div className="relative mb-12 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-[#262626] pb-32 pt-12 overflow-hidden">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#2626260a_1px,transparent_1px),linear-gradient(to_bottom,#2626260a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
                  <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
 

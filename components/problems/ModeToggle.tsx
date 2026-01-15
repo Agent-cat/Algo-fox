@@ -15,7 +15,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
       <div className="relative inline-flex items-center bg-gray-100 dark:bg-[#1a1a1a] rounded-lg p-1">
         <button
           onClick={() => onModeChange("practice")}
-          className={`relative z-10 px-8 py-2 hover:cursor-pointer rounded-md font-medium text-sm transition-colors ${mode === "practice" ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          className={`relative z-10 px-8 py-2 hover:cursor-pointer rounded-md font-medium text-sm ${mode === "practice" ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
             }`}
         >
           {mode === "practice" && (
@@ -30,7 +30,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
         </button>
         <button
           onClick={() => onModeChange("learn")}
-          className={`relative z-10 px-8 py-2 hover:cursor-pointer rounded-md font-medium text-sm transition-colors ${mode === "learn" ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          className={`relative z-10 px-8 py-2 hover:cursor-pointer rounded-md font-medium text-sm ${mode === "learn" ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
             }`}
         >
           {mode === "learn" && (

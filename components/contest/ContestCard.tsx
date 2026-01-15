@@ -25,7 +25,7 @@ export function ContestCard({ contest, userRole }: ContestCardProps) {
     const isUpcoming = new Date() < new Date(contest.startTime);
 
     return (
-        <div className="group bg-white dark:bg-[#141414] rounded-3xl border border-gray-100 dark:border-[#262626] p-6 shadow-xl shadow-gray-500/5 dark:shadow-none hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/5 hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all duration-300">
+        <div className="group bg-white dark:bg-[#141414] rounded-3xl border border-gray-100 dark:border-[#262626] p-6 shadow-xl shadow-gray-500/5 dark:shadow-none hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/5 hover:border-indigo-100 dark:hover:border-indigo-900/30">
             <div className="flex items-start justify-between mb-6">
                 <div className={`p-3 rounded-2xl ${isLive ? 'bg-rose-50 text-rose-600 animate-pulse' :
                     isUpcoming ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-50 text-gray-500'

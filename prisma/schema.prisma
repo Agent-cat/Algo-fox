@@ -55,6 +55,9 @@ model User {
   contests              Contest[]
   contestParticipations ContestParticipation[]
 
+  comments     Comment[]
+  commentVotes CommentVote[]
+
   @@index([collegeId])
   @@index([collegeId, totalScore])
   @@index([institutionId])
@@ -156,6 +159,7 @@ model Problem {
   tags Tag[]
 
   contestProblems ContestProblem[]
+  comments        Comment[]
 
   @@index([createdAt])
   @@index([domain, type, hidden, difficulty, createdAt])
@@ -385,7 +389,28 @@ model Institution {
   classrooms Classroom[]
   contests   Contest[]
 
+  institutionInvite InstitutionInvite[]
+
   @@map("institution")
+}
+
+model InstitutionInvite {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  role          Role
+  isActive      Boolean     @default(true)
+  expiresAt     DateTime?
+  uses          Int         @default(0)
+  maxUses       Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([code])
+  @@index([institutionId])
+  @@map("institution_invite")
 }
 
 model Classroom {
@@ -559,4 +584,50 @@ enum ViolationType {
   NAVIGATION_ATTEMPT
   MULTI_TAB
   SUSPICIOUS_INPUT
+}
+
+////////////////////////////////////// Discussion Models ////////////////////////////////////////
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  votes     CommentVote[]
+  upvoteCount Int      @default(0)
+
+  isPinned  Boolean  @default(false)
+
+  @@index([problemId])
+  @@index([userId])
+}
+
+model CommentVote {
+  id        String   @id @default(cuid())
+  type      VoteType
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+}
+
+enum VoteType {
+  UP
+  DOWN
 }

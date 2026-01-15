@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Trophy, Search, ChevronLeft, ChevronRight, User } from "lucide-react";
+import { Trophy, Search, ChevronLeft, ChevronRight, User, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { removeStudentFromClassroom } from "@/actions/classroom";
+import { toast } from "sonner";
 
 interface Student {
     id: string;
@@ -15,25 +17,65 @@ interface Student {
 
 interface ClassroomLeaderboardProps {
     students: Student[];
+    isTeacher?: boolean;
+    classroomId?: string;
 }
 
 const ITEMS_PER_PAGE = 20;
 
-export function ClassroomLeaderboard({ students }: ClassroomLeaderboardProps) {
+export function ClassroomLeaderboard({ students, isTeacher, classroomId }: ClassroomLeaderboardProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortBy, setSortBy] = useState<'score_desc' | 'score_asc' | 'name_asc' | 'name_desc'>('score_desc');
+    const [minScore, setMinScore] = useState(0);
+    const [removingId, setRemovingId] = useState<string | null>(null);
 
     const filteredStudents = useMemo(() => {
-        return students.filter(student =>
-            (student.name || "Anonymous User").toLowerCase().includes(searchQuery.toLowerCase())
+        let filtered = students.filter(student =>
+            (student.name || "Anonymous User").toLowerCase().includes(searchQuery.toLowerCase()) &&
+            student.totalScore >= minScore
         );
-    }, [students, searchQuery]);
+
+        return filtered.sort((a, b) => {
+            if (sortBy === 'score_desc') return b.totalScore - a.totalScore;
+            if (sortBy === 'score_asc') return a.totalScore - b.totalScore;
+
+            const nameA = a.name || "Anonymous";
+            const nameB = b.name || "Anonymous";
+
+            if (sortBy === 'name_asc') return nameA.localeCompare(nameB);
+            if (sortBy === 'name_desc') return nameB.localeCompare(nameA);
+            return 0;
+        });
+    }, [students, searchQuery, sortBy, minScore]);
 
     const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
     const paginatedStudents = filteredStudents.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
+
+    const handleRemoveStudent = async (studentId: string, studentName: string) => {
+        if (!classroomId) return;
+
+        if (!confirm(`Are you sure you want to remove ${studentName || "this student"} from the classroom?`)) {
+            return;
+        }
+
+        setRemovingId(studentId);
+        try {
+            const res = await removeStudentFromClassroom(classroomId, studentId);
+            if (res.success) {
+                toast.success("Student removed successfully");
+            } else {
+                toast.error(res.error || "Failed to remove student");
+            }
+        } catch (error) {
+            toast.error("Something went wrong");
+        } finally {
+            setRemovingId(null);
+        }
+    };
 
     if (students.length === 0) {
         return (
@@ -48,25 +90,53 @@ export function ClassroomLeaderboard({ students }: ClassroomLeaderboardProps) {
     return (
         <div className="bg-white dark:bg-[#141414]">
             {/* Header / Search Area */}
-            <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex flex-col xl:flex-row gap-6 justify-between">
                 <div className="flex items-center gap-2">
                     <Trophy className="w-5 h-5 text-orange-500" />
                     <h2 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Leaderboard</h2>
                     <span className="text-[10px] font-black text-gray-300 dark:text-gray-600 ml-2 uppercase tracking-[0.2em]">{students.length} Total</span>
                 </div>
 
-                <div className="relative group w-full md:w-96">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-orange-500 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Search student name..."
-                        value={searchQuery}
-                        onChange={(e) => {
-                            setSearchQuery(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        className="w-full pl-11 pr-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-lg focus:bg-white dark:focus:bg-[#0a0a0a] focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/5 transition-all text-sm font-bold placeholder:text-gray-300 dark:placeholder:text-gray-600 text-black dark:text-white"
-                    />
+                <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
+                    {/* Search */}
+                    <div className="relative group flex-1 md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Search student name..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-lg focus:bg-white dark:focus:bg-[#0a0a0a] focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/5 transition-all text-sm font-bold placeholder:text-gray-300 dark:placeholder:text-gray-600 text-black dark:text-white"
+                        />
+                    </div>
+
+                    {/* Filters */}
+                    <div className="flex gap-2">
+                         <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as any)}
+                            className="px-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-lg text-sm font-bold text-gray-700 dark:text-gray-200 focus:border-orange-500 focus:outline-none outline-none appearance-none cursor-pointer"
+                        >
+                            <option value="score_desc">Highest Score</option>
+                            <option value="score_asc">Lowest Score</option>
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                        </select>
+
+                        <select
+                            value={minScore}
+                            onChange={(e) => setMinScore(Number(e.target.value))}
+                            className="px-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-lg text-sm font-bold text-gray-700 dark:text-gray-200 focus:border-orange-500 focus:outline-none outline-none appearance-none cursor-pointer"
+                        >
+                            <option value={0}>All Scores</option>
+                            <option value={100}>&gt; 100 Points</option>
+                            <option value={500}>&gt; 500 Points</option>
+                            <option value={1000}>&gt; 1000 Points</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -78,7 +148,7 @@ export function ClassroomLeaderboard({ students }: ClassroomLeaderboardProps) {
                             <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] w-20 text-center">Rank</th>
                             <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Student</th>
                             <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-right">Points</th>
-                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-center w-24">Action</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] text-center w-32">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-[#262626]">
@@ -131,12 +201,29 @@ export function ClassroomLeaderboard({ students }: ClassroomLeaderboardProps) {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <Link
-                                                href={`/profile/${student.id}`}
-                                                className="inline-flex items-center justify-center p-2 text-gray-400 dark:text-gray-600 hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
-                                            >
-                                                <User className="w-4 h-4" />
-                                            </Link>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <Link
+                                                    href={`/profile/${student.id}`}
+                                                    className="inline-flex items-center justify-center p-2 text-gray-400 dark:text-gray-600 hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
+                                                    title="View Profile"
+                                                >
+                                                    <User className="w-4 h-4" />
+                                                </Link>
+                                                {isTeacher && (
+                                                    <button
+                                                        onClick={() => handleRemoveStudent(student.id, student.name || "")}
+                                                        disabled={removingId === student.id}
+                                                        className="inline-flex items-center justify-center p-2 text-gray-400 dark:text-gray-600 hover:text-red-600 dark:hover:text-red-500 transition-colors disabled:opacity-50"
+                                                        title="Remove Student"
+                                                    >
+                                                        {removingId === student.id ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Trash2 className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 );

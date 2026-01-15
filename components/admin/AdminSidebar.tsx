@@ -89,7 +89,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-72 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white/80 dark:bg-[#141414]/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-[#262626] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
+    <aside className="w-72 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white/80 dark:bg-[#141414]/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-[#262626] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
       <div className="px-6 mb-6">
         <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Main Menu</p>
       </div>
@@ -105,7 +105,7 @@ export default function AdminSidebar() {
               <div key={item.name} className="mb-1">
                 <button
                   onClick={() => toggleSection(item.name)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${hasActiveChild
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium group ${hasActiveChild
                     ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 shadow-sm shadow-orange-100 dark:shadow-none"
                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-gray-900 dark:hover:text-gray-200"
                     }`}
@@ -138,7 +138,7 @@ export default function AdminSidebar() {
                             <Link
                               key={child.href}
                               href={child.href}
-                              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${isActive
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${isActive
                                 ? "text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 font-medium translate-x-1"
                                 : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:translate-x-1"
                                 }`}
@@ -163,7 +163,7 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 mb-1 group ${isActive
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium mb-1 group ${isActive
                 ? "bg-orange-600 text-white shadow-lg shadow-orange-200 dark:shadow-none"
                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-gray-900 dark:hover:text-gray-200"
                 }`}

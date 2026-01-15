@@ -29,7 +29,7 @@ async function DashboardContent() {
     const canCreateClassroom = ["ADMIN", "INSTITUTION_MANAGER", "TEACHER"].includes(user.role);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -45,6 +45,8 @@ async function DashboardContent() {
                                 codeChefHandle={user.codeChefHandle}
                                 hackerrankHandle={user.hackerrankHandle}
                                 githubHandle={user.githubHandle}
+                                role={user.role}
+                                institutionName={user.institution?.name}
                             />
                         </section>
 
@@ -53,7 +55,7 @@ async function DashboardContent() {
                             <section>
                                 <Link
                                     href="/dashboard/teacher/classrooms"
-                                    className="flex items-center justify-between p-4 bg-gray-900 dark:bg-[#1a1a1a] rounded-2xl text-white hover:bg-gray-800 dark:hover:bg-[#262626] transition-all shadow-lg shadow-gray-900/10 group border dark:border-[#262626]"
+                                    className="flex items-center justify-between p-4 bg-gray-900 dark:bg-[#1a1a1a] rounded-2xl text-white hover:bg-gray-800 dark:hover:bg-[#262626] shadow-lg shadow-gray-900/10 group border dark:border-[#262626]"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-white/20 rounded-lg">

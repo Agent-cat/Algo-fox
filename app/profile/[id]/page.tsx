@@ -26,7 +26,7 @@ async function ProfileContent({ params }: ProfilePageProps) {
     const submissions = user.submissions;
 
     return (
-        <div className="min-h-screen bg-gray-50/50 transition-colors">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] transition-colors pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
                 {/* Header with Back Button */}
@@ -79,12 +79,12 @@ async function ProfileContent({ params }: ProfilePageProps) {
 
                         {/* ACTIVITY HEATMAP */}
                         <section>
-                            <div className="bg-white rounded-2xl border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                                <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-                                    <h2 className="text-xl font-bold text-gray-900">
+                            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] hover:shadow-md transition-all duration-200 overflow-hidden">
+                                <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                         Submission Activity
                                     </h2>
-                                    <p className="text-sm text-gray-500 mt-1">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                         {submissions.length} submissions in {new Date().getFullYear()}
                                     </p>
                                 </div>

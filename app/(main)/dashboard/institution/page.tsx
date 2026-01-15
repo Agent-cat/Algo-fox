@@ -108,7 +108,7 @@ function InstitutionDashboardContent() {
 
     if (isSessionPending || isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a]">
                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
             </div>
         );
@@ -116,7 +116,7 @@ function InstitutionDashboardContent() {
 
     if (!session || !["INSTITUTION_MANAGER", "ADMIN"].includes((session.user as any).role)) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500 text-center px-6">
+            <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 text-center px-6 bg-white dark:bg-[#0a0a0a]">
                 Unauthorized. Only Institution Managers or Admins can access this page.
             </div>
         );
@@ -124,130 +124,162 @@ function InstitutionDashboardContent() {
 
     if (!institutionId) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 gap-4">
-                <Building2 className="w-12 h-12 text-gray-300" />
+            <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 gap-4 bg-white dark:bg-[#0a0a0a]">
+                <Building2 className="w-12 h-12 text-gray-300 dark:text-gray-600" />
                 <div className="text-center md:max-w-md px-6">
-                    <h2 className="text-xl font-bold text-gray-900">No Institution Assigned</h2>
-                    <p className="mt-2">Your account is not associated with any institution. Please contact an administrator to be assigned to your organization.</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">No Institution Assigned</h2>
+                    <p className="mt-2 text-gray-500 dark:text-gray-400">Your account is not associated with any institution. Please contact an administrator to be assigned to your organization.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-6 bg-white/50">
-            <div className="max-w-6xl mx-auto ml-0">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] transition-colors duration-300 pt-24 pb-12 px-6">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Institution Dashboard</h1>
-                        <p className="text-gray-500 mt-1">Manage your institution's staff and monitor activity.</p>
+                        <div className="flex items-center gap-2 text-xs font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-2">
+                            <Building2 className="w-4 h-4" />
+                            Institution Admin
+                        </div>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Dashboard</h1>
                     </div>
                     {(session.user as any).institution?.name && (
-                        <div className="px-4 py-2 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-2">
-                            <Building2 className="w-5 h-5 text-orange-600" />
-                            <span className="font-semibold text-orange-900">{(session.user as any).institution.name}</span>
+                        <div className="flex items-center gap-3 px-5 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-full shadow-sm">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="font-bold text-sm text-gray-700 dark:text-gray-200">{(session.user as any).institution.name}</span>
                         </div>
                     )}
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                {/* Hero Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard
                         title="Total Students"
                         value={stats?.students || 0}
-                        icon={<Users className="w-6 h-6 text-blue-600" />}
+                        icon={Users}
+                        trend="+12% this month"
                         color="blue"
                     />
                     <StatCard
-                        title="Total Teachers"
+                        title="Active Teachers"
                         value={stats?.teachers || 0}
-                        icon={<GraduationCap className="w-6 h-6 text-orange-600" />}
+                        icon={GraduationCap}
+                        trend="Full Staff"
                         color="orange"
                     />
                     <StatCard
                         title="Classrooms"
                         value={stats?.classrooms || 0}
-                        icon={<BookOpen className="w-6 h-6 text-purple-600" />}
+                        icon={BookOpen}
+                        trend="Active Batches"
                         color="purple"
                     />
                     <StatCard
-                        title="Contest Managers"
+                        title="Managers"
                         value={stats?.contestManagers || 0}
-                        icon={<Trophy className="w-6 h-6 text-green-600" />}
+                        icon={Trophy}
+                        trend="Contest Control"
                         color="green"
                     />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Staff List */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-xl shadow-gray-200/30">
-                            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <UserCheck className="w-5 h-5 text-orange-600" />
-                                Staff Members
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    {/* Left Column: Staff Directory */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <UserCheck className="w-5 h-5 text-gray-400" />
+                                Staff Directory
                             </h2>
-                            <div className="space-y-4">
-                                {staff.length > 0 ? (
-                                    staff.map((member) => (
-                                        <div key={member.id} className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl group transition-all hover:border-orange-200 hover:shadow-md hover:shadow-orange-100/50">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold overflow-hidden">
-                                                    {member.image ? (
-                                                        <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        member.name?.[0] || member.email[0]
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-900">{member.name || "Unnamed User"}</div>
-                                                    <div className="text-xs text-gray-500">{member.email}</div>
-                                                </div>
+                            <span className="px-3 py-1 bg-gray-200 dark:bg-[#262626] text-gray-700 dark:text-gray-300 text-xs font-bold rounded-full">
+                                {staff.length} Members
+                            </span>
+                        </div>
+
+                        {/* Staff Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {staff.length > 0 ? (
+                                staff.map((member) => (
+                                    <div key={member.id} className="group flex flex-col p-5 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl hover:border-orange-200 dark:hover:border-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/5 dark:hover:shadow-none relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="w-2 h-2 rounded-full bg-orange-500" />
+                                        </div>
+
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] flex items-center justify-center text-gray-900 dark:text-white font-black text-lg overflow-hidden shadow-sm">
+                                                {member.image ? (
+                                                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    member.name?.[0] || member.email[0]
+                                                )}
                                             </div>
-                                            <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${member.role === "TEACHER"
-                                                ? "bg-orange-100 text-orange-700"
-                                                : "bg-green-100 text-green-700"
-                                                }`}>
-                                                {member.role.replace("_", " ")}
+                                            <div>
+                                                <div className="font-bold text-gray-900 dark:text-white text-base leading-tight">{member.name || "Unnamed User"}</div>
+                                                <div className="text-xs font-medium text-gray-400 dark:text-gray-500 mt-1">{member.email}</div>
                                             </div>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-2xl">
-                                        <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                                        <p className="text-sm text-gray-400">No staff members added yet.</p>
+
+                                        <div className="mt-auto pt-4 border-t border-gray-50 dark:border-[#1a1a1a] flex items-center justify-between">
+                                            <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                                                member.role === "TEACHER"
+                                                    ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-500/20"
+                                                    : "bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20"
+                                            }`}>
+                                                {member.role.replace("_", " ")}
+                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-300 dark:text-gray-600 uppercase tracking-widest">Active</span>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
+                                ))
+                            ) : (
+                                <div className="col-span-full py-16 text-center bg-white dark:bg-[#141414] border border-dashed border-gray-200 dark:border-[#262626] rounded-2xl">
+                                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Users className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+                                    </div>
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">No staff members found</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Add your first team member to get started</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Add Staff Sidebar */}
-                    <div className="space-y-6">
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-xl shadow-gray-200/30">
-                            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Plus className="w-5 h-5 text-orange-600" />
-                                Add Staff Member
-                            </h2>
-                            <div className="space-y-4">
+                    {/* Right Column: Actions */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 md:p-8 shadow-2xl shadow-gray-200/20 dark:shadow-none sticky top-24">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2.5 bg-gray-900 dark:bg-white rounded-lg text-white dark:text-black">
+                                    <Plus className="w-5 h-5" />
+                                </div>
                                 <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Staff Role</label>
-                                    <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+                                    <h3 className="font-bold text-gray-900 dark:text-white leading-none">Add Staff</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Invite new members</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 block">Role Assignment</label>
+                                    <div className="grid grid-cols-2 gap-3">
                                         <button
                                             onClick={() => setSelectedRole("TEACHER")}
-                                            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedRole === "TEACHER"
-                                                ? "bg-white text-orange-600 shadow-sm"
-                                                : "text-gray-500 hover:text-gray-700"
-                                                }`}
+                                            className={`py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 border ${
+                                                selectedRole === "TEACHER"
+                                                    ? "bg-orange-50 dark:bg-orange-500/20 border-orange-200 dark:border-orange-500/50 text-orange-700 dark:text-orange-400 shadow-sm"
+                                                    : "bg-gray-50 dark:bg-[#1a1a1a] border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626]"
+                                            }`}
                                         >
                                             Teacher
                                         </button>
                                         <button
                                             onClick={() => setSelectedRole("CONTEST_MANAGER")}
-                                            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedRole === "CONTEST_MANAGER"
-                                                ? "bg-white text-green-600 shadow-sm"
-                                                : "text-gray-500 hover:text-gray-700"
-                                                }`}
+                                            className={`py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 border ${
+                                                selectedRole === "CONTEST_MANAGER"
+                                                    ? "bg-green-50 dark:bg-green-500/20 border-green-200 dark:border-green-500/50 text-green-700 dark:text-green-400 shadow-sm"
+                                                    : "bg-gray-50 dark:bg-[#1a1a1a] border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626]"
+                                            }`}
                                         >
                                             Manager
                                         </button>
@@ -255,23 +287,23 @@ function InstitutionDashboardContent() {
                                 </div>
 
                                 <div className="relative">
-                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">User Email</label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 block">Email Address</label>
+                                    <div className="relative group">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-orange-500" />
                                         <input
                                             type="email"
                                             value={managerEmail}
                                             onChange={(e) => setManagerEmail(e.target.value)}
                                             onFocus={() => managerEmail.length > 2 && setShowSuggestions(true)}
-                                            placeholder="staff@example.com"
-                                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 outline-none transition-all"
+                                            placeholder="colleague@institution.edu"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
                                             autoComplete="off"
                                         />
                                     </div>
 
-                                    {/* recommendations */}
+                                    {/* Suggestions Dropdown */}
                                     {showSuggestions && suggestions.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-gray-50">
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-gray-50 dark:divide-[#262626]">
                                             {suggestions.map((user) => (
                                                 <button
                                                     key={user.id}
@@ -279,13 +311,13 @@ function InstitutionDashboardContent() {
                                                         setManagerEmail(user.email);
                                                         setShowSuggestions(false);
                                                     }}
-                                                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-50 transition-colors text-left group"
+                                                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors text-left group"
                                                 >
                                                     <div>
-                                                        <div className="text-xs font-semibold text-gray-900">{user.name || "Unnamed User"}</div>
-                                                        <div className="text-[10px] text-gray-500">{user.email}</div>
+                                                        <div className="text-xs font-bold text-gray-900 dark:text-white">{user.name || "User"}</div>
+                                                        <div className="text-[10px] text-gray-500 dark:text-gray-400">{user.email}</div>
                                                     </div>
-                                                    <Check className="w-3 h-3 text-orange-500 opacity-0 group-hover:opacity-100" />
+                                                    <Check className="w-3 h-3 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                 </button>
                                             ))}
                                         </div>
@@ -295,26 +327,33 @@ function InstitutionDashboardContent() {
                                 <button
                                     onClick={() => handleAddStaff()}
                                     disabled={isAssigning || !managerEmail}
-                                    className="w-full py-3 bg-gray-900 hover:bg-black text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-gray-200 disabled:opacity-50"
+                                    className="w-full py-4 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-200 text-white dark:text-black text-sm font-black uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-gray-200 dark:shadow-none hover:shadow-2xl disabled:opacity-50 disabled:shadow-none translate-y-0 hover:-translate-y-0.5 active:translate-y-0"
                                 >
-                                    {isAssigning ? "Processing..." : `Add ${selectedRole === "TEACHER" ? "Teacher" : "Manager"}`}
+                                    {isAssigning ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Adding...
+                                        </span>
+                                    ) : (
+                                        `Add Member`
+                                    )}
                                 </button>
-                                <p className="text-[10px] text-gray-400 text-center px-4 leading-relaxed">
-                                    Newly added staff will immediately receive access to their respective dashboards.
-                                </p>
                             </div>
                         </div>
 
-                        {/* Help Card */}
-                        <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-xl shadow-blue-200/50 relative overflow-hidden">
+                        {/* Info Card */}
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                             <div className="relative z-10">
-                                <ShieldCheck className="w-8 h-8 mb-4 opacity-80" />
-                                <h3 className="text-lg font-bold mb-2">Manager Access</h3>
-                                <p className="text-sm text-blue-100 leading-relaxed">
-                                    You have full control over your institution's staff roles. Changes take effect immediately.
+                                <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center mb-4 backdrop-blur-sm">
+                                    <ShieldCheck className="w-5 h-5" />
+                                </div>
+                                <h3 className="font-bold mb-1">Secure Access</h3>
+                                <p className="text-xs text-blue-100 leading-relaxed opacity-90">
+                                    Members receive immediate access. Institution admins have full revocation rights.
                                 </p>
                             </div>
-                            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-xl -ml-10 -mb-10" />
                         </div>
                     </div>
                 </div>
@@ -326,7 +365,7 @@ function InstitutionDashboardContent() {
 export default function InstitutionDashboard() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+            <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
             </div>
         }>
@@ -335,21 +374,31 @@ export default function InstitutionDashboard() {
     );
 }
 
-function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
-    const colorClasses: any = {
-        blue: "bg-blue-50 text-blue-600",
-        orange: "bg-orange-50 text-orange-600",
-        purple: "bg-purple-50 text-purple-600",
-        green: "bg-green-50 text-green-600",
+function StatCard({ title, value, icon: Icon, trend, color }: { title: string; value: number; icon: any; trend: string; color: string }) {
+    const colorStyles: any = {
+        blue: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20",
+        orange: "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-500/20",
+        purple: "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-500/20",
+        green: "bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20",
     };
 
     return (
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
-            <div className={`w-12 h-12 rounded-xl ${colorClasses[color]} flex items-center justify-center mb-4`}>
-                {icon}
+        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 shadow-sm hover:shadow-md dark:shadow-none transition-all duration-300 group">
+            <div className="flex justify-between items-start mb-4">
+                <div className={`w-12 h-12 rounded-2xl ${colorStyles[color]} flex items-center justify-center transition-colors border`}>
+                    <Icon className="w-6 h-6" />
+                </div>
+                {trend && (
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#1a1a1a] px-2 py-1 rounded-full uppercase tracking-wide">
+                        {trend}
+                    </span>
+                )}
             </div>
-            <div className="text-sm font-bold text-gray-500 uppercase tracking-wider">{title}</div>
-            <div className="text-3xl font-black text-gray-900 mt-1">{value}</div>
+
+            <div>
+                <div className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">{title}</div>
+                <div className="text-3xl font-black text-gray-900 dark:text-white tracking-tight group-hover:translate-x-1 transition-transform">{value}</div>
+            </div>
         </div>
     );
 }

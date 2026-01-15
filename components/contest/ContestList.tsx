@@ -47,14 +47,14 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                         placeholder="Search contests..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#333] bg-white dark:bg-[#141414] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#333] bg-white dark:bg-[#141414] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
                     />
                 </div>
 
                 {canCreate && (
                     <Link
                         href="/dashboard/contests/create"
-                        className="flex items-center gap-2 px-6 py-2 bg-gray-900 text-white font-semibold hover:bg-orange-600 transition-colors shadow-sm"
+                        className="flex items-center gap-2 px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold hover:bg-orange-600 dark:hover:bg-gray-200 shadow-sm transition-colors rounded-lg"
                     >
                         <Plus className="w-5 h-5" />
                         Create Contest
@@ -90,7 +90,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                                 {filteredContests.map((contest) => {
                                     const status = getStatus(contest);
                                     return (
-                                        <tr key={contest.id} className="hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
+                                        <tr key={contest.id} className="hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">
                                             <td className="px-6 py-4">
                                                 <div>
                                                     <div className="text-sm font-semibold text-gray-900 dark:text-gray-200">{contest.title}</div>
@@ -131,14 +131,14 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
                                                         href={`/dashboard/contests/${contest.id}/participants`}
-                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-colors rounded"
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 rounded"
                                                     >
                                                         <Users className="w-3.5 h-3.5" />
                                                         Participants
                                                     </Link>
                                                     <Link
                                                         href={`/contest/${contest.id}`}
-                                                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors"
+                                                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626]"
                                                     >
                                                         View
                                                         <ArrowRight className="w-4 h-4" />
