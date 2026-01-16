@@ -117,7 +117,7 @@ export async function postComment(problemId: string, content: string, parentId?:
             }
         });
 
-        revalidateTag(`comments-${problemId}`);
+        revalidateTag(`comments-${problemId}`, "max");
         return { success: true };
     } catch (error) {
         console.error("Failed to post comment:", error);
@@ -207,7 +207,7 @@ export async function voteComment(commentId: string, problemId: string, type: "U
             }
         });
 
-        revalidateTag(`comments-${problemId}`);
+        revalidateTag(`comments-${problemId}`, "max");
         return { success: true };
     } catch (error) {
         console.error("Failed to vote:", error);
@@ -237,7 +237,7 @@ export async function pinComment(commentId: string, problemId: string) {
             data: { isPinned: !comment.isPinned }
         });
 
-        revalidateTag(`comments-${problemId}`);
+        revalidateTag(`comments-${problemId}`, "max");
         return { success: true };
     } catch (error) {
         return { success: false, error: "Failed to pin comment" };
@@ -267,7 +267,7 @@ export async function deleteComment(commentId: string, problemId: string) {
         }
 
         await prisma.comment.delete({ where: { id: commentId } });
-        revalidateTag(`comments-${problemId}`);
+        revalidateTag(`comments-${problemId}`, "max");
         return { success: true };
     } catch (error) {
         return { success: false, error: "Failed to delete" };

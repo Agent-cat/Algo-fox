@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 //////////////////////////////////// Authentication Models //////////////////////////////////////////
 
 model User {
@@ -159,6 +161,7 @@ model Problem {
   tags Tag[]
 
   contestProblems ContestProblem[]
+  assignments     AssignmentProblem[]
   comments        Comment[]
 
   @@index([createdAt])
@@ -426,6 +429,7 @@ model Classroom {
   teacher   User   @relation("TeacherClassrooms", fields: [teacherId], references: [id])
 
   contests Contest[]
+  assignments Assignment[]
   students User[]    @relation("StudentClassrooms")
 
   isTrackingActive  Boolean   @default(false)
@@ -630,4 +634,40 @@ model CommentVote {
 enum VoteType {
   UP
   DOWN
+}
+
+////////////////////////////////////// Assignment Models ////////////////////////////////////////
+
+model Assignment {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime?
+  timeLimit   Int?     // Time limit in minutes for completing the assignment
+
+  classroomId String
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  problems    AssignmentProblem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([classroomId])
+}
+
+model AssignmentProblem {
+  id           String @id @default(cuid())
+  assignmentId String
+  problemId    String
+  order        Int    @default(0)
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  problem    Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, problemId])
+  @@index([assignmentId, order])
 }

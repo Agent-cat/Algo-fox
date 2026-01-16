@@ -1,12 +1,3 @@
-/**
- * Fast and optimized SQL to SQLite converter
- * Handles common SQL dialect differences and converts to SQLite-compatible syntax
- */
-
-/**
- * Converts SQL code from various dialects to SQLite-compatible syntax
- * Optimized for performance with minimal regex operations
- */
 export function convertToSQLite(sql: string): string {
     if (!sql || !sql.trim()) {
         return sql;
@@ -22,17 +13,17 @@ export function convertToSQLite(sql: string): string {
     // SQLite requires INTEGER (not INT) for PRIMARY KEY with AUTOINCREMENT
     converted = converted.replace(/\bINT\s+PRIMARY\s+KEY\s+AUTOINCREMENT\b/gi, 'INTEGER PRIMARY KEY AUTOINCREMENT');
     converted = converted.replace(/\bINT\s+AUTOINCREMENT\s+PRIMARY\s+KEY\b/gi, 'INTEGER PRIMARY KEY AUTOINCREMENT');
-    
+
     // 3. Convert INT PRIMARY KEY to INTEGER PRIMARY KEY (SQLite requires INTEGER for PRIMARY KEY)
     // This handles cases without AUTOINCREMENT
     converted = converted.replace(/\bINT\s+PRIMARY\s+KEY\b/gi, 'INTEGER PRIMARY KEY');
-    
+
     // 4. Convert INT AUTOINCREMENT to INTEGER AUTOINCREMENT (for non-PRIMARY KEY cases)
     converted = converted.replace(/\bINT\s+AUTOINCREMENT\b/gi, 'INTEGER AUTOINCREMENT');
 
     // 5. Convert MySQL backticks to SQLite double quotes (optional, SQLite accepts both)
     // But we'll keep backticks as SQLite 3.3+ supports them
-    
+
     // 6. Convert MySQL/PostgreSQL LIMIT syntax if needed
     // SQLite supports: LIMIT n OFFSET m (same as MySQL)
     // No conversion needed for LIMIT/OFFSET
@@ -108,18 +99,18 @@ function convertConcatToConcatOperator(sql: string): string {
     while (changed && iterations < maxIterations) {
         iterations++;
         changed = false;
-        
+
         // Find innermost CONCAT call (no nested CONCAT inside)
         const concatMatch = result.match(/\bCONCAT\s*\(([^()]+)\)/i);
-        
+
         if (concatMatch) {
             changed = true;
             const args = concatMatch[1];
             const argsList = splitConcatArgs(args);
-            
+
             // Join with || operator
             const converted = argsList.map(arg => arg.trim()).join(' || ');
-            
+
             // Replace the CONCAT call
             result = result.replace(concatMatch[0], `(${converted})`);
         }
@@ -138,7 +129,7 @@ function splitConcatArgs(args: string): string[] {
 
     for (let i = 0; i < args.length; i++) {
         const char = args[i];
-        
+
         if (char === '(') {
             depth++;
             current += char;
@@ -152,7 +143,7 @@ function splitConcatArgs(args: string): string[] {
             current += char;
         }
     }
-    
+
     if (current.trim()) {
         result.push(current.trim());
     }
@@ -166,14 +157,14 @@ function splitConcatArgs(args: string): string[] {
 export function convertBatchToSQLite(sql: string): string {
     // Split by semicolon but keep them for SQLite
     const statements = sql.split(';').filter(s => s.trim());
-    
+
     if (statements.length === 0) {
         return sql;
     }
 
     // Convert each statement
     const converted = statements.map(stmt => convertToSQLite(stmt.trim()));
-    
+
     // Join with semicolons
     return converted.join(';\n') + (sql.trim().endsWith(';') ? ';' : '');
 }

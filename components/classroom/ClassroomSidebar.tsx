@@ -4,8 +4,8 @@ import { Trophy, Activity, Download, LayoutDashboard, ChevronRight } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
-    activeTab: 'leaderboard' | 'tracking';
-    onTabChange: (tab: 'leaderboard' | 'tracking') => void;
+    activeTab: 'leaderboard' | 'tracking' | 'assignments';
+    onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments') => void;
     onDownload: () => void;
     showDownload: boolean;
     isTeacher: boolean;
@@ -15,6 +15,7 @@ interface SidebarProps {
 export function ClassroomSidebar({ activeTab, onTabChange, onDownload, showDownload, isTeacher, classroomName }: SidebarProps) {
     const menuItems = [
         { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
+        { id: 'assignments', label: 'Assignments', icon: LayoutDashboard }, // Using LayoutDashboard temporarily
         ...(isTeacher ? [{ id: 'tracking', label: 'Live Tracking', icon: Activity }] : [])
     ];
 

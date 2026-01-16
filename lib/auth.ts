@@ -7,9 +7,6 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-
-  trustedOrigins: ["http://localhost:3000"],
-  baseURL: "http://localhost:3000",
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
@@ -25,7 +22,6 @@ export const auth = betterAuth({
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
     },
-
   },
   user: {
     additionalFields: {
@@ -42,7 +38,7 @@ export const auth = betterAuth({
         type: "boolean",
         required: false,
         defaultValue: false,
-        input: false, // Don't allow input from client during sign up
+        input: false,
       },
     },
   },
@@ -52,6 +48,6 @@ export const auth = betterAuth({
       adminRoles: ["ADMIN"],
       defaultRole: "STUDENT",
       adminUserIds: ["iDwVXlDKSzltqI0YfMH5E0in5o9bWmj9"], // vishnu
-    })
-  ]
+    }),
+  ],
 });

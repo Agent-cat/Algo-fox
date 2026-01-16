@@ -6,14 +6,12 @@ import { Sun, Moon } from "lucide-react";
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Avoid hydration mismatch
+  const [loading, setloading] = useState(true);
   useEffect(() => {
-    setMounted(true);
+    setloading(false);
   }, []);
 
-  if (!mounted) {
+  if (loading) {
     return (
       <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-[#262626] animate-pulse" />
     );
@@ -27,11 +25,12 @@ export function ThemeToggle() {
     <button
       onClick={toggleTheme}
       className="relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333333] group"
-      aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+      aria-label={`Switch to ${
+        resolvedTheme === "dark" ? "light" : "dark"
+      } mode`}
       title={`Current: ${resolvedTheme} mode`}
     >
       <div className="relative w-5 h-5">
-        {/* Sun icon for light mode */}
         <Sun
           className={`absolute inset-0 w-5 h-5 text-orange-500 transition-all duration-300 ${
             resolvedTheme === "light"
@@ -39,7 +38,6 @@ export function ThemeToggle() {
               : "opacity-0 rotate-90 scale-0"
           }`}
         />
-        {/* Moon icon for dark mode */}
         <Moon
           className={`absolute inset-0 w-5 h-5 text-orange-400 transition-all duration-300 ${
             resolvedTheme === "dark"
@@ -51,4 +49,3 @@ export function ThemeToggle() {
     </button>
   );
 }
-

@@ -4,7 +4,6 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "sonner";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import LayoutSpacer from "@/components/LayoutSpacer";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
 

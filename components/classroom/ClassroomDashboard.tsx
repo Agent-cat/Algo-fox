@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ClassroomSidebar } from "./ClassroomSidebar";
 import { ClassroomLeaderboard } from "./ClassroomLeaderboard";
 import { LiveTracking } from "./LiveTracking";
+import { AssignmentsTab } from "./assignments/AssignmentsTab";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight } from "lucide-react";
@@ -32,7 +33,7 @@ interface ClassroomDashboardProps {
 }
 
 export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking'>('leaderboard');
+    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments'>('leaderboard');
     const isTeacher = classroom.teacher.id === currentUserId;
 
     const handleDownload = () => {
@@ -127,8 +128,8 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
 
                 {/* Content Section */}
                 <div className={`py-12 ${isTeacher ? 'px-8 md:px-12' : ''}`}>
-                    <AnimatePresence mode="wait">
-                        {activeTab === 'leaderboard' ? (
+                <AnimatePresence mode="wait">
+                        {activeTab === 'leaderboard' && (
                             <motion.div
                                 key="leaderboard"
                                 initial={{ opacity: 0 }}
@@ -145,7 +146,19 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                     classroomId={classroom.id}
                                 />
                             </motion.div>
-                        ) : (
+                        )}
+                        {activeTab === 'assignments' && (
+                            <motion.div
+                                key="assignments"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.25 }}
+                            >
+                                <AssignmentsTab classroomId={classroom.id} isTeacher={isTeacher} />
+                            </motion.div>
+                        )}
+                        {activeTab === 'tracking' && (
                             <motion.div
                                 key="tracking"
                                 initial={{ opacity: 0 }}

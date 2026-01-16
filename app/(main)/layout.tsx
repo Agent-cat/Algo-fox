@@ -1,7 +1,5 @@
-
 import Navbar from "@/components/Navbar";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import LayoutSpacer from "@/components/LayoutSpacer";
 import { Suspense } from "react";
 
 export default function MainLayout({
@@ -13,9 +11,9 @@ export default function MainLayout({
     <>
       <Suspense fallback={null}>
         <Navbar />
-        <LayoutSpacer>
+        <div className="pt-16">
           <Breadcrumbs />
-        </LayoutSpacer>
+        </div>
       </Suspense>
       {children}
     </>

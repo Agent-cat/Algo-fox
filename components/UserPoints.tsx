@@ -1,3 +1,6 @@
+
+// TODO : MAKE IT SERVER COMPONENT AND OPTIMIZE
+
 "use client";
 
 import { useEffect, useState } from "react";

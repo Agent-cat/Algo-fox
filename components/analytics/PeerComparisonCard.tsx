@@ -6,8 +6,8 @@ import { Zap, Database, TrendingUp } from "lucide-react";
 
 interface PeerComparisonCardProps {
     problemId: string;
-    runtime: number; // in ms
-    memory?: number; // in KB (or MB? usually KB from Judge0 but need to check)
+    runtime: number;
+    memory?: number; 
 }
 
 export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: PeerComparisonCardProps) {
@@ -66,7 +66,7 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
 
             {(stats.runtimePercentile > 80 || stats.memoryPercentile > 80) && (
                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-dashed border-gray-200 dark:border-[#333]">
-                    🚀 Incredible! Your solution is highly optimized.
+                     Incredible! Your solution is highly optimized.
                 </p>
             )}
         </div>

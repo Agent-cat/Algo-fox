@@ -58,7 +58,7 @@ export default function InvitesPage() {
                 institutionId,
                 role,
                 maxUses: maxUses || undefined,
-                expiresAt: expiresAt || undefined
+                expiresAt: expiresAt ? new Date(expiresAt) : undefined
             });
 
             if (res.success) {
