@@ -20,7 +20,7 @@ async function AssignmentsContent() {
         redirect("/login");
     }
 
-    const assignments = await getStudentAssignments();
+    const { assignments } = await getStudentAssignments();
 
     return <MyAssignmentsList assignments={assignments} />;
 }

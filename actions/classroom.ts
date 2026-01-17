@@ -5,7 +5,8 @@ import redis from "@/lib/redis";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { cacheKey, cachedFetch, CACHE_CONFIG } from "@/lib/cache-utils";
 
 const classroomSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -74,7 +75,11 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
             },
         });
 
+        // Invalidate relevant caches
+        revalidateTag(`teacher-classrooms-${currentUser.id}`, "max");
+        revalidateTag(`institution-classrooms-${validatedData.institutionId}`, "max");
         revalidatePath("/dashboard/institution/classrooms");
+
         return { success: true, data: classroom };
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -156,11 +161,14 @@ export async function joinClassroom(code: string) {
         });
 
         // Redis Integration: Cache student IDs per classroom
-        // Key format: classroom:students:<id>
         const redisKey = `classroom:students:${classroom.id}`;
         await redis.sadd(redisKey, currentUser.id);
 
+        // Invalidate caches
+        revalidateTag(`student-classrooms-${currentUser.id}`, "max");
+        revalidateTag(`classroom-${classroom.id}`, "max");
         revalidatePath("/dashboard/classrooms");
+
         return { success: true, message: `Successfully joined ${classroom.name}` };
     } catch (error) {
         console.error("Failed to join classroom:", error);
@@ -169,7 +177,7 @@ export async function joinClassroom(code: string) {
 }
 
 /**
- * Fetches classrooms created by the currently logged-in teacher.
+ * Fetches classrooms created by the currently logged-in teacher (CACHED).
  */
 export async function getTeacherClassrooms() {
     const session = await auth.api.getSession({
@@ -180,17 +188,26 @@ export async function getTeacherClassrooms() {
         return { success: false, error: "Unauthorized" };
     }
 
-    try {
-        const classrooms = await prisma.classroom.findMany({
-            where: { teacherId: session.user.id },
-            include: {
-                _count: {
-                    select: { students: true },
-                },
-            },
-            orderBy: { createdAt: "desc" },
-        });
+    const userId = session.user.id;
 
+    const fetchClassrooms = unstable_cache(
+        async () => {
+            return await prisma.classroom.findMany({
+                where: { teacherId: userId },
+                include: {
+                    _count: {
+                        select: { students: true },
+                    },
+                },
+                orderBy: { createdAt: "desc" },
+            });
+        },
+        [`teacher-classrooms-${userId}`],
+        { tags: [`teacher-classrooms-${userId}`], revalidate: 120 }
+    );
+
+    try {
+        const classrooms = await fetchClassrooms();
         return { success: true, classrooms };
     } catch (error) {
         console.error("Failed to fetch teacher classrooms:", error);
@@ -199,7 +216,7 @@ export async function getTeacherClassrooms() {
 }
 
 /**
- * Fetches classrooms where the currently logged-in student is enrolled.
+ * Fetches classrooms where the currently logged-in student is enrolled (CACHED).
  */
 export async function getStudentClassrooms() {
     const session = await auth.api.getSession({
@@ -210,22 +227,32 @@ export async function getStudentClassrooms() {
         return { success: false, error: "Unauthorized" };
     }
 
-    try {
-        const user = await prisma.user.findUnique({
-            where: { id: session.user.id },
-            include: {
-                enrolledClassrooms: {
-                    include: {
-                        teacher: {
-                            select: { name: true },
-                        },
-                    },
-                    orderBy: { createdAt: "desc" },
-                },
-            },
-        });
+    const userId = session.user.id;
 
-        return { success: true, classrooms: user?.enrolledClassrooms || [] };
+    const fetchClassrooms = unstable_cache(
+        async () => {
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                include: {
+                    enrolledClassrooms: {
+                        include: {
+                            teacher: {
+                                select: { name: true },
+                            },
+                        },
+                        orderBy: { createdAt: "desc" },
+                    },
+                },
+            });
+            return user?.enrolledClassrooms || [];
+        },
+        [`student-classrooms-${userId}`],
+        { tags: [`student-classrooms-${userId}`], revalidate: 120 }
+    );
+
+    try {
+        const classrooms = await fetchClassrooms();
+        return { success: true, classrooms };
     } catch (error) {
         console.error("Failed to fetch student classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
@@ -233,9 +260,14 @@ export async function getStudentClassrooms() {
 }
 
 /**
- * Fetches details of a specific classroom, including the student list for the leaderboard.
+ * Fetches details of a specific classroom, including the student list for the leaderboard (CACHED).
+ * Supports pagination for large student lists.
  */
-export async function getClassroomWithStudents(id: string) {
+export async function getClassroomWithStudents(
+    id: string,
+    page: number = 1,
+    limit: number = 50
+) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -244,37 +276,69 @@ export async function getClassroomWithStudents(id: string) {
         return { success: false, error: "Unauthorized" };
     }
 
-    try {
-        const classroom = await prisma.classroom.findUnique({
-            where: { id },
-            select: {
-                id: true,
-                name: true,
-                subject: true,
-                section: true,
-                joinCode: true,
-                isTrackingActive: true,
-                trackingStartedAt: true,
-                teacher: {
-                    select: { name: true, id: true },
-                },
-                students: {
+    const skip = (page - 1) * limit;
+
+    const fetchClassroom = unstable_cache(
+        async () => {
+            const [classroom, totalStudents] = await Promise.all([
+                prisma.classroom.findUnique({
+                    where: { id },
                     select: {
                         id: true,
                         name: true,
-                        totalScore: true,
-                        image: true,
+                        subject: true,
+                        section: true,
+                        joinCode: true,
+                        isTrackingActive: true,
+                        trackingStartedAt: true,
+                        teacher: {
+                            select: { name: true, id: true },
+                        },
+                        students: {
+                            select: {
+                                id: true,
+                                name: true,
+                                totalScore: true,
+                                image: true,
+                            },
+                            orderBy: { totalScore: "desc" },
+                            skip,
+                            take: limit,
+                        },
                     },
-                    orderBy: { totalScore: "desc" },
-                },
-            },
-        });
+                }),
+                prisma.user.count({
+                    where: {
+                        enrolledClassrooms: {
+                            some: { id }
+                        }
+                    }
+                })
+            ]);
+
+            return { classroom, totalStudents };
+        },
+        [`classroom-${id}-page-${page}`],
+        { tags: [`classroom-${id}`], revalidate: 60 }
+    );
+
+    try {
+        const { classroom, totalStudents } = await fetchClassroom();
 
         if (!classroom) {
             return { success: false, error: "Classroom not found" };
         }
 
-        return { success: true, classroom };
+        return {
+            success: true,
+            classroom,
+            pagination: {
+                total: totalStudents,
+                pages: Math.ceil(totalStudents / limit),
+                current: page,
+                limit
+            }
+        };
     } catch (error) {
         console.error("Failed to fetch classroom detail:", error);
         return { success: false, error: "Failed to fetch classroom" };
@@ -305,6 +369,7 @@ export async function toggleClassroomTracking(classroomId: string, active: boole
         }
     });
 
+    revalidateTag(`classroom-${classroomId}`, "max");
     revalidatePath(`/dashboard/classrooms/${classroomId}`);
     return { success: true };
 }
@@ -316,65 +381,87 @@ export async function getClassroomLiveTracking(classroomId: string) {
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
-    const classroom = await prisma.classroom.findUnique({
-        where: { id: classroomId },
-        select: {
-            isTrackingActive: true,
-            trackingStartedAt: true,
-            students: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                    submissions: {
-                        where: {
-                            mode: "SUBMIT",
-                        },
-                        orderBy: { createdAt: 'desc' },
-                        take: 20,
-                        include: {
-                            problem: { select: { title: true } }
+    // Use Redis cache for live tracking data (short TTL)
+    const cacheKeyName = cacheKey("live-tracking", classroomId);
+
+    const fetchTracking = async () => {
+        const classroom = await prisma.classroom.findUnique({
+            where: { id: classroomId },
+            select: {
+                isTrackingActive: true,
+                trackingStartedAt: true,
+                students: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        submissions: {
+                            where: {
+                                mode: "SUBMIT",
+                            },
+                            orderBy: { createdAt: 'desc' },
+                            take: 20,
+                            include: {
+                                problem: { select: { title: true } }
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    if (!classroom) return { success: false, error: "Classroom not found" };
+        if (!classroom) return null;
 
-    // Filter submissions if tracking is active
-    const studentsData = classroom.students.map(student => {
-        const filteredSubmissions = student.submissions.filter(sub =>
-            classroom.isTrackingActive &&
-            classroom.trackingStartedAt &&
-            new Date(sub.createdAt) >= new Date(classroom.trackingStartedAt)
-        ).map(sub => ({
-            id: sub.id,
-            code: sub.code,
-            status: sub.status,
-            problemTitle: sub.problem.title,
-            createdAt: sub.createdAt
-        }));
+        // Filter submissions if tracking is active
+        const studentsData = classroom.students.map(student => {
+            const filteredSubmissions = student.submissions.filter(sub =>
+                classroom.isTrackingActive &&
+                classroom.trackingStartedAt &&
+                new Date(sub.createdAt) >= new Date(classroom.trackingStartedAt)
+            ).map(sub => ({
+                id: sub.id,
+                code: sub.code,
+                status: sub.status,
+                problemTitle: sub.problem.title,
+                createdAt: sub.createdAt
+            }));
+
+            return {
+                id: student.id,
+                name: student.name,
+                image: student.image,
+                submissions: filteredSubmissions
+            };
+        });
 
         return {
-            id: student.id,
-            name: student.name,
-            image: student.image,
-            submissions: filteredSubmissions
+            isTrackingActive: classroom.isTrackingActive,
+            trackingStartedAt: classroom.trackingStartedAt,
+            students: studentsData
         };
-    });
-
-
-    return {
-        success: true,
-        isTrackingActive: classroom.isTrackingActive,
-        trackingStartedAt: classroom.trackingStartedAt,
-        students: studentsData
     };
+
+    try {
+        const data = await cachedFetch(cacheKeyName, fetchTracking, CACHE_CONFIG.SHORT.ttl);
+
+        if (!data) {
+            return { success: false, error: "Classroom not found" };
+        }
+
+        return {
+            success: true,
+            ...data
+        };
+    } catch (error) {
+        console.error("Failed to fetch live tracking:", error);
+        return { success: false, error: "Failed to fetch tracking data" };
+    }
 }
 
-export async function getInstitutionClassrooms() {
+/**
+ * Fetches all classrooms for an institution (CACHED with pagination).
+ */
+export async function getInstitutionClassrooms(page: number = 1, limit: number = 20) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -389,21 +476,49 @@ export async function getInstitutionClassrooms() {
         return { success: false, error: "Unauthorized" };
     }
 
-    try {
-        const classrooms = await prisma.classroom.findMany({
-            where: { institutionId: currentUser.institutionId },
-            include: {
-                teacher: {
-                    select: { name: true, email: true }
-                },
-                _count: {
-                    select: { students: true }
-                }
-            },
-            orderBy: { createdAt: "desc" },
-        });
+    const institutionId = currentUser.institutionId;
+    const skip = (page - 1) * limit;
 
-        return { success: true, classrooms };
+    const fetchClassrooms = unstable_cache(
+        async () => {
+            const [classrooms, total] = await Promise.all([
+                prisma.classroom.findMany({
+                    where: { institutionId },
+                    include: {
+                        teacher: {
+                            select: { name: true, email: true }
+                        },
+                        _count: {
+                            select: { students: true }
+                        }
+                    },
+                    orderBy: { createdAt: "desc" },
+                    skip,
+                    take: limit,
+                }),
+                prisma.classroom.count({
+                    where: { institutionId }
+                })
+            ]);
+
+            return { classrooms, total };
+        },
+        [`institution-classrooms-${institutionId}-page-${page}`],
+        { tags: [`institution-classrooms-${institutionId}`], revalidate: 120 }
+    );
+
+    try {
+        const { classrooms, total } = await fetchClassrooms();
+        return {
+            success: true,
+            classrooms,
+            pagination: {
+                total,
+                pages: Math.ceil(total / limit),
+                current: page,
+                limit
+            }
+        };
     } catch (error) {
         console.error("Failed to fetch institution classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
@@ -425,7 +540,7 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
     try {
         const classroom = await prisma.classroom.findUnique({
             where: { id: classroomId },
-            select: { teacherId: true },
+            select: { teacherId: true, institutionId: true },
         });
 
         if (!classroom) {
@@ -446,11 +561,18 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
             },
         });
 
+        // Remove from Redis set
+        const redisKey = `classroom:students:${classroomId}`;
+        await redis.srem(redisKey, studentId);
+
+        // Invalidate caches
+        revalidateTag(`classroom-${classroomId}`, "max");
+        revalidateTag(`student-classrooms-${studentId}`, "max");
         revalidatePath(`/dashboard/classrooms/${classroomId}`);
+
         return { success: true };
     } catch (error) {
         console.error("Failed to remove student:", error);
         return { success: false, error: "Failed to remove student" };
     }
 }
-

@@ -4,7 +4,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { cacheKey, cachedFetch, CACHE_CONFIG } from "@/lib/cache-utils";
 
 const staffSchema = z.object({
   email: z.email(),
@@ -55,8 +56,11 @@ export async function addStaffMember(data: z.infer<typeof staffSchema>) {
       },
     });
 
+    // Invalidate caches
+    revalidateTag(`institution-staff-${validatedData.institutionId}`, "max");
+    revalidateTag(`institution-stats-${validatedData.institutionId}`, "max");
+    revalidateTag(`user-${targetUser.id}`, "max");
     revalidatePath("/dashboard/institution");
-    updateTag(`user-${targetUser.id}`);
 
     return { success: true, user: updatedUser };
   } catch (error) {
@@ -68,6 +72,9 @@ export async function addStaffMember(data: z.infer<typeof staffSchema>) {
   }
 }
 
+/**
+ * Get institution staff members (CACHED)
+ */
 export async function getInstitutionStaff(institutionId: string) {
   try {
     const session = await auth.api.getSession({
@@ -90,25 +97,32 @@ export async function getInstitutionStaff(institutionId: string) {
       }
     }
 
-    const staff = await prisma.user.findMany({
-      where: {
-        institutionId,
-        role: {
-          in: ["TEACHER", "CONTEST_MANAGER"],
-        },
+    const fetchStaff = unstable_cache(
+      async () => {
+        return await prisma.user.findMany({
+          where: {
+            institutionId,
+            role: {
+              in: ["TEACHER", "CONTEST_MANAGER"],
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        image: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+      [`institution-staff-${institutionId}`],
+      { tags: [`institution-staff-${institutionId}`], revalidate: 120 }
+    );
 
+    const staff = await fetchStaff();
     return { success: true, staff };
   } catch (error) {
     console.error("Failed to fetch institution staff:", error);
@@ -116,6 +130,9 @@ export async function getInstitutionStaff(institutionId: string) {
   }
 }
 
+/**
+ * Get institution statistics (CACHED with Redis for hot data)
+ */
 export async function getInstitutionStatsAction(institutionId: string) {
   try {
     const session = await auth.api.getSession({
@@ -138,10 +155,38 @@ export async function getInstitutionStatsAction(institutionId: string) {
       }
     }
 
-    const { InstitutionService } = await import(
-      "@/core/services/institution.service"
+    // Use Redis cache for stats (frequently accessed, computed data)
+    const statsCacheKey = cacheKey("institution-stats", institutionId);
+
+    const stats = await cachedFetch(
+      statsCacheKey,
+      async () => {
+        // Parallel queries for better performance
+        const [roleCounts, classroomCount] = await Promise.all([
+          prisma.user.groupBy({
+            by: ['role'],
+            where: { institutionId },
+            _count: true,
+          }),
+          prisma.classroom.count({
+            where: { institutionId },
+          })
+        ]);
+
+        const roleCountsMap = roleCounts.reduce((acc, curr) => {
+          acc[curr.role as string] = curr._count;
+          return acc;
+        }, {} as Record<string, number>);
+
+        return {
+          students: roleCountsMap["STUDENT"] || 0,
+          teachers: roleCountsMap["TEACHER"] || 0,
+          contestManagers: roleCountsMap["CONTEST_MANAGER"] || 0,
+          classrooms: classroomCount,
+        };
+      },
+      CACHE_CONFIG.LONG.ttl // 10 minutes
     );
-    const stats = await InstitutionService.getInstitutionStats(institutionId);
 
     return { success: true, stats };
   } catch (error) {
@@ -175,19 +220,23 @@ export async function deleteStaffMember(userId: string) {
       }
     }
 
-    // Only allow removing form institution, not deleting user entirely?
-    // User requested "delete", but usually we just remove from institution.
-    // If we remove from institution, we set institutionId to null and role to STUDENT?
+    const institutionId = targetUser.institutionId;
 
     await prisma.user.update({
         where: { id: userId },
         data: {
             institutionId: null,
-            role: "STUDENT" // Reset to student
+            role: "STUDENT"
         }
     });
 
+    // Invalidate caches
+    if (institutionId) {
+      revalidateTag(`institution-staff-${institutionId}`, "max");
+      revalidateTag(`institution-stats-${institutionId}`, "max");
+    }
     revalidatePath("/dashboard/institution");
+
     return { success: true };
   } catch (error) {
     console.error("Failed to remove staff member:", error);
@@ -195,7 +244,9 @@ export async function deleteStaffMember(userId: string) {
   }
 }
 
-
+/**
+ * Get institution users with pagination (CACHED)
+ */
 export async function getInstitutionUsers(
     institutionId: string,
     role: "TEACHER" | "CONTEST_MANAGER" | "STUDENT",
@@ -224,38 +275,48 @@ export async function getInstitutionUsers(
 
       const skip = (page - 1) * limit;
 
-      const [users, total] = await Promise.all([
-          prisma.user.findMany({
-            where: {
-              institutionId,
-              role: role,
-            },
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              image: true,
-              createdAt: true,
-              _count: {
-                  select: {
-                      taughtClassrooms: true
-                  }
-              }
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-            skip,
-            take: limit
-          }),
-          prisma.user.count({
+      const fetchUsers = unstable_cache(
+        async () => {
+          const [users, total] = await Promise.all([
+            prisma.user.findMany({
               where: {
-                  institutionId,
-                  role: role
-              }
-          })
-      ]);
+                institutionId,
+                role: role,
+              },
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                image: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        taughtClassrooms: true
+                    }
+                }
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+              skip,
+              take: limit
+            }),
+            prisma.user.count({
+                where: {
+                    institutionId,
+                    role: role
+                }
+            })
+          ]);
+
+          return { users, total };
+        },
+        [`institution-users-${institutionId}-${role}-page-${page}`],
+        { tags: [`institution-users-${institutionId}-${role}`], revalidate: 120 }
+      );
+
+      const { users, total } = await fetchUsers();
 
       return {
           success: true,

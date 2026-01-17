@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 // RATE LIMITS
 const RATE_LIMITS = {
   "/api": { requests: 200, window: 60 }, // 100 requests per minute
-  "/problems": { requests: 100, window: 60 }, // 200 requests per minute
+  "/problems": { requests: 100000, window: 60 }, // 200 requests per minute
 } as const;
 
 export default async function proxy(request: NextRequest) {

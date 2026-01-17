@@ -4,9 +4,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 const createInviteSchema = z.object({
   institutionId: z.string(),
@@ -53,7 +51,10 @@ export async function createInvite(data: z.infer<typeof createInviteSchema>) {
       },
     });
 
+    // Invalidate cache
+    revalidateTag(`institution-invites-${institutionId}`, "max");
     revalidatePath("/dashboard/institution/invites");
+
     return { success: true, invite };
   } catch (error) {
     console.error("Create invite error:", error);
@@ -82,7 +83,10 @@ export async function toggleInvite(id: string) {
         data: { isActive: !invite.isActive }
     });
 
+    // Invalidate cache
+    revalidateTag(`institution-invites-${invite.institutionId}`, "max");
     revalidatePath("/dashboard/institution/invites");
+
     return { success: true };
   } catch (error) {
     console.error("Toggle invite error:", error);
@@ -106,11 +110,16 @@ export async function deleteInvite(id: string) {
           return { success: false, error: "Unauthorized" };
       }
 
+      const institutionId = invite.institutionId;
+
       await prisma.institutionInvite.delete({
           where: { id }
       });
 
+      // Invalidate cache
+      revalidateTag(`institution-invites-${institutionId}`, "max");
       revalidatePath("/dashboard/institution/invites");
+
       return { success: true };
     } catch (error) {
       console.error("Delete invite error:", error);
@@ -118,6 +127,9 @@ export async function deleteInvite(id: string) {
     }
   }
 
+/**
+ * Get institution invites (CACHED)
+ */
 export async function getInstitutionInvites(institutionId: string) {
     try {
         const session = await auth.api.getSession({ headers: await headers() });
@@ -131,11 +143,18 @@ export async function getInstitutionInvites(institutionId: string) {
             return { success: false, error: "Unauthorized" };
         }
 
-        const invites = await prisma.institutionInvite.findMany({
-            where: { institutionId },
-            orderBy: { createdAt: 'desc' }
-        });
+        const fetchInvites = unstable_cache(
+            async () => {
+                return await prisma.institutionInvite.findMany({
+                    where: { institutionId },
+                    orderBy: { createdAt: 'desc' }
+                });
+            },
+            [`institution-invites-${institutionId}`],
+            { tags: [`institution-invites-${institutionId}`], revalidate: 120 }
+        );
 
+        const invites = await fetchInvites();
         return { success: true, invites };
     } catch (error) {
         console.error("Get invites error:", error);
@@ -143,21 +162,31 @@ export async function getInstitutionInvites(institutionId: string) {
     }
 }
 
+/**
+ * Get invite details (CACHED for public access)
+ */
 export async function getInviteDetails(code: string) {
-    // Public endpoint, but returns minimal info
     try {
-        const invite = await prisma.institutionInvite.findUnique({
-            where: { code },
-            include: {
-                institution: {
-                    select: {
-                        name: true,
-                        logo: true,
-                        id: true
+        const fetchInvite = unstable_cache(
+            async () => {
+                return await prisma.institutionInvite.findUnique({
+                    where: { code },
+                    include: {
+                        institution: {
+                            select: {
+                                name: true,
+                                logo: true,
+                                id: true
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
+            },
+            [`invite-${code}`],
+            { revalidate: 300 } // 5 minutes
+        );
+
+        const invite = await fetchInvite();
 
         if (!invite) return { success: false, error: "Invite not found" };
         if (!invite.isActive) return { success: false, error: "Invite is deactivated" };
@@ -217,7 +246,12 @@ export async function acceptInvite(code: string) {
             return invite;
         });
 
+        // Invalidate caches
+        revalidateTag(`institution-invites-${result.institutionId}`, "max");
+        revalidateTag(`institution-stats-${result.institutionId}`, "max");
+        revalidateTag(`institution-staff-${result.institutionId}`, "max");
         revalidatePath("/dashboard");
+
         return { success: true, institutionName: result.institution.name };
      } catch (error: any) {
          console.error("Accept invite error:", error);

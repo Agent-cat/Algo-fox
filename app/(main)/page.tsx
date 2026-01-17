@@ -14,7 +14,7 @@ const codeSnippets = [
   }
   return [];
 }`,
-    position: { top: "10%", left: "5%", delay: "0s" }
+    position: { top: "10%", left: "5%", delay: "0s" },
   },
   {
     language: "python",
@@ -29,7 +29,7 @@ const codeSnippets = [
         else:
             right = mid - 1
     return -1`,
-    position: { top: "60%", right: "8%", delay: "1s" }
+    position: { top: "60%", right: "8%", delay: "1s" },
   },
   {
     language: "sql",
@@ -40,7 +40,7 @@ WHERE s.status = 'ACCEPTED'
 GROUP BY u.id, u.name
 ORDER BY submissions DESC
 LIMIT 10;`,
-    position: { top: "35%", left: "55%", delay: "2s" }
+    position: { top: "35%", left: "55%", delay: "2s" },
   },
   {
     language: "javascript",
@@ -51,8 +51,8 @@ LIMIT 10;`,
   const right = mergeSort(arr.slice(mid));
   return merge(left, right);
 };`,
-    position: { bottom: "15%", left: "10%", delay: "0.5s" }
-  }
+    position: { bottom: "15%", left: "10%", delay: "0.5s" },
+  },
 ];
 
 export default function Home() {
@@ -63,7 +63,7 @@ export default function Home() {
         {codeSnippets.map((snippet, index) => (
           <div
             key={index}
-            className="absolute font-mono text-xs md:text-sm animate-float max-w-[400px] hidden md:block"
+            className="absolute font-mono text-xs md:text-sm animate-float max-w-100 hidden md:block"
             style={{
               top: snippet.position.top,
               left: snippet.position.left,
@@ -89,11 +89,14 @@ export default function Home() {
         <div className="max-w-3xl">
           <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-8">
             Master Coding. <br />
-            <span className="text-orange-500 dark:text-orange-400">Unleash Potential.</span>
+            <span className="text-orange-500 dark:text-orange-400">
+              Unleash Potential.
+            </span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-2xl">
-            The ultimate platform for competitive programming and interview preparation.
-            Join thousands of developers leveling up their skills daily.
+            The ultimate platform for competitive programming and interview
+            preparation. Join thousands of developers leveling up their skills
+            daily.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link

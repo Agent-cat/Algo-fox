@@ -21,8 +21,15 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const data = await getTeacherAssignmentAnalytics(assignmentId, classroomId);
-                setAnalytics(data || []);
+                const result = await getTeacherAssignmentAnalytics(assignmentId, classroomId);
+                // Handle new paginated return type
+                if (result && 'analytics' in result) {
+                    setAnalytics(result.analytics || []);
+                } else if (Array.isArray(result)) {
+                    setAnalytics(result);
+                } else {
+                    setAnalytics([]);
+                }
             } catch (error) {
                 console.error("Failed to fetch analytics", error);
             } finally {

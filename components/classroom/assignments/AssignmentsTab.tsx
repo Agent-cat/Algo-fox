@@ -23,8 +23,9 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
     // Initial load uses cached version
     const fetchAssignments = async () => {
         try {
-            const data = await getClassroomAssignments(classroomId);
-            setAssignments(data);
+            const result = await getClassroomAssignments(classroomId);
+            // Handle new paginated return type
+            setAssignments(result.assignments || []);
         } catch (error) {
             console.error("Failed to fetch assignments", error);
             toast.error("Failed to load assignments");

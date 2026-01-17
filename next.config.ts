@@ -44,6 +44,24 @@ const nextConfig: NextConfig = {
       revalidate: 30,  // 30 seconds revalidate
       expire: 120,     // 2 minutes expire
     },
+    // For assignments list and details
+    assignments: {
+      stale: 60,       // 1 minute stale
+      revalidate: 120, // 2 minutes revalidate
+      expire: 600,     // 10 minutes expire
+    },
+    // For classrooms list
+    classrooms: {
+      stale: 120,      // 2 minutes stale
+      revalidate: 300, // 5 minutes revalidate
+      expire: 900,     // 15 minutes expire
+    },
+    // For institution statistics
+    "institution-stats": {
+      stale: 300,      // 5 minutes stale
+      revalidate: 600, // 10 minutes revalidate
+      expire: 3600,    // 1 hour expire
+    },
   },
   experimental: {
     turbopackUseSystemTlsCerts: true

@@ -31,7 +31,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
     const [removingId, setRemovingId] = useState<string | null>(null);
 
     const filteredStudents = useMemo(() => {
-        let filtered = students.filter(student =>
+        const filtered = students.filter(student =>
             (student.name || "Anonymous User").toLowerCase().includes(searchQuery.toLowerCase()) &&
             student.totalScore >= minScore
         );
