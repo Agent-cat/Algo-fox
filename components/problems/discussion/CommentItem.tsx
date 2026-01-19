@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Trash2, Pin, PinOff } from "lucide-react"; // Using ArrowBigUp/Down for voting similar to Reddit
@@ -24,6 +24,16 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
     const [voteState, setVoteState] = useState<"UP" | "DOWN" | null>(comment.userVote || null);
     const [score, setScore] = useState(comment.upvoteCount);
     const [isVoting, setIsVoting] = useState(false);
+
+    // Optimistic Replies State
+    const [localReplies, setLocalReplies] = useState<CommentWithUser[]>(comment.replies || []);
+
+    // Sync local replies if prop changes (e.g. on full refresh)
+    useEffect(() => {
+        if (comment.replies) {
+            setLocalReplies(comment.replies);
+        }
+    }, [comment.replies]);
 
     const isOwner = session?.user?.id === comment.userId;
     const isAdmin = session?.user?.role === "ADMIN";
@@ -187,9 +197,13 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
                         <CommentInput
                             problemId={problemId}
                             parentId={comment.id}
-                            onSuccess={() => {
+                            onSuccess={(newReply) => {
                                 setIsReplying(false);
-                                onRefresh?.();
+                                if (newReply) {
+                                    setLocalReplies(prev => [...prev, newReply]);
+                                } else {
+                                    onRefresh?.();
+                                }
                             }}
                             onCancel={() => setIsReplying(false)}
                             autoFocus
@@ -198,10 +212,10 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
                 )}
             </div>
 
-            {/* REPLIES */}
-            {comment.replies && comment.replies.length > 0 && (
+            {/* REPLIES - Use localReplies instead of comment.replies */}
+            {localReplies && localReplies.length > 0 && (
                 <div className="flex flex-col mb-4">
-                    {comment.replies.map(reply => (
+                    {localReplies.map(reply => (
                         <CommentItem
                             key={reply.id}
                             comment={reply}

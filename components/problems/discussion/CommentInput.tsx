@@ -8,7 +8,7 @@ import { postComment } from "@/actions/discussion";
 interface CommentInputProps {
     problemId: string;
     parentId?: string;
-    onSuccess?: () => void;
+    onSuccess?: (comment?: any) => void;
     onCancel?: () => void;
     placeholder?: string;
     autoFocus?: boolean;
@@ -29,7 +29,7 @@ export function CommentInput({ problemId, parentId, onSuccess, onCancel, placeho
             if (res.success) {
                 setContent("");
                 toast.success("Comment posted!");
-                onSuccess?.();
+                onSuccess?.(res.comment);
             } else {
                 toast.error(res.error || "Failed to post comment");
             }

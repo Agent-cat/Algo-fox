@@ -55,8 +55,13 @@ export function CommentTree({ problemId }: CommentTreeProps) {
     // Given the architecture, I'll fetch on client for now or use SWR-like pattern.
     // Since we want to keep it simple, I'll just refetch on success.
 
-    const handleRefetch = () => {
-        fetchComments();
+    const handleRefetch = (newComment?: CommentWithUser) => {
+        if (newComment) {
+            // Optimistic update
+            setComments(prev => [newComment, ...prev]);
+        } else {
+            fetchComments();
+        }
     };
 
     return (

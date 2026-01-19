@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -92,10 +93,13 @@ export default function Navbar() {
                                                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{session.user.name}</span>
                                                 <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
                                                     {session.user.image ? (
-                                                        <img
+                                                        <Image
                                                             src={session.user.image}
                                                             alt={session.user.name || "User"}
+                                                            width={32}
+                                                            height={32}
                                                             className="w-full h-full object-cover"
+                                                            referrerPolicy="no-referrer"
                                                         />
                                                     ) : (
                                                         session.user.name?.charAt(0).toUpperCase()
@@ -205,10 +209,13 @@ export default function Navbar() {
                                 <div className="flex items-center gap-3 mb-2 pb-4 border-b border-gray-100 dark:border-[#262626]">
                                     <div className="w-10 h-10 rounded-full overflow-hidden bg-orange-100 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center font-bold text-sm">
                                         {session.user.image ? (
-                                            <img
+                                            <Image
                                                 src={session.user.image}
                                                 alt={session.user.name || "User"}
+                                                width={40}
+                                                height={40}
                                                 className="w-full h-full object-cover"
+                                                referrerPolicy="no-referrer"
                                             />
                                         ) : (
                                             session.user.name?.charAt(0).toUpperCase()

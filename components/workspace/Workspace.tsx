@@ -216,6 +216,14 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         isHydrated: verticalHydrated
     } = usePersistentSplit('algofox_workspace_vertical_split', [60, 40]);
 
+    // Solved Problem IDs State (for Sidebar & Optimistic Updates)
+    const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
+
+    // Sync if props change (e.g. navigation)
+    useEffect(() => {
+        setSolvedIds(solvedProblemIds);
+    }, [solvedProblemIds]);
+
     const handleSubmission = async (mode: "RUN" | "SUBMIT") => {
         if (!code) {
             toast.error("Code cannot be empty");
@@ -303,6 +311,15 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                              toast.success("Submitted Successfully!", { description: desc });
                              setIsSolvedState(true);
                              setActiveTab("submissions");
+
+                             // Optimistically update solved status in sidebar
+                             if (!solvedIds.includes(problem.id)) {
+                                 setSolvedIds(prev => [...prev, problem.id]);
+                             }
+
+                             // Refresh server components to update lists/cache
+                             router.refresh();
+
                              window.dispatchEvent(new CustomEvent("pointsUpdated"));
 
                              // If in contest and submitted successfully, redirect back to contest dashboard
@@ -368,7 +385,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     />
                 </>
             )}
-
             {/* Problem Navigation Sidebar - Only show when not in contest mode */}
             {!contestId && (
                 <ProblemSidebar
@@ -377,7 +393,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     currentProblemId={problem.id}
                     domain={problem.domain}
                     problemType={problem.type}
-                    solvedProblemIds={solvedProblemIds}
+                    solvedProblemIds={solvedIds}
                 />
             )}
 

@@ -108,17 +108,37 @@ export async function postComment(problemId: string, content: string, parentId?:
     }
 
     try {
-        await prisma.comment.create({
+        const newComment = await prisma.comment.create({
             data: {
                 content,
                 problemId,
                 userId: session.user.id,
                 parentId: parentId || null
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        role: true,
+                    }
+                }
             }
         });
 
         revalidateTag(`comments-${problemId}`, "max");
-        return { success: true };
+
+        // Return the formatted comment to allow optimistic updates on client
+        return {
+            success: true,
+            comment: {
+                ...newComment,
+                votes: [], // Empty votes for new comment
+                userVote: null,
+                replies: []
+            }
+        };
     } catch (error) {
         console.error("Failed to post comment:", error);
         return { success: false, error: "Failed to post comment" };

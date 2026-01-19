@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
               },
             }}
           />
+          <SessionConflictModal />
           {children}
         </ThemeProvider>
       </body>

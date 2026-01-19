@@ -129,6 +129,18 @@ async function ProblemContentWithParams({
             });
             isSolved = !!submission;
         }
+
+        // Fetch all solved problems for the user (Global)
+        const allSolved = await prisma.submission.findMany({
+            where: {
+                userId: session.user.id,
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            },
+            select: { problemId: true },
+            distinct: ['problemId']
+        });
+        solvedProblemIds = allSolved.map(s => s.problemId);
     }
   }
 
