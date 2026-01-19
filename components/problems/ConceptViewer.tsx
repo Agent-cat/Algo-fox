@@ -4,6 +4,7 @@ import { useState } from "react";
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 import { Problem } from "@prisma/client";
 import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -75,7 +76,10 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
 
                 {/* Content */}
                 <article className="prose prose-[1.05rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-200 prose-code:bg-gray-100 dark:prose-code:bg-[#262626] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono  prose-pre:bg-gray-50 dark:prose-pre:bg-[#1a1a1a] prose-pre:text-gray-900 dark:prose-pre:text-gray-200 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#333] prose-img:rounded-xl">
-                    <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                    <Markdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                        rehypePlugins={[rehypeRaw]}
+                    >
                         {problem.description}
                     </Markdown>
                 </article>

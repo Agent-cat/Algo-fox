@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Difficulty, ProblemDomain } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -62,6 +62,16 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     //FUNCTION TAMPLATE (DSA ONLY)
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
+
+    // Sync state with initialData updates (crucial for edit mode)
+    useEffect(() => {
+        if (initialData?.useFunctionTemplate !== undefined) {
+            setUseFunctionTemplate(initialData.useFunctionTemplate);
+        }
+        if (initialData?.functionTemplates) {
+            setFunctionTemplates(initialData.functionTemplates);
+        }
+    }, [initialData]);
 
     const router = useRouter();
 

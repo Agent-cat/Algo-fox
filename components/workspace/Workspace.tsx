@@ -11,6 +11,13 @@ import ContestEntryModal from '../contest/ContestEntryModal';
 import ContestNavigationGuard from '../contest/ContestNavigationGuard';
 import ContestSidebar from './ContestSidebar';
 
+import dynamic from 'next/dynamic';
+
+const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
+    loading: () => null, // Optional: rendering nothing while loading
+    ssr: false // Client-side specific interaction
+});
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { getParticipationStatus } from '@/actions/contest';
@@ -83,6 +90,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [showEntryModal, setShowEntryModal] = useState(false);
     const [contestSessionId, setContestSessionId] = useState<string | null>(null);
     const [contestModeActive, setContestModeActive] = useState(false);
+
+    // Sidebar state
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Start with default language to avoid hydration mismatch, then update from localStorage
     const [languageId, setLanguageId] = useState(
@@ -359,6 +369,18 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 </>
             )}
 
+            {/* Problem Navigation Sidebar - Only show when not in contest mode */}
+            {!contestId && (
+                <ProblemSidebar
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
+                    currentProblemId={problem.id}
+                    domain={problem.domain}
+                    problemType={problem.type}
+                    solvedProblemIds={solvedProblemIds}
+                />
+            )}
+
             <WorkspaceHeader
                 onSubmit={() => handleSubmission("SUBMIT")}
                 onRun={() => handleSubmission("RUN")}
@@ -370,6 +392,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 prevProblemSlug={prevProblemSlug}
                 domain={problem.domain}
                 type={problem.type}
+                onToggleSidebar={() => setIsSidebarOpen(true)}
             />
             <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                 {contest && (

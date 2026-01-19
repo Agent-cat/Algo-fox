@@ -14,7 +14,7 @@ export class DashboardService {
             const cached = await redis.get(cacheKey);
             if (cached) {
                 // RETURNING THE CACHE IF CACHED
-                console.log(`[CACHE HIT] Dashboard Stats: ${userId}`);
+
                 return JSON.parse(cached);
             }
         } catch (error) {

@@ -25,7 +25,7 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] Problems List: ${domain} ${type} ${cursor ? 'Cursor ' + cursor : 'Page ' + page}`);
+
                 return JSON.parse(cached);
             }
         } catch (error) {
@@ -170,7 +170,7 @@ export class ProblemService {
                 // However, user just wants filtering. Let's bypass cache if we have specific filter or update cache key.
                 // Actually, let's just proceed with fetching fresh if we use filters or rely on the query.
                 // Given the current cache implementation is simple, let's just do the query.
-                console.log(`[CACHE HIT] Admin Problems: ${domain || 'All'} Page ${page}`);
+
                 // return JSON.parse(cached); // Disabling cache return for filtered requests for safety or we update key
             }
         } catch (error) {
@@ -296,7 +296,7 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] Problem: ${slug}`);
+
                 return JSON.parse(cached);
             }
         } catch (error) {

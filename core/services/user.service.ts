@@ -17,7 +17,7 @@ export class UserService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] User Score: ${userId}`);
+
                 return parseInt(cached, 10);
             }
         } catch (error) {

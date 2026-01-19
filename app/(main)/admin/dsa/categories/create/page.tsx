@@ -64,23 +64,23 @@ export default function CreateDsaCategoryPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white">
+    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-slate-950">
       <div className="max-w-2xl mx-auto ml-0">
         <Link
           href="/admin/dsa/categories"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to DSA Categories
         </Link>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-xl shadow-gray-200/50 p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create DSA Category</h1>
-          <p className="text-gray-500 mb-8">Add a new category for the DSA Learn mode.</p>
+        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none p-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create DSA Category</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">Add a new category for the DSA Learn mode.</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Category Name *
               </label>
               <input
@@ -89,13 +89,13 @@ export default function CreateDsaCategoryPage() {
                 required
                 value={formData.name}
                 onChange={handleNameChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-950 dark:text-white transition-all"
                 placeholder="e.g., Arrays & Strings"
               />
             </div>
 
             <div>
-              <label htmlFor="slug" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="slug" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Slug *
               </label>
               <input
@@ -104,14 +104,14 @@ export default function CreateDsaCategoryPage() {
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-mono text-sm"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-950 dark:text-white transition-all font-mono text-sm"
                 placeholder="arrays-strings"
               />
-              <p className="mt-1 text-xs text-gray-500">URL-friendly identifier (auto-generated from name)</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">URL-friendly identifier (auto-generated from name)</p>
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Description
               </label>
               <textarea
@@ -119,13 +119,13 @@ export default function CreateDsaCategoryPage() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-950 dark:text-white transition-all resize-none"
                 placeholder="Brief description of this category..."
               />
             </div>
 
             <div>
-              <label htmlFor="order" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="order" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Display Order
               </label>
               <input
@@ -133,10 +133,10 @@ export default function CreateDsaCategoryPage() {
                 id="order"
                 value={formData.order}
                 onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-950 dark:text-white transition-all"
                 placeholder="0"
               />
-              <p className="mt-1 text-xs text-gray-500">Lower numbers appear first</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Lower numbers appear first</p>
             </div>
 
             <div className="flex items-center gap-4 pt-4">
@@ -149,7 +149,7 @@ export default function CreateDsaCategoryPage() {
               </button>
               <Link
                 href="/admin/dsa/categories"
-                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all"
+                className="px-6 py-3 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-all"
               >
                 Cancel
               </Link>

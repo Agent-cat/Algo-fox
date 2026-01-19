@@ -9,7 +9,9 @@ import {
   Loader2,
   Settings,
   Minimize2,
+  Code2,
 } from "lucide-react";
+import DriverCodeModal from "./DriverCodeModal";
 import { getCodeDraft, saveCodeDraft } from "@/lib/db";
 import { toast } from "sonner";
 import {
@@ -121,6 +123,21 @@ export default function CodeEditor({
     return currentLanguage.boilerplate;
   };
 
+  const getDriverCode = (): string | null => {
+    if (domain === "SQL") return null;
+    if (functionTemplates && functionTemplates.length > 0) {
+      const template = functionTemplates.find(
+        (t) => t.languageId === effectiveLanguageId
+      );
+      if (template && template.driverCode) {
+        return template.driverCode;
+      }
+    }
+    return null;
+  };
+
+  const currentDriverCode = getDriverCode();
+
   // Initialize code state
   // If readOnly, prioritize controlledValue.
   // Else, use domain/boilerplate logic.
@@ -149,6 +166,7 @@ export default function CodeEditor({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isDriverCodeModalOpen, setIsDriverCodeModalOpen] = useState(false);
 
   // Track component mount state with a small delay to ensure DOM is ready
   useEffect(() => {
@@ -603,6 +621,19 @@ export default function CodeEditor({
               </div>
             )}
           </div>
+
+          {/* Driver Code Button */}
+          {currentDriverCode && !readOnly && (
+            <button
+              onClick={() => setIsDriverCodeModalOpen(true)}
+              className="flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors"
+              title="View Driver Code"
+            >
+              <Code2 className="w-3.5 h-3.5 text-orange-600 dark:text-orange-500" />
+              <span className="hidden sm:inline">View Driver Code</span>
+            </button>
+          )}
+
           {isSaving && (
             <div className="flex items-center gap-1.5 text-xs text-orange-500 font-medium">
               <Loader2 className="w-3 h-3 animate-spin" />
@@ -730,6 +761,13 @@ export default function CodeEditor({
           </div>
         )}
       </div>
+
+      <DriverCodeModal
+        isOpen={isDriverCodeModalOpen}
+        onClose={() => setIsDriverCodeModalOpen(false)}
+        code={currentDriverCode || ""}
+        languageId={effectiveLanguageId}
+      />
     </div>
   );
 }

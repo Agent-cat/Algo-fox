@@ -33,7 +33,7 @@ export class LeaderboardService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] Global Leaderboard`);
+
                 return JSON.parse(cached);
             }
         } catch (error) {

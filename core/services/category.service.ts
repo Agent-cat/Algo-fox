@@ -25,7 +25,7 @@ export class CategoryService {
 
             const cached = await redis.get(cacheKey);
             if (cached) {
-                console.log(`[CACHE HIT] Categories (${domain}): all`);
+
                 categories = JSON.parse(cached).categories;
             } else {
                 categories = await prisma.category.findMany({
@@ -110,7 +110,7 @@ export class CategoryService {
             if (cached) {
 
                 // RETURNING THE CACHE IF CACHED
-                console.log(`[CACHE HIT] Category: ${slug}`);
+
 
                 return JSON.parse(cached);
             }
@@ -183,7 +183,7 @@ export class CategoryService {
             if (!userId || (page === 1 && !cursor)) {
                 const cached = await redis.get(cacheKey);
                 if (cached) {
-                    console.log(`[CACHE HIT] Category Problems: ${categoryId} (${cursor ? 'Cursor ' + cursor : 'Page ' + page})`);
+
                     const parsed = JSON.parse(cached);
                     // IF USER IS AUTHENTICATED, WE NEED TO CHECK SOLVED STATUS
                     if (userId) {

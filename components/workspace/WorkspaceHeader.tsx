@@ -14,7 +14,8 @@ import {
   Sun,
   ShieldAlert,
   Shuffle,
-  Play
+  Play,
+  Menu
 } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -66,6 +67,7 @@ interface WorkspaceHeaderProps {
   prevProblemSlug?: string | null;
   domain?: ProblemDomain;
   type?: ProblemType;
+  onToggleSidebar?: () => void;
 }
 
 export default function WorkspaceHeader({
@@ -78,7 +80,8 @@ export default function WorkspaceHeader({
   nextProblemSlug,
   prevProblemSlug,
   domain,
-  type
+  type,
+  onToggleSidebar
 }: WorkspaceHeaderProps) {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
@@ -172,6 +175,15 @@ export default function WorkspaceHeader({
 
         {!contestId && (
           <div className="hidden md:flex items-center gap-2">
+            {onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors mr-1"
+                title="Toggle Problem List"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
             <Link
               href={domain === "SQL" ? "/problems/sql" : "/problems/dsa"}
               className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors flex items-center gap-1"

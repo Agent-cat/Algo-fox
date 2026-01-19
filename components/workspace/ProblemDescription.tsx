@@ -5,6 +5,7 @@ import 'highlight.js/styles/github.css';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 import { Problem } from '@prisma/client';
 import { BadgeCheck, FileText, List, ShieldAlert } from 'lucide-react';
 import Submissions from './Submissions';
@@ -103,6 +104,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                         <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
                             <Markdown
                                 remarkPlugins={[remarkGfm, remarkBreaks]}
+                                rehypePlugins={[rehypeRaw]}
                             >
                                 {problem.description}
                             </Markdown>
@@ -135,7 +137,10 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                                 isSolved ? (
                                     <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
                                         {problem.solution ? (
-                                            <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                            <Markdown
+                                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                                rehypePlugins={[rehypeRaw]}
+                                            >
                                                 {problem.solution}
                                             </Markdown>
                                         ) : (
