@@ -16,7 +16,7 @@ export default function SqlAdminProblemsPage() {
     const fetchProblems = async () => {
         setIsLoading(true);
         try {
-            const res = await getAdminProblems(1, 100, "SQL", "CONCEPT");
+            const res = await getAdminProblems(1, 100, "SQL", "CONCEPT", "PRACTICE");
             setProblems(res.problems);
         } catch (error) {
             toast.error("Failed to load problems");

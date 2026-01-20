@@ -155,7 +155,8 @@ export class ProblemService {
         page: number = 1,
         pageSize: number = 50,
         domain?: ProblemDomain,
-        excludeDifficulty?: Difficulty
+        excludeDifficulty?: Difficulty,
+        type?: ProblemType
     ) {
         const cacheKey = getAdminProblemsCacheKey(domain, page);
         // Note: cache key doesn't include excludeDifficulty which could be an issue if we vary it often,
@@ -178,7 +179,14 @@ export class ProblemService {
         }
 
         const skip = (page - 1) * pageSize;
-        const where: any = domain ? { domain, type: { not: "CONTEST" } } : { type: { not: "CONTEST" } };
+        const where: any = domain ? { domain } : {};
+
+        if (type) {
+            where.type = type;
+        } else {
+            where.type = { not: "CONTEST" };
+        }
+
         if (excludeDifficulty) {
             where.difficulty = { not: excludeDifficulty };
         }

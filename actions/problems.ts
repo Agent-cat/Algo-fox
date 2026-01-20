@@ -38,7 +38,8 @@ export async function getAdminProblems(
     page: number = 1,
     pageSize: number = 50,
     domain?: ProblemDomain,
-    excludeDifficulty?: Difficulty
+    excludeDifficulty?: Difficulty,
+    type?: ProblemType
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
@@ -52,10 +53,10 @@ export async function getAdminProblems(
         throw new Error("Unauthorized");
     }
 
-    const tagKey = `admin-problems-${domain || 'all'}${excludeDifficulty ? `-exclude-${excludeDifficulty}` : ''}-page-${page}`;
+    const tagKey = `admin-problems-${domain || 'all'}${excludeDifficulty ? `-exclude-${excludeDifficulty}` : ''}${type ? `-type-${type}` : ''}-page-${page}`;
     cacheTag(tagKey, 'admin-problems-list');
 
-    return ProblemService.getAdminProblems(page, pageSize, domain, excludeDifficulty);
+    return ProblemService.getAdminProblems(page, pageSize, domain, excludeDifficulty, type);
 }
 
 // SEARCHING FOR PROBLEMS

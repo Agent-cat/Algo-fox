@@ -28,25 +28,17 @@ export default async function StudentContestsPage() {
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] pb-20 pt-24">
       {/* Header */}
       <div className="relative mb-12 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-[#262626] pb-32  overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#2626260a_1px,transparent_1px),linear-gradient(to_bottom,#2626260a_1px,transparent_1px)] bg-size[14px_24px]"></div>
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="flex flex-col items-center text-center gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-50 dark:bg-orange-500/10 text-orange-600 rounded-full text-xs font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
-              <Trophy className="w-3 h-3" />
-              Arena
+            <div className="relative group cursor-default">
+              <div className="absolute -inset-1  rounded-full "></div>
+              <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-white dark:bg-[#0a0a0a] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20 ">
+                <Trophy className="w-4 h-4" />
+                Competition Arena
+              </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-gray-100 tracking-tight">
-              Competition{" "}
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-amber-600">
-                Arena
-              </span>
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 max-w-lg text-lg">
-              Compete with the best, solve challenging problems, and climb the
-              global leaderboard.
-            </p>
           </div>
         </div>
       </div>

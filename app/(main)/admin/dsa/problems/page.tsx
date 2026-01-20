@@ -16,7 +16,7 @@ export default function DsaAdminProblemsPage() {
     const fetchProblems = async () => {
         setIsLoading(true);
         try {
-            const res = await getAdminProblems(1, 100, "DSA", "CONCEPT");
+            const res = await getAdminProblems(1, 100, "DSA", "CONCEPT", "PRACTICE");
             setProblems(res.problems);
         } catch (error) {
             toast.error("Failed to load problems");

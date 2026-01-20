@@ -22,107 +22,153 @@ async function SubmissionContent({ params }: PageProps) {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'ACCEPTED': return 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-500 border-green-200 dark:border-green-500/20';
-            case 'WRONG_ANSWER': return 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-500 border-red-200 dark:border-red-500/20';
-            case 'TIME_LIMIT_EXCEEDED': return 'bg-orange-100 dark:bg-orange-500/10 text-orange-700 dark:text-orange-500 border-orange-200 dark:border-orange-500/20';
-            case 'MEMORY_LIMIT_EXCEEDED': return 'bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-500 border-purple-200 dark:border-purple-500/20';
-            default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+            case 'ACCEPTED': return 'text-green-500';
+            case 'WRONG_ANSWER': return 'text-red-500';
+            case 'TIME_LIMIT_EXCEEDED': return 'text-orange-500';
+            case 'MEMORY_LIMIT_EXCEEDED': return 'text-purple-500';
+            default: return 'text-gray-500';
         }
     };
 
     const getStatusIcon = (status: string) => {
         switch (status) {
-            case 'ACCEPTED': return <CheckCircle2 className="w-5 h-5" />;
-            case 'WRONG_ANSWER': return <XCircle className="w-5 h-5" />;
-            default: return <AlertCircle className="w-5 h-5" />;
+            case 'ACCEPTED': return <CheckCircle2 className="w-12 h-12" />;
+            case 'WRONG_ANSWER': return <XCircle className="w-12 h-12" />;
+            case 'TIME_LIMIT_EXCEEDED': return <Clock className="w-12 h-12" />;
+            case 'MEMORY_LIMIT_EXCEEDED': return <Database className="w-12 h-12" />;
+            default: return <AlertCircle className="w-12 h-12" />;
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto space-y-6">
-                {/* HEADER */}
-                <div className="flex items-center justify-between">
-                    <Link
-                        href={`/problems/${problem.slug}`}
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Problem
-                    </Link>
-                    <div className="text-sm text-gray-500 dark:text-gray-500">
-                        Submission ID: {id}
-                    </div>
-                </div>
-
-                {/* OVERVIEW CARD */}
-                <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 dark:border-[#262626]">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{problem.title}</h1>
-                                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border ${getStatusColor(status)}`}>
-                                    {getStatusIcon(status)}
-                                    {status.replace(/_/g, " ")}
-                                </div>
-                            </div>
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-[#262626]">
-                                    <Terminal className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                    <span className="font-medium text-gray-900 dark:text-gray-200">{language.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-[#262626]">
-                                    <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                    <span className="font-medium text-gray-900 dark:text-gray-200">{time ? `${time} ms` : '-'}</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-[#262626]">
-                                    <Database className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                    <span className="font-medium text-gray-900 dark:text-gray-200">{memory ? `${memory} KB` : '-'}</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-[#262626]">
-                                    <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                                    <span>{new Date(createdAt).toLocaleString()}</span>
-                                </div>
-                            </div>
+        <div className="min-h-screen bg-white dark:bg-[#050505] py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-[1400px] mx-auto space-y-8">
+                {/* HEADER / BREADCRUMBS */}
+                <div className="flex items-center justify-between border-b border-gray-100 dark:border-[#1a1a1a] pb-6">
+                    <div className="flex items-center gap-6">
+                        <Link
+                            href={`/problems/${problem.slug}`}
+                            className="group flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            <span className="text-sm font-medium uppercase tracking-widest">Back</span>
+                        </Link>
+                        <div className="h-6 w-[1px] bg-gray-200 dark:bg-[#1a1a1a]" />
+                        <div>
+                            <h1 className="text-2xl font-black text-gray-900 dark:text-white zf uppercase ">{problem.title}</h1>
+                            <p className="text-[10px] text-gray-400 font-mono mt-0.5 tracking-tighter uppercase">Submission Reference: {id}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* CODE VIEWER */}
-                <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a] flex items-center justify-between">
-                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <Terminal className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            Submitted Code
-                        </h2>
-                    </div>
-                    <div className="h-[500px]">
-                        <CodeEditor
-                            value={code}
-                            languageId={language.id}
-                            readOnly={true}
-                        />
-                    </div>
-                </div>
-
-                {/* TEST CASES */}
-                {testCases.length > 0 && (
-                    <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
-                            <h2 className="font-semibold text-gray-900 dark:text-gray-100">Test Cases</h2>
-                        </div>
-                        <div className="divide-y divide-gray-100 dark:divide-[#262626]">
-                            {testCases.map((tc) => (
-                                <div key={tc.id} className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Case {tc.index + 1}</span>
-                                    <span className={`text-xs px-2 py-1 rounded font-medium ${tc.status === 'ACCEPTED' ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-500' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-500'}`}>
-                                        {tc.status}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                    {/* LEFT SIDE: CODE VIEWER */}
+                    <div className="lg:col-span-8 space-y-6">
+                        <div className="glass-container relative bg-white/5 dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-sm overflow-hidden flex flex-col shadow-2xl shadow-black/5">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
+                                <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <Terminal className="w-3.5 h-3.5 text-orange-500" />
+                                    Source Code
+                                </h2>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-[10px] font-black text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-none border border-orange-500/20 uppercase tracking-widest">
+                                        {language.name}
                                     </span>
                                 </div>
-                            ))}
+                            </div>
+                            <div className="h-[600px] lg:h-[calc(100vh-300px)] w-full antialiased font-mono">
+                                <CodeEditor
+                                    value={code}
+                                    languageId={language.id}
+                                    readOnly={true}
+                                />
+                            </div>
                         </div>
                     </div>
-                )}
+
+                    {/* RIGHT SIDE: METADATA & RESULTS */}
+                    <div className="lg:col-span-4 space-y-2 lg:sticky lg:top-8">
+                        {/* OUTCOME - TEXT ONLY VERSION */}
+                        <div className="flex flex-col items-center text-center py-6">
+                            <div className={`mb-4 ${getStatusColor(status).replace('text-', 'text- opacity-80 ')} animate-pulse`}>
+                                {getStatusIcon(status)}
+                            </div>
+                            <h3 className={`text-4xl font-black uppercase tracking-tighter italic ${getStatusColor(status)} line-height-1`}>
+                                {status.replace(/_/g, " ")}
+                            </h3>
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-[0.3em]">Status Result</p>
+                        </div>
+
+                        <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-100 dark:via-white/10 to-transparent w-full" />
+
+                        {/* PERFORMANCE STATS - GLASS STYLE */}
+                        <div className="bg-white/5 rounded-xl dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 p-8 rounded-none shadow-xl shadow-black/5">
+                            <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4">
+                                Metrics Detail
+                            </h3>
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <Clock className="w-3 h-3" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Runtime</span>
+                                    </div>
+                                    <p className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">
+                                        {time ? <>{time}<span className="text-xs ml-1 font-medium text-gray-400">ms</span></> : <span className="text-gray-200 dark:text-gray-800">--</span>}
+                                    </p>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <Database className="w-3 h-3" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Memory</span>
+                                    </div>
+                                    <p className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">
+                                        {memory ? <>{memory}<span className="text-xs ml-1 font-medium text-gray-400">KB</span></> : <span className="text-gray-200 dark:text-gray-800">--</span>}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 pt-6 border-t  border-gray-50 dark:border-white/5">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Submitted</span>
+                                        <p className="text-[11px] font-bold text-gray-900 dark:text-gray-300 uppercase tracking-tighter flex items-center gap-2">
+                                            <Calendar className="w-3 h-3 text-orange-500" />
+                                            {new Date(createdAt).toLocaleString('en-US', {
+                                                month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                            })}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* TEST CASES ACCORDION / LIST */}
+                        {testCases.length > 0 && (
+                            <div className="bg-white/5 rounded-xl dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-none shadow-xl shadow-black/5 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
+                                    <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Test Scenarios</h3>
+                                    <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-1">
+                                        <span className="text-[10px] font-black text-green-500">{testCases.filter(t => t.status === 'ACCEPTED').length}</span>
+                                        <span className="text-[10px] font-black text-gray-300 italic">PASS</span>
+                                    </div>
+                                </div>
+                                <div className="divide-y divide-gray-100 dark:divide-white/5 max-h-[300px] overflow-y-auto custom-scrollbar">
+                                    {testCases.map((tc) => (
+                                        <div key={tc.id} className="px-6 py-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/[0.02] transition-colors group">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-1 h-4 rounded-none ${tc.status === 'ACCEPTED' ? 'bg-green-500' : 'bg-red-500'}`} />
+                                                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest">Case {tc.index + 1}</span>
+                                            </div>
+                                            <span className={`text-[9px] font-black uppercase tracking-[0.1em] ${tc.status === 'ACCEPTED' ? 'text-green-500' : 'text-red-500'}`}>
+                                                {tc.status === 'ACCEPTED' ? 'OK' : 'FAIL'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
