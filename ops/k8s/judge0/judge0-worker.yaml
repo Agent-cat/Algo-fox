@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: judge0-worker
+  namespace: algofox
+spec:
+  replicas: 1 # Scaled by KEDA
+  selector:
+    matchLabels:
+      app: judge0-worker
+  template:
+    metadata:
+      labels:
+        app: judge0-worker
+    spec:
+      containers:
+      - name: worker
+        image: judge0/judge0:1.13.1
+        command: ["./scripts/workers"]
+        securityContext:
+          privileged: true
+        envFrom:
+        - configMapRef:
+            name: judge0-config
+        - secretRef:
+            name: judge0-secrets
+        volumeMounts:
+        - name: judge0-conf
+          mountPath: /judge0.conf
+          subPath: judge0.conf
+        - name: cgroup
+          mountPath: /sys/fs/cgroup
+      volumes:
+      - name: judge0-conf
+        configMap:
+          name: judge0-config
+      - name: cgroup
+        hostPath:
+          path: /sys/fs/cgroup
+          type: Directory

@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
-import { cacheKey, cachedFetch, CACHE_CONFIG } from "@/lib/cache-utils";
+import { cacheKey, cachedFetch, CACHE_CONFIG, deleteFromCache } from "@/lib/cache-utils";
 
 const classroomSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -369,6 +369,7 @@ export async function toggleClassroomTracking(classroomId: string, active: boole
         }
     });
 
+    await deleteFromCache(cacheKey("live-tracking", classroomId));
     revalidateTag(`classroom-${classroomId}`, "max");
     revalidatePath(`/dashboard/classrooms/${classroomId}`);
     return { success: true };

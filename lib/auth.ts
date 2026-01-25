@@ -47,7 +47,7 @@ export const auth = betterAuth({
     admin({
       adminRoles: ["ADMIN"],
       defaultRole: "STUDENT",
-      adminUserIds: ["iDwVXlDKSzltqI0YfMH5E0in5o9bWmj9"], // vishnu
+      adminUserIds: ["jvp0LDpaCm0Y2VpUVP75vCNQnDioEdpm"], // vishnu
     }),
   ],
 });

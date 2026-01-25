@@ -79,6 +79,9 @@ export async function POST(req: NextRequest) {
         // 1. Create Submission in DB (SUBMIT MODE)
         const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode, contestId);
 
+        // Invalidate Tracking Cache so teachers see "Pending" immediately
+        await SubmissionService.invalidateClassroomTracking(userId);
+
         // 2. Add to Queue
         await addSubmissionJob(submission.id);
 

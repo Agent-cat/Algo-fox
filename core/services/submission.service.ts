@@ -346,4 +346,37 @@ export class SubmissionService {
 
         return prisma.submission.findMany(query);
     }
+    static async invalidateClassroomTracking(userId: string) {
+        try {
+            // Find all classrooms the user is enrolled in where tracking is active
+            const classrooms = await prisma.classroom.findMany({
+                where: {
+                    students: {
+                        some: { id: userId }
+                    },
+                    isTrackingActive: true
+                },
+                select: { id: true }
+            });
+
+            if (classrooms.length > 0) {
+                 // Invalidate live tracking cache for each classroom
+                 const keys = classrooms.map(c => `algofox:live-tracking:${c.id}`);
+                 await redis.del(...keys);
+
+                 // Also invalidate Next.js cache tags for good measure
+                 classrooms.forEach(c => {
+                     // Since we are in a service/worker context, revalidateTag might be tricky if not in a server action/request
+                     // But we can try just in case this service is called from a server action
+                     try {
+                        revalidateTag(`classroom-${c.id}`, "max");
+                     } catch (e) {
+                         // Ignore error if outside request context
+                     }
+                 });
+            }
+        } catch (error) {
+            console.error("Failed to invalidate classroom tracking cache:", error);
+        }
+    }
 }

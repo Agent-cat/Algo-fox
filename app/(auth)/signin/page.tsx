@@ -41,11 +41,11 @@ function SignInContent() {
         toast.success("Signed in successfully");
       },
       onError: (ctx) => {
-        if (ctx.error.status === 403 || ctx.error.message.toLowerCase().includes("cancel")) {
+        if (ctx.error.status === 403 || ctx.error.message?.toLowerCase().includes("cancel")) {
           setLoading(null);
           return;
         }
-        toast.error(ctx.error.message);
+        toast.error(ctx.error.message || "An error occurred during sign in");
         setLoading(null);
       }
     });

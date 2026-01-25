@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: judge0-redis
+  namespace: algofox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: judge0-redis
+  template:
+    metadata:
+      labels:
+        app: judge0-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.0
+        command: ["bash", "-c", "docker-entrypoint.sh --appendonly yes --requirepass \"$REDIS_PASSWORD\""]
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: judge0-secrets
+              key: REDIS_PASSWORD
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: judge0-redis-data
+          mountPath: /data
+      volumes:
+      - name: judge0-redis-data
+        persistentVolumeClaim:
+          claimName: judge0-redis-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: judge0-redis-pvc
+  namespace: algofox
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: judge0-redis
+  namespace: algofox
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: judge0-redis

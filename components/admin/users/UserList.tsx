@@ -31,13 +31,18 @@ export default function UserList() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
+            const query: any = {
+                limit,
+                offset: (page - 1) * limit,
+            };
+
+            if (debouncedSearch) {
+                query.searchValue = debouncedSearch;
+                query.searchField = "name";
+            }
+
             const { data, error } = await authClient.admin.listUsers({
-                query: {
-                    limit,
-                    offset: (page - 1) * limit,
-                    searchValue: debouncedSearch,
-                    searchField: "name" // or email
-                }
+                query
             });
 
             if (data) {

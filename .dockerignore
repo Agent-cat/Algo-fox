@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Environment files (will be passed at runtime)
+.env
+.env.*
+
+# Version control
+.git
+.gitignore
+
+# IDE and editors
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+
+# Documentation
+README.md
+docs
+
+# Kubernetes/Ops files
+ops
+
+# Misc
+*.log
+*.md
+!package.json

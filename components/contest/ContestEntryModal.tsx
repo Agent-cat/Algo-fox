@@ -6,14 +6,15 @@ import {
   Monitor,
   Eye,
   Keyboard,
-  AlertTriangle,
-  CheckCircle2,
-  X,
-  Lock,
   ArrowRight,
+  Check,
+  Lock,
+  X,
+  ChevronLeft,
 } from "lucide-react";
 import { startContestSession, verifyContestPassword } from "@/actions/contest";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ContestEntryModalProps {
   contestId: string;
@@ -27,29 +28,27 @@ interface ContestEntryModalProps {
 const RULES = [
   {
     icon: Monitor,
-    title: "Full-Screen Mode",
-    description:
-      "The contest will run in full-screen. Exiting fullscreen will be logged.",
+    title: "Fullscreen Enforced",
+    description: "The contest runs in fullscreen. Exiting may be flagged.",
   },
   {
     icon: Eye,
-    title: "Tab Switch Detection",
-    description:
-      "Switching tabs or windows will be detected and recorded as a violation.",
+    title: "Focus Tracking",
+    description: "Tab switching and window blurring are monitored.",
   },
   {
     icon: Keyboard,
-    title: "Keyboard Restrictions",
-    description:
-      "Copy, paste, and developer shortcuts (F12, Ctrl+Shift+I) are disabled.",
+    title: "Input Restricted",
+    description: "Copy-paste and developer tools are disabled.",
   },
   {
     icon: Shield,
-    title: "Proctoring Active",
-    description:
-      "All violations are logged and may affect your contest results.",
+    title: "Proctored Environment",
+    description: "suspicious activity is logged for review.",
   },
 ];
+
+type Step = "PASSWORD" | "RULES" | "CONFIRM";
 
 export default function ContestEntryModal({
   contestId,
@@ -60,7 +59,7 @@ export default function ContestEntryModal({
   onStart,
 }: ContestEntryModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<"PASSWORD" | "RULES">("RULES");
+  const [step, setStep] = useState<Step>("RULES");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
 
@@ -71,7 +70,6 @@ export default function ContestEntryModal({
       } else {
         setStep("RULES");
       }
-      // Reset states
       setAgreed(false);
       setPassword("");
       setIsLoading(false);
@@ -80,295 +78,246 @@ export default function ContestEntryModal({
 
   const handleVerifyPassword = async () => {
     if (!password) {
-      toast.error("Please enter the contest password");
+      toast.error("Enter the contest password");
       return;
     }
-
     setIsLoading(true);
     try {
       const result = await verifyContestPassword(contestId, password);
       if (result.success) {
         setStep("RULES");
-        toast.success("Password verified");
+        toast.success("Access granted");
       } else {
-        toast.error(result.error || "Invalid password");
+        toast.error(result.error || "Incorrect password");
       }
-    } catch (error) {
-      toast.error("Failed to verify password");
+    } catch {
+      toast.error("Verification failed");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleStartContest = async () => {
-    if (!agreed) {
-      toast.error("Please agree to the contest rules to continue");
-      return;
-    }
-
+    if (!agreed) return;
     setIsLoading(true);
-
     try {
-      // Start server session
       const result = await startContestSession(contestId, password);
-
       if (!result.success) {
-        toast.error(result.error || "Failed to start contest");
+        toast.error(result.error || "Could not start session");
         setIsLoading(false);
         return;
       }
 
-      // Request fullscreen
       try {
         await document.documentElement.requestFullscreen();
       } catch (e) {
-        console.warn("Fullscreen request failed:", e);
-        // Continue anyway - will try again on first click
+        console.warn("Fullscreen failed", e);
       }
 
-      toast.success("Contest mode activated!");
+      toast.success("Good luck!");
       onStart(result.sessionId!);
-    } catch (error) {
-      toast.error("Failed to start contest session");
+    } catch {
+      toast.error("Failed to initialize contest");
       setIsLoading(false);
     }
   };
 
   if (!isOpen) return null;
 
-  if (step === "PASSWORD") {
-    return (
-      <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-scaleIn">
-          <div className="bg-linear-to-r from-gray-900 to-gray-800 px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center border border-gray-600">
-                  <Lock className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">
-                    Password Required
-                  </h2>
-                  <p className="text-gray-400 text-xs">
-                    Enter access code to continue
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 bg-white dark:bg-[#141414]">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Contest Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-mono text-lg bg-gray-50 dark:bg-[#1a1a1a] text-gray-900 dark:text-white"
-                  placeholder="••••••••"
-                  autoFocus
-                />
-              </div>
-
-              <button
-                onClick={handleVerifyPassword}
-                disabled={isLoading || !password}
-                className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-semibold hover:bg-black dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white dark:border-black/30 dark:border-t-black rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Continue <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Rules Step
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div
-        className={`bg-white rounded-2xl shadow-2xl w-full mx-4 overflow-hidden animate-scaleIn transition-all duration-300 max-w-4xl`}
-      >
-        {/* Header */}
-        <div className="bg-linear-to-r from-gray-900 to-gray-800 px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Contest Mode</h2>
-                <p className="text-gray-400 text-sm">{contestTitle}</p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
+        className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Content */}
+      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-md rounded-3xl shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+
+        {/* Progress / Navigation Header */}
+        <div className="px-8 pt-8 flex items-center justify-between">
+          <div className="flex gap-2">
+            {[1, 2, 3].map((i) => {
+               // Calculate current step index
+               let currentStepIdx = 0;
+               if (requiresPassword) {
+                 if (step === "PASSWORD") currentStepIdx = 1;
+                 if (step === "RULES") currentStepIdx = 2;
+                 if (step === "CONFIRM") currentStepIdx = 3;
+               } else {
+                 if (step === "RULES") currentStepIdx = 1; // Actually step 1 visually
+                 if (step === "CONFIRM") currentStepIdx = 2;
+               }
+               // Normalizing because map index is simple
+               // If requiresPassword: Steps are Pass(1), Rules(2), Confirm(3)
+               // If not: Rules(1), Confirm(2) -> effectively 2 steps visually
+
+               const totalSteps = requiresPassword ? 3 : 2;
+               if (i > totalSteps) return null;
+
+               let isActive = false;
+               if (requiresPassword) {
+                   if (i === 1 && step === "PASSWORD") isActive = true;
+                   if (i === 2 && step === "RULES") isActive = true;
+                   if (i === 3 && step === "CONFIRM") isActive = true;
+               } else {
+                   if (i === 1 && step === "RULES") isActive = true;
+                   if (i === 2 && step === "CONFIRM") isActive = true;
+               }
+
+               const isCompleted = requiresPassword
+                ? (i === 1 && step !== "PASSWORD") || (i === 2 && step === "CONFIRM")
+                : (i === 1 && step === "CONFIRM");
+
+               return (
+                <div
+                    key={i}
+                    className={cn(
+                        "h-1 rounded-full transition-all duration-300",
+                        isActive ? "w-8 bg-orange-600" : isCompleted ? "w-2 bg-orange-200 dark:bg-orange-900" : "w-2 bg-gray-100 dark:bg-[#262626]"
+                    )}
+                />
+               );
+            })}
           </div>
+          <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="p-8 bg-white dark:bg-[#141414]">
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  Contest Rules & Requirements
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Please review the following rules carefully before starting.
-                  Violation of these rules may result in disqualification.
-                </p>
+        <div className="p-8 min-h-[400px] flex flex-col">
+          {/* PASSWORD STEP */}
+          {step === "PASSWORD" && (
+            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
+              <div className="mb-8">
+                <div className="w-12 h-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center mb-6">
+                    <Lock className="w-6 h-6 text-gray-900 dark:text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Private Contest</h2>
+                <p className="text-gray-500 dark:text-gray-400">Enter the access code to join.</p>
               </div>
 
               <div className="space-y-4">
-                {RULES.map((rule, index) => {
-                  const Icon = rule.icon;
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333] transition-colors"
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                    placeholder="Password"
+                    autoFocus
+                    className="w-full bg-gray-50 dark:bg-[#141414] border-gray-200 dark:border-[#262626] rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-300 dark:text-white dark:placeholder:text-gray-700"
+                />
+              </div>
+
+              <div className="mt-auto pt-8">
+                <button
+                    onClick={handleVerifyPassword}
+                    disabled={!password || isLoading}
+                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                    {isLoading ? "Verifying..." : "Continue"}
+                    {!isLoading && <ArrowRight className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* RULES STEP */}
+          {step === "RULES" && (
+            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
+               <div className="mb-8">
+                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Contest Rules</h2>
+                 <p className="text-gray-500 dark:text-gray-400">Strict proctoring is active.</p>
+               </div>
+
+               <div className="space-y-6">
+                 {RULES.map((rule, idx) => {
+                     const Icon = rule.icon;
+                     return (
+                         <div key={idx} className="flex gap-4">
+                             <div className="w-10 h-10 shrink-0 rounded-full bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center">
+                                 <Icon className="w-5 h-5 text-gray-900 dark:text-white" />
+                             </div>
+                             <div>
+                                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{rule.title}</h3>
+                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{rule.description}</p>
+                             </div>
+                         </div>
+                     )
+                 })}
+               </div>
+
+               <div className="mt-auto pt-8">
+                <button
+                    onClick={() => setStep("CONFIRM")}
+                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                >
+                    I Understand
+                    <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* CONFIRM STEP */}
+          {step === "CONFIRM" && (
+            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
+                <button
+                  onClick={() => setStep("RULES")}
+                  className="mb-6 flex items-center gap-2 text-sm text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors w-fit"
+                >
+                    <ChevronLeft className="w-4 h-4" />
+                    Back
+                </button>
+
+                <div className="text-center mb-8">
+                   <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 mx-auto rounded-full flex items-center justify-center mb-6 animate-pulse">
+                        <Shield className="w-8 h-8 text-orange-600 dark:text-orange-500" />
+                   </div>
+                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Start?</h2>
+                   <p className="text-gray-500 dark:text-gray-400 text-sm max-w-[260px] mx-auto">
+                        Once you begin, your screen will be monitored. Violations may lead to disqualification.
+                   </p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl p-4 mb-6">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                        <div className="relative flex items-center mt-0.5">
+                            <input
+                                type="checkbox"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                                className="peer h-5 w-5 appearance-none rounded-md border-2 border-gray-300 dark:border-gray-600 checked:border-orange-500 checked:bg-orange-500 transition-all"
+                            />
+                            <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" />
+                        </div>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 select-none leading-relaxed">
+                            I verify that I am the registered participant and I agree to follow all contest rules honestly.
+                        </span>
+                    </label>
+                </div>
+
+                <div className="mt-auto">
+                    <button
+                        onClick={handleStartContest}
+                        disabled={!agreed || isLoading}
+                        className="w-full bg-linear-to-r from-orange-600 to-orange-500 text-white py-4 rounded-xl font-bold text-sm tracking-wide hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      <div className="w-10 h-10 bg-white dark:bg-[#262626] rounded-lg flex items-center justify-center shrink-0 border border-gray-200 dark:border-[#333] shadow-sm dark:shadow-none">
-                        <Icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-200 text-sm mb-1">
-                          {rule.title}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                          {rule.description}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                        {isLoading ? (
+                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                Enter Contest
+                                <ArrowRight className="w-4 h-4" />
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
+          )}
 
-            <div className="flex flex-col h-full">
-              <div className="flex-1">
-                <div className="p-5 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 mb-6">
-                  <div className="flex gap-3">
-                    <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-500 shrink-0" />
-                    <div>
-                      <p className="text-sm font-bold text-orange-900 dark:text-orange-400 mb-1">
-                        Active Monitoring
-                      </p>
-                      <p className="text-sm text-orange-800/80 dark:text-orange-400/80 leading-relaxed">
-                        Once you start, contest protection will be activated.
-                        Violations such as switching tabs, exiting fullscreen,
-                        or using developer tools will be logged and may impact
-                        your score.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-5 bg-red-50 dark:bg-red-500/10 rounded-xl border border-red-100 dark:border-red-500/20 mb-6">
-                  <div className="flex gap-3">
-                    <Shield className="w-5 h-5 text-red-600 dark:text-red-500 shrink-0" />
-                    <div>
-                      <p className="text-sm font-bold text-red-900 dark:text-red-400 mb-1">
-                        Automatic Disqualification
-                      </p>
-                      <p className="text-sm text-red-800/80 dark:text-red-400/80 leading-relaxed">
-                        <strong>Escalation Policy:</strong> 3+ violations will
-                        flag your session for review. 5+ violations will
-                        automatically submit your contest and block further
-                        access.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-auto">
-                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors mb-6 group">
-                  <div className="relative flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                      className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 transition-all checked:border-orange-500 checked:bg-orange-500"
-                    />
-                    <CheckCircle2 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" />
-                  </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors select-none">
-                    I have read and agree to the{" "}
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      contest rules
-                    </span>{" "}
-                    and understand the{" "}
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      proctoring terms
-                    </span>
-                    .
-                  </span>
-                </label>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={onClose}
-                    className="flex-1 py-3.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-[#262626] hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleStartContest}
-                    disabled={!agreed || isLoading}
-                    className="flex-2 py-3.5 bg-linear-to-r from-orange-600 to-orange-500 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-orange-500/25 hover:from-orange-500 hover:to-orange-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
-                  >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        Accept & Start Contest{" "}
-                        <ArrowRight className="w-4 h-4 opacity-80" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-
-        <style jsx global>{`
-          @keyframes scaleIn {
-            from {
-              transform: scale(0.95);
-              opacity: 0;
-            }
-            to {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-          .animate-scaleIn {
-            animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          }
-        `}</style>
       </div>
     </div>
   );

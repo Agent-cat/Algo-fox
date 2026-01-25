@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: judge0-worker-scaler
+  namespace: algofox
+spec:
+  scaleTargetRef:
+    name: judge0-worker
+  pollingInterval: 5
+  cooldownPeriod: 30
+  minReplicaCount: 1
+  maxReplicaCount: 6
+  triggers:
+  - type: redis
+    metadata:
+      address: judge0-redis.algofox.svc.cluster.local:6379
+      passwordFromEnv: REDIS_PASSWORD
+      listName: resque:queue:1.13.1 # Redis queue list for Judge0 v1.13.1
+      listLength: "5" # Scale up if more than 5 items in queue

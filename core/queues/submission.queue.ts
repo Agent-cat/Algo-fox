@@ -308,10 +308,12 @@ const worker = new Worker(
                     }
                 }));
 
-                // Only award points for SUBMIT mode and only on first accepted solution
                 if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
                     await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
                 }
+
+                // Invalidate Live Tracking Cache
+                await SubmissionService.invalidateClassroomTracking(submission.userId);
             } else {
                 await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
                  await connection.publish(`submission:${submissionId}`, JSON.stringify({
@@ -322,6 +324,9 @@ const worker = new Worker(
                         memory: 0
                     }
                 }));
+
+                // Invalidate Live Tracking Cache (Timeout)
+                await SubmissionService.invalidateClassroomTracking(submission.userId);
             }
 
         } catch (error) {

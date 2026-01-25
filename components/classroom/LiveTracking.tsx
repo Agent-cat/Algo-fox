@@ -31,7 +31,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
 
     useEffect(() => {
         fetchTrackingData();
-        const interval = setInterval(fetchTrackingData, 10000);
+        const interval = setInterval(fetchTrackingData, 2000);
         return () => clearInterval(interval);
     }, [fetchTrackingData]);
 
@@ -265,8 +265,13 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                                     className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-white dark:hover:bg-[#1a1a1a] hover:shadow-sm transition-all group/item text-left mb-1"
                                                 >
                                                     <div className="flex items-start gap-3 min-w-0">
-                                                        <div className={`mt-0.5 ${sub.status === 'ACCEPTED' ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                            {sub.status === 'ACCEPTED' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                                                        <div className={`mt-0.5 ${
+                                                            sub.status === 'ACCEPTED' ? 'text-emerald-500' :
+                                                            sub.status === 'PENDING' ? 'text-orange-500' : 'text-red-500'
+                                                        }`}>
+                                                            {sub.status === 'ACCEPTED' ? <CheckCircle2 className="w-4 h-4" /> :
+                                                             sub.status === 'PENDING' ? <Loader2 className="w-4 h-4 animate-spin" /> :
+                                                             <XCircle className="w-4 h-4" />}
                                                         </div>
                                                         <div className="min-w-0 flex-1">
                                                             <div className="font-bold text-xs text-gray-700 dark:text-gray-300 truncate group-hover/item:text-orange-600 transition-colors">
