@@ -170,3 +170,50 @@ body {
     linear-gradient(to right, #262626 1px, transparent 1px),
     linear-gradient(to bottom, #262626 1px, transparent 1px);
 }
+/* Custom syntax highlighting that adapts to theme */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  @apply text-pink-600 dark:text-pink-400;
+}
+
+.hljs-function,
+.hljs-title,
+.hljs-section,
+.hljs-attribute {
+  @apply text-indigo-600 dark:text-indigo-400;
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-selector-id,
+.hljs-class .hljs-title {
+  @apply text-orange-600 dark:text-orange-400;
+}
+
+.hljs-string,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-addition {
+  @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.hljs-comment,
+.hljs-code,
+.hljs-quote,
+.hljs-meta {
+  @apply text-gray-500 dark:text-gray-400 italic;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-link {
+  @apply text-purple-600 dark:text-purple-400;
+}
+
+.hljs-attr,
+.hljs-property {
+  @apply text-sky-600 dark:text-sky-400;
+}

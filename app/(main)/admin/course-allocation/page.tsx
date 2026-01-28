@@ -25,7 +25,7 @@ export default function CourseAllocationPage() {
   }>({});
 
   const availableDomains: ProblemDomain[] = ["DSA", "SQL"];
-  const years = [1, 2, 3, 4, 5];
+  const years = [1, 2, 3, 4];
 
   useEffect(() => {
     loadAllocations();

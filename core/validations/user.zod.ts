@@ -5,6 +5,6 @@ export const onboardingSchema = z.object({
     collegeId: z.string().min(1, "College ID/Name is required"),
     leetCodeHandle: z.string().optional(),
     codeChefHandle: z.string().optional(),
-    hackerrankHandle: z.string().optional(),
+    codeforcesHandle: z.string().optional(),
     githubHandle: z.string().optional(),
 });

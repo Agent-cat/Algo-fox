@@ -10,7 +10,7 @@ data:
     ENABLE_WAIT_RESULT=true
     ENABLE_CALLBACKS=true
     ENABLE_ADDITIONAL_FILES=true
-    MAX_QUEUE_SIZE=100
+    MAX_QUEUE_SIZE=1000
     USE_CGROUPS=true
 
     # Internal Redis/DB for Judge0

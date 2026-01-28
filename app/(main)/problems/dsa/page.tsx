@@ -1,4 +1,5 @@
 import { getProblems } from "@/actions/problems";
+import { getCategories } from "@/actions/category.action";
 import DsaProblemsClient from "./_components/DsaProblemsClient";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -71,13 +72,19 @@ async function DsaProblemsContent({
         tags = params.tags;
     }
 
-    // FETCHING PRACTICE MODE, PAGE 1 FOR DSA DOMAIN
-    const { problems, totalPages } = await getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags);
+    const mode = (params?.mode as string) || "practice";
+
+    // FETCHING DATA BASED ON MODE
+    const [{ problems, totalPages }, categoriesRes] = await Promise.all([
+        getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags),
+        mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] })
+    ]);
 
     return (
         <DsaProblemsClient
             initialProblems={problems}
             initialTotalPages={totalPages}
+            initialCategories={categoriesRes.categories}
         />
     );
 }

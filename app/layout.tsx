@@ -7,16 +7,18 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
+import DevToolsBlocker from "@/components/DevToolsBlocker";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Algo-fox",
@@ -31,12 +33,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        /*${geistSans.variable} ${geistMono.variable}*/
-        className={` antialiased select-none bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100`}
+        className={` ${geistSans.variable} ${geistMono.variable} antialiased select-none bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100`}
       >
         <ThemeProvider>
-          {/* <NetworkStatus />*/}
-          {/* <DevToolsBlocker /> */}
+          <NetworkStatus />
+          <DevToolsBlocker />
           <Toaster
             position="top-right"
             toastOptions={{

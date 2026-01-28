@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Search, Plus, Loader2 } from "lucide-react";
+import { Search, Plus, Loader2, Filter } from "lucide-react";
 
 interface AdminListPageProps<T> {
     title: string;
@@ -63,74 +63,84 @@ export default function AdminListPage<T extends { id: string }>({
     }, [data, debouncedSearch, searchFields]);
 
     return (
-        <div className="animate-fade-in-up">
-            {/* Header Section with Glassmorphism */}
-            <div className="bg-white/70 dark:bg-[#141414]/70 backdrop-blur-xl border border-white/20 dark:border-[#262626] rounded-2xl p-6 mb-6 shadow-xl shadow-gray-200/30 dark:shadow-none">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                            {title}
-                        </h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{subtitle}</p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        {/* Search Bar */}
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder={searchPlaceholder}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-64 pl-10 pr-4 py-2.5 bg-white/80 dark:bg-[#1a1a1a]/80 backdrop-blur border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    ×
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Create Button */}
-                        <Link
-                            href={createLink}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-0.5"
-                        >
-                            <Plus className="w-4 h-4" />
-                            {createLabel}
-                        </Link>
-                    </div>
+        <div className="space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-[#262626]">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                        {title}
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">{subtitle}</p>
                 </div>
 
-                {/* Search results count */}
-                {debouncedSearch && (
-                    <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                        Found <span className="font-semibold text-gray-700 dark:text-gray-300">{filteredData.length}</span> result{filteredData.length !== 1 ? 's' : ''} for "<span className="font-medium">{debouncedSearch}</span>"
+                <div className="flex items-center gap-3">
+                    {/* Search Bar */}
+                    <div className="relative group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder={searchPlaceholder}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full lg:w-80 pl-10 pr-4 py-2.5 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                                ×
+                            </button>
+                        )}
                     </div>
-                )}
+
+                    {/* Create Button */}
+                    <Link
+                        href={createLink}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold rounded-xl transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-gray-200 dark:shadow-none"
+                    >
+                        <Plus className="w-4 h-4" />
+                        {createLabel}
+                    </Link>
+                </div>
             </div>
 
-            {/* Table Section with Glassmorphism */}
-            <div className="bg-white/70 dark:bg-[#141414]/70 backdrop-blur-xl border border-white/20 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/30 dark:shadow-none overflow-hidden">
+            {/* Content Section */}
+            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
+
+                {/* Search Stats / Filters Bar */}
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#161616] flex items-center justify-between">
+                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <Filter className="w-3 h-3" />
+                        <span>Filter Results</span>
+                     </div>
+                     {debouncedSearch && (
+                        <div className="text-xs font-medium text-orange-600 dark:text-orange-500">
+                            Found {filteredData.length} matches
+                        </div>
+                    )}
+                </div>
+
                 {isLoading ? (
-                    <div className="p-16 flex flex-col items-center justify-center gap-3">
-                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-                        <p className="text-sm text-gray-500">Loading...</p>
+                    <div className="p-20 flex flex-col items-center justify-center gap-4">
+                        <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-full">
+                            <Loader2 className="w-6 h-6 text-orange-600 dark:text-orange-500 animate-spin" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading data...</p>
                     </div>
                 ) : filteredData.length === 0 ? (
-                    <div className="p-16 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center">
-                            <Search className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    <div className="p-20 text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
+                            <Search className="w-6 h-6 text-gray-400" />
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400">{debouncedSearch ? "No matching results found." : emptyMessage}</p>
+                        <h3 className="text-gray-900 dark:text-white font-semibold mb-1">No items found</h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto mb-4">
+                            {debouncedSearch ? `No results for "${debouncedSearch}"` : emptyMessage}
+                        </p>
                         {debouncedSearch && (
                             <button
                                 onClick={() => setSearchQuery("")}
-                                className="mt-3 text-sm text-orange-600 hover:text-orange-700 font-medium"
+                                className="text-sm text-orange-600 hover:text-orange-700 font-bold hover:underline"
                             >
                                 Clear search
                             </button>
@@ -140,11 +150,11 @@ export default function AdminListPage<T extends { id: string }>({
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-gray-50/80 dark:bg-[#1a1a1a]/80 border-b border-gray-100 dark:border-[#262626]">
+                                <tr className="border-b border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#1a1a1a]">
                                     {columns.map((col, idx) => (
                                         <th
                                             key={idx}
-                                            className={`px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col.className || ""}`}
+                                            className={`px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ${col.className || ""}`}
                                         >
                                             {col.label}
                                         </th>
@@ -161,8 +171,8 @@ export default function AdminListPage<T extends { id: string }>({
 
             {/* Footer Stats */}
             {!isLoading && data.length > 0 && (
-                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
-                    Showing {filteredData.length} of {data.length} items
+                <div className="text-xs font-mono text-gray-400 dark:text-gray-600 text-right">
+                    Displaying {filteredData.length} / {data.length} records
                 </div>
             )}
         </div>

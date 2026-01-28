@@ -1249,10 +1249,14 @@ export async function getContestLeaderboard(contestId: string) {
                         problem: {
                             select: {
                                 id: true,
+                                title: true,
+                                difficulty: true,
+                                slug: true,
                                 score: true
                             }
                         }
-                    }
+                    },
+                    orderBy: { order: "asc" }
                 }
             }
         });
@@ -1264,11 +1268,7 @@ export async function getContestLeaderboard(contestId: string) {
             const submissions = await prisma.submission.findMany({
                 where: {
                     userId: p.userId,
-                    problem: {
-                        contestProblems: {
-                            some: { contestId }
-                        }
-                    },
+                    contestId: contestId,
                     createdAt: {
                         gte: contest.startTime,
                         lte: contest.endTime
@@ -1277,9 +1277,14 @@ export async function getContestLeaderboard(contestId: string) {
                 select: {
                     id: true,
                     status: true,
-                    // score: true, // Removed as it doesn't exist on Submission
                     problemId: true,
-                    createdAt: true
+                    createdAt: true,
+                    language: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
                 }
             });
 
@@ -1287,28 +1292,31 @@ export async function getContestLeaderboard(contestId: string) {
             // Logic: Best submission per problem counts
             const problemScores = new Map<string, number>();
             const problemSolveTimes = new Map<string, Date>();
+            const problemSubmissionCounts = new Map<string, number>();
+            const problemBestSubmissions = new Map<string, any>();
 
             submissions.forEach(sub => {
+                const currentCount = problemSubmissionCounts.get(sub.problemId) || 0;
+                problemSubmissionCounts.set(sub.problemId, currentCount + 1);
+
                 if (sub.status === "ACCEPTED") {
                     const currentBest = problemScores.get(sub.problemId) || 0;
-                    // Find max score for this problem from contest definition
                     const problemDef = contest.problems.find(cp => cp.problemId === sub.problemId);
-                    const maxScore = problemDef?.problem.score || 0; // Default if not found, though should be
+                    const maxScore = problemDef?.problem.score || 0;
 
-                    // If full score or better partial (if we supported partials)
                     if (maxScore > currentBest) {
                          problemScores.set(sub.problemId, maxScore);
-                         // Keep earliest time for best score
                          const currentBestTime = problemSolveTimes.get(sub.problemId);
                          if (!currentBestTime || sub.createdAt < currentBestTime) {
                              problemSolveTimes.set(sub.problemId, sub.createdAt);
+                             problemBestSubmissions.set(sub.problemId, sub);
                          }
                     }
                 }
             });
 
             let totalScore = 0;
-            let totalTimeMs = 0; // Time from contest start to last accepted submission
+            let totalTimeMs = 0;
 
             problemScores.forEach((score, problemId) => {
                 totalScore += score;
@@ -1318,13 +1326,29 @@ export async function getContestLeaderboard(contestId: string) {
                 }
             });
 
-            // Add penalty for wrong submissions on solved problems? (Optional, skipping for now)
+            // Map stats for each problem in the contest
+            const problemStats = contest.problems.map(cp => {
+                const bestSub = problemBestSubmissions.get(cp.problemId);
+                return {
+                    problemId: cp.problemId,
+                    title: cp.problem.title,
+                    slug: cp.problem.slug,
+                    score: problemScores.get(cp.problemId) || 0,
+                    maxScore: cp.problem.score,
+                    submissions: problemSubmissionCounts.get(cp.problemId) || 0,
+                    solved: problemScores.has(cp.problemId),
+                    solvedAt: problemSolveTimes.get(cp.problemId),
+                    language: bestSub?.language?.name || null,
+                    languageId: bestSub?.language?.id || null
+                };
+            });
 
             return {
                 ...p.user,
                 score: totalScore,
                 timeTaken: totalTimeMs,
-                problemsSolved: problemScores.size
+                problemsSolved: problemScores.size,
+                problemStats
             };
         }));
 
@@ -1334,7 +1358,17 @@ export async function getContestLeaderboard(contestId: string) {
             return a.timeTaken - b.timeTaken;
         });
 
-        return { success: true, students: leaderboard, isFinalized: contest.isFinalized };
+        return {
+            success: true,
+            students: leaderboard,
+            isFinalized: contest.isFinalized,
+            problems: contest.problems.map(cp => ({
+                id: cp.problemId,
+                title: cp.problem.title,
+                slug: cp.problem.slug,
+                maxScore: cp.problem.score
+            }))
+        };
 
     } catch (error) {
         console.error("Leaderboard error:", error);

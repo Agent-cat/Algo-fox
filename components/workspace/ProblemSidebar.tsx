@@ -239,21 +239,6 @@ export default function ProblemSidebar({
               {/* Search Bar */}
               <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-              {/* Styles for marquee animation */}
-              <style jsx global>{`
-                @keyframes marquee {
-                  0% { transform: translateX(0); }
-                  100% { transform: translateX(-50%); }
-                }
-                .animate-marquee {
-                  animation: marquee 5s linear infinite;
-                  display: inline-block;
-                  white-space: nowrap;
-                }
-                .animate-marquee:hover {
-                   animation-play-state: running;
-                }
-              `}</style>
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">

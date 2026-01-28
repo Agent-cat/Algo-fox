@@ -153,7 +153,8 @@ const worker = new Worker(
             const testCaseRecords = testCasesToEvaluate.map((tc, idx) => ({
                 index: allTestCases.findIndex(orig => orig.id === tc.id),
                 judge0TrackingId: judge0Tokens[idx].token,
-                processed: false // Track local processing state
+                processed: false, // Track local completion state
+                processingUpdateSent: false // Track if we've already broadcasted the "Processing" state
             }));
             await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
@@ -170,14 +171,20 @@ const worker = new Worker(
             let compilationError = false;
 
             while (!isComplete && attempts < MAX_ATTEMPTS) {
-                await new Promise(r => setTimeout(r, 250)); // Poll every 250ms
+                await new Promise(r => setTimeout(r, 100)); // Poll every 100ms (faster)
                 attempts++;
 
-                const uniqueTokens = testCaseRecords.map(tc => tc.judge0TrackingId);
-                const batchResults = await SubmissionService.getBatchResults(uniqueTokens);
+                const pendingRecords = testCaseRecords.filter(tc => !tc.processed);
+                if (pendingRecords.length === 0) {
+                    isComplete = true;
+                    break;
+                }
 
-                // Check for global compilation error
-                if (!compilationError) {
+                const pendingTokens = pendingRecords.map(tc => tc.judge0TrackingId);
+                const batchResults = await SubmissionService.getBatchResults(pendingTokens);
+
+                // Check for global compilation error (only once)
+                if (!compilationError && batchResults.length > 0) {
                     const firstResult = batchResults[0];
                     const firstStatus = mapJudge0StatusToDb(firstResult.status.id);
                     if (firstStatus === "COMPILE_ERROR") {
@@ -193,7 +200,9 @@ const worker = new Worker(
 
                 for (let i = 0; i < batchResults.length; i++) {
                     const result = batchResults[i];
-                    const localRecord = testCaseRecords[i];
+                    // Match result back to the correct record by token
+                    const localRecord = pendingRecords.find(r => r.judge0TrackingId === result.token);
+                    if (!localRecord) continue;
 
                     // Identify completion (not In Queue and not Processing)
                     const isFinished =
@@ -201,6 +210,15 @@ const worker = new Worker(
                         result.status.id !== JUDGE0_STATUS.PROCESSING;
 
                     if (!isFinished) {
+                        // If it's processing, broadcast this to the user (once)
+                        if (result.status.id === JUDGE0_STATUS.PROCESSING && !localRecord.processingUpdateSent) {
+                             localRecord.processingUpdateSent = true;
+                             publishedUpdates.push({
+                                 index: localRecord.index,
+                                 status: "PROCESSING",
+                                 judge0TrackingId: result.token
+                             });
+                        }
                         pendingCount++;
                         continue;
                     }
@@ -342,5 +360,12 @@ const worker = new Worker(
                 }));
         }
     },
-    { connection }
+    {
+        connection,
+        concurrency: 10, // Process up to 10 submissions in parallel
+        limiter: {
+            max: 50,
+            duration: 1000
+        }
+    }
 );

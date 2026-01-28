@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { SubmissionResult, TestCaseResult, SubmissionMode } from "@prisma/client";
 import { getLanguageById } from "@/lib/languages";
 import { getPointsForDifficulty } from "@/lib/points";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, updateTag } from "next/cache";
 import redis from "@/lib/redis";
 
 const JUDGE0_URL = process.env.JUDGE0_URL || "http://localhost:2358";
@@ -144,9 +144,10 @@ export class SubmissionService {
         // Determine Judge0 Language ID from our DB Language ID (assuming mapping exists or is direct)
         // For now assuming the passed languageId is the Judge0 ID.
 
+        const encodedCode = Buffer.from(code).toString('base64');
         const submissions = testCases.map(tc => ({
             language_id: languageId,
-            source_code: Buffer.from(code).toString('base64'),
+            source_code: encodedCode,
             stdin: Buffer.from(tc.input).toString('base64'),
             expected_output: Buffer.from(tc.output).toString('base64'),
         }));
@@ -286,6 +287,18 @@ export class SubmissionService {
                     await redis.del(`user-score-${userId}`);
                     // Invalidate leaderboard cache so new users appear
                     await redis.del('leaderboard:global');
+
+                    // Invalidate Next.js cache tags for categories
+                    try {
+                        updateTag('categories-list');
+                        updateTag(`categories-DSA-user-${userId}`);
+                        updateTag(`categories-SQL-user-${userId}`);
+                        updateTag(`user-submissions-${userId}`);
+                        updateTag('problems-list');
+                        updateTag('problems-search');
+                    } catch (e) {
+                        // Ignore if updateTag is not available or fails
+                    }
                 } catch (error) {
                     // Cache invalidation might fail in worker context, but that's okay
                     // The cache will expire naturally after 30 seconds (user score) and 10 minutes (leaderboard)

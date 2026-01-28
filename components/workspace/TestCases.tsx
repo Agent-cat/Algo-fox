@@ -241,12 +241,14 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                         : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300'
                                     }
                                     ${status === 'ACCEPTED' ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' : ''}
-                                    ${status && status !== 'ACCEPTED' && status !== 'PENDING' ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30' : ''}
+                                    ${status === 'PROCESSING' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30' : ''}
+                                    ${status && status !== 'ACCEPTED' && status !== 'PENDING' && status !== 'PROCESSING' ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30' : ''}
                                 `}
                             >
                                 {status === 'ACCEPTED' && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
-                                {status && status !== 'ACCEPTED' && status !== 'PENDING' && <XCircle className="w-3.5 h-3.5 text-red-500" />}
-                                {status === 'PENDING' && <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin" />}
+                                {status && status !== 'ACCEPTED' && status !== 'PENDING' && status !== 'PROCESSING' && <XCircle className="w-3.5 h-3.5 text-red-500" />}
+                                {status === 'PENDING' && <Clock className="w-3.5 h-3.5 text-gray-400" />}
+                                {status === 'PROCESSING' && <div className="w-3 h-3 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />}
 
                                 {mode === "SUBMIT" && isHidden ? `Case ${originalIndex + 1}` : (isHidden ? "Hidden Case" : `Case ${originalIndex + 1}`)}
                             </button>
@@ -414,12 +416,15 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                 {result && (
                                     <div className={`
                                         p-3 rounded-lg border text-sm font-medium flex items-center justify-between
-                                        ${result.status === 'ACCEPTED' ? 'bg-green-50 text-green-700 border-green-100' :
-                                            result.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                                'bg-red-50 text-red-700 border-red-100'}
+                                        ${result.status === 'ACCEPTED' ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' :
+                                            result.status === 'PENDING' ? 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700' :
+                                            result.status === 'PROCESSING' ? 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' :
+                                                'bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'}
                                     `}>
                                         <span className="flex items-center gap-2">
-                                            {result.status.replace(/_/g, " ")}
+                                            {result.status === 'PENDING' ? 'IN QUEUE' :
+                                             result.status === 'PROCESSING' ? 'EXECUTING...' :
+                                             result.status.replace(/_/g, " ")}
                                         </span>
                                         <div className="flex items-center gap-4 text-xs opacity-80">
                                             {result.time !== null && (

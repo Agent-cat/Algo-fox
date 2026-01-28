@@ -8,6 +8,6 @@ data:
   BETTER_AUTH_URL: "http://intelligentsiaclub.in" # Update this to your ingress domain
   GOOGLE_CLIENT_ID: "346668050279-5v30ltt30k72u6husfgeq1d3gigq6dhq.apps.googleusercontent.com"
   MICROSOFT_CLIENT_ID: "f6010c02-6a43-4879-9b41-f08ca160241e"
-  JUDGE0_URL: "http://143.244.143.5:32358" # Access Judge0 via Worker Node Public IP
+  JUDGE0_URL: "http://judge0-server.algofox.svc.cluster.local:2358"
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"

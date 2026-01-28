@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClassroomSidebar } from "./ClassroomSidebar";
 import { ClassroomLeaderboard } from "./ClassroomLeaderboard";
 import { LiveTracking } from "./LiveTracking";
 import { AssignmentsTab } from "./assignments/AssignmentsTab";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 interface Student {
     id: string;
@@ -34,7 +35,16 @@ interface ClassroomDashboardProps {
 
 export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashboardProps) {
     const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments'>('leaderboard');
+    const [isCopied, setIsCopied] = useState(false);
     const isTeacher = classroom.teacher.id === currentUserId;
+
+    const handleCopyLink = () => {
+        const url = `${window.location.origin}/join-classroom/${classroom.joinCode}`;
+        navigator.clipboard.writeText(url);
+        setIsCopied(true);
+        toast.success("Invitation link copied to clipboard");
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
     const handleDownload = () => {
         const headers = ["Rank", "Student ID", "Name", "Total Score"];
@@ -107,10 +117,22 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Section</span>
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-200">{classroom.section || "General"}</span>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Join Code</span>
-                                        <span className="text-sm font-mono font-black text-orange-600 tracking-wider">{classroom.joinCode}</span>
-                                    </div>
+                                    {isTeacher && (
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Join Link</span>
+                                            <button
+                                                onClick={handleCopyLink}
+                                                className="flex items-center gap-2 group"
+                                            >
+                                                <span className="text-sm font-mono font-black text-orange-600 tracking-wider">
+                                                    {classroom.joinCode}
+                                                </span>
+                                                <div className="p-1.5 bg-orange-50 dark:bg-orange-500/10 rounded-lg text-orange-600 dark:text-orange-500 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-all">
+                                                    {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                                </div>
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

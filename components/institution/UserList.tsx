@@ -95,7 +95,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                         <div className="flex items-center gap-4 mb-6">
                             <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] flex items-center justify-center overflow-hidden shadow-inner">
                                 {user.image ? (
-                                    <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                    <img src={user.image} alt={user.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                 ) : (
                                     <span className="text-xl font-black text-gray-300 dark:text-gray-600">{user.name?.[0]}</span>
                                 )}

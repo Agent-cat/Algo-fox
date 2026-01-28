@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { getContestDetail } from "@/actions/contest";
 import ContestDetails from "@/components/contest/ContestDetails";
-import { BackButton } from "@/components/ui/BackButton";
+import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -49,9 +49,9 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
 
     return (
         <div className="container mx-auto py-10 px-4 min-h-screen">
-            {/* Breadcrumbs */}
+            {/* Back Button */}
             <div className="mb-8">
-                <BackButton className="text-gray-500 dark:text-gray-400 hover:text-orange-600 font-bold">
+                <BackButton>
                     {isAdminOrInstructor ? "All Arenas" : "Back to Contests"}
                 </BackButton>
             </div>

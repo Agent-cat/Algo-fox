@@ -6,8 +6,9 @@ import { getStudentAssignments } from "@/actions/assignment";
 import { MyAssignmentsList } from "@/components/assignments/MyAssignmentsList";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata:Metadata = {
     title: "My Assignments | AlgoFox",
 };
 
@@ -31,11 +32,11 @@ export default function MyAssignmentsPage() {
             <div className="max-w-6xl mx-auto px-6">
                 <div className="mb-8">
                     <Link
-                        href="/dashboard"
+                        href="/"
                         className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Back to Dashboard
+                        Back to Home
                     </Link>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Assignments</h1>
                     <p className="text-gray-500 mt-1">Complete assignments from your enrolled classrooms</p>

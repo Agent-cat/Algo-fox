@@ -5,10 +5,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { authClient } from "@/lib/auth-client";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import UserActions from "./UserActions";
 import { format } from "date-fns";
+import { getInstitutions } from "@/actions/admin/institution";
+import { getFilteredUsers } from "@/actions/admin/user.action";
+import { Role } from "@prisma/client";
+import { Filter, X } from "lucide-react";
 
 export default function UserList() {
     const [users, setUsers] = useState<any[]>([]);
@@ -18,6 +21,10 @@ export default function UserList() {
     const [limit] = useState(10);
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [institutions, setInstitutions] = useState<Record<string, string>>({});
+    const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
+    const [selectedInstitutionId, setSelectedInstitutionId] = useState<string>("all");
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     // Debounce search
     useEffect(() => {
@@ -31,23 +38,17 @@ export default function UserList() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const query: any = {
+            const res = await getFilteredUsers({
+                page,
                 limit,
-                offset: (page - 1) * limit,
-            };
-
-            if (debouncedSearch) {
-                query.searchValue = debouncedSearch;
-                query.searchField = "name";
-            }
-
-            const { data, error } = await authClient.admin.listUsers({
-                query
+                search: debouncedSearch,
+                roles: selectedRoles,
+                institutionId: selectedInstitutionId,
             });
 
-            if (data) {
-                setUsers(data.users);
-                setTotal(data.total || 0);
+            if (res) {
+                setUsers(res.users);
+                setTotal(res.total || 0);
             }
         } catch (err) {
             console.error("Failed to fetch users", err);
@@ -55,10 +56,24 @@ export default function UserList() {
             setLoading(false);
         }
     };
+    const fetchInstitutions = async () => {
+        const res = await getInstitutions();
+        if (res.success && res.institutions) {
+            const instMap: Record<string, string> = {};
+            res.institutions.forEach((inst: any) => {
+                instMap[inst.id] = inst.name;
+            });
+            setInstitutions(instMap);
+        }
+    };
 
     useEffect(() => {
         fetchUsers();
-    }, [page, limit, debouncedSearch]);
+    }, [page, limit, debouncedSearch, selectedRoles, selectedInstitutionId]);
+
+    useEffect(() => {
+        fetchInstitutions();
+    }, []);
 
     const totalPages = Math.ceil(total / limit);
 
@@ -76,6 +91,15 @@ export default function UserList() {
                     />
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant={isFilterOpen ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        className="gap-2"
+                    >
+                        <Filter className="w-4 h-4" />
+                        Filters
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={fetchUsers} title="Refresh List">
                         <Loader2 className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                     </Button>
@@ -85,6 +109,74 @@ export default function UserList() {
                 </div>
             </div>
 
+            {/* Filter Bar */}
+            {isFilterOpen && (
+                <div className="p-4 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#141414] animate-in slide-in-from-top-2 duration-200">
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Roles Filter */}
+                        <div className="flex-1">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Filter by Roles</label>
+                            <div className="flex flex-wrap gap-4">
+                                {["ADMIN", "TEACHER", "INSTITUTION_MANAGER", "STUDENT", "CONTEST_MANAGER"].map((role) => (
+                                    <label key={role} className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-gray-300 dark:border-[#333] text-orange-600 focus:ring-orange-500 bg-white dark:bg-[#1a1a1a]"
+                                            checked={selectedRoles.includes(role as Role)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedRoles([...selectedRoles, role as Role]);
+                                                } else {
+                                                    setSelectedRoles(selectedRoles.filter(r => r !== role));
+                                                }
+                                                setPage(1);
+                                            }}
+                                        />
+                                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors uppercase tracking-tight">
+                                            {role.replace('_', ' ')}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Institution Filter */}
+                        <div className="w-full md:w-64">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Filter by Institution</label>
+                            <select
+                                className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-xs font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none uppercase tracking-tighter"
+                                value={selectedInstitutionId}
+                                onChange={(e) => {
+                                    setSelectedInstitutionId(e.target.value);
+                                    setPage(1);
+                                }}
+                            >
+                                <option value="all">All Institutions</option>
+                                <option value="none">Independent Users</option>
+                                {Object.entries(institutions).map(([id, name]) => (
+                                    <option key={id} value={id}>{name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-gray-50 dark:border-[#1a1a1a] flex justify-end">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-[10px] uppercase tracking-widest font-black text-gray-400 hover:text-red-500"
+                            onClick={() => {
+                                setSelectedRoles([]);
+                                setSelectedInstitutionId("all");
+                                setPage(1);
+                            }}
+                        >
+                            Reset All Filters
+                        </Button>
+                    </div>
+                </div>
+            )}
+
             {/* Table */}
             <div className="relative min-h-[400px]">
                 <Table>
@@ -92,6 +184,7 @@ export default function UserList() {
                         <TableRow className="hover:bg-transparent border-gray-100 dark:border-[#262626]">
                             <TableHead className="text-gray-500 dark:text-gray-400">User</TableHead>
                             <TableHead className="text-gray-500 dark:text-gray-400">Role</TableHead>
+                            <TableHead className="text-gray-500 dark:text-gray-400">Institute</TableHead>
                             <TableHead className="text-gray-500 dark:text-gray-400">Status</TableHead>
                             <TableHead className="text-gray-500 dark:text-gray-400">Joined</TableHead>
                             <TableHead className="text-right text-gray-500 dark:text-gray-400">Actions</TableHead>
@@ -126,6 +219,11 @@ export default function UserList() {
                                         <Badge variant="outline" className="capitalize bg-white dark:bg-[#1a1a1a] shadow-sm dark:border-[#333] dark:text-gray-300">
                                             {user.role || "user"}
                                         </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                            {user.institutionId ? institutions[user.institutionId] || user.institutionId : "None"}
+                                        </span>
                                     </TableCell>
                                     <TableCell>
                                         {user.banned ? (

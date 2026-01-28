@@ -30,8 +30,11 @@ model User {
 
   codeChefHandle   String?
   leetCodeHandle   String?
-  hackerrankHandle String?
+  codeforcesHandle String?
   githubHandle     String?
+  codeChefVerified Boolean @default(false)
+  codeforcesVerified Boolean @default(false)
+  leetCodeVerified Boolean @default(false)
 
   role                Role    @default(STUDENT)
   onboardingCompleted Boolean @default(false)
@@ -355,6 +358,7 @@ enum SubmissionMode {
 
 enum SubmissionResult {
   PENDING
+  PROCESSING
   ACCEPTED
   WRONG_ANSWER
   TIME_LIMIT_EXCEEDED
@@ -365,6 +369,7 @@ enum SubmissionResult {
 
 enum TestCaseResult {
   PENDING
+  PROCESSING
   ACCEPTED
   WRONG_ANSWER
   TIME_LIMIT_EXCEEDED

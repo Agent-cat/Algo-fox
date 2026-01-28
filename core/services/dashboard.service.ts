@@ -46,8 +46,11 @@ export class DashboardService {
                 silverBadges: true,
                 bronzeBadges: true,
                 leetCodeHandle: true,
+                leetCodeVerified: true,
                 codeChefHandle: true,
-                hackerrankHandle: true,
+                codeChefVerified: true,
+                codeforcesHandle: true,
+                codeforcesVerified: true,
                 githubHandle: true,
                 submissions: {
                     where: { mode: "SUBMIT" },

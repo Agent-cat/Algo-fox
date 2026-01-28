@@ -3,7 +3,7 @@
 import { authClient } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeftIcon } from "lucide-react";
 import { Suspense } from "react";
@@ -12,20 +12,24 @@ function SignUpContent() {
     const [loading, setLoading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: session, isPending } = authClient.useSession();
 
     useEffect(() => {
         if (session) {
-            router.replace("/dashboard");
+            const url = searchParams.get("callbackUrl") || "/dashboard";
+            router.replace(url);
         }
-    }, [session, router]);
+    }, [session, router, searchParams]);
 
     const handleSignIn = async (provider: "google" | "microsoft") => {
         setLoading(provider);
         setError(null);
+        const callbackUrl = searchParams.get("callbackUrl") || "/onboarding?welcome=true";
+
         await authClient.signIn.social({
             provider,
-            callbackURL: "/onboarding?welcome=true",
+            callbackURL: callbackUrl,
         }, {
             onSuccess: () => {
                 toast.success("Signed in successfully");

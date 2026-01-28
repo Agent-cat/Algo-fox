@@ -67,7 +67,7 @@ export async function getProblemComments(problemId: string, currentUserId?: stri
         }
 
         // Remove votes array from result to reduce payload
-        const { votes, ...rest } = comment;
+        const { votes: _, ...rest } = comment;
         return { ...rest, userVote };
     });
 

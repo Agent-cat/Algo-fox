@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Ban, CheckCircle, Trash2, UserCog, Key, LogIn, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { deleteUserAction, updateUserRoleAction } from "@/actions/admin/user.action";
 
 interface UserActionsProps {
     user: any; // Type from better-auth
@@ -77,11 +78,9 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
     const handleSetRole = async () => {
         try {
             setLoading(true);
-            const { error } = await authClient.admin.setRole({
-                userId: user.id,
-                role: selectedRole
-            });
-            if (error) throw error;
+            const res = await updateUserRoleAction(user.id, selectedRole);
+            if (!res.success) throw new Error(res.error);
+
             toast.success("Role updated successfully");
             setActionDialog(null);
             router.refresh();
@@ -96,10 +95,9 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
     const handleDelete = async () => {
         try {
             setLoading(true);
-            const { error } = await authClient.admin.removeUser({
-                userId: user.id
-            });
-            if (error) throw error;
+            const res = await deleteUserAction(user.id);
+            if (!res.success) throw new Error(res.error);
+
             toast.success("User deleted successfully");
             setActionDialog(null);
             router.refresh();

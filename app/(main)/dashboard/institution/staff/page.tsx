@@ -19,6 +19,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { AddStaffDialog } from "./_components/AddStaffDialog";
 import Link from "next/link";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 interface StaffMember {
   id: string;
@@ -87,6 +88,7 @@ function StaffManagementContent() {
                   src={member.image}
                   alt={member.name || ""}
                   className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 (member.name?.[0] || member.email[0]).toUpperCase()
@@ -179,16 +181,9 @@ function StaffManagementContent() {
   return (
     <div className="min-h-screen pt-24 pb-12 px-6 bg-white/50">
       <div className="max-w-6xl mx-auto ml-0">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
-          <Link
-            href="/dashboard/institution"
-            className="hover:text-orange-600 transition-colors"
-          >
-            Dashboard
-          </Link>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-gray-900">Staff Management</span>
+        {/* Back Button */}
+        <div className="mb-6">
+          <BackButton href="/dashboard/institution" label="Back to Dashboard" />
         </div>
 
         {/* Header */}

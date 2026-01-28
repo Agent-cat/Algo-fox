@@ -100,10 +100,10 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/dashboard"
+              href="/contests"
               className="px-8 py-4 bg-orange-500 dark:bg-orange-600 text-white text-lg font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-700 transition-all shadow-xl shadow-orange-500/20 text-center hover:scale-105 transform"
             >
-              Start Coding Now
+                Explore Contests
             </Link>
             <Link
               href="/problems"

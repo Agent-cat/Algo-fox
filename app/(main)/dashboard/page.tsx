@@ -1,23 +1,17 @@
 import { getDashboardStats } from "@/actions/dashboard.action";
-import { getStudentClassrooms } from "@/actions/classroom";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
 import { UserProfileCard } from "@/components/dashboard/UserProfileCard";
+import { ProfilesStatusCard } from "@/components/dashboard/ProfilesStatusCard";
 import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { LanguagesCard } from "@/components/dashboard/LanguagesCard";
 import { ProblemOverviewCard } from "@/components/dashboard/ProblemOverviewCard";
 import { RecentSubmissionsCard } from "@/components/dashboard/RecentSubmissionsCard";
-import { ClassroomDropdown } from "@/components/classroom/ClassroomDropdown";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import DashboardLoading from "./loading";
-import Link from "next/link";
-import { School, ArrowRight } from "lucide-react";
 
 async function DashboardContent() {
-  const [stats, classroomsRes] = await Promise.all([
-    getDashboardStats(),
-    getStudentClassrooms(),
-  ]);
+  const stats = await getDashboardStats();
 
   if (!stats) {
     redirect("/signin");
@@ -25,12 +19,6 @@ async function DashboardContent() {
 
   const user = stats;
   const submissions = user.submissions;
-  const classrooms = classroomsRes.success ? classroomsRes.classrooms : [];
-  const canCreateClassroom = [
-    "ADMIN",
-    "INSTITUTION_MANAGER",
-    "TEACHER",
-  ].includes(user.role);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
@@ -46,16 +34,16 @@ async function DashboardContent() {
                 bio={user.bio}
                 leetCodeHandle={user.leetCodeHandle}
                 codeChefHandle={user.codeChefHandle}
-                hackerrankHandle={user.hackerrankHandle}
+                codeforcesHandle={user.codeforcesHandle}
                 githubHandle={user.githubHandle}
                 role={user.role}
                 institutionName={user.institution?.name}
               />
             </section>
 
-            {/* CLASSROOMS SECTION */}
+            {/* PROFILES STATUS SECTION */}
             <section>
-              <ClassroomDropdown classrooms={classrooms as any} />
+              <ProfilesStatusCard user={user} />
             </section>
 
             {/* ACHIEVEMENTS SECTION */}
@@ -82,6 +70,9 @@ async function DashboardContent() {
                 solvedByDifficulty={user.solvedByDifficulty}
                 totalProblems={user.totalProblems}
                 problemsSolved={user.problemsSolved}
+                leetCodeHandle={user.leetCodeHandle}
+                codeChefHandle={user.codeChefHandle}
+                codeforcesHandle={user.codeforcesHandle}
               />
             </section>
 

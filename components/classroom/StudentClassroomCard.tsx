@@ -71,9 +71,9 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
                 {/* Footer */}
                 <div className="mt-6 pt-6 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between relative z-10">
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Code</span>
-                        <span className="text-sm font-mono font-bold text-gray-900 dark:text-white tracking-widest">
-                            {classroom.joinCode}
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Students</span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                            {classroom._count?.students || 0} enrolled
                         </span>
                     </div>
 

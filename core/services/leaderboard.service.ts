@@ -25,16 +25,17 @@ export type LeaderboardEntry = {
 };
 
 export class LeaderboardService {
-    static async getGlobalLeaderboard() {
+    static async getGlobalLeaderboard(institutionId?: string, forceRefresh: boolean = false) {
         // Try to get cached leaderboard from Redis
-        const cacheKey = 'leaderboard:global';
+        const cacheKey = institutionId ? `lb:inst:${institutionId}` : 'lb:global';
         const CACHE_TTL = 10 * 60; // 10 minutes
 
         try {
-            const cached = await redis.get(cacheKey);
-            if (cached) {
-
-                return JSON.parse(cached);
+            if (!forceRefresh) {
+                const cached = await redis.get(cacheKey);
+                if (cached) {
+                    return JSON.parse(cached);
+                }
             }
         } catch (error) {
             // Redis error - continue without cache
@@ -44,7 +45,8 @@ export class LeaderboardService {
         // Fetch top 100 users by totalScore directly from DB
         const users = await prisma.user.findMany({
             where: {
-                role: 'STUDENT'
+                role: 'STUDENT',
+                ...(institutionId ? { institutionId } : {})
             },
             orderBy: {
                 totalScore: 'desc'
@@ -60,9 +62,6 @@ export class LeaderboardService {
                 githubHandle: true,
                 totalScore: true,
                 problemsSolved: true,
-                // We still need difficulty breakdown for the "stats" field, but we can't easily group-by per user in a single findMany.
-                // Option 1: Store difficulty counts in User model (ideal for scale).
-                // Option 2: Compute stats for only the top 100 users (acceptable).
                 submissions: {
                     where: {
                         status: SubmissionResult.ACCEPTED,
@@ -85,16 +84,11 @@ export class LeaderboardService {
             let mediumCount = 0;
             let hardCount = 0;
 
-            // Calculate stats for the top 100 (much smaller dataset)
             user.submissions.forEach(sub => {
                 if (sub.problem.difficulty === 'EASY') easyCount++;
                 else if (sub.problem.difficulty === 'MEDIUM') mediumCount++;
                 else if (sub.problem.difficulty === 'HARD') hardCount++;
             });
-
-            // Use stored totalScore which is indexed and accurate
-            // Fallback to calculation if 0, but usually stored is correct.
-            // The implementation plan says use stored totalScore.
 
             return {
                 rank: index + 1,
@@ -102,8 +96,8 @@ export class LeaderboardService {
                 name: user.name,
                 image: user.image,
                 tags: user.tags,
-                problemsSolved: user.problemsSolved, // Use stored count
-                totalScore: user.totalScore, // Use stored score
+                problemsSolved: user.problemsSolved,
+                totalScore: user.totalScore,
                 socials: {
                     leetcode: user.leetCodeHandle,
                     codechef: user.codeChefHandle,

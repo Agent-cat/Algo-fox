@@ -25,14 +25,14 @@ const Editor = dynamic(
 interface DriverCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  code: string;
+  driverCode: string;
   languageId: number;
 }
 
 export default function DriverCodeModal({
   isOpen,
   onClose,
-  code,
+  driverCode,
   languageId,
 }: DriverCodeModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,7 @@ export default function DriverCodeModal({
   }, [isOpen]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(driverCode);
     setIsCopied(true);
     toast.success("Driver code copied to clipboard", {
       className: "rounded-xl border border-gray-200 dark:border-white/10 shadow-lg",
@@ -129,7 +129,7 @@ export default function DriverCodeModal({
                  <Editor
                     height="100%"
                     language={currentLanguage?.monacoLanguage || "plaintext"}
-                    value={code}
+                    value={driverCode}
                     theme={theme}
                     options={{
                         readOnly: true,

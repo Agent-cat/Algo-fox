@@ -9,7 +9,7 @@ interface UserProfileCardProps {
     institutionName?: string;
     leetCodeHandle?: string | null;
     codeChefHandle?: string | null;
-    hackerrankHandle?: string | null;
+    codeforcesHandle?: string | null;
     githubHandle?: string | null;
 
     readonly?: boolean;
@@ -24,7 +24,7 @@ export function UserProfileCard(props: UserProfileCardProps) {
                 <div className="relative w-24 h-24 mb-4">
                     <div className="w-full h-full rounded-full bg-orange-50 dark:bg-[#1a1a1a] border-4 border-orange-100 dark:border-orange-500/10 flex items-center justify-center overflow-hidden text-2xl font-bold text-orange-600 dark:text-orange-500">
                         {image ? (
-                            <img src={image} alt={name} className="w-full h-full object-cover" />
+                            <img src={image} alt={name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             name?.charAt(0).toUpperCase()
                         )}

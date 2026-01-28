@@ -23,10 +23,11 @@ interface TeacherClassroomListProps {
 export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) {
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
-    const copyCode = (code: string, id: string) => {
-        navigator.clipboard.writeText(code);
+    const copyLink = (code: string, id: string) => {
+        const url = `${window.location.origin}/join-classroom/${code}`;
+        navigator.clipboard.writeText(url);
         setCopiedId(id);
-        toast.success("Join code copied!");
+        toast.success("Join link copied!");
         setTimeout(() => setCopiedId(null), 2000);
     };
 
@@ -76,14 +77,14 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
                     <div className="flex flex-col gap-4 pt-4 border-t border-gray-50 dark:border-[#262626]">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <span className="text-[9px] font-bold text-gray-300 dark:text-gray-600 uppercase block">Code</span>
+                                <span className="text-[9px] font-bold text-gray-300 dark:text-gray-600 uppercase block">Join Link</span>
                                 <button
-                                    onClick={() => copyCode(classroom.joinCode, classroom.id)}
+                                    onClick={() => copyLink(classroom.joinCode, classroom.id)}
                                     className="text-lg font-bold font-mono text-black dark:text-white hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
                                 >
                                     {classroom.joinCode}
                                     <span className="ml-2 text-[8px] font-bold text-orange-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {copiedId === classroom.id ? "Copied" : "Copy"}
+                                        {copiedId === classroom.id ? "Copied" : "Copy Link"}
                                     </span>
                                 </button>
                             </div>

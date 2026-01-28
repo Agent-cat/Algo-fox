@@ -14,7 +14,7 @@ interface EditProfileModalProps {
         bio?: string | null;
         leetCodeHandle?: string | null;
         codeChefHandle?: string | null;
-        hackerrankHandle?: string | null;
+        codeforcesHandle?: string | null;
         githubHandle?: string | null;
     };
 }
@@ -24,7 +24,7 @@ interface FormData {
     bio: string;
     leetCodeHandle: string;
     codeChefHandle: string;
-    hackerrankHandle: string;
+    codeforcesHandle: string;
     githubHandle: string;
 }
 
@@ -37,7 +37,7 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
             bio: user.bio || "",
             leetCodeHandle: user.leetCodeHandle || "",
             codeChefHandle: user.codeChefHandle || "",
-            hackerrankHandle: user.hackerrankHandle || "",
+            codeforcesHandle: user.codeforcesHandle || "",
             githubHandle: user.githubHandle || "",
         }
     });
@@ -123,9 +123,9 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">HackerRank</label>
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Codeforces</label>
                             <input
-                                {...register("hackerrankHandle")}
+                                {...register("codeforcesHandle")}
                                 className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
                                 placeholder="username"
                             />

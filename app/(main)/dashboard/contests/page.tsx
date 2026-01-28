@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getVisibleContests } from "@/actions/contest";
 import { ContestList } from "@/components/contest/ContestList";
 import { Suspense } from "react";
+import BackButton from "@/components/BackButton";
 
 async function ContestsContent() {
     "use cache: private";
@@ -41,6 +42,9 @@ export default async function ContestsPage() {
             {/* Header */}
             <div className="bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626]">
                 <div className="max-w-7xl mx-auto px-6 py-8">
+                    <div className="mb-4">
+                        <BackButton />
+                    </div>
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Contest Management</h1>

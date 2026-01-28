@@ -27,11 +27,13 @@ type ProblemWithStats = {
 interface SqlProblemsClientProps {
     initialProblems: ProblemWithStats[];
     initialTotalPages: number;
+    initialCategories?: any[];
 }
 
 export default function SqlProblemsClient({
     initialProblems,
     initialTotalPages,
+    initialCategories = [],
 }: SqlProblemsClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -42,9 +44,17 @@ export default function SqlProblemsClient({
     const [searchTerm, setSearchTerm] = useState("");
 
     // LIFTED STATE FOR LEARN MODE CACHING
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>(initialCategories);
     const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
-    const [hasFetchedCategories, setHasFetchedCategories] = useState(false);
+    const [hasFetchedCategories, setHasFetchedCategories] = useState(initialCategories.length > 0);
+
+    // Sync categories from props (for router.refresh())
+    useEffect(() => {
+        if (initialCategories.length > 0) {
+            setCategories(initialCategories);
+            setHasFetchedCategories(true);
+        }
+    }, [initialCategories]);
 
     useEffect(() => {
         if (mode === "learn" && !hasFetchedCategories && !isCategoriesLoading) {

@@ -203,6 +203,7 @@ export function InstitutionDashboardContent({
                             src={member.image}
                             alt={member.name || ""}
                             className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
                           />
                         ) : (
                           member.name?.[0] || member.email[0]

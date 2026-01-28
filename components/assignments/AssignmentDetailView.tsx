@@ -54,11 +54,11 @@ export function AssignmentDetailView({
       {/* Header */}
       <div className="mb-8">
         <Link
-          href="/my-assignments"
+          href="/"
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Assignments
+          Back to Home
         </Link>
 
         <div className="flex items-start justify-between gap-6">

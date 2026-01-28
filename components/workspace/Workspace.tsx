@@ -12,6 +12,7 @@ import ContestNavigationGuard from '../contest/ContestNavigationGuard';
 import ContestSidebar from './ContestSidebar';
 
 import dynamic from 'next/dynamic';
+import ProblemTour from '../tour/ProblemTour';
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null, // Optional: rendering nothing while loading
@@ -271,7 +272,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             const { submissionId } = data;
 
             setSubmissionMode(mode);
-            setSubmissionResults(undefined);
+            setSubmissionResults(problem.testCases.map((tc, idx) => ({
+                index: idx,
+                status: "PENDING"
+            })));
             setSubmissionStatus(null);
 
             // Connect to SSE
@@ -361,6 +365,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
     return (
         <div className="h-screen w-full bg-white dark:bg-[#0a0a0a] flex flex-col overflow-hidden">
+             {/* TOUR COMPONENT - Only render if not in contest mode (optional) or just always render and let it handle its own state */}
+             {!contestId && <ProblemTour />}
+
             <EditorSettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
@@ -428,7 +435,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                         onDragEnd={setMainSizes}
                     >
                         {/* LEFT SIDE: DESCRIPTION */}
-                        <div className="h-full overflow-hidden">
+                        <div id="problem-description" className="h-full overflow-hidden">
                             <ProblemDescription
                                 problem={problem}
                                 activeTab={activeTab}
@@ -449,7 +456,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                 gutterSize={4}
                                 onDragEnd={setVerticalSizes}
                             >
-                                <div className="h-full overflow-hidden">
+                                <div id="code-editor" className="h-full overflow-hidden">
                                     <CodeEditor
                                         key={`${problem.id}-${languageId}`} // Stable key: remount only when problem or language changes
                                         value={code}
@@ -469,7 +476,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                         userId={session?.user?.id || ""}
                                     />
                                 </div>
-                                <div className="h-full overflow-hidden flex flex-col bg-white dark:bg-[#0a0a0a]">
+                                <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-white dark:bg-[#0a0a0a]">
                                     <TestCases
                                         cases={problem.testCases}
                                         results={submissionResults}

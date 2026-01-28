@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { getContestLeaderboard, getContestDetail } from "@/actions/contest";
 import { ContestStandings } from "@/components/contest/ContestStandings";
-import { BackButton } from "@/components/ui/BackButton";
+import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -58,17 +58,16 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
     const userRole = session?.user?.role;
 
     return (
-        <div className="container mx-auto py-10 px-4 min-h-screen">
-            {/* Breadcrumbs */}
+        <div className="max-w-full py-10 px-6 min-h-screen">
+            {/* Back Button */}
             <div className="mb-8 flex items-center justify-between">
-                <BackButton className="text-gray-500 hover:text-orange-600 font-bold">
-                    Back
-                </BackButton>
+                <BackButton />
             </div>
 
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
                 <ContestStandings
                     students={res.students as any}
+                    problems={(res as any).problems}
                     currentUserId={session.user.id}
                     contestId={id}
                     isFinalized={isFinalized}

@@ -2,7 +2,8 @@
 
 import { InstitutionService } from "@/core/services/institution.service";
 import { z } from "zod";
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import redis from "@/lib/redis";
 
 const institutionSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -103,7 +104,8 @@ export async function assignInstitutionManager(email: string, institutionId: str
 
         revalidatePath("/admin/users");
         revalidatePath(`/admin/institutions/${institutionId}`);
-        updateTag(`user-${user.id}`);
+        revalidateTag(`dashboard-${user.id}`, "max");
+        await redis.del(`dashboard:stats:${user.id}`);
 
         return { success: true, data: updatedUser };
     } catch (error) {
@@ -151,7 +153,8 @@ export async function removeInstitutionManager(userId: string, institutionId: st
         });
 
         revalidatePath(`/admin/institutions/${institutionId}`);
-        updateTag(`user-${userId}`);
+        revalidateTag(`dashboard-${userId}`, "max");
+        await redis.del(`dashboard:stats:${userId}`);
 
         return { success: true };
     } catch (error) {
@@ -178,5 +181,75 @@ export async function deleteInstitutionAction(id: string) {
     } catch (error) {
         console.error("Failed to delete institution:", error);
         return { success: false, error: "Failed to delete institution. Ensure it has no active classrooms." };
+    }
+}
+
+export async function getInstitutionUsers(institutionId: string, page: number = 1, searchQuery: string = "") {
+    try {
+        const { prisma } = await import("@/lib/prisma");
+        const limit = 20;
+        const skip = (page - 1) * limit;
+
+        const where: any = {
+            institutionId,
+        };
+
+        if (searchQuery) {
+            where.OR = [
+                { name: { contains: searchQuery, mode: "insensitive" } },
+                { email: { contains: searchQuery, mode: "insensitive" } },
+            ];
+        }
+
+        const [users, total] = await Promise.all([
+            prisma.user.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { createdAt: "desc" },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    createdAt: true,
+                },
+            }),
+            prisma.user.count({ where }),
+        ]);
+
+        return { success: true, users, total };
+    } catch (error) {
+        console.error("Failed to fetch institution users:", error);
+        return { success: false, error: "Failed to fetch institution users" };
+    }
+}
+
+export async function removeUserFromInstitution(userId: string) {
+    try {
+        const { prisma } = await import("@/lib/prisma");
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                institutionId: null,
+                // If they were a manager, teacher, etc. specifically for this institution,
+                // we might want to downgrade them to STUDENT, but for now we'll just remove the link.
+            },
+        });
+
+        revalidateTag(`user-${userId}`, "max");
+        revalidateTag(`dashboard-${userId}`, "max");
+
+        // Clear redis if it exists
+        try {
+            const redis = (await import("@/lib/redis")).default;
+            await redis.del(`dashboard:stats:${userId}`);
+        } catch (e) {}
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to remove user from institution:", error);
+        return { success: false, error: "Failed to remove user from institution" };
     }
 }

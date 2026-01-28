@@ -7,8 +7,9 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Difficulty } from "@prisma/client";
-
 import { Suspense } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 function EditProblemContent() {
     const params = useParams();
@@ -54,12 +55,19 @@ function EditProblemContent() {
 
     return (
         <div className="w-full max-w-5xl mx-auto space-y-8 animate-fade-in-up">
-            <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Edit Problem</h1>
-                <p className="text-gray-500 text-lg">Update problem details and test cases.</p>
+            <div className="flex flex-col gap-1 mb-8">
+                <Link
+                    href="/admin/dsa/problems"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Problems
+                </Link>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Edit Problem</h1>
+                <p className="text-gray-500 dark:text-gray-400">Update problem details and test cases.</p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-xl shadow-gray-200/40">
+            <div>
                 {problem.difficulty === "CONCEPT" ? (
                     <ConceptForm
                         initialData={{

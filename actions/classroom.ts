@@ -177,6 +177,58 @@ export async function joinClassroom(code: string) {
 }
 
 /**
+ * Fetches basic details of a classroom by its join code.
+ * Used for the join classroom page.
+ */
+export async function getClassroomByCode(code: string) {
+    try {
+        const classroom = await prisma.classroom.findUnique({
+            where: { joinCode: code.toUpperCase() },
+            select: {
+                id: true,
+                name: true,
+                subject: true,
+                section: true,
+                teacher: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    }
+                },
+                _count: {
+                    select: { students: true }
+                }
+            }
+        });
+
+        if (!classroom) {
+            return { success: false, error: "Classroom not found" };
+        }
+
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+
+        const isEnrolled = session?.user ? await prisma.classroom.findFirst({
+            where: {
+                id: classroom.id,
+                students: { some: { id: session.user.id } }
+            }
+        }) : false;
+
+        return {
+            success: true,
+            classroom,
+            isEnrolled: !!isEnrolled
+        };
+    } catch (error) {
+        console.error("Failed to fetch classroom by code:", error);
+        return { success: false, error: "Failed to fetch classroom" };
+    }
+}
+
+/**
  * Fetches classrooms created by the currently logged-in teacher (CACHED).
  */
 export async function getTeacherClassrooms() {

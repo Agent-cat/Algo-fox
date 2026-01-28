@@ -177,7 +177,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     }
 
     return (
-        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
             {/* Steps Header */}
             <div className="border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a] p-6">
                 <div className="flex items-center justify-between max-w-2xl mx-auto">

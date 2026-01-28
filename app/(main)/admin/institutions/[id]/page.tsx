@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getInstitutionById, updateInstitutionAction, assignInstitutionManager, searchUsersByEmail, removeInstitutionManager } from "@/actions/admin/institution";
-import { Building2, Mail, Plus, Loader2, Save, Globe, Trash2, ArrowRight, Shield, Activity, ExternalLink } from "lucide-react";
+import { getInstitutionById, updateInstitutionAction, assignInstitutionManager, searchUsersByEmail, removeInstitutionManager, getInstitutionUsers, removeUserFromInstitution } from "@/actions/admin/institution";
+import { Building2, Mail, Plus, Loader2, Save, Globe, Trash2, ArrowRight, Shield, Activity, ExternalLink, Users, Search, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -23,11 +23,19 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
     const [id, setId] = useState<string>("");
     const [institution, setInstitution] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<"details" | "access">("details");
+    const [activeTab, setActiveTab] = useState<"details" | "access" | "users">("details");
     const [managerEmail, setManagerEmail] = useState("");
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isAssigning, setIsAssigning] = useState(false);
+
+    // User list states
+    const [institutionUsers, setInstitutionUsers] = useState<any[]>([]);
+    const [usersLoading, setUsersLoading] = useState(false);
+    const [userSearchQuery, setUserSearchQuery] = useState("");
+    const [userPage, setUserPage] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const debouncedUserSearch = useDebounce(userSearchQuery, 500);
 
     const debouncedSearch = useDebounce(managerEmail, 300);
 
@@ -132,6 +140,48 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
         }
     };
 
+    const fetchUsers = async () => {
+        if (!id) return;
+        setUsersLoading(true);
+        try {
+            const res = await getInstitutionUsers(id, userPage, debouncedUserSearch);
+            if (res.success) {
+                setInstitutionUsers(res.users || []);
+                setTotalUsers(res.total || 0);
+            }
+        } catch (error) {
+            console.error("Fetch users error:", error);
+            toast.error("Failed to load users");
+        } finally {
+            setUsersLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === "users" && id) {
+            fetchUsers();
+        }
+    }, [id, activeTab, userPage, debouncedUserSearch]);
+
+    const handleRemoveUser = async (userId: string, name: string) => {
+        if (!confirm(`Are you sure you want to remove ${name} from this institution?`)) return;
+
+        try {
+            const res = await removeUserFromInstitution(userId);
+            if (res.success) {
+                toast.success(`${name} removed from institution`);
+                fetchUsers();
+                // If it was a manager, we might want to refresh the detail data too
+                fetchData();
+            } else {
+                toast.error(res.error || "Failed to remove user");
+            }
+        } catch (error) {
+            console.error("Remove user error:", error);
+            toast.error("Failed to remove user");
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
@@ -169,7 +219,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-gray-100 flex items-center justify-center overflow-hidden">
                                     {institution.logo ? (
-                                        <img src={institution.logo} alt={institution.name} className="w-full h-full object-cover" />
+                                        <img src={institution.logo} alt={institution.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                     ) : (
                                         <Building2 className="w-6 h-6 text-gray-400" />
                                     )}
@@ -211,6 +261,15 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                                 }`}
                         >
                             Access Control
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("users")}
+                            className={`px-6 py-4 text-sm font-semibold transition-colors relative ${activeTab === "users"
+                                    ? "text-orange-600 border-b-2 border-orange-600"
+                                    : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Users
                         </button>
                     </div>
                 </div>
@@ -282,7 +341,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                                     </form>
                                 </div>
                             </motion.div>
-                        ) : (
+                        ) : activeTab === "access" ? (
                             <motion.div
                                 key="access"
                                 initial={{ opacity: 0 }}
@@ -374,6 +433,87 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="users"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="space-y-6"
+                            >
+                                <div className="bg-white border border-gray-200 p-6">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-900">Registered Users ({totalUsers})</h3>
+                                        <div className="relative w-64">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                placeholder="Search users..."
+                                                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all rounded-lg"
+                                                value={userSearchQuery}
+                                                onChange={(e) => setUserSearchQuery(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {usersLoading ? (
+                                            [1, 2, 3].map(i => (
+                                                <div key={i} className="h-16 bg-gray-50 animate-pulse border border-gray-100" />
+                                            ))
+                                        ) : institutionUsers.length > 0 ? (
+                                            institutionUsers.map((user) => (
+                                                <div key={user.id} className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-gray-600 text-sm font-bold">
+                                                            {user.name?.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-gray-900">{user.name}</div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs text-gray-500">{user.email}</span>
+                                                                <span className="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded-full font-bold uppercase">{user.role}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleRemoveUser(user.id, user.name)}
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                        title="Remove from Institution"
+                                                    >
+                                                        <UserMinus className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="py-16 text-center">
+                                                <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                                <p className="text-gray-500">No users found for this institution</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Pagination */}
+                                    {totalUsers > 20 && (
+                                        <div className="mt-8 flex justify-center gap-2">
+                                            <button
+                                                disabled={userPage === 1}
+                                                onClick={() => setUserPage(p => p - 1)}
+                                                className="px-4 py-2 border border-gray-200 text-xs font-bold hover:bg-gray-50 disabled:opacity-50"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                disabled={userPage * 20 >= totalUsers}
+                                                onClick={() => setUserPage(p => p + 1)}
+                                                className="px-4 py-2 border border-gray-200 text-xs font-bold hover:bg-gray-50 disabled:opacity-50"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

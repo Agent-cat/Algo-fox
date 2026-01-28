@@ -201,7 +201,7 @@ export default function ContestParticipantsPage() {
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 bg-gray-200 dark:bg-[#262626] rounded-full flex items-center justify-center overflow-hidden">
                                                 {p.user.image ? (
-                                                    <img src={p.user.image} alt="" className="w-full h-full object-cover" />
+                                                    <img src={p.user.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                                 ) : (
                                                     <span className="text-gray-600 dark:text-gray-400 font-medium">
                                                         {p.user.name?.charAt(0) || '?'}

@@ -1,4 +1,5 @@
 import { getProblems } from "@/actions/problems";
+import { getCategories } from "@/actions/category.action";
 import SqlProblemsClient from "./_components/SqlProblemsClient";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -72,13 +73,19 @@ async function SqlProblemsContent({
         tags = params.tags;
     }
 
-    // FETCHING PRACTICE MODE, PAGE 1 FOR SQL DOMAIN
-    const { problems, totalPages } = await getProblems(page, 10, "PRACTICE", "SQL", difficulty, tags);
+    const mode = (params?.mode as string) || "practice";
+
+    // FETCHING DATA BASED ON MODE
+    const [{ problems, totalPages }, categoriesRes] = await Promise.all([
+        getProblems(page, 10, "PRACTICE", "SQL", difficulty, tags),
+        mode === "learn" ? getCategories("SQL") : Promise.resolve({ categories: [] })
+    ]);
 
     return (
         <SqlProblemsClient
             initialProblems={problems}
             initialTotalPages={totalPages}
+            initialCategories={categoriesRes.categories}
         />
     );
 }

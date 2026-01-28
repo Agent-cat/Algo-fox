@@ -1,7 +1,5 @@
 "use client";
 
-import 'highlight.js/styles/github.css';
-
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -12,6 +10,10 @@ import Submissions from './Submissions';
 import { getPointsLabel } from '@/lib/points';
 import { CommentTree } from '../problems/discussion/CommentTree';
 import { useState } from 'react';
+import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
+import { remarkSolutionDirective } from "@/lib/markdown-plugins";
+import { preprocessMarkdown } from "@/lib/markdown-utils";
+import remarkDirective from 'remark-directive';
 
 type Tab = "description" | "solutions" | "submissions";
 
@@ -51,6 +53,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                 </button>
                 {!contestId && (
                     <button
+                        id="solutions-tab"
                         onClick={() => onTabChange("solutions")}
                         className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors border ${activeTab === "solutions" ? "bg-white dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 border-transparent"} disabled:opacity-50 disabled:cursor-not-allowed`}
                         disabled={problem.difficulty === "CONCEPT"}
@@ -135,13 +138,30 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                         <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
                             {solutionTab === "official" ? (
                                 isSolved ? (
-                                    <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
+                                    <div className="prose max-w-none prose-slate dark:prose-invert
+                                        prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+                                        prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-7
+                                        prose-li:text-gray-700 dark:prose-li:text-gray-300
+                                        prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
+                                        prose-code:text-orange-600 dark:prose-code:text-orange-400 prose-code:bg-orange-50 dark:prose-code:bg-orange-950/30 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
+                                        prose-pre:bg-white dark:prose-pre:bg-[#0a0a0a] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
+                                        prose-img:rounded-lg prose-img:border prose-img:border-gray-100 dark:prose-img:border-[#262626] prose-img:my-6
+                                        prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1a1a1a] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6">
                                         {problem.solution ? (
                                             <Markdown
-                                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                                remarkPlugins={[
+                                                    remarkGfm,
+                                                    remarkBreaks,
+                                                    remarkDirective,
+                                                    remarkSolutionDirective
+                                                ]}
                                                 rehypePlugins={[rehypeRaw]}
+                                                components={{
+                                                    // @ts-ignore
+                                                    'solution-group': SolutionCodeGroup
+                                                }}
                                             >
-                                                {problem.solution}
+                                                {preprocessMarkdown(problem.solution)}
                                             </Markdown>
                                         ) : (
                                             <div className="text-gray-500 dark:text-gray-400 italic text-center py-10">

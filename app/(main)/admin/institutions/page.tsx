@@ -139,7 +139,7 @@ export default function InstitutionsPage() {
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 bg-gray-100 dark:bg-[#262626] rounded flex items-center justify-center overflow-hidden shrink-0">
                                                         {inst.logo ? (
-                                                            <img src={inst.logo} alt={inst.name} className="w-full h-full object-cover" />
+                                                            <img src={inst.logo} alt={inst.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                                         ) : (
                                                             <Building2 className="w-5 h-5 text-gray-400" />
                                                         )}

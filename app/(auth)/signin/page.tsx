@@ -26,16 +26,19 @@ function SignInContent() {
 
   useEffect(() => {
     if (session) {
-      router.replace("/dashboard");
+      const url = searchParams.get("callbackUrl") || "/dashboard";
+      router.replace(url);
     }
-  }, [session, router]);
+  }, [session, router, searchParams]);
 
   const handleSignIn = async (provider: "google" | "microsoft") => {
     setLoading(provider);
     setError(null);
+    const callbackUrl = searchParams.get("callbackUrl") || "/onboarding?welcome=true";
+
     await authClient.signIn.social({
       provider,
-      callbackURL: "/onboarding?welcome=true",
+      callbackURL: callbackUrl,
     }, {
       onSuccess: () => {
         toast.success("Signed in successfully");

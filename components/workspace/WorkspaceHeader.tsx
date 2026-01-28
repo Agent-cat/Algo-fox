@@ -177,6 +177,7 @@ export default function WorkspaceHeader({
           <div className="hidden md:flex items-center gap-2">
             {onToggleSidebar && (
               <button
+                id="problem-list-toggle"
                 onClick={onToggleSidebar}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors mr-1"
                 title="Toggle Problem List"
@@ -234,6 +235,7 @@ export default function WorkspaceHeader({
       {/* CENTER / RIGHT: ACTIONS */}
       <div className={`flex items-center gap-2 ${contestId ? 'flex-1 justify-center' : ''}`}>
         <button
+          id="run-button"
           className={`flex items-center gap-2 px-6 py-2 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg transition-all disabled:opacity-50 ${contestId ? 'border border-gray-200 dark:border-[#262626] shadow-sm' : ''}`}
           onClick={onRun}
           disabled={isRunning || isSubmitting}
@@ -247,6 +249,7 @@ export default function WorkspaceHeader({
         </button>
 
         <button
+          id="submit-button"
           onClick={onSubmit}
           disabled={isSubmitting}
           className={`flex items-center gap-2 px-8 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95`}
@@ -289,6 +292,7 @@ export default function WorkspaceHeader({
                           src={session.user.image}
                           alt={session.user.name || "User"}
                           className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
                         />
                       ) : (
                         session.user.name?.charAt(0).toUpperCase()

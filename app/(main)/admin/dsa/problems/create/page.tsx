@@ -8,7 +8,7 @@ import { Suspense } from "react";
 
 function CreateDsaProblemContent() {
     return (
-        <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-slate-950">
+        <div className="min-h-screen pt-24 pb-12 px-6">
             <div className="max-w-3xl mx-auto ml-0">
                 <Link
                     href="/admin/dsa/problems"

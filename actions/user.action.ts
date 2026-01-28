@@ -53,6 +53,7 @@ export async function recalculateUserScore(): Promise<{ success: boolean; newSco
  * Updates user profile information and marks onboarding as complete
  */
 export async function completeOnboarding(data: {
+    name?: string;
     bio?: string;
     collegeId: string;
     year?: string;
@@ -71,7 +72,24 @@ export async function completeOnboarding(data: {
 
     const userId = session.user.id;
 
-    return UserService.completeOnboarding(userId, data);
+    const res = await UserService.completeOnboarding(userId, data);
+
+    if (res.success) {
+        // Invalidate Redis cache (redundant but good to have here too)
+        try {
+            const redis = (await import("@/lib/redis")).default;
+            await redis.del(`dashboard:stats:${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate dashboard redis cache:", error);
+        }
+
+        revalidatePath("/dashboard");
+        updateTag(`user-${userId}`);
+        updateTag(`dashboard-${userId}`);
+        updateTag('dashboard-stats');
+    }
+
+    return res;
 }
 
 /**
@@ -83,6 +101,7 @@ export async function updateUserInfo(data: {
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;
+    codeforcesHandle?: string;
     githubHandle?: string;
 }): Promise<{ success: boolean; error?: string }> {
     const session = await auth.api.getSession({
@@ -96,25 +115,135 @@ export async function updateUserInfo(data: {
     const userId = session.user.id;
 
     try {
-        await prisma.user.update({
+        // Fetch current user to check for changes
+        const currentUser = await prisma.user.findUnique({
             where: { id: userId },
-            data: {
-                name: data.name,
-                bio: data.bio,
-                leetCodeHandle: data.leetCodeHandle,
-                codeChefHandle: data.codeChefHandle,
-                hackerrankHandle: data.hackerrankHandle,
-                githubHandle: data.githubHandle,
+            select: {
+                codeChefHandle: true,
+                codeforcesHandle: true,
+                leetCodeHandle: true,
             }
         });
 
+        const updateData: any = {
+            name: data.name,
+            bio: data.bio,
+            leetCodeHandle: data.leetCodeHandle,
+            codeChefHandle: data.codeChefHandle,
+            codeforcesHandle: data.codeforcesHandle,
+            githubHandle: data.githubHandle,
+        };
+
+        // Reset verification if handle changed
+        if (currentUser) {
+            if (data.codeChefHandle !== undefined && data.codeChefHandle !== currentUser.codeChefHandle) {
+                updateData.codeChefVerified = false;
+            }
+            if (data.codeforcesHandle !== undefined && data.codeforcesHandle !== currentUser.codeforcesHandle) {
+                updateData.codeforcesVerified = false;
+            }
+            if (data.leetCodeHandle !== undefined && data.leetCodeHandle !== currentUser.leetCodeHandle) {
+                updateData.leetCodeVerified = false;
+            }
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: updateData
+        });
+
+        // Invalidate Redis cache
+        try {
+            const redis = (await import("@/lib/redis")).default;
+            await redis.del(`dashboard:stats:${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate dashboard redis cache:", error);
+        }
+
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/settings"); // Added to refresh settings page
         updateTag(`user-${userId}`);
         updateTag(`user-score-${userId}`);
+        updateTag(`dashboard-${userId}`);
         updateTag('dashboard-stats');
         return { success: true };
     } catch (error) {
         console.error("Failed to update user info:", error);
         return { success: false, error: "Failed to update profile" };
     }
+}
+
+/**
+ * Sync user profile and stats
+ * Clears all caches related to the user and revalidates dashboard
+ */
+export async function syncUserProfile(): Promise<{ success: boolean; error?: string }> {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session?.user?.id) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+
+    try {
+        // Invalidate Redis cache
+        try {
+            const redis = (await import("@/lib/redis")).default;
+            await redis.del(`dashboard:stats:${userId}`);
+            await redis.del(`user-score-${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate redis cache during sync:", error);
+        }
+
+        // Revalidate Next.js cache
+        revalidatePath("/dashboard");
+        updateTag(`user-${userId}`);
+        updateTag(`user-score-${userId}`);
+        updateTag('dashboard-stats');
+
+        return { success: true };
+    } catch (error) {
+        console.error("Sync failed:", error);
+        return { success: false, error: "Failed to sync profile" };
+    }
+}
+
+/**
+ * Get user settings data (cached)
+ */
+export async function getUserSettings() {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session?.user?.id) {
+        return null;
+    }
+
+    const userId = session.user.id;
+    cacheTag(`user-${userId}`);
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+            institution: true
+        }
+    });
+
+    if (!user) return null;
+
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        bio: user.bio,
+        institutionName: user.institution?.name
+    };
 }

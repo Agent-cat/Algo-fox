@@ -120,33 +120,33 @@ function DsaCategoryProblemsContent() {
   const getDifficultyColor = (difficulty: Difficulty) => {
     switch (difficulty) {
       case "EASY":
-        return "text-emerald-700 bg-emerald-50 border-emerald-200";
+        return "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20";
       case "MEDIUM":
-        return "text-amber-700 bg-amber-50 border-amber-200";
+        return "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20";
       case "HARD":
-        return "text-rose-700 bg-rose-50 border-rose-200";
+        return "text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20";
       case "CONCEPT":
-        return "text-indigo-700 bg-indigo-50 border-indigo-200";
+        return "text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20";
       default:
-        return "text-gray-700 bg-gray-50 border-gray-200";
+        return "text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-500/10 border-gray-200 dark:border-gray-500/20";
     }
   };
 
 
   if (isLoading && !category) {
     return (
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen pt-24 pb-12 px-6 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-orange-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white">
+    <div className="min-h-screen pt-24 pb-12 px-6">
       <div className="max-w-6xl mx-auto ml-0">
         <Link
           href="/admin/dsa/categories"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to DSA Categories
@@ -154,43 +154,50 @@ function DsaCategoryProblemsContent() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">
               {category?.name || "Category Problems"}
             </h1>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               {category?.description || "Manage problems in this category"}
             </p>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowConceptModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl transition-all border border-indigo-200"
-          >
-            <BookText className="w-5 h-5" />
-            Add Concept
-          </button>
-          <button
-            onClick={handleAddClick}
-            className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-orange-200"
-          >
-            <Plus className="w-5 h-5" />
-            Add Problem
-          </button>
+          <div className="flex gap-3">
+             <button
+              onClick={() => setShowConceptModal(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-900 dark:text-white font-semibold rounded-xl transition-all"
+            >
+              <BookText className="w-4 h-4" />
+              Add Concept
+            </button>
+            <button
+              onClick={handleAddClick}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-black font-semibold rounded-xl transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-gray-200 dark:shadow-none"
+            >
+              <Plus className="w-4 h-4" />
+              Add Problem
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-xl shadow-gray-200/50 overflow-hidden">
+      <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
         {isLoading ? (
-          <div className="p-12 flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          <div className="p-20 flex flex-col items-center justify-center gap-4">
+            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-full">
+               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600 dark:border-orange-500"></div>
+            </div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading problems...</p>
           </div>
         ) : problems.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p className="mb-4">No problems in this category yet.</p>
+          <div className="p-20 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
+                <Plus className="w-6 h-6 text-gray-400" />
+            </div>
+            <h3 className="text-gray-900 dark:text-white font-semibold mb-1">No problems yet</h3>
+            <p className="mb-6 text-gray-500 dark:text-gray-400 text-sm">Get started by adding a problem to this category.</p>
             <button
               onClick={handleAddClick}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm rounded-xl transition-all"
             >
               <Plus className="w-4 h-4" />
               Add First Problem
@@ -200,33 +207,33 @@ function DsaCategoryProblemsContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626]">
+                  <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                     Title
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                     Difficulty
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">
+                  <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-[#262626]">
                 {problems.map((problem) => (
                   <tr
                     key={problem.id}
-                    className="hover:bg-gray-50/50 transition-colors group"
+                    className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group"
                   >
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-gray-900">{problem.title}</div>
-                      <div className="text-xs text-gray-400 font-mono mt-0.5">
+                      <div className="font-semibold text-gray-900 dark:text-white">{problem.title}</div>
+                      <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">
                         {problem.slug}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getDifficultyColor(
                           problem.difficulty
                         )}`}
                       >
@@ -237,14 +244,13 @@ function DsaCategoryProblemsContent() {
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link
                           href={`/admin/problems/${problem.id}/edit`}
-                          className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                          title="Edit Problem"
+                          className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#262626] hover:bg-gray-200 dark:hover:bg-[#333] hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() => handleRemove(problem.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                           title="Remove from Category"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -262,19 +268,22 @@ function DsaCategoryProblemsContent() {
       {/* Add Problem Modal */}
       {
         showAddModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 relative">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10 rounded-t-2xl">
-                <h2 className="text-2xl font-bold text-gray-900">Create New Problem</h2>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-w-4xl w-full my-8 relative border border-gray-200 dark:border-[#262626]">
+              <div className="sticky top-0 bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626] p-6 flex items-center justify-between z-10 rounded-t-2xl">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Problem</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Add a coding challenge to this category</p>
+                </div>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 max-h-[80vh] overflow-y-auto">
                 <ProblemForm
                   onSubmit={handleCreateProblem}
                   submitLabel="Create Problem"
@@ -290,19 +299,22 @@ function DsaCategoryProblemsContent() {
       {/* Add Concept Modal */}
       {
         showConceptModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 relative">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10 rounded-t-2xl">
-                <h2 className="text-2xl font-bold text-gray-900">Create New Concept</h2>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-[#141414] rounded-2xl shadow-2xl max-w-2xl w-full my-8 relative border border-gray-200 dark:border-[#262626]">
+              <div className="sticky top-0 bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626] p-6 flex items-center justify-between z-10 rounded-t-2xl">
+                <div>
+                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Concept</h2>
+                     <p className="text-sm text-gray-500 dark:text-gray-400">Add learning material to this category</p>
+                </div>
                 <button
                   onClick={() => setShowConceptModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 max-h-[80vh] overflow-y-auto">
                 <ConceptForm
                   onSubmit={handleCreateConcept}
                 />

@@ -199,6 +199,7 @@ export async function getInviteDetails(code: string) {
                 role: invite.role,
                 institutionName: invite.institution.name,
                 institutionLogo: invite.institution.logo,
+                institutionId: invite.institution.id,
                 code: invite.code
             }
         };
@@ -233,7 +234,6 @@ export async function acceptInvite(code: string) {
                 data: {
                     institutionId: invite.institutionId,
                     role: invite.role,
-                    onboardingCompleted: true
                 }
             });
 
@@ -243,16 +243,29 @@ export async function acceptInvite(code: string) {
                 data: { uses: { increment: 1 } }
             });
 
-            return invite;
+            // Fetch updated user to get accurate onboarding status
+            const updatedUser = await tx.user.findUnique({
+                where: { id: user.id },
+                select: { onboardingCompleted: true }
+            });
+
+            return { invite, onboardingCompleted: !!updatedUser?.onboardingCompleted };
         });
 
-        // Invalidate caches
-        revalidateTag(`institution-invites-${result.institutionId}`, "max");
-        revalidateTag(`institution-stats-${result.institutionId}`, "max");
-        revalidateTag(`institution-staff-${result.institutionId}`, "max");
-        revalidatePath("/dashboard");
+        const { invite, onboardingCompleted } = result;
 
-        return { success: true, institutionName: result.institution.name };
+        // Invalidate caches
+        revalidateTag(`institution-invites-${invite.institutionId}`, "max");
+        revalidateTag(`institution-stats-${invite.institutionId}`, "max");
+        revalidateTag(`institution-staff-${invite.institutionId}`, "max");
+        revalidatePath("/dashboard");
+        revalidatePath("/onboarding");
+
+        return {
+            success: true,
+            institutionName: invite.institution.name,
+            onboardingCompleted
+        };
      } catch (error: any) {
          console.error("Accept invite error:", error);
          return { success: false, error: error.message || "Failed to accept invite" };

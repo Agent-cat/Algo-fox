@@ -31,12 +31,13 @@ function OnboardingContent() {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
+        name: "",
         bio: "",
         collegeId: "",
         year: "",
         leetCodeHandle: "",
         codeChefHandle: "",
-        hackerrankHandle: "",
+        codeforcesHandle: "",
         githubHandle: "",
     });
 
@@ -52,7 +53,7 @@ function OnboardingContent() {
     };
 
     const handleNext = () => {
-        if (step === 1 && (!formData.collegeId.trim() || !formData.year)) {
+        if (step === 1 && (!formData.name.trim() || !formData.collegeId.trim() || !formData.year)) {
             return;
         }
         setStep(step + 1);
@@ -73,7 +74,7 @@ function OnboardingContent() {
         }
     };
 
-    const isStep1Valid = !!formData.collegeId.trim() && !!formData.year;
+    const isStep1Valid = !!formData.name.trim() && !!formData.collegeId.trim() && !!formData.year;
 
     return (
         <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -122,7 +123,19 @@ function OnboardingContent() {
                                     </div>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College ID / Name</label>
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">Full Name *</label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
+                                                placeholder="e.g. John Doe"
+                                                autoFocus
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College ID / Name *</label>
                                             <input
                                                 type="text"
                                                 name="collegeId"
@@ -130,7 +143,6 @@ function OnboardingContent() {
                                                 onChange={handleChange}
                                                 className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
                                                 placeholder="e.g. IIT Delhi"
-                                                autoFocus
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -147,7 +159,6 @@ function OnboardingContent() {
                                                 <option value="2">2nd Year</option>
                                                 <option value="3">3rd Year</option>
                                                 <option value="4">4th Year</option>
-                                                <option value="5">5th Year</option>
                                             </select>
                                         </div>
                                         <div className="space-y-2">
@@ -173,13 +184,13 @@ function OnboardingContent() {
                                     </div>
                                     <div className="space-y-5">
                                         {[
-                                            { label: "LeetCode", name: "leetCodeHandle", icon: "L" },
-                                            { label: "CodeChef", name: "codeChefHandle", icon: "C" },
-                                            { label: "HackerRank", name: "hackerrankHandle", icon: "H" },
+                                            { label: "LeetCode", name: "leetCodeHandle", logo: "/handles_logos/leetcode.png" },
+                                            { label: "CodeChef", name: "codeChefHandle", logo: "/handles_logos/codechef.png" },
+                                            { label: "Codeforces", name: "codeforcesHandle", logo: "/handles_logos/codeforces.png" },
                                         ].map((field) => (
                                             <div key={field.name} className="flex items-center gap-6 group">
-                                                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500 group-hover:text-white group-hover:bg-black transition-colors">
-                                                    {field.icon}
+                                                <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300 p-2">
+                                                     <img src={field.logo} alt={field.label} className="w-full h-full object-contain" />
                                                 </div>
                                                 <div className="flex-1 relative">
                                                     <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 absolute -top-2 left-0">{field.label}</label>

@@ -87,6 +87,11 @@ export async function markConceptAsCompleted(problemId: string) {
         updateTag(`problem-${problemId}`);
         updateTag(`user-submissions-${userId}`);
         updateTag(`problem-submissions-${userId}-${problemId}`);
+        updateTag('categories-list');
+        updateTag(`categories-DSA-user-${userId}`);
+        updateTag(`categories-SQL-user-${userId}`);
+        updateTag('problems-list');
+        updateTag('problems-search');
 
         return { success: true };
     } catch (error) {

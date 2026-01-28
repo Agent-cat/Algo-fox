@@ -99,28 +99,38 @@ export class UserService {
      * UPDATES USER PROFILE INFORMATION AND MARKS ONBOARDING AS COMPLETED
     */
     static async completeOnboarding(userId: string, data: {
+        name?: string;
         bio?: string;
         collegeId: string;
         year?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
-        hackerrankHandle?: string;
+        hackerrankHandle?: string; // Kept for type compatibility if needed, but mapped to codeforces
+        codeforcesHandle?: string;
         githubHandle?: string;
     }): Promise<{ success: boolean; error?: string }> {
         try {
             await prisma.user.update({
                 where: { id: userId },
                 data: {
+                    name: data.name,
                     collegeId: data.collegeId || null,
                     year: data.year ? parseInt(data.year) : null,
                     bio: data.bio || null,
                     leetCodeHandle: data.leetCodeHandle || null,
                     codeChefHandle: data.codeChefHandle || null,
-                    hackerrankHandle: data.hackerrankHandle || null,
+                    codeforcesHandle: data.codeforcesHandle || data.hackerrankHandle || null,
                     githubHandle: data.githubHandle || null,
                     onboardingCompleted: true
                 }
             });
+
+            // Invalidate dashboard cache
+            try {
+                await redis.del(`dashboard:stats:${userId}`);
+            } catch (error) {
+                console.error("Failed to invalidate dashboard cache:", error);
+            }
 
             return { success: true };
         } catch (error) {

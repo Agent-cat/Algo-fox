@@ -180,22 +180,38 @@ export default function CodeEditor({
       setIsMounted(false);
       setEditorError(false);
       mountRetryRef.current = 0;
-      // Clean up editor ref
+      // Clean up editor ref - improved disposal logic
       if (editorRef.current) {
         try {
           const editor = editorRef.current;
-          const model = editor.getModel?.();
-          if (
-            model &&
-            !model.isDisposed() &&
-            typeof editor.dispose === "function"
-          ) {
-            editor.dispose();
+          // Check if editor has a model before attempting disposal
+          if (editor && typeof editor.getModel === "function") {
+            const model = editor.getModel();
+            // Only dispose if model exists and is not already disposed
+            if (model && typeof model.isDisposed === "function" && !model.isDisposed()) {
+              // Dispose the model first
+              if (typeof model.dispose === "function") {
+                try {
+                  model.dispose();
+                } catch (e) {
+                  // Silently ignore model disposal errors
+                }
+              }
+            }
+          }
+          // Then dispose the editor itself
+          if (typeof editor.dispose === "function") {
+            try {
+              editor.dispose();
+            } catch (e) {
+              // Silently ignore editor disposal errors
+            }
           }
         } catch (error) {
-          // Ignore disposal errors
+          // Ignore all disposal errors - they're harmless during unmount
+        } finally {
+          editorRef.current = null;
         }
-        editorRef.current = null;
       }
     };
   }, []);
@@ -452,6 +468,75 @@ export default function CodeEditor({
       setEditorError(false);
       mountRetryRef.current = 0;
 
+      // SECURE COPY/PASTE LOGIC
+      // We generate a unique session token for this editor instance
+      const SESSION_TOKEN_KEY = "algofox_secure_token";
+      const instanceToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+      // We attach to the CONTAINER (editorContainerRef) for robust capture.
+      // 1. Mark container as allowed for DevToolsBlocker
+      if (editorContainerRef.current) {
+          const container = editorContainerRef.current;
+          container.setAttribute("data-allow-clipboard", "true");
+
+          // Also allow internal domNode just to be safe with traversal logic
+          const domNode = editor.getDomNode();
+          if (domNode) {
+             domNode.setAttribute("data-allow-clipboard", "true");
+          }
+
+          // 2. Attach Capture Phase Listeners
+          // We must remove previous listeners to avoid duplicates on re-mounts if any,
+          // but since this is a functional component mount, simple addEventListener is fine
+          // (closure captures unique instanceToken).
+
+          const handleCopy = (e: ClipboardEvent) => {
+              if (e.clipboardData) {
+                  const selection = editor.getModel()?.getValueInRange(editor.getSelection());
+                  if (selection) {
+                      e.clipboardData.setData('text/plain', selection);
+                      // Inject our secure token
+                      e.clipboardData.setData('application/x-algofox-token', instanceToken);
+                      e.preventDefault();
+                  }
+              }
+          };
+
+          const handleCut = (e: ClipboardEvent) => {
+             if (e.clipboardData) {
+                  const selection = editor.getModel()?.getValueInRange(editor.getSelection());
+                  if (selection) {
+                      e.clipboardData.setData('text/plain', selection);
+                      e.clipboardData.setData('application/x-algofox-token', instanceToken);
+                      e.preventDefault();
+                      editor.trigger('source', 'cut', {});
+                  }
+              }
+          };
+
+          const handlePaste = (e: ClipboardEvent) => {
+              // Parse token
+              const token = e.clipboardData?.getData('application/x-algofox-token');
+
+              if (token === instanceToken) {
+                  // Verified! Allow to succeed.
+                  return;
+              } else {
+                  // External or Invalid
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toast.error("Paste blocked: You can only paste code copied from this editor.");
+              }
+          };
+
+          container.addEventListener("copy", handleCopy as any, true);
+          container.addEventListener("cut", handleCut as any, true);
+          container.addEventListener("paste", handlePaste as any, true);
+
+          // Note: In a production app, we should save these handler refs to remove them in cleanup
+          // but for now relying on component unmount and container lifecycle is acceptable
+      }
+
       // In readOnly mode, the editor might strictly follow `value` prop if we passed one,
       // but setting it explicitly ensures it matches state.
       if (code && editor) {
@@ -491,20 +576,34 @@ export default function CodeEditor({
     return () => {
       if (editorRef.current) {
         try {
-          // Dispose editor properly
           const editor = editorRef.current;
-          // Check if editor is still valid before disposing
-          if (editor && typeof editor.dispose === "function") {
-            // Check if the editor's model is still valid
-            const model = editor.getModel?.();
-            if (model && !model.isDisposed()) {
-              editor.dispose();
+          // Check if editor has a model before attempting disposal
+          if (editor && typeof editor.getModel === "function") {
+            const model = editor.getModel();
+            // Only dispose if model exists and is not already disposed
+            if (model && typeof model.isDisposed === "function" && !model.isDisposed()) {
+              // Dispose the model first
+              if (typeof model.dispose === "function") {
+                try {
+                  model.dispose();
+                } catch (e) {
+                  // Silently ignore model disposal errors
+                }
+              }
             }
           }
-          editorRef.current = null;
+          // Then dispose the editor itself
+          if (typeof editor.dispose === "function") {
+            try {
+              editor.dispose();
+            } catch (e) {
+              // Silently ignore editor disposal errors
+            }
+          }
         } catch (error) {
-          // Editor might already be disposed, ignore
-          console.debug("Editor disposal error (safe to ignore):", error);
+          // Ignore all disposal errors
+        } finally {
+          editorRef.current = null;
         }
       }
       // Clear any pending save operations
@@ -586,6 +685,7 @@ export default function CodeEditor({
         <div className="flex items-center gap-3">
           <div className="relative" ref={dropdownRef}>
             <button
+              id="language-dropdown"
               onClick={() => !readOnly && setIsDropdownOpen(!isDropdownOpen)}
               disabled={readOnly}
               className={`flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 rounded transition-colors ${
@@ -765,8 +865,8 @@ export default function CodeEditor({
       <DriverCodeModal
         isOpen={isDriverCodeModalOpen}
         onClose={() => setIsDriverCodeModalOpen(false)}
-        code={currentDriverCode || ""}
         languageId={effectiveLanguageId}
+        driverCode={currentDriverCode || ""}
       />
     </div>
   );

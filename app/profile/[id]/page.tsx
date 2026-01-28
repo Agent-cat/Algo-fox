@@ -45,7 +45,7 @@ async function ProfileContent({ params }: ProfilePageProps) {
                                 bio={user.bio}
                                 leetCodeHandle={user.leetCodeHandle}
                                 codeChefHandle={user.codeChefHandle}
-                                hackerrankHandle={user.hackerrankHandle}
+                                codeforcesHandle={user.codeforcesHandle}
                                 githubHandle={user.githubHandle}
                                 readonly={true}
                             />
@@ -74,6 +74,9 @@ async function ProfileContent({ params }: ProfilePageProps) {
                                 solvedByDifficulty={user.solvedByDifficulty}
                                 totalProblems={user.totalProblems}
                                 problemsSolved={user.problemsSolved}
+                                leetCodeHandle={user.leetCodeHandle}
+                                codeChefHandle={user.codeChefHandle}
+                                codeforcesHandle={user.codeforcesHandle}
                             />
                         </section>
 

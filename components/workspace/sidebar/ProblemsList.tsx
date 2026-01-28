@@ -77,27 +77,13 @@ export function ProblemsList({
                         )}>
                             {isSolved && <CheckCircle className="w-3.5 h-3.5" />}
                         </div>
-                        <div className="flex-1 min-w-0 overflow-hidden relative group/text">
-                            {/* Default State: Truncate */}
+                        <div className="flex-1 min-w-0 overflow-hidden relative">
                             <p className={cn(
-                                "font-medium truncate transition-all group-hover/text:hidden",
+                                "font-medium truncate transition-all",
                                 isCurrent ? "text-orange-700 dark:text-orange-400" : "text-gray-700 dark:text-gray-300"
                             )}>
                                 {prob.title}
                             </p>
-
-                            {/* Hover State: Marquee */}
-                            <div className={cn(
-                                "hidden group-hover/text:flex font-medium whitespace-nowrap overflow-hidden w-full",
-                                isCurrent ? "text-orange-700 dark:text-orange-400" : "text-gray-700 dark:text-gray-300"
-                            )}>
-                                <div className="animate-marquee inline-block pl-0">
-                                    <span className="mr-8">{prob.title}</span>
-                                    <span className="mr-8">{prob.title}</span>
-                                    <span className="mr-8">{prob.title}</span>
-                                </div>
-                            </div>
-
                             <p className="text-xs text-gray-500 dark:text-gray-500 capitalize">{prob.difficulty.toLowerCase()}</p>
                         </div>
                     </Link>
