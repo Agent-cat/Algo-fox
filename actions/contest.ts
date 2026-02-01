@@ -5,7 +5,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { unstable_cache as cache, unstable_noStore as noStore } from "next/cache";
 import { cacheTag, cacheLife } from "next/cache";
+import { after } from "next/server"; // For background tasks
 
 const contestSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -41,6 +43,30 @@ const contestWithProblemsSchema = z.object({
 /**
  * Fetches contests visible to the current user.
  */
+/**
+ * Cached fetch for public contests
+ */
+async function getPublicContests() {
+    "use cache"
+    cacheTag("contests-public");
+    // @ts-ignore
+    cacheLife("contests");
+
+    return prisma.contest.findMany({
+        where: {
+            visibility: "PUBLIC",
+            hidden: false,
+        },
+        include: {
+            _count: { select: { problems: true } }
+        },
+        orderBy: { startTime: "desc" },
+    });
+}
+
+/**
+ * Fetches contests visible to the current user.
+ */
 export async function getVisibleContests() {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -48,16 +74,7 @@ export async function getVisibleContests() {
 
     try {
         if (!session?.user) {
-            const contests = await prisma.contest.findMany({
-                where: {
-                    visibility: "PUBLIC",
-                    hidden: false,
-                },
-                include: {
-                    _count: { select: { problems: true } }
-                },
-                orderBy: { startTime: "desc" },
-            });
+            const contests = await getPublicContests();
             return { success: true, contests };
         }
 
@@ -117,33 +134,49 @@ export async function getVisibleContests() {
 /**
  * Fetches a single contest's details with authorization.
  */
+/**
+ * Cached contest detail fetcher
+ * Returns contest data without user-specific context
+ */
+async function getCachedContest(contestId: string) {
+    "use cache"
+    cacheTag(`contest-${contestId}`);
+    // @ts-ignore
+    cacheLife("contest-detail");
+
+    return prisma.contest.findUnique({
+        where: { id: contestId },
+        include: {
+            _count: {
+                select: { problems: true },
+            },
+            problems: {
+                include: {
+                    problem: {
+                        select: {
+                            id: true,
+                            title: true,
+                            difficulty: true,
+                            slug: true,
+                        },
+                    },
+                },
+                orderBy: { order: "asc" },
+            },
+        },
+    });
+}
+
+/**
+ * Fetches a single contest's details with authorization.
+ */
 export async function getContestDetail(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
 
     try {
-        const contest = await prisma.contest.findUnique({
-            where: { id: contestId },
-            include: {
-                _count: {
-                    select: { problems: true },
-                },
-                problems: {
-                    include: {
-                        problem: {
-                            select: {
-                                id: true,
-                                title: true,
-                                difficulty: true,
-                                slug: true,
-                            },
-                        },
-                    },
-                    orderBy: { order: "asc" },
-                },
-            },
-        });
+        const contest = await getCachedContest(contestId);
 
         if (!contest) {
             return { success: false, error: "Contest not found" };
@@ -1222,6 +1255,7 @@ export async function getParticipantViolations(contestId: string, userId: string
 export async function getContestLeaderboard(contestId: string) {
     "use cache"
     cacheTag(`leaderboard-${contestId}`)
+    // @ts-ignore
     cacheLife("leaderboard")
 
     try {

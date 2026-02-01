@@ -94,6 +94,13 @@ export class SubmissionService {
             where: { id: submissionId },
             data: { status, time, memory },
         });
+
+        try {
+            // Only attempt invalidation, don't crash if it fails (e.g. in worker)
+            revalidateTag(`submission-${submissionId}`,"max");
+        } catch (error) {
+            // Silently fail in worker context
+        }
     }
 
     static async createTestCases(submissionId: string, testCases: { index: number; judge0TrackingId: string }[]) {
