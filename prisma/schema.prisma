@@ -9,8 +9,6 @@ datasource db {
 
 
 
-//////////////////////////////////// Authentication Models //////////////////////////////////////////
-
 model User {
   id        String  @id
   name      String
@@ -39,7 +37,7 @@ model User {
   role                Role    @default(STUDENT)
   onboardingCompleted Boolean @default(false)
   bio                 String?
-  year                Int? // Academic year: 1, 2, 3, 4, etc.
+  year                Int?
 
   banned       Boolean?
   banReason    String?
@@ -145,10 +143,10 @@ model Problem {
   useFunctionTemplate Boolean @default(false)
   solution            String? @db.Text
 
-  // Aptitude / MCQ fields
+
   isMcq   Boolean @default(false)
-  options Json? // Store options as JSON: [{"id": "1", "text": "Option A"}, ...]
-  answer  String? // Correct option ID
+  options Json?
+  answer  String?
 
   submissions       Submission[]
   testCases         ProblemTestCase[]
@@ -675,4 +673,17 @@ model AssignmentProblem {
 
   @@unique([assignmentId, problemId])
   @@index([assignmentId, order])
+}
+
+model TelegramChat {
+  id        String   @id @default(cuid())
+  chatId    String   @unique
+  type      String   // "private", "group", "supergroup", "channel"
+  title     String?
+  username  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("telegram_chat")
 }

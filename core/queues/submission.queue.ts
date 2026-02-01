@@ -158,10 +158,15 @@ const worker = new Worker(
             }));
             await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
-// 4. Poll and Incremental Update
+            // 4. Poll and Incremental Update
             let isComplete = false;
             let attempts = 0;
-            const MAX_ATTEMPTS = 160; // ~40s timeout (160 * 250ms)
+            // Adaptive Polling:
+            // First 5 seconds: Poll every 100ms (fast feedback)
+            // Next 25 seconds: Poll every 500ms
+            // Remaining time: Poll every 1000ms
+            const MAX_TOTAL_TIME_MS = 60000; // 60 seconds hard timeout
+            const START_TIME = Date.now();
 
             // Track overall stats
             let totalTime = 0;
@@ -170,8 +175,13 @@ const worker = new Worker(
             let globalErrorMessage: string | null = null;
             let compilationError = false;
 
-            while (!isComplete && attempts < MAX_ATTEMPTS) {
-                await new Promise(r => setTimeout(r, 100)); // Poll every 100ms (faster)
+            while (!isComplete && (Date.now() - START_TIME) < MAX_TOTAL_TIME_MS) {
+                const elapsedMs = Date.now() - START_TIME;
+                let pollInterval = 1000;
+                if (elapsedMs < 5000) pollInterval = 150;
+                else if (elapsedMs < 30000) pollInterval = 500;
+
+                await new Promise(r => setTimeout(r, pollInterval));
                 attempts++;
 
                 const pendingRecords = testCaseRecords.filter(tc => !tc.processed);
@@ -231,7 +241,7 @@ const worker = new Worker(
                         const memory = result.memory || 0;
                         const status = mapJudge0StatusToDb(result.status.id);
 
-                        // --- Error Message Logic ---
+                        
                         let errorMessage: string | null = null;
                         if (compilationError) {
                             errorMessage = globalErrorMessage;

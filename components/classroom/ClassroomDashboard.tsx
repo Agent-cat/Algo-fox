@@ -1,14 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { ClassroomSidebar } from "./ClassroomSidebar";
 import { ClassroomLeaderboard } from "./ClassroomLeaderboard";
-import { LiveTracking } from "./LiveTracking";
-import { AssignmentsTab } from "./assignments/AssignmentsTab";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+
+const LiveTracking = dynamic(() => import("./LiveTracking").then(mod => mod.LiveTracking), {
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>,
+    ssr: false
+});
+
+const AssignmentsTab = dynamic(() => import("./assignments/AssignmentsTab").then(mod => mod.AssignmentsTab), {
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>
+});
 
 interface Student {
     id: string;

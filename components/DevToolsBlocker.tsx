@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 
 // Add the allowed emails here
 const ALLOWED_EMAILS: string[] = [
-  "mangggdalavishnuvardhan07@gmail.com"
+  "mandalavishnuvardhan07@gmail.com"
 ];
 
 export default function DevToolsBlocker() {
