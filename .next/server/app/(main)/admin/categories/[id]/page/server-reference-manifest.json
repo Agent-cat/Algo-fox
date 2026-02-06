@@ -1,0 +1,215 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "f88ea1c2067191c078fad313714852f8fe7db11df1": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getCategoryProblems",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getCategoryProblems",
+      "filename": "actions/category.action.ts"
+    },
+    "60d2264b1f398652eb46eab2bb3759572857722502": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "removeProblemFromCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "removeProblemFromCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "ff161ca534fa0477106bff83d2b07e07a7d461630c": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getProblems",
+      "filename": "actions/problems.ts"
+    },
+    "c01ca31fce0d3f3a9d5c4fe8e7dcb9a400d16af8c9": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getCategories",
+      "filename": "actions/category.action.ts"
+    },
+    "c0fbbdc05f58cc8608414154b4c7d28612d511e525": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "4053663bceb8a80c0085656d61a1b89bee3cb8d166": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "getCategoryById",
+      "filename": "actions/category.action.ts"
+    },
+    "40df636e269e6ad8e68e86a17b941428478fb1279a": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "createCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "createCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "6079c58c3044096e2e3c0e124762f766628d945274": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "updateCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "updateCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "4002126267c5e0c1a5eb6b4769d671952c3eb4b33f": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "deleteCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "deleteCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "706fc56ae5305db762dbcd7da21f654785f49478af": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "addProblemToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "addProblemToCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "600fce90ff1d93c6a9f08094f28d2d9fce60ec2e62": {
+      "workers": {
+        "app/(main)/admin/categories/[id]/page": {
+          "moduleId": 511115,
+          "async": false,
+          "exportedName": "createProblemAndAddToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/categories/[id]/page": "action-browser"
+      },
+      "exportedName": "createProblemAndAddToCategory",
+      "filename": "actions/category.action.ts"
+    }
+  },
+  "edge": {}
+}

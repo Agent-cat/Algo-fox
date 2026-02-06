@@ -1,0 +1,200 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "002a588abb136c6f86adadd291e7fdda7347bfa1e9": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getTeacherClassrooms",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "getTeacherClassrooms",
+      "filename": "actions/classroom.ts"
+    },
+    "00dc41dbc84f1082ddd9f6a9207eb5b406ea5c543e": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getStudentClassrooms",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "getStudentClassrooms",
+      "filename": "actions/classroom.ts"
+    },
+    "4037d92f3a67eb2428d5b2dab919914d5756aace36": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getClassroomByCode",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "getClassroomByCode",
+      "filename": "actions/classroom.ts"
+    },
+    "4052b0471161707b49db8311132ddb7c92790d847f": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "joinClassroom",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "joinClassroom",
+      "filename": "actions/classroom.ts"
+    },
+    "405d122aba3f5928800ed130a7b71a1b47271751ba": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "createClassroom",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "createClassroom",
+      "filename": "actions/classroom.ts"
+    },
+    "40e294f0f9e4303d3615ddc6a66cada537036c1b97": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getClassroomLiveTracking",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "getClassroomLiveTracking",
+      "filename": "actions/classroom.ts"
+    },
+    "60034d10a668ce8353cc35e9db8784a8a275d2b2e0": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "toggleClassroomTracking",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "toggleClassroomTracking",
+      "filename": "actions/classroom.ts"
+    },
+    "602532808556a300ed5e0f4a5f69437cc6db044dc7": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "removeStudentFromClassroom",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "removeStudentFromClassroom",
+      "filename": "actions/classroom.ts"
+    },
+    "6029e68e22d85ff157089c99e60915beba555ec65d": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getInstitutionClassrooms",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "action-browser"
+      },
+      "exportedName": "getInstitutionClassrooms",
+      "filename": "actions/classroom.ts"
+    },
+    "700d160d9099ae66508f5d181cf879265ecd403e7d": {
+      "workers": {
+        "app/(main)/dashboard/institution/classrooms/page": {
+          "moduleId": 92583,
+          "async": false,
+          "exportedName": "getClassroomWithStudents",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/classrooms/page": "rsc"
+      },
+      "exportedName": "getClassroomWithStudents",
+      "filename": "actions/classroom.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,13 @@
+{
+  "/(auth)/signin/page": "app/(auth)/signin/page.js",
+  "/(main)/dashboard/page": "app/(main)/dashboard/page.js",
+  "/(main)/page": "app/(main)/page.js",
+  "/(main)/problems/dsa/page": "app/(main)/problems/dsa/page.js",
+  "/(main)/problems/page": "app/(main)/problems/page.js",
+  "/(workspace)/problems/[slug]/page": "app/(workspace)/problems/[slug]/page.js",
+  "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js",
+  "/api/sse/submission/[id]/route": "app/api/sse/submission/[id]/route.js",
+  "/api/submissions/route": "app/api/submissions/route.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/submissions/[id]/page": "app/submissions/[id]/page.js"
+}

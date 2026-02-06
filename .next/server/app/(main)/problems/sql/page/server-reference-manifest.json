@@ -1,0 +1,530 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "4014304237a5ed6061fce76d4dc3305ebfb0fd8a23": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "deleteProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "deleteProblem",
+      "filename": "actions/problems.ts"
+    },
+    "40e1211e72f1dc7920c0a8ee0b74370faaecda9170": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "createProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createProblem",
+      "filename": "actions/problems.ts"
+    },
+    "6018cfd1a9446b467132bb3005cd5fbc9c7dc25352": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "updateProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateProblem",
+      "filename": "actions/problems.ts"
+    },
+    "60b46bf5e1d43c63d9c7c46a5bfd4c643bdc8d6822": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getRandomProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "getRandomProblem",
+      "filename": "actions/problems.ts"
+    },
+    "c03ca813178452bbbae3c2f73e142d974ebca1bd3c": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_4",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_4",
+      "filename": "actions/problems.ts"
+    },
+    "c09ae840f666ff7cf1044b8dacf9ba74f35becae73": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_3",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_3",
+      "filename": "actions/problems.ts"
+    },
+    "f06ec890302fb7a19ff15ecfb41c0c32b185c64131": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_6",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_6",
+      "filename": "actions/problems.ts"
+    },
+    "f0a770803c047b595b099d239cdb62f4718b946f12": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_5",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_5",
+      "filename": "actions/problems.ts"
+    },
+    "f0b018e5f5a26d01121898a6e259aaccaf8f15cdc7": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/problems.ts"
+    },
+    "fcc5948267071860c259505ca828ac15ed8fea1df3": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/problems.ts"
+    },
+    "fff597832a5488ff4847c1f911f0e8872dd30ad1e7": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/problems.ts"
+    },
+    "4002126267c5e0c1a5eb6b4769d671952c3eb4b33f": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "deleteCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "deleteCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "4053663bceb8a80c0085656d61a1b89bee3cb8d166": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "getCategoryById",
+      "filename": "actions/category.action.ts"
+    },
+    "40df636e269e6ad8e68e86a17b941428478fb1279a": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "createCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "600fce90ff1d93c6a9f08094f28d2d9fce60ec2e62": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "createProblemAndAddToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createProblemAndAddToCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "6079c58c3044096e2e3c0e124762f766628d945274": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "updateCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "60d2264b1f398652eb46eab2bb3759572857722502": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "removeProblemFromCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "removeProblemFromCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "706fc56ae5305db762dbcd7da21f654785f49478af": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "addProblemToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "addProblemToCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "c00481d7c636b3c34d88ef3edfb836b3f52d585ca2": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/category.action.ts"
+    },
+    "c0c536a067826bdbc6a9d96fcd0283fe6b4b7d5371": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/category.action.ts"
+    },
+    "f8fbb220165bf0d072e938406b4eb817d99729a202": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/category.action.ts"
+    },
+    "f07500676e7437c89c7059a3d08b36e62d85af89e8": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "searchProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "searchProblems",
+      "filename": "actions/problems.ts"
+    },
+    "ff161ca534fa0477106bff83d2b07e07a7d461630c": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getProblems",
+      "filename": "actions/problems.ts"
+    },
+    "f88ea1c2067191c078fad313714852f8fe7db11df1": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getCategoryProblems",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getCategoryProblems",
+      "filename": "actions/category.action.ts"
+    },
+    "4074b06ca84484bc055023b365e0b346c50832fedb": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "searchTags",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "searchTags",
+      "filename": "actions/tag.action.ts"
+    },
+    "c01ca31fce0d3f3a9d5c4fe8e7dcb9a400d16af8c9": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getCategories",
+      "filename": "actions/category.action.ts"
+    },
+    "6053406d501a7d100a71d59fc57a4cf00b4de33871": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "allocateCourse",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "allocateCourse",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "60c2e1a72d096d3c7e7e0c1e61858d61d675213bad": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "updateYearAllocations",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateYearAllocations",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "60d31e458fff4a256f0b5e0352ddb7776d5ecf338d": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "removeCourseAllocation",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "removeCourseAllocation",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "8086c1a77f679988322147222ee681d1ea6c8bf63b": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "80acd0e5cdc01b35c11a77653c46d7535a3eaba534": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "c0dd08b727db429b3d86d07cae53567fbf3e0e70e9": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": 817330,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/courseAllocation.action.ts"
+    }
+  },
+  "edge": {}
+}

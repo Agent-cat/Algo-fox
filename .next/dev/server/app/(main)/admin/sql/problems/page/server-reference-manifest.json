@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/admin/sql/problems/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/sql/problems/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/admin/sql/problems/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/sql/problems/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/admin/sql/problems/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/sql/problems/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "fc9a11b387971f8d894b83695feb876504d6ca84a4": {
+      "workers": {
+        "app/(main)/admin/sql/problems/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/sql/problems/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getAdminProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/page": "action-browser"
+      },
+      "exportedName": "getAdminProblems",
+      "filename": "actions/problems.ts"
+    },
+    "40d9f7e192f4cde9508f832f98d501a5d2bac3b26b": {
+      "workers": {
+        "app/(main)/admin/sql/problems/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/sql/problems/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/page": "action-browser"
+      },
+      "exportedName": "deleteProblem",
+      "filename": "actions/problems.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,338 @@
+[00:00:03.691] Server  LOG      ✓ Ready in 3.4s
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser ERROR   Failed to check session conflict {}
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.018] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:05.019] Browser LOG     <img>
+[00:00:06.118] Browser LOG     <img>
+[00:00:06.731] Server  LOG      ○ Compiling / ...
+[00:00:08.098] Browser LOG     <img>
+[00:00:09.142] Browser LOG     <img>
+[00:00:10.013] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:10.073] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:10.663] Server  LOG     [Cache: Inbuilt] GET /api/auth/get-session
+[00:00:11.139] Browser LOG     <img>
+[00:00:11.177] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:00:12.120] Browser LOG     <img>
+[00:00:13.106] Browser LOG     <img>
+[00:00:13.119] Browser LOG     <img>
+[00:00:14.041] Browser LOG     <img>
+[00:00:14.197] Browser LOG     <img>
+[00:00:15.094] Browser LOG     <img>
+[00:00:15.118] Browser LOG     <img>
+[00:00:16.094] Browser LOG     <img>
+[00:00:16.119] Browser LOG     <img>
+[00:00:17.119] Browser LOG     <img>
+[00:00:18.119] Browser LOG     <img>
+[00:00:18.215] Browser LOG     <img>
+[00:00:19.119] Browser LOG     <img>
+[00:00:19.217] Browser LOG     <img>
+[00:00:20.120] Browser LOG     <img>
+[00:00:20.264] Browser LOG     <img>
+[00:00:21.119] Browser LOG     <img>
+[00:00:21.284] Browser LOG     <img>
+[00:00:22.119] Browser LOG     <img>
+[00:00:22.284] Browser LOG     <img>
+[00:00:23.119] Browser LOG     <img>
+[00:00:23.383] Server  LOG     [Cache: Redis] POST /api/auth/sign-in/social
+[00:00:24.291] Browser LOG     <img>
+[00:00:25.286] Browser LOG     <img>
+[00:00:27.288] Browser LOG     <img>
+[00:00:28.287] Browser LOG     <img>
+[00:00:30.288] Browser LOG     <img>
+[00:00:31.290] Browser LOG     <img>
+[00:00:32.290] Browser LOG     <img>
+[00:00:34.290] Browser LOG     <img>
+[00:00:35.290] Browser LOG     <img>
+[00:00:35.957] Server  LOG     [Cache: Redis] GET /api/auth/callback/google
+[00:00:37.291] Browser LOG     <img>
+[00:00:38.390] Browser LOG     <img>
+[00:00:38.678] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:38.789] Browser ERROR   uncaughtError: Error: Rendered more hooks than during the previous render.
+[00:00:38.870] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:00:40.295] Browser LOG     <img>
+[00:00:42.316] Browser LOG     <img>
+[00:00:43.550] Browser LOG     <img>
+[00:00:43.959] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:44.154] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:00:45.111] Browser WARN    Image with src "/handles_logos/codeforces.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:45.112] Browser WARN    Image with src "/handles_logos/leetcode.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:45.112] Browser WARN    Image with src "/handles_logos/codechef.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:00:45.317] Browser LOG     <img>
+[00:00:46.318] Browser LOG     <img>
+[00:00:48.320] Browser LOG     <img>
+[00:00:49.318] Browser LOG     <img>
+[00:00:50.132] Server  ERROR   (node:237768) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[00:00:51.319] Browser LOG     <img>
+[00:00:52.124] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:00:52.319] Browser LOG     <img>
+[00:00:54.281] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:00:54.320] Browser LOG     <img>
+[00:00:55.320] Browser LOG     <img>
+[00:00:55.934] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:00:57.336] Browser LOG     <img>
+[00:00:58.321] Browser LOG     <img>
+[00:01:00.322] Browser LOG     <img>
+[00:01:01.322] Browser LOG     <img>
+[00:01:02.340] Browser LOG     <img>
+[00:01:03.374] Browser LOG     <img>
+[00:01:04.374] Browser LOG     <img>
+[00:01:06.375] Browser LOG     <img>
+[00:01:07.393] Browser LOG     <img>
+[00:01:08.427] Browser LOG     <img>
+[00:01:09.427] Browser LOG     <img>
+[00:01:11.444] Browser LOG     <img>
+[00:01:12.445] Browser LOG     <img>
+[00:01:14.445] Browser LOG     <img>
+[00:01:15.456] Browser LOG     <img>
+[00:01:15.925] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:01:16.457] Browser LOG     <img>
+[00:01:18.457] Browser LOG     <img>
+[00:01:19.457] Browser LOG     <img>
+[00:01:20.971] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:01:21.458] Browser LOG     <img>
+[00:01:22.458] Browser LOG     <img>
+[00:01:22.618] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:01:24.459] Browser LOG     <img>
+[00:01:24.479] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:01:25.459] Browser LOG     <img>
+[00:01:26.105] Server  LOG     [Cache: Redis] GET /problems
+[00:01:27.389] Server  LOG     [Cache: Redis] POST /problems
+[00:01:27.460] Browser LOG     <img>
+[00:01:28.460] Browser LOG     <img>
+[00:01:28.914] Server  LOG     [Cache: Redis] GET /problems/dsa
+[00:01:30.462] Browser LOG     <img>
+[00:01:31.462] Browser LOG     <img>
+[00:01:32.815] Server  LOG     [Cache: Redis] POST /problems/dsa
+[00:01:33.464] Browser LOG     <img>
+[00:01:33.998] Server  LOG     [Cache: Redis] GET /problems/reverse_an_array
+[00:01:34.465] Browser LOG     <img>
+[00:01:36.534] Browser LOG     <img>
+[00:01:37.475] Browser LOG     <img>
+[00:01:38.003] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:38.514] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:38.634] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:39.466] Browser LOG     <img>
+[00:01:40.466] Browser LOG     <img>
+[00:01:42.467] Browser LOG     <img>
+[00:01:42.732] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:43.467] Browser LOG     <img>
+[00:01:45.504] Browser LOG     <img>
+[00:01:46.491] Browser LOG     <img>
+[00:01:48.469] Browser LOG     <img>
+[00:01:49.470] Browser LOG     <img>
+[00:01:51.470] Browser LOG     <img>
+[00:01:52.470] Browser LOG     <img>
+[00:01:53.217] Server  LOG     [Cache: Redis] GET /problems/reverse_an_array
+[00:01:53.638] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:53.736] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:53.810] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:53.874] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:01:54.471] Browser LOG     <img>
+[00:01:55.471] Browser LOG     <img>
+[00:01:57.472] Browser LOG     <img>
+[00:01:58.472] Browser LOG     <img>
+[00:02:00.473] Browser LOG     <img>
+[00:02:01.473] Browser LOG     <img>
+[00:02:03.473] Browser LOG     <img>
+[00:02:03.739] Server  LOG     [Cache: Redis] GET /problems/reverse_an_array
+[00:02:04.154] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:04.243] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:04.319] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:04.378] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:04.473] Browser LOG     <img>
+[00:02:06.507] Browser LOG     <img>
+[00:02:07.508] Browser LOG     <img>
+[00:02:09.228] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:02:09.509] Browser LOG     <img>
+[00:02:10.508] Browser LOG     <img>
+[00:02:12.509] Browser LOG     <img>
+[00:02:13.509] Browser LOG     <img>
+[00:02:14.967] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:02:15.510] Browser LOG     <img>
+[00:02:16.339] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:16.512] Browser LOG     <img>
+[00:02:16.517] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:16.575] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:16.631] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:18.511] Browser LOG     <img>
+[00:02:19.511] Browser LOG     <img>
+[00:02:21.512] Browser LOG     <img>
+[00:02:22.512] Browser LOG     <img>
+[00:02:24.513] Browser LOG     <img>
+[00:02:25.514] Browser LOG     <img>
+[00:02:26.515] Browser LOG     <img>
+[00:02:28.565] Browser LOG     <img>
+[00:02:29.582] Browser LOG     <img>
+[00:02:30.583] Browser LOG     <img>
+[00:02:31.410] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:02:31.596] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:32.586] Browser LOG     <img>
+[00:02:33.584] Browser LOG     <img>
+[00:02:34.162] Server  LOG     [Cache: Redis] GET /problems/reverse_an_array
+[00:02:34.504] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:34.595] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:34.672] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:34.727] Server  LOG     [Cache: Redis] POST /problems/reverse_an_array
+[00:02:35.584] Browser LOG     <img>
+[00:02:36.584] Browser LOG     <img>
+[00:02:37.862] Server  LOG     [Cache: Redis] GET /problems/dsa
+[00:02:38.022] Server  LOG     [Cache: Redis] POST /problems/dsa
+[00:02:38.585] Browser LOG     <img>
+[00:02:39.410] Server  LOG     [Cache: Redis] GET /problems/maximum-value-in-an-array
+[00:02:39.595] Browser LOG     <img>
+[00:02:39.865] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:39.941] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:40.031] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:41.615] Browser LOG     <img>
+[00:02:42.616] Browser LOG     <img>
+[00:02:42.831] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:44.081] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:44.618] Browser LOG     <img>
+[00:02:45.617] Browser LOG     <img>
+[00:02:47.618] Browser LOG     <img>
+[00:02:48.619] Browser LOG     <img>
+[00:02:50.627] Browser LOG     <img>
+[00:02:51.627] Browser LOG     <img>
+[00:02:51.830] Server  LOG     [Cache: Redis] GET /problems/maximum-value-in-an-array
+[00:02:52.260] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:52.357] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:52.434] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:52.488] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:02:53.627] Browser LOG     <img>
+[00:02:54.628] Browser LOG     <img>
+[00:02:56.628] Browser LOG     <img>
+[00:02:57.628] Browser LOG     <img>
+[00:02:59.630] Browser LOG     <img>
+[00:03:00.630] Browser LOG     <img>
+[00:03:02.630] Browser LOG     <img>
+[00:03:03.630] Browser LOG     <img>
+[00:03:05.631] Browser LOG     <img>
+[00:03:06.631] Browser LOG     <img>
+[00:03:08.632] Browser LOG     <img>
+[00:03:09.632] Browser LOG     <img>
+[00:03:10.931] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:11.675] Browser LOG     <img>
+[00:03:12.675] Browser LOG     <img>
+[00:03:14.181] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:14.186] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:03:14.524] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:14.692] Browser LOG     <img>
+[00:03:15.692] Browser LOG     <img>
+[00:03:17.693] Browser LOG     <img>
+[00:03:18.693] Browser LOG     <img>
+[00:03:20.694] Browser LOG     <img>
+[00:03:21.694] Browser LOG     <img>
+[00:03:23.695] Browser LOG     <img>
+[00:03:24.695] Browser LOG     <img>
+[00:03:26.696] Browser LOG     <img>
+[00:03:27.696] Browser LOG     <img>
+[00:03:29.657] Server  LOG     [Cache: Redis] GET /problems/maximum-value-in-an-array
+[00:03:29.786] Browser LOG     <img>
+[00:03:30.102] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:30.197] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:30.260] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:30.317] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:30.696] Browser LOG     <img>
+[00:03:32.697] Browser LOG     <img>
+[00:03:33.697] Browser LOG     <img>
+[00:03:35.698] Browser LOG     <img>
+[00:03:36.698] Browser LOG     <img>
+[00:03:38.699] Browser LOG     <img>
+[00:03:39.699] Browser LOG     <img>
+[00:03:41.735] Browser LOG     <img>
+[00:03:42.735] Browser LOG     <img>
+[00:03:44.085] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:03:44.736] Browser LOG     <img>
+[00:03:45.736] Browser LOG     <img>
+[00:03:47.737] Browser LOG     <img>
+[00:03:48.737] Browser LOG     <img>
+[00:03:50.738] Browser LOG     <img>
+[00:03:51.738] Browser LOG     <img>
+[00:03:53.739] Browser LOG     <img>
+[00:03:54.739] Browser LOG     <img>
+[00:03:56.740] Browser LOG     <img>
+[00:03:57.740] Browser LOG     <img>
+[00:03:59.741] Browser LOG     <img>
+[00:04:00.741] Browser LOG     <img>
+[00:04:02.742] Browser LOG     <img>
+[00:04:03.742] Browser LOG     <img>
+[00:04:05.743] Browser LOG     <img>
+[00:04:06.743] Browser LOG     <img>
+[00:04:08.744] Browser LOG     <img>
+[00:04:09.744] Browser LOG     <img>
+[00:04:11.783] Browser LOG     <img>
+[00:04:12.783] Browser LOG     <img>
+[00:04:14.091] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:04:14.783] Browser LOG     <img>
+[00:04:15.783] Browser LOG     <img>
+[00:04:17.784] Browser LOG     <img>
+[00:04:18.784] Browser LOG     <img>
+[00:04:20.785] Browser LOG     <img>
+[00:04:21.785] Browser LOG     <img>
+[00:04:23.786] Browser LOG     <img>
+[00:04:24.786] Browser LOG     <img>
+[00:04:26.786] Browser LOG     <img>
+[00:04:27.788] Browser LOG     <img>
+[00:04:29.787] Browser LOG     <img>
+[00:04:29.946] Server  LOG     [Cache: Redis] GET /problems/maximum-value-in-an-array
+[00:04:30.341] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:04:30.431] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:04:30.535] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:04:30.787] Browser LOG     <img>
+[00:04:31.819] Server  LOG     [Cache: Redis] POST /api/submissions
+[00:04:32.591] Server  LOG     [Cache: Redis] GET /api/sse/submission/cmlb46gh60001rpvyvr22600q
+[00:04:32.788] Browser LOG     <img>
+[00:04:33.788] Browser LOG     <img>
+[00:04:35.789] Browser LOG     <img>
+[00:04:36.789] Browser LOG     <img>
+[00:04:37.923] Server  LOG     [Cache: Redis] POST /problems/maximum-value-in-an-array
+[00:04:38.812] Browser LOG     <img>
+[00:04:38.842] Server  LOG     [Cache: Redis] GET /api/auth/get-session
+[00:04:39.009] Browser LOG     <img>

@@ -1,0 +1,65 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/admin/dsa/categories/create/page": {
+          "moduleId": 443791,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/dsa/categories/create/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/admin/dsa/categories/create/page": {
+          "moduleId": 443791,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/dsa/categories/create/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/admin/dsa/categories/create/page": {
+          "moduleId": 443791,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/dsa/categories/create/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "40df636e269e6ad8e68e86a17b941428478fb1279a": {
+      "workers": {
+        "app/(main)/admin/dsa/categories/create/page": {
+          "moduleId": 443791,
+          "async": false,
+          "exportedName": "createCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/dsa/categories/create/page": "action-browser"
+      },
+      "exportedName": "createCategory",
+      "filename": "actions/category.action.ts"
+    }
+  },
+  "edge": {}
+}

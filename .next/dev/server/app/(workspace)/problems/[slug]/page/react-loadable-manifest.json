@@ -1,0 +1,17 @@
+{
+  "[project]/components/workspace/Workspace.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/workspace/Workspace.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_09fa14f6._.js",
+      "static/chunks/_7553d969._.js",
+      "static/chunks/node_modules_33bd7a24._.js",
+      "static/chunks/components_workspace_Workspace_tsx_4fa4b45a._.js",
+      "static/chunks/actions_f583bb67._.js",
+      "static/chunks/actions_submission_action_ts_f36d10c7._.js",
+      "static/chunks/node_modules_ecbc1628._.js",
+      "static/chunks/node_modules_@monaco-editor_react_dist_index_mjs_84d7d4d7._.js",
+      "static/chunks/_ef7f5009._.js",
+      "static/chunks/components_workspace_ProblemSidebar_tsx_2db359e3._.js"
+    ]
+  }
+}

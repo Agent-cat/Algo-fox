@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Contest, Platform } from "@/actions/external-contests.action";
+import type { Contest, Platform } from "@/lib/contest-fetcher";
 import {
     format,
     startOfMonth,

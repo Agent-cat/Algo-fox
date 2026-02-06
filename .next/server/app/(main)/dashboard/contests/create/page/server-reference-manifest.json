@@ -1,0 +1,125 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "80b4b4f0d758f3a14c24112999ccff9885adf849e1": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "app/(main)/dashboard/contests/create/page.tsx"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "app/(main)/dashboard/contests/create/page.tsx"
+    },
+    "40143a75ea5765fb88ac9bf3c96a0eabcf8c510a58": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "getInstitutionalClassrooms",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "getInstitutionalClassrooms",
+      "filename": "actions/contest.ts"
+    },
+    "401a1a28bd2e49379be125257c4115d7ecc57f70f3": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "createContestWithProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "createContestWithProblems",
+      "filename": "actions/contest.ts"
+    },
+    "4074b06ca84484bc055023b365e0b346c50832fedb": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "searchTags",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "searchTags",
+      "filename": "actions/tag.action.ts"
+    },
+    "404f3242dee18020ac1f8e3044d26384a5f88f6c5c": {
+      "workers": {
+        "app/(main)/dashboard/contests/create/page": {
+          "moduleId": 489035,
+          "async": false,
+          "exportedName": "createTag",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/create/page": "action-browser"
+      },
+      "exportedName": "createTag",
+      "filename": "actions/tag.action.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,140 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "80c021ad7166c82138a01abbe5518c7829e01e6c67": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/dashboard.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/dashboard.action.ts"
+    },
+    "c059702a0f335f168476ac392628be76b67819c5d0": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/dashboard.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/dashboard.action.ts"
+    },
+    "60497d1d82268f0126da46c6573d5de6f13ad2101a": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkCodeChefUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "checkCodeChefUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "608e4143fe9ddd7a52705074750d983c1ea8affb8f": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkCodeforcesUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "checkCodeforcesUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "60d44136a03ab3229f6d1299e2144e1828f063d7fd": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkLeetCodeUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "checkLeetCodeUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "002aa3dda4f25040a3c6010d4b8c2ac1d87451eb09": {
+      "workers": {
+        "app/(main)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/dashboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "syncUserProfile",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/page": "action-browser"
+      },
+      "exportedName": "syncUserProfile",
+      "filename": "actions/user.action.ts"
+    }
+  },
+  "edge": {}
+}

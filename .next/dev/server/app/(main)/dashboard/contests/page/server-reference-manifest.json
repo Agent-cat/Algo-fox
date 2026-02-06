@@ -1,0 +1,395 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "80de9d7652130ff4c581f6a1c292fc9c3cc9e3f64e": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "app/(main)/dashboard/contests/page.tsx"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "app/(main)/dashboard/contests/page.tsx"
+    },
+    "00eefbb253a85123f8c3c600ca19869a5101d8c0d1": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getVisibleContests",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getVisibleContests",
+      "filename": "actions/contest.ts"
+    },
+    "40224e3fe672716e149c2c2793410ece7e7ff96034": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getInstitutionalClassrooms",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getInstitutionalClassrooms",
+      "filename": "actions/contest.ts"
+    },
+    "4041a53321b8a41efa0515551dc3e636f81f59f7d7": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getParticipationStatus",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getParticipationStatus",
+      "filename": "actions/contest.ts"
+    },
+    "407bfdebdef8125e9da675e434ddabed8c0d83ff51": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "acceptContestRules",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "acceptContestRules",
+      "filename": "actions/contest.ts"
+    },
+    "407d6b79375f2016b6861524ddee55c2e99ceb5e5b": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createContestWithProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "createContestWithProblems",
+      "filename": "actions/contest.ts"
+    },
+    "407ff7fc9ba70fda023756de206f185bb7683b86bd": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "createContest",
+      "filename": "actions/contest.ts"
+    },
+    "409d0a0373926b8940e890b689a1cac3144677e167": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestDetail",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getContestDetail",
+      "filename": "actions/contest.ts"
+    },
+    "409f563bec9a985442cff8b7b83d7546b8276a02e1": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getSelectableProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getSelectableProblems",
+      "filename": "actions/contest.ts"
+    },
+    "40a47fbc0ae4e927cabd5fae0ee2325db6de07014c": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "finalizeContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "finalizeContest",
+      "filename": "actions/contest.ts"
+    },
+    "40cb9402bcb3cefb68c56b22e13de3a9f637bd31ab": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "finishContestAction",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "finishContestAction",
+      "filename": "actions/contest.ts"
+    },
+    "40edfea29c94aa36a1a52aa93c92827398e407c1c2": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestRanking",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getContestRanking",
+      "filename": "actions/contest.ts"
+    },
+    "40f7fe5a39b9ff511e9db90ca5a169ae86d7660b65": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSubmissionEligibility",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "checkSubmissionEligibility",
+      "filename": "actions/contest.ts"
+    },
+    "40fcf50c7b1ee991289ef809f621af905c86ec6963": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestParticipants",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getContestParticipants",
+      "filename": "actions/contest.ts"
+    },
+    "602cf4435ac48b07adb33a52140ca1f4538d93b7d6": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "validateContestSession",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "validateContestSession",
+      "filename": "actions/contest.ts"
+    },
+    "604a0bcc1451e81e233f48280ac746b33b2aa18f12": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "verifyContestPassword",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "verifyContestPassword",
+      "filename": "actions/contest.ts"
+    },
+    "607d884db8652712b1888554802e08210ff48e297a": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getParticipantViolations",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "getParticipantViolations",
+      "filename": "actions/contest.ts"
+    },
+    "60995be1625901022cd2485061fb5f529d27001da0": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "unblockParticipant",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "unblockParticipant",
+      "filename": "actions/contest.ts"
+    },
+    "60ab32f1cc26748b4afce6a433ca3e6dc394836698": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "startContestSession",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "startContestSession",
+      "filename": "actions/contest.ts"
+    },
+    "78bac990ae89cd8ae87b5bbd328ef9aee3e1937b8f": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logContestViolation",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "logContestViolation",
+      "filename": "actions/contest.ts"
+    },
+    "803cf50d552ccc152ed46f078e0fb03c1767a05eb9": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/contest.ts"
+    },
+    "c00d8131bc66d78bc8131eec8f6d3c30fe0c4f51bb": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/contest.ts"
+    },
+    "c08c3a89f87d0fda2e2465be36519f53224c7bbfb3": {
+      "workers": {
+        "app/(main)/dashboard/contests/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/contests/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/app/(main)/dashboard/contests/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/contest.ts"
+    }
+  },
+  "edge": {}
+}

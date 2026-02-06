@@ -1,11 +1,9 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { fetchExternalContests, Contest } from "@/lib/contest-fetcher";
+import { fetchExternalContests, type Contest } from "@/lib/contest-fetcher";
 
-// Re-export type for compatibility
-export type { Contest };
-export type Platform = "LeetCode" | "CodeForces" | "CodeChef" | "AtCoder";
+// Types are imported from lib/contest-fetcher directly in components
 
 export async function getUpcomingContests(ignoreCache = false) {
     // Note: ignoreCache parameter is kept for interface compatibility but we rely on revalidateTag

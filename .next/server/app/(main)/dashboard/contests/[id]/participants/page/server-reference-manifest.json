@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/contests/[id]/participants/page": {
+          "moduleId": 62403,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/[id]/participants/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/contests/[id]/participants/page": {
+          "moduleId": 62403,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/[id]/participants/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/contests/[id]/participants/page": {
+          "moduleId": 62403,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/[id]/participants/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "4092871713fd49951fb96de6880895702406eeacf3": {
+      "workers": {
+        "app/(main)/dashboard/contests/[id]/participants/page": {
+          "moduleId": 62403,
+          "async": false,
+          "exportedName": "getContestParticipants",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/[id]/participants/page": "action-browser"
+      },
+      "exportedName": "getContestParticipants",
+      "filename": "actions/contest.ts"
+    },
+    "6056877ff0b936524f0713c621512340498d9b6a4e": {
+      "workers": {
+        "app/(main)/dashboard/contests/[id]/participants/page": {
+          "moduleId": 62403,
+          "async": false,
+          "exportedName": "unblockParticipant",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/contests/[id]/participants/page": "action-browser"
+      },
+      "exportedName": "unblockParticipant",
+      "filename": "actions/contest.ts"
+    }
+  },
+  "edge": {}
+}

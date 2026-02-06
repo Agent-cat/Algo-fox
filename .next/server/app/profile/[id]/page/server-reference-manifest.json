@@ -1,0 +1,125 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ed94cd005d41fd173dde2ed7b417a5e9943fc022": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/dashboard.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/dashboard.action.ts"
+    },
+    "c00f4e719da58b0122f1cc40a1864a7c5979676c4c": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/dashboard.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/dashboard.action.ts"
+    },
+    "004e22ef7336191bc1fe8b683adb39c115fb22318c": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "syncUserProfile",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "syncUserProfile",
+      "filename": "actions/user.action.ts"
+    },
+    "6063cd483379a41c765892304ba2c4b6076f9fe25a": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "checkCodeChefUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "checkCodeChefUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "60f28e01956bf5c9d597a2fde65801b141c59b3d64": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "checkCodeforcesUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "checkCodeforcesUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "602e4c595e83925f2fb97d138792c6c901bc6651d1": {
+      "workers": {
+        "app/profile/[id]/page": {
+          "moduleId": 663294,
+          "async": false,
+          "exportedName": "checkLeetCodeUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/profile/[id]/page": "action-browser"
+      },
+      "exportedName": "checkLeetCodeUser",
+      "filename": "actions/platform.action.ts"
+    }
+  },
+  "edge": {}
+}

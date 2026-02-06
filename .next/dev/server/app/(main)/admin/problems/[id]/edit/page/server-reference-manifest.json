@@ -1,0 +1,110 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "c02857b18b12135fac56d0d297ec879c1009e57614": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblemById",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "getProblemById",
+      "filename": "actions/problems.ts"
+    },
+    "6094ec6e5c7d68eabf2ee86ceb1e87755d9fd33b01": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "updateProblem",
+      "filename": "actions/problems.ts"
+    },
+    "404ed62a51a9b4b84de964bc5449fd85585859195d": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "searchTags",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "searchTags",
+      "filename": "actions/tag.action.ts"
+    },
+    "40bdafdf6051497ce1cfe3463a0a210feceb2a1287": {
+      "workers": {
+        "app/(main)/admin/problems/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/admin/problems/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createTag",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/problems/[id]/edit/page": "action-browser"
+      },
+      "exportedName": "createTag",
+      "filename": "actions/tag.action.ts"
+    }
+  },
+  "edge": {}
+}

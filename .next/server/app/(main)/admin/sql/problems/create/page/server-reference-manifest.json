@@ -1,0 +1,95 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "40e1211e72f1dc7920c0a8ee0b74370faaecda9170": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "createProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "createProblem",
+      "filename": "actions/problems.ts"
+    },
+    "4074b06ca84484bc055023b365e0b346c50832fedb": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "searchTags",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "searchTags",
+      "filename": "actions/tag.action.ts"
+    },
+    "404f3242dee18020ac1f8e3044d26384a5f88f6c5c": {
+      "workers": {
+        "app/(main)/admin/sql/problems/create/page": {
+          "moduleId": 976582,
+          "async": false,
+          "exportedName": "createTag",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/admin/sql/problems/create/page": "action-browser"
+      },
+      "exportedName": "createTag",
+      "filename": "actions/tag.action.ts"
+    }
+  },
+  "edge": {}
+}

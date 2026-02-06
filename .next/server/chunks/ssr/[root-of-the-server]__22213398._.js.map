@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../app/%28main%29/dashboard/settings/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\";\n\nexport default function SettingsPage() {\n    redirect(\"/dashboard/settings/basic-info\");\n}\n"],"names":[],"mappings":"geAAA,EAAA,CAAA,CAAA,QAAA,IAAA,EAAA,EAAA,CAAA,CAAA,QAEe,SAAS,IACpB,CAAA,EAAA,EAAA,QAAA,AAAQ,EAAC,iCACb"}

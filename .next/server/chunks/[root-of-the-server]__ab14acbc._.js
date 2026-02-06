@@ -1,0 +1,3 @@
+module.exports=[463021,(e,r,o)=>{r.exports=e.x("@prisma/client-2c3a283f134fdcb6",()=>require("@prisma/client-2c3a283f134fdcb6"))},258809,e=>{"use strict";var r=e.i(463021);let o=globalThis.prisma_fox??new r.PrismaClient({log:["error"]}).$extends({query:{$allModels:{async $allOperations({operation:e,model:r,args:o,query:a}){let s=performance.now(),l=await a(o),i=performance.now();return i-s>1e3&&console.warn(`Slow query: ${r}.${e} took ${(i-s).toFixed(2)}ms`),l}}}});e.s(["prisma",()=>o])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__ab14acbc._.js.map

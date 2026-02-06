@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../instrumentation.ts"],"sourcesContent":["export async function register() {\n  if (process.env.NEXT_RUNTIME === 'nodejs') {\n    // Import the worker to ensure it starts processing the queue\n    await import(\"@/core/queues/submission.queue\");\n  }\n}\n"],"names":[],"mappings":"wCAAO,eAAe,IAGlB,MAAA,EAAA,CAAA,CAAA,OAEJ"}

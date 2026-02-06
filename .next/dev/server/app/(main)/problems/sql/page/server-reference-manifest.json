@@ -1,0 +1,530 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "40d9f7e192f4cde9508f832f98d501a5d2bac3b26b": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "deleteProblem",
+      "filename": "actions/problems.ts"
+    },
+    "40dd2241aa639228d5754da39ff0b8d10a59d75bff": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createProblem",
+      "filename": "actions/problems.ts"
+    },
+    "6094ec6e5c7d68eabf2ee86ceb1e87755d9fd33b01": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateProblem",
+      "filename": "actions/problems.ts"
+    },
+    "60ee1ae949348cbb95c6ff1624db0e0167a061c945": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getRandomProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "getRandomProblem",
+      "filename": "actions/problems.ts"
+    },
+    "c01897e0e33720eec5643ef69ddae234356fd82300": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_3",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_3",
+      "filename": "actions/problems.ts"
+    },
+    "c05c8fadea7603e1a1f64c8b4dcbe007d8d4fb2c3a": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_4",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_4",
+      "filename": "actions/problems.ts"
+    },
+    "f0b5bb641795686f7cca1e438a6e0566d735ffcd4e": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/problems.ts"
+    },
+    "f0e393a839ccab97fcb8522876156c6ba741ba3074": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_6",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_6",
+      "filename": "actions/problems.ts"
+    },
+    "f0eb7ece396ebe935b968e8abfe06e00d6920108af": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_5",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_5",
+      "filename": "actions/problems.ts"
+    },
+    "fc03c238e4639461fed11dd40d3ecd9287bcb20773": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/problems.ts"
+    },
+    "ff85edbb114d3f01c639e45db77828c9d874750fd9": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/problems.ts"
+    },
+    "4036f51ab12dc29ebcd7f1ebc4f2f7af023bf3de7d": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "deleteCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "403eb3bc9aea3dcf45bb95c52ceaca0a531010fb54": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "getCategoryById",
+      "filename": "actions/category.action.ts"
+    },
+    "40f55327fde4a128f29652ecff550f2fd348fcafd7": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "602797f3c244652526241c2aa33fe584ee738b1840": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createProblemAndAddToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "createProblemAndAddToCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "607f577dab8934db5f4e4e7801195ec96d7d899a06": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "60aa586633f1cbc2041b0193a93bb600920b2310e7": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "removeProblemFromCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "removeProblemFromCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "70fd3287efed50e9b085c32cb97bc74ed6789ab668": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "addProblemToCategory",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "addProblemToCategory",
+      "filename": "actions/category.action.ts"
+    },
+    "c0b43c719f7e1e3ac377eebe4b53d06321f3c9e766": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/category.action.ts"
+    },
+    "c0c0da63b143a88033965c404ada6f17691ee17fc4": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/category.action.ts"
+    },
+    "f8b1635aa638ffabff5018e245009271ec8a56ec23": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/category.action.ts"
+    },
+    "606f99b2f318fad1bf69fea59e0e0ac2fdb9e6c5cb": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateYearAllocations",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "updateYearAllocations",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "609af167de2d7e60cf0906f816403a7f2d0252712f": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "removeCourseAllocation",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "removeCourseAllocation",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "60fc2ddb3c58bcc395f6e72a1a7e7faef7bd61c798": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "allocateCourse",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "allocateCourse",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "8066bd8d6c3d6ac9c4369065189ff3b6d9941345a1": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "80bbfb560423e1edbeba77597dc8e002fce99178c2": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "c02ca72cf292e08c3e9819bd54b54cac6321b0e2cc": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/courseAllocation.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/courseAllocation.action.ts"
+    },
+    "c0c61a0961c7e53f3af018ebf0d1ccd5c094778117": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getCategories",
+      "filename": "actions/category.action.ts"
+    },
+    "f01f5ef9ed6223b56ddc1153abce0acfbc57475009": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "searchProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "searchProblems",
+      "filename": "actions/problems.ts"
+    },
+    "ffb6064b0a0a619152cef9d1130640ca662759362c": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getProblems",
+      "filename": "actions/problems.ts"
+    },
+    "404ed62a51a9b4b84de964bc5449fd85585859195d": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "searchTags",
+          "filename": "actions/tag.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "searchTags",
+      "filename": "actions/tag.action.ts"
+    },
+    "f83292b4960e88e737718c29cfe55ecaedb6ed3165": {
+      "workers": {
+        "app/(main)/problems/sql/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/problems/sql/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/courseAllocation.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/tag.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getCategoryProblems",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/problems/sql/page": "action-browser"
+      },
+      "exportedName": "getCategoryProblems",
+      "filename": "actions/category.action.ts"
+    }
+  },
+  "edge": {}
+}

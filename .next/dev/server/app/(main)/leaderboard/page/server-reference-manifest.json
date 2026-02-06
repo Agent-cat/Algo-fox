@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/leaderboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/leaderboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/leaderboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/admin/institution.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/leaderboard/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/leaderboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/leaderboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/leaderboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/admin/institution.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/leaderboard/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/leaderboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/leaderboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/leaderboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/admin/institution.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/leaderboard/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "609857471c39845aaee5d7cda934340ca6c5a0e00f": {
+      "workers": {
+        "app/(main)/leaderboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/leaderboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/leaderboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/admin/institution.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getLeaderboardData",
+          "filename": "actions/leaderboard.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/leaderboard/page": "action-browser"
+      },
+      "exportedName": "getLeaderboardData",
+      "filename": "actions/leaderboard.action.ts"
+    },
+    "004f5fab18555884cfa037c18643cebfd94ff95e28": {
+      "workers": {
+        "app/(main)/leaderboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/leaderboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/leaderboard.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/admin/institution.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getInstitutions",
+          "filename": "actions/admin/institution.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/leaderboard/page": "action-browser"
+      },
+      "exportedName": "getInstitutions",
+      "filename": "actions/admin/institution.ts"
+    }
+  },
+  "edge": {}
+}

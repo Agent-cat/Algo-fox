@@ -1,0 +1,155 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "4095cf52719904b827b4deee82f67d5a76149d1129": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "refreshClassroomAssignments",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "refreshClassroomAssignments",
+      "filename": "actions/assignment.ts"
+    },
+    "4099ddd2d442f39886d1924e57ac5366b48e0feab2": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getAssignmentDetails",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getAssignmentDetails",
+      "filename": "actions/assignment.ts"
+    },
+    "409f14d17b68b32800d1b89d54d9c1362f16655a51": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "deleteAssignment",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "deleteAssignment",
+      "filename": "actions/assignment.ts"
+    },
+    "6003528168c7674a84bb868c01fba11e7a85ec3436": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "createAssignment",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "createAssignment",
+      "filename": "actions/assignment.ts"
+    },
+    "602cca1a113fc5f6dd104c638d2e02baf898bef1e6": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getAssignmentProgress",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getAssignmentProgress",
+      "filename": "actions/assignment.ts"
+    },
+    "6056904424410eeba8322d9865e2d963de944ba2a8": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getStudentAssignments",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getStudentAssignments",
+      "filename": "actions/assignment.ts"
+    },
+    "700c4e6486b9377d27cb659a4ae483dea658d585bb": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getClassroomAssignments",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getClassroomAssignments",
+      "filename": "actions/assignment.ts"
+    },
+    "78f6517bba230a956bb82c20c45f1fb75536890525": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getTeacherAssignmentAnalytics",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getTeacherAssignmentAnalytics",
+      "filename": "actions/assignment.ts"
+    }
+  },
+  "edge": {}
+}

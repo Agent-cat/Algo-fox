@@ -1,0 +1,755 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "c022638cd1b7725d97d4bfa30584aaa4676ba6a139": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "app/(workspace)/problems/[slug]/page.tsx"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "app/(workspace)/problems/[slug]/page.tsx"
+    },
+    "40d9f7e192f4cde9508f832f98d501a5d2bac3b26b": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "deleteProblem",
+      "filename": "actions/problems.ts"
+    },
+    "40dd2241aa639228d5754da39ff0b8d10a59d75bff": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "createProblem",
+      "filename": "actions/problems.ts"
+    },
+    "6094ec6e5c7d68eabf2ee86ceb1e87755d9fd33b01": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "updateProblem",
+      "filename": "actions/problems.ts"
+    },
+    "60ee1ae949348cbb95c6ff1624db0e0167a061c945": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getRandomProblem",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getRandomProblem",
+      "filename": "actions/problems.ts"
+    },
+    "c01897e0e33720eec5643ef69ddae234356fd82300": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_3",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_3",
+      "filename": "actions/problems.ts"
+    },
+    "c05c8fadea7603e1a1f64c8b4dcbe007d8d4fb2c3a": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_4",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_4",
+      "filename": "actions/problems.ts"
+    },
+    "f0b5bb641795686f7cca1e438a6e0566d735ffcd4e": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/problems.ts"
+    },
+    "f0e393a839ccab97fcb8522876156c6ba741ba3074": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_6",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_6",
+      "filename": "actions/problems.ts"
+    },
+    "f0eb7ece396ebe935b968e8abfe06e00d6920108af": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_5",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_5",
+      "filename": "actions/problems.ts"
+    },
+    "fc03c238e4639461fed11dd40d3ecd9287bcb20773": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/problems.ts"
+    },
+    "ff85edbb114d3f01c639e45db77828c9d874750fd9": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/problems.ts"
+    },
+    "00eefbb253a85123f8c3c600ca19869a5101d8c0d1": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getVisibleContests",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getVisibleContests",
+      "filename": "actions/contest.ts"
+    },
+    "40224e3fe672716e149c2c2793410ece7e7ff96034": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getInstitutionalClassrooms",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getInstitutionalClassrooms",
+      "filename": "actions/contest.ts"
+    },
+    "4041a53321b8a41efa0515551dc3e636f81f59f7d7": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getParticipationStatus",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getParticipationStatus",
+      "filename": "actions/contest.ts"
+    },
+    "407bfdebdef8125e9da675e434ddabed8c0d83ff51": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "acceptContestRules",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "acceptContestRules",
+      "filename": "actions/contest.ts"
+    },
+    "407d6b79375f2016b6861524ddee55c2e99ceb5e5b": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createContestWithProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "createContestWithProblems",
+      "filename": "actions/contest.ts"
+    },
+    "407ff7fc9ba70fda023756de206f185bb7683b86bd": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "createContest",
+      "filename": "actions/contest.ts"
+    },
+    "409d0a0373926b8940e890b689a1cac3144677e167": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestDetail",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getContestDetail",
+      "filename": "actions/contest.ts"
+    },
+    "409f563bec9a985442cff8b7b83d7546b8276a02e1": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getSelectableProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getSelectableProblems",
+      "filename": "actions/contest.ts"
+    },
+    "40a47fbc0ae4e927cabd5fae0ee2325db6de07014c": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "finalizeContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "finalizeContest",
+      "filename": "actions/contest.ts"
+    },
+    "40cb9402bcb3cefb68c56b22e13de3a9f637bd31ab": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "finishContestAction",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "finishContestAction",
+      "filename": "actions/contest.ts"
+    },
+    "40edfea29c94aa36a1a52aa93c92827398e407c1c2": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestRanking",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getContestRanking",
+      "filename": "actions/contest.ts"
+    },
+    "40f7fe5a39b9ff511e9db90ca5a169ae86d7660b65": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSubmissionEligibility",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "checkSubmissionEligibility",
+      "filename": "actions/contest.ts"
+    },
+    "40fcf50c7b1ee991289ef809f621af905c86ec6963": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getContestParticipants",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getContestParticipants",
+      "filename": "actions/contest.ts"
+    },
+    "602cf4435ac48b07adb33a52140ca1f4538d93b7d6": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "validateContestSession",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "validateContestSession",
+      "filename": "actions/contest.ts"
+    },
+    "604a0bcc1451e81e233f48280ac746b33b2aa18f12": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "verifyContestPassword",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "verifyContestPassword",
+      "filename": "actions/contest.ts"
+    },
+    "607d884db8652712b1888554802e08210ff48e297a": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getParticipantViolations",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "getParticipantViolations",
+      "filename": "actions/contest.ts"
+    },
+    "60995be1625901022cd2485061fb5f529d27001da0": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "unblockParticipant",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "unblockParticipant",
+      "filename": "actions/contest.ts"
+    },
+    "60ab32f1cc26748b4afce6a433ca3e6dc394836698": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "startContestSession",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "startContestSession",
+      "filename": "actions/contest.ts"
+    },
+    "78bac990ae89cd8ae87b5bbd328ef9aee3e1937b8f": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logContestViolation",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "logContestViolation",
+      "filename": "actions/contest.ts"
+    },
+    "803cf50d552ccc152ed46f078e0fb03c1767a05eb9": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/contest.ts"
+    },
+    "c00d8131bc66d78bc8131eec8f6d3c30fe0c4f51bb": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/contest.ts"
+    },
+    "c08c3a89f87d0fda2e2465be36519f53224c7bbfb3": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_2",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/contest.ts"
+    },
+    "40a37009f3d89fa942e11725f8853c3d127638cb39": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "markConceptAsCompleted",
+          "filename": "actions/submission.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "markConceptAsCompleted",
+      "filename": "actions/submission.action.ts"
+    },
+    "6044ed3755352d7fd254632d39462abd6795a1aba3": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblemComments",
+          "filename": "actions/discussion.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getProblemComments",
+      "filename": "actions/discussion.ts"
+    },
+    "7047c436e22e056715bf68b1900859a27784c3ce69": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblemStats",
+          "filename": "actions/analytics.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getProblemStats",
+      "filename": "actions/analytics.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "707d926e4a11493fbc786e4dafc801cd9fea5119a5": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "voteComment",
+          "filename": "actions/discussion.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "voteComment",
+      "filename": "actions/discussion.ts"
+    },
+    "60af00e80ae9125d962d6768a3c5e918095efad8c2": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "pinComment",
+          "filename": "actions/discussion.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "pinComment",
+      "filename": "actions/discussion.ts"
+    },
+    "60b9c01d983b07f0a2a8b264f93f4f77235a94ded3": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteComment",
+          "filename": "actions/discussion.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "deleteComment",
+      "filename": "actions/discussion.ts"
+    },
+    "708aa5eaf1ed268262e98ff2f597d9df9f5c649439": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "postComment",
+          "filename": "actions/discussion.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "postComment",
+      "filename": "actions/discussion.ts"
+    },
+    "40f3732208c79da0b2b65a5118279fb4de68977ef7": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getSubmission",
+          "filename": "actions/submission.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getSubmission",
+      "filename": "actions/submission.action.ts"
+    },
+    "f043464bd06d6501259988d6e64f4460c054895b9b": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblemSubmissionsAction",
+          "filename": "actions/submission.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getProblemSubmissionsAction",
+      "filename": "actions/submission.action.ts"
+    },
+    "ffb6064b0a0a619152cef9d1130640ca662759362c": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getProblems",
+      "filename": "actions/problems.ts"
+    },
+    "f01f5ef9ed6223b56ddc1153abce0acfbc57475009": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "searchProblems",
+          "filename": "actions/problems.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "searchProblems",
+      "filename": "actions/problems.ts"
+    },
+    "c0c61a0961c7e53f3af018ebf0d1ccd5c094778117": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getCategories",
+      "filename": "actions/category.action.ts"
+    },
+    "f83292b4960e88e737718c29cfe55ecaedb6ed3165": {
+      "workers": {
+        "app/(workspace)/problems/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/(workspace)/problems/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(workspace)/problems/[slug]/page.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/problems.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE3 => \"[project]/actions/contest.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE4 => \"[project]/actions/submission.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE5 => \"[project]/actions/discussion.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE6 => \"[project]/actions/analytics.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE7 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE8 => \"[project]/actions/category.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getCategoryProblems",
+          "filename": "actions/category.action.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/problems/[slug]/page": "action-browser"
+      },
+      "exportedName": "getCategoryProblems",
+      "filename": "actions/category.action.ts"
+    }
+  },
+  "edge": {}
+}

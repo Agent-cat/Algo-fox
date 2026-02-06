@@ -1,0 +1,155 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "401adb5bf0163fd65ff314479b20d5a44231d975ab": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "updateUserInfo",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "updateUserInfo",
+      "filename": "actions/user.action.ts"
+    },
+    "6063cd483379a41c765892304ba2c4b6076f9fe25a": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "checkCodeChefUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "checkCodeChefUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "60f28e01956bf5c9d597a2fde65801b141c59b3d64": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "checkCodeforcesUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "checkCodeforcesUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "602e4c595e83925f2fb97d138792c6c901bc6651d1": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "checkLeetCodeUser",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "checkLeetCodeUser",
+      "filename": "actions/platform.action.ts"
+    },
+    "6025b82b45ad39180ed262d4932bb5045a0e8415db": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "verifyCodeChefOwnership",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "verifyCodeChefOwnership",
+      "filename": "actions/platform.action.ts"
+    },
+    "60544a97665a44c2f404559d69526b2c7b9f0295a2": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "verifyCodeforcesOwnership",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "verifyCodeforcesOwnership",
+      "filename": "actions/platform.action.ts"
+    },
+    "601fb0da0dfc97022be5342d2cad339f22823cb918": {
+      "workers": {
+        "app/(main)/dashboard/settings/platform/page": {
+          "moduleId": 388205,
+          "async": false,
+          "exportedName": "verifyLeetCodeOwnership",
+          "filename": "actions/platform.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/platform/page": "action-browser"
+      },
+      "exportedName": "verifyLeetCodeOwnership",
+      "filename": "actions/platform.action.ts"
+    }
+  },
+  "edge": {}
+}

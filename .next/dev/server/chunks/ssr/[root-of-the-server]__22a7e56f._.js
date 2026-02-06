@@ -1,0 +1,1139 @@
+module.exports = [
+"[project]/actions/auth.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/* __next_internal_action_entry_do_not_use__ [{"00424ba432501922f40bb512e30bdbd7d1847d3c3e":"checkSessionConflict","40acca00133b06cb19d5be722d10fe520a25103a8b":"resolveSessionConflict"},"",""] */ __turbopack_context__.s([
+    "checkSessionConflict",
+    ()=>checkSessionConflict,
+    "resolveSessionConflict",
+    ()=>resolveSessionConflict
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/server-reference.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-validate.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+async function checkSessionConflict() {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session) {
+        return {
+            conflict: false
+        };
+    }
+    const activeSessions = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].session.findMany({
+        where: {
+            userId: session.user.id
+        },
+        select: {
+            id: true,
+            expiresAt: true,
+            userAgent: true,
+            ipAddress: true,
+            token: true
+        }
+    });
+    // Filter out expired sessions just in case, though better-auth likely handles cleanup or assumes valid if in DB
+    const validSessions = activeSessions.filter((s)=>s.expiresAt > new Date());
+    if (validSessions.length > 1) {
+        return {
+            conflict: true,
+            currentSessionToken: session.session.token,
+            sessions: validSessions.map((s)=>({
+                    ...s,
+                    isCurrent: s.token === session.session.token
+                }))
+        };
+    }
+    return {
+        conflict: false
+    };
+}
+async function resolveSessionConflict(action) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session) {
+        throw new Error("No active session");
+    }
+    if (action === "LOGOUT_OTHERS") {
+        // Delete all sessions for this user EXCEPT the current one
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].session.deleteMany({
+            where: {
+                userId: session.user.id,
+                token: {
+                    not: session.session.token
+                }
+            }
+        });
+        return {
+            success: true,
+            message: "Other sessions terminated"
+        };
+    } else if (action === "LOGOUT_CURRENT") {
+        // Sign out the current session
+        // We can use auth.api.signOut or just delete the session manually
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].session.delete({
+            where: {
+                token: session.session.token
+            }
+        });
+        return {
+            success: true,
+            message: "Current session terminated"
+        };
+    }
+}
+;
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
+    checkSessionConflict,
+    resolveSessionConflict
+]);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(checkSessionConflict, "00424ba432501922f40bb512e30bdbd7d1847d3c3e", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(resolveSessionConflict, "40acca00133b06cb19d5be722d10fe520a25103a8b", null);
+}),
+"[externals]/next/dist/server/lib/incremental-cache/tags-manifest.external.js [external] (next/dist/server/lib/incremental-cache/tags-manifest.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/lib/incremental-cache/tags-manifest.external.js", () => require("next/dist/server/lib/incremental-cache/tags-manifest.external.js"));
+
+module.exports = mod;
+}),
+"[project]/lib/points.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "getPointsForDifficulty",
+    ()=>getPointsForDifficulty,
+    "getPointsLabel",
+    ()=>getPointsLabel
+]);
+function getPointsForDifficulty(difficulty) {
+    switch(difficulty){
+        case "EASY":
+            return 5;
+        case "MEDIUM":
+            return 10;
+        case "HARD":
+            return 15;
+        case "CONCEPT":
+            return 0;
+        default:
+            return 0;
+    }
+}
+function getPointsLabel(difficulty) {
+    const points = getPointsForDifficulty(difficulty);
+    return `${points} pts`;
+}
+}),
+"[externals]/events [external] (events, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("events", () => require("events"));
+
+module.exports = mod;
+}),
+"[externals]/assert [external] (assert, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("assert", () => require("assert"));
+
+module.exports = mod;
+}),
+"[externals]/fs [external] (fs, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("fs", () => require("fs"));
+
+module.exports = mod;
+}),
+"[externals]/url [external] (url, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("url", () => require("url"));
+
+module.exports = mod;
+}),
+"[externals]/tty [external] (tty, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("tty", () => require("tty"));
+
+module.exports = mod;
+}),
+"[externals]/os [external] (os, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("os", () => require("os"));
+
+module.exports = mod;
+}),
+"[externals]/stream [external] (stream, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("stream", () => require("stream"));
+
+module.exports = mod;
+}),
+"[externals]/crypto [external] (crypto, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("crypto", () => require("crypto"));
+
+module.exports = mod;
+}),
+"[externals]/dns [external] (dns, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("dns", () => require("dns"));
+
+module.exports = mod;
+}),
+"[externals]/net [external] (net, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("net", () => require("net"));
+
+module.exports = mod;
+}),
+"[externals]/tls [external] (tls, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("tls", () => require("tls"));
+
+module.exports = mod;
+}),
+"[externals]/buffer [external] (buffer, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("buffer", () => require("buffer"));
+
+module.exports = mod;
+}),
+"[externals]/string_decoder [external] (string_decoder, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("string_decoder", () => require("string_decoder"));
+
+module.exports = mod;
+}),
+"[project]/lib/redis.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ioredis$2f$built$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/ioredis/built/index.js [app-rsc] (ecmascript)");
+;
+const connection = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ioredis$2f$built$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"]({
+    host: process.env.REDIS_HOST || "127.0.0.1",
+    port: parseInt(process.env.REDIS_PORT || "6379"),
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false
+});
+connection.on("error", (error)=>{
+    if ("TURBOPACK compile-time truthy", 1) {
+        console.warn("[Redis] Connection error:", error);
+    }
+});
+const __TURBOPACK__default__export__ = connection;
+}),
+"[project]/core/services/user.service.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "UserService",
+    ()=>UserService
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$points$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/points.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$redis$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/redis.ts [app-rsc] (ecmascript)");
+;
+;
+;
+const CACHE_TTL = 30; // 30 seconds
+class UserService {
+    /*
+     * GETS USERS TOTAL SCORE (cached for 30 seconds)
+     * CACHE IS INVALIDATD WHEN USER SOLVES A PROBLEM
+    */ static async getUserScore(userId) {
+        const cacheKey = `user-score-${userId}`;
+        try {
+            const cached = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$redis$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].get(cacheKey);
+            if (cached) {
+                return parseInt(cached, 10);
+            }
+        } catch (error) {
+            console.error("Redis get error:", error);
+        }
+        const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                totalScore: true
+            }
+        });
+        const score = user?.totalScore || 0;
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$redis$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].setex(cacheKey, CACHE_TTL, score.toString());
+        } catch (error) {
+            console.error("Redis set error:", error);
+        }
+        return score;
+    }
+    /**
+     * Recalculate user's total score based on their solved problems
+     * This fixes any incorrect scores in the database
+     */ static async recalculateUserScore(userId) {
+        try {
+            // Get all unique problems the user has solved (ACCEPTED SUBMIT mode only)
+            const solvedSubmissions = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].submission.findMany({
+                where: {
+                    userId,
+                    status: "ACCEPTED",
+                    mode: "SUBMIT"
+                },
+                select: {
+                    problemId: true,
+                    problem: {
+                        select: {
+                            difficulty: true
+                        }
+                    }
+                },
+                distinct: [
+                    "problemId"
+                ]
+            });
+            // Calculate total score based on difficulty
+            let totalScore = 0;
+            for (const submission of solvedSubmissions){
+                const points = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$points$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getPointsForDifficulty"])(submission.problem.difficulty);
+                totalScore += points;
+            }
+            // Update user's totalScore in the database
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    totalScore
+                }
+            });
+            // Invalidate cache
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$redis$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].del(`user-score-${userId}`);
+            } catch (error) {
+                console.error("Failed to invalidate user score cache:", error);
+            }
+            return {
+                success: true,
+                newScore: totalScore
+            };
+        } catch (error) {
+            console.error("Failed to recalculate user score:", error);
+            throw new Error("Failed to recalculate user score");
+        }
+    }
+    /*
+     * COMPLETE USER ONBOARDING PROCESS
+     * UPDATES USER PROFILE INFORMATION AND MARKS ONBOARDING AS COMPLETED
+    */ static async completeOnboarding(userId, data) {
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    name: data.name,
+                    collegeId: data.collegeId || null,
+                    year: data.year ? parseInt(data.year) : null,
+                    bio: data.bio || null,
+                    leetCodeHandle: data.leetCodeHandle || null,
+                    codeChefHandle: data.codeChefHandle || null,
+                    codeforcesHandle: data.codeforcesHandle || data.hackerrankHandle || null,
+                    githubHandle: data.githubHandle || null,
+                    onboardingCompleted: true
+                }
+            });
+            // Invalidate dashboard cache
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$redis$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"].del(`dashboard:stats:${userId}`);
+            } catch (error) {
+                console.error("Failed to invalidate dashboard cache:", error);
+            }
+            return {
+                success: true
+            };
+        } catch (error) {
+            console.error("Failed to complete onboarding:", error);
+            return {
+                success: false,
+                error: "Failed to complete onboarding"
+            };
+        }
+    }
+}
+}),
+"[project]/actions/user.action.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/* __next_internal_action_entry_do_not_use__ [{"002aa3dda4f25040a3c6010d4b8c2ac1d87451eb09":"syncUserProfile","00e9b209cfe68ac6e4d35fe2efab442f9eef80456f":"recalculateUserScore","40598e77dede51564b9cd3f6bffab1603e69e4e3a7":"completeOnboarding","40dcf2b262cc87e0478a9f114239bdf2ac94b94b3c":"updateUserInfo","8097b0113e3823c68f1bc40837923497f2bf047c28":"$$RSC_SERVER_CACHE_0","80d16cb6014dbd852dbe811e3eb5e59785ed522fe2":"$$RSC_SERVER_CACHE_1"},"",""] */ __turbopack_context__.s([
+    "$$RSC_SERVER_CACHE_0",
+    ()=>$$RSC_SERVER_CACHE_0,
+    "$$RSC_SERVER_CACHE_1",
+    ()=>$$RSC_SERVER_CACHE_1,
+    "completeOnboarding",
+    ()=>completeOnboarding,
+    "getUserScore",
+    ()=>getUserScore,
+    "getUserSettings",
+    ()=>getUserSettings,
+    "recalculateUserScore",
+    ()=>recalculateUserScore,
+    "syncUserProfile",
+    ()=>syncUserProfile,
+    "updateUserInfo",
+    ()=>updateUserInfo
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/track-dynamic-import.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/server-reference.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$cache$2d$wrapper$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/cache-wrapper.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$core$2f$services$2f$user$2e$service$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/core/services/user.service.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/cache.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-validate.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+;
+;
+const $$RSC_SERVER_CACHE_0_INNER = async function getUserScore() {
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cacheLife"])({
+        stale: 300,
+        revalidate: 300
+    }); // 5 minutes
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        return 0;
+    }
+    const userId = session.user.id;
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cacheTag"])(`user-score-${userId}`, `user-${userId}`);
+    return __TURBOPACK__imported__module__$5b$project$5d2f$core$2f$services$2f$user$2e$service$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["UserService"].getUserScore(userId);
+};
+var $$RSC_SERVER_CACHE_0 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cache"])(function getUserScore() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$cache$2d$wrapper$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cache"])("private", "8097b0113e3823c68f1bc40837923497f2bf047c28", 0, $$RSC_SERVER_CACHE_0_INNER, arguments);
+});
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])($$RSC_SERVER_CACHE_0, "8097b0113e3823c68f1bc40837923497f2bf047c28", null);
+Object["defineProperty"]($$RSC_SERVER_CACHE_0, "name", {
+    value: "getUserScore"
+});
+var getUserScore = $$RSC_SERVER_CACHE_0;
+async function recalculateUserScore() {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        throw new Error("Unauthorized");
+    }
+    const userId = session.user.id;
+    return __TURBOPACK__imported__module__$5b$project$5d2f$core$2f$services$2f$user$2e$service$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["UserService"].recalculateUserScore(userId);
+}
+async function completeOnboarding(data) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    const userId = session.user.id;
+    const res = await __TURBOPACK__imported__module__$5b$project$5d2f$core$2f$services$2f$user$2e$service$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["UserService"].completeOnboarding(userId, data);
+    if (res.success) {
+        // Invalidate Redis cache (redundant but good to have here too)
+        try {
+            const redis = (await /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["trackDynamicImport"])(__turbopack_context__.A("[project]/lib/redis.ts [app-rsc] (ecmascript, async loader)"))).default;
+            await redis.del(`dashboard:stats:${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate dashboard redis cache:", error);
+        }
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard");
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`user-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`dashboard-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])('dashboard-stats');
+    }
+    return res;
+}
+async function updateUserInfo(data) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    const userId = session.user.id;
+    try {
+        // Fetch current user to check for changes
+        const currentUser = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                codeChefHandle: true,
+                codeforcesHandle: true,
+                leetCodeHandle: true
+            }
+        });
+        const updateData = {
+            name: data.name,
+            bio: data.bio,
+            leetCodeHandle: data.leetCodeHandle,
+            codeChefHandle: data.codeChefHandle,
+            codeforcesHandle: data.codeforcesHandle,
+            githubHandle: data.githubHandle
+        };
+        // Reset verification if handle changed
+        if (currentUser) {
+            if (data.codeChefHandle !== undefined && data.codeChefHandle !== currentUser.codeChefHandle) {
+                updateData.codeChefVerified = false;
+            }
+            if (data.codeforcesHandle !== undefined && data.codeforcesHandle !== currentUser.codeforcesHandle) {
+                updateData.codeforcesVerified = false;
+            }
+            if (data.leetCodeHandle !== undefined && data.leetCodeHandle !== currentUser.leetCodeHandle) {
+                updateData.leetCodeVerified = false;
+            }
+        }
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+            where: {
+                id: userId
+            },
+            data: updateData
+        });
+        // Invalidate Redis cache
+        try {
+            const redis = (await /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["trackDynamicImport"])(__turbopack_context__.A("[project]/lib/redis.ts [app-rsc] (ecmascript, async loader)"))).default;
+            await redis.del(`dashboard:stats:${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate dashboard redis cache:", error);
+        }
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard");
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard/settings"); // Added to refresh settings page
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`user-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`user-score-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`dashboard-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])('dashboard-stats');
+        return {
+            success: true
+        };
+    } catch (error) {
+        console.error("Failed to update user info:", error);
+        return {
+            success: false,
+            error: "Failed to update profile"
+        };
+    }
+}
+async function syncUserProfile() {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    const userId = session.user.id;
+    try {
+        // Invalidate Redis cache
+        try {
+            const redis = (await /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["trackDynamicImport"])(__turbopack_context__.A("[project]/lib/redis.ts [app-rsc] (ecmascript, async loader)"))).default;
+            await redis.del(`dashboard:stats:${userId}`);
+            await redis.del(`user-score-${userId}`);
+        } catch (error) {
+            console.error("Failed to invalidate redis cache during sync:", error);
+        }
+        // Revalidate Next.js cache
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard");
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`user-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])(`user-score-${userId}`);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateTag"])('dashboard-stats');
+        return {
+            success: true
+        };
+    } catch (error) {
+        console.error("Sync failed:", error);
+        return {
+            success: false,
+            error: "Failed to sync profile"
+        };
+    }
+}
+const $$RSC_SERVER_CACHE_1_INNER = async function getUserSettings() {
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cacheLife"])({
+        stale: 300,
+        revalidate: 300
+    });
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session?.user?.id) {
+        return null;
+    }
+    const userId = session.user.id;
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cacheTag"])(`user-${userId}`);
+    const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.findUnique({
+        where: {
+            id: userId
+        },
+        include: {
+            institution: true
+        }
+    });
+    if (!user) return null;
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        bio: user.bio,
+        institutionName: user.institution?.name
+    };
+};
+var $$RSC_SERVER_CACHE_1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cache"])(function getUserSettings() {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$cache$2d$wrapper$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cache"])("private", "80d16cb6014dbd852dbe811e3eb5e59785ed522fe2", 0, $$RSC_SERVER_CACHE_1_INNER, arguments);
+});
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])($$RSC_SERVER_CACHE_1, "80d16cb6014dbd852dbe811e3eb5e59785ed522fe2", null);
+Object["defineProperty"]($$RSC_SERVER_CACHE_1, "name", {
+    value: "getUserSettings"
+});
+var getUserSettings = $$RSC_SERVER_CACHE_1;
+;
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
+    recalculateUserScore,
+    completeOnboarding,
+    updateUserInfo,
+    syncUserProfile
+]);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(recalculateUserScore, "00e9b209cfe68ac6e4d35fe2efab442f9eef80456f", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(completeOnboarding, "40598e77dede51564b9cd3f6bffab1603e69e4e3a7", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateUserInfo, "40dcf2b262cc87e0478a9f114239bdf2ac94b94b3c", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(syncUserProfile, "002aa3dda4f25040a3c6010d4b8c2ac1d87451eb09", null);
+}),
+"[externals]/jsdom [external] (jsdom, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("jsdom", () => require("jsdom"));
+
+module.exports = mod;
+}),
+"[project]/actions/platform.action.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/* __next_internal_action_entry_do_not_use__ [{"601860f7af2208a291b9702f83b87c820127ee9592":"verifyCodeChefOwnership","60497d1d82268f0126da46c6573d5de6f13ad2101a":"checkCodeChefUser","608e4143fe9ddd7a52705074750d983c1ea8affb8f":"checkCodeforcesUser","60b7ea2f21e7c7ff45aa305f594b146b6998521bf6":"verifyLeetCodeOwnership","60c49734ef59284f868866483aaa4df8292525eeb8":"verifyCodeforcesOwnership","60d44136a03ab3229f6d1299e2144e1828f063d7fd":"checkLeetCodeUser"},"",""] */ __turbopack_context__.s([
+    "checkCodeChefUser",
+    ()=>checkCodeChefUser,
+    "checkCodeforcesUser",
+    ()=>checkCodeforcesUser,
+    "checkLeetCodeUser",
+    ()=>checkLeetCodeUser,
+    "verifyCodeChefOwnership",
+    ()=>verifyCodeChefOwnership,
+    "verifyCodeforcesOwnership",
+    ()=>verifyCodeforcesOwnership,
+    "verifyLeetCodeOwnership",
+    ()=>verifyLeetCodeOwnership
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/track-dynamic-import.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/server-reference.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$externals$5d2f$jsdom__$5b$external$5d$__$28$jsdom$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/jsdom [external] (jsdom, cjs)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/cache.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-validate.js [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+async function checkCodeChefUser(handle, ignoreCache = false) {
+    try {
+        const fetchOptions = ignoreCache ? {
+            cache: 'no-store'
+        } : {
+            next: {
+                revalidate: 3600
+            }
+        }; // Cache for 1 hour
+        const resdata = await fetch(`https://www.codechef.com/users/${handle}`, fetchOptions);
+        if (resdata.status == 200) {
+            let d = await resdata.text();
+            let data = {
+                data: d
+            };
+            // Heatmap data extraction
+            let heatMapDataCursour1 = data.data.search("var userDailySubmissionsStats =") + "var userDailySubmissionsStats =".length;
+            let heatMapDataCursour2 = data.data.search("'#js-heatmap") - 34;
+            let heatDataString = data.data.substring(heatMapDataCursour1, heatMapDataCursour2);
+            let headMapData = null;
+            try {
+                headMapData = JSON.parse(heatDataString);
+            } catch (e) {
+                console.log("Error parsing heatmap data", e);
+            }
+            // Rating data extraction
+            let allRating = data.data.search("var all_rating = ") + "var all_rating = ".length;
+            let allRating2 = data.data.search("var current_user_rating =") - 6;
+            let ratingData = null;
+            try {
+                ratingData = JSON.parse(data.data.substring(allRating, allRating2));
+            } catch (e) {
+                console.log("Error parsing rating data", e);
+            }
+            let dom = new __TURBOPACK__imported__module__$5b$externals$5d2f$jsdom__$5b$external$5d$__$28$jsdom$2c$__cjs$29$__["JSDOM"](data.data);
+            let document = dom.window.document;
+            const name = document.querySelector(".user-details-container")?.children[0]?.children[1]?.textContent || "";
+            // Safe extraction with optional chaining
+            const profile = document.querySelector(".user-details-container")?.children[0]?.children[0]?.getAttribute("src") || "";
+            const currentRatingText = document.querySelector(".rating-number")?.textContent;
+            const currentRating = currentRatingText ? parseInt(currentRatingText) : 0;
+            const highestRatingText = document.querySelector(".rating-number")?.parentNode?.children[4]?.textContent?.split("Rating")[1];
+            const highestRating = highestRatingText ? parseInt(highestRatingText) : 0;
+            const countryFlag = document.querySelector(".user-country-flag")?.getAttribute("src") || "";
+            const countryName = document.querySelector(".user-country-name")?.textContent || "";
+            const globalRankText = document.querySelector(".rating-ranks")?.children[0]?.children[0]?.children[0]?.children[0]?.innerHTML;
+            const globalRank = globalRankText ? parseInt(globalRankText) : 0;
+            const countryRankText = document.querySelector(".rating-ranks")?.children[0]?.children[1]?.children[0]?.children[0]?.innerHTML;
+            const countryRank = countryRankText ? parseInt(countryRankText) : 0;
+            const stars = document.querySelector(".rating")?.textContent || "unrated";
+            // Extract Fully Solved Count
+            let fullySolvedCount = 0;
+            const h5Elements = document.querySelectorAll("h5");
+            for (const h5 of h5Elements){
+                if (h5.textContent?.includes("Fully Solved")) {
+                    const match = h5.textContent.match(/\d+/);
+                    if (match) {
+                        fullySolvedCount = parseInt(match[0]);
+                    }
+                    break;
+                }
+            }
+            return {
+                success: true,
+                status: resdata.status,
+                profile,
+                name,
+                currentRating,
+                highestRating,
+                countryFlag,
+                countryName,
+                globalRank,
+                countryRank,
+                stars,
+                heatMap: headMapData,
+                ratingData,
+                fullySolvedCount
+            };
+        } else {
+            return {
+                success: false,
+                status: resdata.status
+            };
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            success: false,
+            status: 404
+        };
+    }
+}
+async function verifyCodeChefOwnership(handle, verificationCode) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session || !session.user) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    // Bypass cache for verification
+    const result = await checkCodeChefUser(handle, true);
+    if (result.success && result.name) {
+        // Check if the verification code is present in the name
+        // The user edits their "Name" field to include the code
+        if (result.name.includes(verificationCode)) {
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+                    where: {
+                        id: session.user.id
+                    },
+                    data: {
+                        codeChefVerified: true,
+                        // Ensure the verified handle is the one stored
+                        codeChefHandle: handle
+                    }
+                });
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard/settings"); // Revalidate settings pages
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidateTag"])(`user-${session.user.id}`, "max"); // Invalidate user cache tag
+                return {
+                    success: true
+                };
+            } catch (error) {
+                console.error("Database update error:", error);
+                return {
+                    success: false,
+                    error: "Failed to update verification status"
+                };
+            }
+        } else {
+            return {
+                success: false,
+                error: "Verification code not found in CodeChef name. Please ensure you have updated your profile name."
+            };
+        }
+    }
+    return {
+        success: false,
+        error: "Failed to fetch CodeChef profile"
+    };
+}
+async function checkCodeforcesUser(handle, ignoreCache = false) {
+    try {
+        const fetchOptions = ignoreCache ? {
+            cache: 'no-store'
+        } : {
+            next: {
+                revalidate: 3600
+            }
+        };
+        const [userInfoRes, userStatusRes] = await Promise.all([
+            fetch(`https://codeforces.com/api/user.info?handles=${handle}`, fetchOptions),
+            fetch(`https://codeforces.com/api/user.status?handle=${handle}`, fetchOptions)
+        ]);
+        if (userInfoRes.ok && userStatusRes.ok) {
+            const userData = await userInfoRes.json();
+            const statusData = await userStatusRes.json();
+            if (userData.status === "OK" && userData.result.length > 0) {
+                const user = userData.result[0];
+                // Calculate solved count and difficulty breakdown
+                const uniqueSolved = new Set();
+                const solvedByDifficulty = {
+                    EASY: 0,
+                    MEDIUM: 0,
+                    HARD: 0,
+                    TOTAL: 0
+                };
+                if (statusData.status === "OK") {
+                    for (const submission of statusData.result){
+                        if (submission.verdict === "OK") {
+                            const problemId = `${submission.problem.contestId}-${submission.problem.index}`;
+                            if (!uniqueSolved.has(problemId)) {
+                                uniqueSolved.add(problemId);
+                                const rating = submission.problem.rating;
+                                if (rating) {
+                                    if (rating < 1200) solvedByDifficulty.EASY++;
+                                    else if (rating < 1600) solvedByDifficulty.MEDIUM++; // Adjusted thresholds
+                                    else solvedByDifficulty.HARD++;
+                                } else {
+                                // Treat unrated as easy or ignore? Let's add to Easy for now or just Total
+                                // solvedByDifficulty.EASY++;
+                                }
+                            }
+                        }
+                    }
+                    solvedByDifficulty.TOTAL = uniqueSolved.size;
+                }
+                return {
+                    success: true,
+                    status: 200,
+                    firstName: user.firstName,
+                    // Check other fields if needed for existence or display
+                    rating: user.rating,
+                    rank: user.rank,
+                    maxRating: user.maxRating,
+                    maxRank: user.maxRank,
+                    avatar: user.titlePhoto || user.avatar,
+                    solvedByDifficulty
+                };
+            }
+        }
+        return {
+            success: false,
+            status: userInfoRes.status
+        };
+    } catch (e) {
+        console.error(e);
+        return {
+            success: false,
+            status: 500
+        };
+    }
+}
+async function verifyCodeforcesOwnership(handle, verificationCode) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session || !session.user) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    // Bypass cache for verification
+    const result = await checkCodeforcesUser(handle, true);
+    if (result.success) {
+        // Check if the verification code is present in the first name
+        // Codeforces allows changing First Name in settings
+        if (result.firstName && result.firstName.includes(verificationCode)) {
+            try {
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+                    where: {
+                        id: session.user.id
+                    },
+                    data: {
+                        codeforcesVerified: true,
+                        // Ensure the verified handle is the one stored
+                        codeforcesHandle: handle
+                    }
+                });
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard/settings"); // Revalidate settings pages
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidateTag"])(`user-${session.user.id}`, "max"); // Invalidate user cache tag
+                return {
+                    success: true
+                };
+            } catch (error) {
+                console.error("Database update error:", error);
+                return {
+                    success: false,
+                    error: "Failed to update verification status"
+                };
+            }
+        } else {
+            return {
+                success: false,
+                error: "Verification code not found in Codeforces First Name. Please ensure you have updated it in your profile settings."
+            };
+        }
+    }
+    return {
+        success: false,
+        error: "Failed to fetch Codeforces profile"
+    };
+}
+async function checkLeetCodeUser(handle, ignoreCache = false) {
+    // LeetCode library doesn't expose easy fetch options for caching,
+    // but the contest fetch we added uses fetch().
+    // We can't easily cache the library call 'leetcode.user(handle)' unless we wrap it or if it caches internally.
+    // However, for the graphql fetch we CAN control cache.
+    try {
+        const { LeetCode } = await /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$track$2d$dynamic$2d$import$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["trackDynamicImport"])(__turbopack_context__.A("[project]/node_modules/leetcode-query/lib/index.js [app-rsc] (ecmascript, async loader)"));
+        const leetcode = new LeetCode();
+        // This part is using the library, hard to optimize without forking/replacing library usage.
+        // Assuming library does standard fetch, maybe we can't touch it easily.
+        // But for the contest part:
+        const user = await leetcode.user(handle);
+        // Fetch Contest Data manually via GraphQL
+        const contestQuery = `
+            query userContestRankingInfo($username: String!) {
+                userContestRanking(username: $username) {
+                    attendedContestsCount
+                    rating
+                    globalRanking
+                    topPercentage
+                    badge {
+                        name
+                    }
+                }
+                userContestRankingHistory(username: $username) {
+                    attended
+                    rating
+                    contest {
+                        title
+                        startTime
+                    }
+                }
+            }
+        `;
+        const fetchOptions = ignoreCache ? {
+            cache: 'no-store'
+        } : {
+            next: {
+                revalidate: 3600
+            }
+        };
+        const contestRes = await fetch('https://leetcode.com/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Referer': 'https://leetcode.com'
+            },
+            body: JSON.stringify({
+                query: contestQuery,
+                variables: {
+                    username: handle
+                }
+            }),
+            ...fetchOptions
+        });
+        const contestData = await contestRes.json();
+        const contestStats = contestData.data?.userContestRanking;
+        const contestHistory = contestData.data?.userContestRankingHistory?.filter((c)=>c.attended);
+        if (user && user.matchedUser) {
+            return {
+                success: true,
+                status: 200,
+                name: user.matchedUser.profile.realName,
+                avatar: user.matchedUser.profile.userAvatar,
+                submitStats: user.matchedUser.submitStats,
+                contestStats: contestStats || null,
+                contestHistory: contestHistory || []
+            };
+        }
+        return {
+            success: false,
+            status: 404
+        };
+    } catch (e) {
+        console.error("LeetCode check error:", e);
+        return {
+            success: false,
+            status: 500
+        };
+    }
+}
+async function verifyLeetCodeOwnership(handle, verificationCode) {
+    const session = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].api.getSession({
+        headers: await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])()
+    });
+    if (!session || !session.user) {
+        return {
+            success: false,
+            error: "Unauthorized"
+        };
+    }
+    try {
+        // Bypass cache
+        const result = await checkLeetCodeUser(handle, true);
+        if (result.success && result.name) {
+            // Check if verification code is in the name
+            if (result.name.includes(verificationCode)) {
+                try {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].user.update({
+                        where: {
+                            id: session.user.id
+                        },
+                        data: {
+                            leetCodeVerified: true,
+                            leetCodeHandle: handle
+                        }
+                    });
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])("/dashboard/settings");
+                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidateTag"])(`user-${session.user.id}`, "max");
+                    return {
+                        success: true
+                    };
+                } catch (error) {
+                    console.error("Database update error:", error);
+                    return {
+                        success: false,
+                        error: "Failed to update verification status"
+                    };
+                }
+            } else {
+                return {
+                    success: false,
+                    error: "Verification code not found in LeetCode Name. Please ensure you have updated it in your profile."
+                };
+            }
+        }
+    } catch (error) {
+        return {
+            success: false,
+            error: "Failed to verify LeetCode profile"
+        };
+    }
+    return {
+        success: false,
+        error: "Failed to fetch LeetCode profile or name is empty"
+    };
+}
+;
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
+    checkCodeChefUser,
+    verifyCodeChefOwnership,
+    checkCodeforcesUser,
+    verifyCodeforcesOwnership,
+    checkLeetCodeUser,
+    verifyLeetCodeOwnership
+]);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(checkCodeChefUser, "60497d1d82268f0126da46c6573d5de6f13ad2101a", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(verifyCodeChefOwnership, "601860f7af2208a291b9702f83b87c820127ee9592", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(checkCodeforcesUser, "608e4143fe9ddd7a52705074750d983c1ea8affb8f", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(verifyCodeforcesOwnership, "60c49734ef59284f868866483aaa4df8292525eeb8", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(checkLeetCodeUser, "60d44136a03ab3229f6d1299e2144e1828f063d7fd", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(verifyLeetCodeOwnership, "60b7ea2f21e7c7ff45aa305f594b146b6998521bf6", null);
+}),
+"[project]/.next-internal/server/app/(main)/dashboard/settings/platform/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/auth.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$user$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/user.action.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/platform.action.ts [app-rsc] (ecmascript)");
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+}),
+"[project]/.next-internal/server/app/(main)/dashboard/settings/platform/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE2 => \"[project]/actions/platform.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["checkSessionConflict"],
+    "40acca00133b06cb19d5be722d10fe520a25103a8b",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["resolveSessionConflict"],
+    "40dcf2b262cc87e0478a9f114239bdf2ac94b94b3c",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$user$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateUserInfo"],
+    "601860f7af2208a291b9702f83b87c820127ee9592",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["verifyCodeChefOwnership"],
+    "60497d1d82268f0126da46c6573d5de6f13ad2101a",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["checkCodeChefUser"],
+    "608e4143fe9ddd7a52705074750d983c1ea8affb8f",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["checkCodeforcesUser"],
+    "60b7ea2f21e7c7ff45aa305f594b146b6998521bf6",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["verifyLeetCodeOwnership"],
+    "60c49734ef59284f868866483aaa4df8292525eeb8",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["verifyCodeforcesOwnership"],
+    "60d44136a03ab3229f6d1299e2144e1828f063d7fd",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["checkLeetCodeUser"],
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$user$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getUserScore"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f2e$next$2d$internal$2f$server$2f$app$2f28$main$292f$dashboard$2f$settings$2f$platform$2f$page$2f$actions$2e$js__$7b$__ACTIONS_MODULE0__$3d3e$__$225b$project$5d2f$actions$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29222c$__ACTIONS_MODULE1__$3d3e$__$225b$project$5d2f$actions$2f$user$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29222c$__ACTIONS_MODULE2__$3d3e$__$225b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$2922$__$7d$__$5b$app$2d$rsc$5d$__$28$server__actions__loader$2c$__ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i('[project]/.next-internal/server/app/(main)/dashboard/settings/platform/page/actions.js { ACTIONS_MODULE0 => "[project]/actions/auth.ts [app-rsc] (ecmascript)", ACTIONS_MODULE1 => "[project]/actions/user.action.ts [app-rsc] (ecmascript)", ACTIONS_MODULE2 => "[project]/actions/platform.action.ts [app-rsc] (ecmascript)" } [app-rsc] (server actions loader, ecmascript) <locals>');
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$auth$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/auth.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$user$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/user.action.ts [app-rsc] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$actions$2f$platform$2e$action$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/actions/platform.action.ts [app-rsc] (ecmascript)");
+}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__22a7e56f._.js.map

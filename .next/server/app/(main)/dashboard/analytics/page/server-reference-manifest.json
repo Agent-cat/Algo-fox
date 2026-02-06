@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/analytics/page": {
+          "moduleId": 973614,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/analytics/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/analytics/page": {
+          "moduleId": 973614,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/analytics/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/analytics/page": {
+          "moduleId": 973614,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/analytics/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "407c38df3668baecb0884b9b362fc7cc81efec9a34": {
+      "workers": {
+        "app/(main)/dashboard/analytics/page": {
+          "moduleId": 973614,
+          "async": false,
+          "exportedName": "getUserTopicStats",
+          "filename": "actions/analytics.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/analytics/page": "action-browser"
+      },
+      "exportedName": "getUserTopicStats",
+      "filename": "actions/analytics.ts"
+    },
+    "4095cdf89ff4ebd46c6437486783e698844ebeca2c": {
+      "workers": {
+        "app/(main)/dashboard/analytics/page": {
+          "moduleId": 973614,
+          "async": false,
+          "exportedName": "getUserProgressHistory",
+          "filename": "actions/analytics.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/analytics/page": "action-browser"
+      },
+      "exportedName": "getUserProgressHistory",
+      "filename": "actions/analytics.ts"
+    }
+  },
+  "edge": {}
+}

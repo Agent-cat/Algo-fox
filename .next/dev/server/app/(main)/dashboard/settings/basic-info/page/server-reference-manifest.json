@@ -1,0 +1,140 @@
+{
+  "node": {
+    "00424ba432501922f40bb512e30bdbd7d1847d3c3e": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "40acca00133b06cb19d5be722d10fe520a25103a8b": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80b7c88da10d3a194c1170a71124e07c2947bd3a4a": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "002aa3dda4f25040a3c6010d4b8c2ac1d87451eb09": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "syncUserProfile",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "rsc"
+      },
+      "exportedName": "syncUserProfile",
+      "filename": "actions/user.action.ts"
+    },
+    "00e9b209cfe68ac6e4d35fe2efab442f9eef80456f": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "recalculateUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "rsc"
+      },
+      "exportedName": "recalculateUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "40598e77dede51564b9cd3f6bffab1603e69e4e3a7": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "completeOnboarding",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "rsc"
+      },
+      "exportedName": "completeOnboarding",
+      "filename": "actions/user.action.ts"
+    },
+    "40dcf2b262cc87e0478a9f114239bdf2ac94b94b3c": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateUserInfo",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "action-browser"
+      },
+      "exportedName": "updateUserInfo",
+      "filename": "actions/user.action.ts"
+    },
+    "8097b0113e3823c68f1bc40837923497f2bf047c28": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_0",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_0",
+      "filename": "actions/user.action.ts"
+    },
+    "80d16cb6014dbd852dbe811e3eb5e59785ed522fe2": {
+      "workers": {
+        "app/(main)/dashboard/settings/basic-info/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/dashboard/settings/basic-info/page/actions.js { ACTIONS_MODULE0 => \"[project]/actions/auth.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/actions/user.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/settings/basic-info/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
+      "filename": "actions/user.action.ts"
+    }
+  },
+  "edge": {}
+}

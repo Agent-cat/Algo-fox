@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "headers": {
+    "link": "</_next/static/media/797e433ab948586e-s.p.dbea232f.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(main)/layout,_N_T_/(main)/dashboard/layout,_N_T_/(main)/dashboard/institution/layout,_N_T_/(main)/dashboard/institution/teachers/layout,_N_T_/(main)/dashboard/institution/teachers/page,_N_T_/dashboard/institution/teachers"
+  },
+  "postponed": "3065:[1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{\"font\":{\"/_next/static/media/797e433ab948586e-s.p.dbea232f.woff2\":[],\"/_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2\":[]}},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/chunks/2473c16c0c2f6b5f.css\":null,\"/_next/static/chunks/f3c944afddc6c6f9.css\":null},\"scriptResources\":{\"/_next/static/chunks/3065a39407109ebd.js\":null,\"/_next/static/chunks/bcbf3f285e84ac1a.js\":null,\"/_next/static/chunks/5aeba721f7b52962.js\":null,\"/_next/static/chunks/269dc890dd37ee5c.js\":null,\"/_next/static/chunks/f33fdd2e660be121.js\":null,\"/_next/static/chunks/turbopack-bf37b12dbac6d961.js\":null,\"/_next/static/chunks/67eede745cae5b32.js\":null,\"/_next/static/chunks/2ff1129e1fa028e3.js\":null,\"/_next/static/chunks/fe3f83879c506d26.js\":null,\"/_next/static/chunks/c7625667a980dd7c.js\":null,\"/_next/static/chunks/3b172003ca7b6f4a.js\":null,\"/_next/static/chunks/d96012bcfc98706a.js\":null,\"/_next/static/chunks/db9b03b78b6ccb8c.js\":null,\"/_next/static/chunks/9ec9db47ffe8520d.js\":null,\"/_next/static/chunks/1a196ac87b9ddb65.js\":null,\"/_next/static/chunks/57d42b42f020f76d.js\":null,\"/_next/static/chunks/38725095e6194d47.js\":null,\"/_next/static/chunks/05fbb902b5116117.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/chunks/3065a39407109ebd.js\":null}},\"replayNodes\":[[\"sC\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"o$\",0,[[\"o_\",0,[[\"ow\",0,[[\"ob\",0,[[\"oj\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"o_\",0,[[\"ow\",0,[[\"ob\",0,[[\"ag\",0,[[\"am\",0,[[\"__next_root_layout_boundary__\",1,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[\"d\",0,[[\"i\",0,[[\"k\",0,[[\"Context\",0,[[\"Fragment\",1,[[\"M\",4,[[\"Activity\",\"(main)\",[[\"Context\",\"(main)\",[[\"e\",2,[[\"Fragment\",0,[[\"J\",0,[[\"I\",0,[[\"n\",0,[[\"m\",0,[[\"L\",0,[[\"Fragment\",0,[[\"i\",0,[[\"h\",0,[[\"w\",0,[[\"v\",0,[[\"K\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"Fragment\",1,[[\"div\",1,[[\"M\",0,[[\"Activity\",\"dashboard\",[[\"Context\",\"dashboard\",[[\"e\",2,[[\"Fragment\",0,[[\"J\",0,[[\"I\",0,[[\"n\",0,[[\"Fragment\",0,[[\"L\",0,[[\"Fragment\",0,[[\"i\",0,[[\"h\",0,[[\"w\",0,[[\"v\",0,[[\"K\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KG1haW4p/dashboard/institution/teachers/__PAGE__",
+    "/!KG1haW4p/dashboard/institution/teachers",
+    "/!KG1haW4p/dashboard/institution",
+    "/!KG1haW4p/dashboard",
+    "/!KG1haW4p",
+    "/_index",
+    "/_head"
+  ]
+}

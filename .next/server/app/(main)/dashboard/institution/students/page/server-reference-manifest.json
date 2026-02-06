@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+      "workers": {
+        "app/(main)/dashboard/institution/students/page": {
+          "moduleId": 917164,
+          "async": false,
+          "exportedName": "checkSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/students/page": "action-browser"
+      },
+      "exportedName": "checkSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+      "workers": {
+        "app/(main)/dashboard/institution/students/page": {
+          "moduleId": 917164,
+          "async": false,
+          "exportedName": "resolveSessionConflict",
+          "filename": "actions/auth.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/students/page": "action-browser"
+      },
+      "exportedName": "resolveSessionConflict",
+      "filename": "actions/auth.ts"
+    },
+    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+      "workers": {
+        "app/(main)/dashboard/institution/students/page": {
+          "moduleId": 917164,
+          "async": false,
+          "exportedName": "getUserScore",
+          "filename": "actions/user.action.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/students/page": "action-browser"
+      },
+      "exportedName": "getUserScore",
+      "filename": "actions/user.action.ts"
+    },
+    "7817dc0ea1b97a601e63ee51f7da7c87f2574923c7": {
+      "workers": {
+        "app/(main)/dashboard/institution/students/page": {
+          "moduleId": 917164,
+          "async": false,
+          "exportedName": "getInstitutionUsers",
+          "filename": "actions/institution/staff.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/students/page": "action-browser"
+      },
+      "exportedName": "getInstitutionUsers",
+      "filename": "actions/institution/staff.ts"
+    },
+    "40e4a75cb44b36f49c5b25207c30f03e98364fa02b": {
+      "workers": {
+        "app/(main)/dashboard/institution/students/page": {
+          "moduleId": 917164,
+          "async": false,
+          "exportedName": "deleteStaffMember",
+          "filename": "actions/institution/staff.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/institution/students/page": "action-browser"
+      },
+      "exportedName": "deleteStaffMember",
+      "filename": "actions/institution/staff.ts"
+    }
+  },
+  "edge": {}
+}

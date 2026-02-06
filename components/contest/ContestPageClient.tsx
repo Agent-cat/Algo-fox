@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ContestsPageContent } from "./ContestsPageContent";
 import { ContestCalendar } from "./ContestCalendar";
-import { Contest } from "@/actions/external-contests.action";
+import type { Contest } from "@/lib/contest-fetcher";
 import { Trophy, Calendar, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
