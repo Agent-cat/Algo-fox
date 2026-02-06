@@ -55,6 +55,7 @@ ENV REDIS_HOST=${REDIS_HOST}
 ENV REDIS_PORT=${REDIS_PORT}
 
 # Build the application
+ENV SKIP_CACHE_HANDLER=1
 RUN npm run build
 
 # ============================================

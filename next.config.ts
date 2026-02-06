@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   cacheComponents: true,
   cacheHandlers: {
-    remote: require.resolve("./lib/cache-handler-redis.js"),
+    remote: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-redis.js"),
   },
   cacheLife: {
     // For contest list - shared across all users
