@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -30,7 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "c07b89b511be3317f57341c4a4eec23ff35384d4ba": {
+    "c0778101b18178a62b35dd494a8cb5aae1849a1026": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -45,7 +45,7 @@
       "exportedName": "$$RSC_SERVER_CACHE_0",
       "filename": "app/(workspace)/contest/[id]/standings/page.tsx"
     },
-    "00832625e68b53b4f2054e042aa76c52995192cece": {
+    "00940c4100689d5d304349800646111d1fa082614e": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -60,142 +60,7 @@
       "exportedName": "getVisibleContests",
       "filename": "actions/contest.ts"
     },
-    "400c8385b179b249f8f2b1e04f6bbe29a73028adaa": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "acceptContestRules",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "acceptContestRules",
-      "filename": "actions/contest.ts"
-    },
-    "40143a75ea5765fb88ac9bf3c96a0eabcf8c510a58": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "getInstitutionalClassrooms",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "getInstitutionalClassrooms",
-      "filename": "actions/contest.ts"
-    },
-    "401a1a28bd2e49379be125257c4115d7ecc57f70f3": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "createContestWithProblems",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "createContestWithProblems",
-      "filename": "actions/contest.ts"
-    },
-    "401a4fbf2ff70b136418170cd4f92105d0d9f9eb7b": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "getContestRanking",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "getContestRanking",
-      "filename": "actions/contest.ts"
-    },
-    "4050b6d7261e7a6fa97816d9dd7891742fa5be61cf": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "getParticipationStatus",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "getParticipationStatus",
-      "filename": "actions/contest.ts"
-    },
-    "405fb5f68efcec07d64b8a03d4e11d8a1571a1325a": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "checkSubmissionEligibility",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "checkSubmissionEligibility",
-      "filename": "actions/contest.ts"
-    },
-    "40662e9ddea2bbf3d0b684f6d080569fe729f1c1c3": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "createContest",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "createContest",
-      "filename": "actions/contest.ts"
-    },
-    "406cdc651bddb729aed5c9ed8a61b22fd85586aa37": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "finalizeContest",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "action-browser"
-      },
-      "exportedName": "finalizeContest",
-      "filename": "actions/contest.ts"
-    },
-    "4092871713fd49951fb96de6880895702406eeacf3": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "getContestParticipants",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "getContestParticipants",
-      "filename": "actions/contest.ts"
-    },
-    "4098047632820cd0448f2d2528471fa663ac8499b7": {
+    "4001bdda43cac530c1aaac70a58aa316624298c16f": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -210,22 +75,82 @@
       "exportedName": "getSelectableProblems",
       "filename": "actions/contest.ts"
     },
-    "40e408761adff7d832a403f8b3de67dd3150702624": {
+    "400bedadf39a5f774705355d057e3b09f6e611d022": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
           "async": false,
-          "exportedName": "getContestDetail",
+          "exportedName": "getParticipationStatus",
           "filename": "actions/contest.ts"
         }
       },
       "layer": {
         "app/(workspace)/contest/[id]/standings/page": "rsc"
       },
-      "exportedName": "getContestDetail",
+      "exportedName": "getParticipationStatus",
       "filename": "actions/contest.ts"
     },
-    "40f1b84b507cbed77bbd694a76ce511a8893db67cb": {
+    "401c6b114c155a703efb1a44c45f72950fa3262b07": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "getContestRanking",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "getContestRanking",
+      "filename": "actions/contest.ts"
+    },
+    "402e69cfe84f95135f12925bfa312bf75f12ec9b88": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "checkSubmissionEligibility",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "checkSubmissionEligibility",
+      "filename": "actions/contest.ts"
+    },
+    "4032d5d18fca898340e4a65d5176a75ba7b56b2048": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "createContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "createContest",
+      "filename": "actions/contest.ts"
+    },
+    "4037351f337c44fbb5bf52096f482fd8c9e9f86709": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "getContestParticipants",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "getContestParticipants",
+      "filename": "actions/contest.ts"
+    },
+    "4051bd676d2ba77821dd81bee984fcdeaada3c4532": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -240,37 +165,82 @@
       "exportedName": "finishContestAction",
       "filename": "actions/contest.ts"
     },
-    "6056877ff0b936524f0713c621512340498d9b6a4e": {
+    "405ad9c2f33591b40398d6fc9aaaa8be1f3cd93b67": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
           "async": false,
-          "exportedName": "unblockParticipant",
+          "exportedName": "finalizeContest",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "action-browser"
+      },
+      "exportedName": "finalizeContest",
+      "filename": "actions/contest.ts"
+    },
+    "40980d38ee31c7a81eafb4f884d48df2d3ad95b7a5": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "acceptContestRules",
           "filename": "actions/contest.ts"
         }
       },
       "layer": {
         "app/(workspace)/contest/[id]/standings/page": "rsc"
       },
-      "exportedName": "unblockParticipant",
+      "exportedName": "acceptContestRules",
       "filename": "actions/contest.ts"
     },
-    "60b64dd74a42f4e7ada0d4314abeb1a11d4e5ab6f3": {
+    "4098b863788cf59e37c540cecc59a3c94823adf809": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
           "async": false,
-          "exportedName": "getParticipantViolations",
+          "exportedName": "getInstitutionalClassrooms",
           "filename": "actions/contest.ts"
         }
       },
       "layer": {
         "app/(workspace)/contest/[id]/standings/page": "rsc"
       },
-      "exportedName": "getParticipantViolations",
+      "exportedName": "getInstitutionalClassrooms",
       "filename": "actions/contest.ts"
     },
-    "60d3252bd45f48968dec686bb41d7abb72b2b3fa40": {
+    "40b770cae1acb188e3ed64348c7cd77fbe850fd273": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "createContestWithProblems",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "createContestWithProblems",
+      "filename": "actions/contest.ts"
+    },
+    "40c4d758c0b85b8742f5a6e91d0f7244bd06101677": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "getContestDetail",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "getContestDetail",
+      "filename": "actions/contest.ts"
+    },
+    "6031ead5c74f4bcd3bad8fa812984719e601ceeb34": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -285,7 +255,7 @@
       "exportedName": "startContestSession",
       "filename": "actions/contest.ts"
     },
-    "60d7b7d92c9e22bf280512e3f5de148c2f7a4efd0b": {
+    "6082e7c9544214b14b4528f462779bb37864e04af6": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -300,7 +270,7 @@
       "exportedName": "validateContestSession",
       "filename": "actions/contest.ts"
     },
-    "60e4bb3f837a3366538a85855a444a9a4c1f3ce841": {
+    "60a590ea8dd109bc2ffc3e8f132b04a7074a11a0d2": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -315,7 +285,37 @@
       "exportedName": "verifyContestPassword",
       "filename": "actions/contest.ts"
     },
-    "78c1cd378517a292ad03dee9242ae6d4c6eb499f21": {
+    "60e064242554d0c747758e3f8929af78e010c6249c": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "getParticipantViolations",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "getParticipantViolations",
+      "filename": "actions/contest.ts"
+    },
+    "60f490907c02596e5878c6a84e87a2c59e1d0168ba": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "unblockParticipant",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "unblockParticipant",
+      "filename": "actions/contest.ts"
+    },
+    "782fedaea63037fd239ef65af5ce0a30f475be3078": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -330,7 +330,7 @@
       "exportedName": "logContestViolation",
       "filename": "actions/contest.ts"
     },
-    "80ad8df1de46115cbf4e6a7e47dc598cc611fdcba1": {
+    "80b6ed877dddf4bff6fa834b153dbfb202d44713fd": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -345,22 +345,7 @@
       "exportedName": "$$RSC_SERVER_CACHE_0",
       "filename": "actions/contest.ts"
     },
-    "c08470ca0cca037f820a4e0f58851b7e0cf4e3be61": {
-      "workers": {
-        "app/(workspace)/contest/[id]/standings/page": {
-          "moduleId": 993131,
-          "async": false,
-          "exportedName": "$$RSC_SERVER_CACHE_1",
-          "filename": "actions/contest.ts"
-        }
-      },
-      "layer": {
-        "app/(workspace)/contest/[id]/standings/page": "rsc"
-      },
-      "exportedName": "$$RSC_SERVER_CACHE_1",
-      "filename": "actions/contest.ts"
-    },
-    "c0e243ef3de5d223ce4583d16064cf4bda30aa3e62": {
+    "c051793943807d26da069ee4e4dcff589122910a7d": {
       "workers": {
         "app/(workspace)/contest/[id]/standings/page": {
           "moduleId": 993131,
@@ -373,6 +358,21 @@
         "app/(workspace)/contest/[id]/standings/page": "rsc"
       },
       "exportedName": "$$RSC_SERVER_CACHE_2",
+      "filename": "actions/contest.ts"
+    },
+    "c091b3265f40492d37c557b4b500f0ab552dbb6296": {
+      "workers": {
+        "app/(workspace)/contest/[id]/standings/page": {
+          "moduleId": 993131,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_CACHE_1",
+          "filename": "actions/contest.ts"
+        }
+      },
+      "layer": {
+        "app/(workspace)/contest/[id]/standings/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_CACHE_1",
       "filename": "actions/contest.ts"
     }
   },

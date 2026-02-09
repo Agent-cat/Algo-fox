@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import { Toaster } from "sonner";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import DevToolsBlocker from "@/components/DevToolsBlocker";
 import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
-import DevToolsBlocker from "@/components/DevToolsBlocker";
+import FocusBlur from "@/components/FocusBlur";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +59,7 @@ export default function RootLayout({
             }}
           />
           <SessionConflictModal />
+          <FocusBlur />
           {children}
         </ThemeProvider>
       </body>

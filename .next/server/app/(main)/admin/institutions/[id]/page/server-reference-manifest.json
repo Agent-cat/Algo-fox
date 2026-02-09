@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -30,7 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+    "80f9aefed398528272c483af22313521fe7fd28a79": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -45,7 +45,7 @@
       "exportedName": "getUserScore",
       "filename": "actions/user.action.ts"
     },
-    "40f6e9b8f8e8e2c92343e663c6d94ca77704b32c4e": {
+    "4076462987da39b47d54c044ca0b47618aac1d4af0": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -60,7 +60,7 @@
       "exportedName": "getInstitutionById",
       "filename": "actions/admin/institution.ts"
     },
-    "6075645c773012bc11c3239c26bef68c4de8d10e19": {
+    "60706a498eb0f372a87cc013e9b4f3acab5b608bb6": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -75,7 +75,7 @@
       "exportedName": "updateInstitutionAction",
       "filename": "actions/admin/institution.ts"
     },
-    "604b7b931351a82ff375e1ad934da00ce596e4182b": {
+    "60b97618a7e2aa00265abe522308ab00b5ea8e8604": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -90,7 +90,7 @@
       "exportedName": "assignInstitutionManager",
       "filename": "actions/admin/institution.ts"
     },
-    "405e04aceede4e9292ab1f13da65c7c83541f66504": {
+    "4063c647b2a1924a654b2d0658e390c5d737ff70b2": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -105,7 +105,7 @@
       "exportedName": "searchUsersByEmail",
       "filename": "actions/admin/institution.ts"
     },
-    "6075b431ad4b8613bf0a20a1b82bb9a3bfb1302a11": {
+    "60373f4c0aa11a24e23d02ce017a65e350ebc58ddc": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -120,7 +120,7 @@
       "exportedName": "removeInstitutionManager",
       "filename": "actions/admin/institution.ts"
     },
-    "704aaa81b27b1cd4a3693d4125a9deb09cf53f3df0": {
+    "7011376f06fb2b4d7213290596f5f7d90ab8563085": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,
@@ -135,7 +135,7 @@
       "exportedName": "getInstitutionUsers",
       "filename": "actions/admin/institution.ts"
     },
-    "40ceda26fecb25470088093f1e29c21c664fd95b32": {
+    "40d6db69ac164f62e484d3983bfa57328447c9fa62": {
       "workers": {
         "app/(main)/admin/institutions/[id]/page": {
           "moduleId": 262925,

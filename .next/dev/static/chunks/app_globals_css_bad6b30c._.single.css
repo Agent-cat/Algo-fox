@@ -879,6 +879,10 @@
     z-index: 10000;
   }
 
+  .z-99999 {
+    z-index: 99999;
+  }
+
   .z-\[100\] {
     z-index: 100;
   }
@@ -3161,6 +3165,16 @@
 
   .bg-background {
     background-color: var(--background);
+  }
+
+  .bg-background\/50 {
+    background-color: var(--background);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-background\/50 {
+      background-color: color-mix(in oklab, var(--background) 50%, transparent);
+    }
   }
 
   .bg-black {

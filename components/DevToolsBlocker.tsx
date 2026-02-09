@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 
 // Add the allowed emails here
 const ALLOWED_EMAILS: string[] = [
-  "mandalavishnuvardhan07@gmail.com"
+  "mandalavishnxuvardhan07@gmail.com"
 ];
 
 export default function DevToolsBlocker() {
@@ -35,59 +35,15 @@ export default function DevToolsBlocker() {
           return false;
       };
 
-      // Block Ctrl+V, Cmd+V (Paste)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
-           // Exception check for paste shortcut
-           let target = e.target as HTMLElement | null;
-           let valid = false;
-           let depth = 0;
-           while (target && target !== document.body && depth < 20) {
-               if (target.getAttribute && target.getAttribute('data-allow-clipboard') === 'true') {
-                   valid = true;
-                   break;
-               }
-               target = target.parentElement;
-               depth++;
-           }
-           if (valid) return; // Allow paste shortcut if in valid area
-
-          return blockAction("Pasting");
-      }
-       // Block Ctrl+C, Cmd+C (Copy)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
-           // Exception check for copy shortcut
-           let target = e.target as HTMLElement | null;
-           let valid = false;
-           let depth = 0;
-           while (target && target !== document.body && depth < 20) {
-               if (target.getAttribute && target.getAttribute('data-allow-clipboard') === 'true') {
-                   valid = true;
-                   break;
-               }
-               target = target.parentElement;
-               depth++;
-           }
-           if (valid) return; // Allow copy shortcut if in valid area
-
-          return blockAction("Copying");
-      }
-       // Block Ctrl+X, Cmd+X (Cut)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'x' || e.key === 'X')) {
-           // Exception check for cut shortcut
-           let target = e.target as HTMLElement | null;
-           let valid = false;
-           let depth = 0;
-           while (target && target !== document.body && depth < 20) {
-               if (target.getAttribute && target.getAttribute('data-allow-clipboard') === 'true') {
-                   valid = true;
-                   break;
-               }
-               target = target.parentElement;
-               depth++;
-           }
-           if (valid) return; // Allow cut shortcut if in valid area
-
-          return blockAction("Cut");
+      // Block PrintScreen
+      if (e.key === 'PrintScreen') {
+          // Attempt to clear clipboard to prevent the screenshot from being useful if it was copied there
+          try {
+            navigator.clipboard.writeText('');
+          } catch (err) {
+            // ignore
+          }
+          return blockAction("PrintScreen");
       }
 
       // F12 - Open Dev Tools
@@ -120,44 +76,7 @@ export default function DevToolsBlocker() {
       }
     };
 
-    // 3. Disable Copy, Cut, Paste Globally (Capture phase)
-    const handleCopyCutPaste = (e: ClipboardEvent) => {
-      // Exception for specific elements like CodeEditor
-      let target = e.target as HTMLElement | null;
 
-      // Traverse up to find if we are inside an allowed container
-      let depth = 0;
-      while (target && target !== document.body && depth < 20) {
-          if (target.getAttribute && target.getAttribute('data-allow-clipboard') === 'true') {
-              return; // Allowed!
-          }
-          target = target.parentElement;
-          depth++;
-      }
-
-      e.preventDefault();
-      e.stopPropagation();
-      toast.error("Copying and pasting is disabled in this application.");
-      return false;
-    };
-
-    // 4. Disable Text Selection (Fallback for CSS user-select: none)
-    const handleSelectStart = (e: Event) => {
-      // Exception for selection too
-      let target = e.target as HTMLElement | null;
-      let depth = 0;
-      while (target && target !== document.body && depth < 20) {
-          if (target.getAttribute && target.getAttribute('data-allow-clipboard') === 'true') {
-              return;
-          }
-          target = target.parentElement;
-          depth++;
-      }
-
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    };
 
     // 5. DevTools Detection via Console
     let devtools = false;
@@ -221,18 +140,12 @@ export default function DevToolsBlocker() {
     // Attach listeners with CAPTURE: TRUE to intercept events before other handlers (like Monaco)
     document.addEventListener('contextmenu', handleContextMenu, true);
     document.addEventListener('keydown', handleKeyDown, true);
-    document.addEventListener('copy', handleCopyCutPaste, true);
-    document.addEventListener('cut', handleCopyCutPaste, true);
-    document.addEventListener('paste', handleCopyCutPaste, true);
-    document.addEventListener('selectstart', handleSelectStart, true);
+
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu, true);
       document.removeEventListener('keydown', handleKeyDown, true);
-      document.removeEventListener('copy', handleCopyCutPaste, true);
-      document.removeEventListener('cut', handleCopyCutPaste, true);
-      document.removeEventListener('paste', handleCopyCutPaste, true);
-      document.removeEventListener('selectstart', handleSelectStart, true);
+
 
       clearInterval(consoleDetectionInterval);
       clearInterval(checkResizeInterval);

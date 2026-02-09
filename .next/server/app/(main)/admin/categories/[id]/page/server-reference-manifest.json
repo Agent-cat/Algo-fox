@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -30,7 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+    "80f9aefed398528272c483af22313521fe7fd28a79": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -45,7 +45,7 @@
       "exportedName": "getUserScore",
       "filename": "actions/user.action.ts"
     },
-    "f88ea1c2067191c078fad313714852f8fe7db11df1": {
+    "f88db5b15212018b1d0f85947a88319d038ce0b4a3": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -60,7 +60,7 @@
       "exportedName": "getCategoryProblems",
       "filename": "actions/category.action.ts"
     },
-    "60d2264b1f398652eb46eab2bb3759572857722502": {
+    "602b789ddc2cbce45b99fc77b2608c4e673d8e013b": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -75,7 +75,7 @@
       "exportedName": "removeProblemFromCategory",
       "filename": "actions/category.action.ts"
     },
-    "ff161ca534fa0477106bff83d2b07e07a7d461630c": {
+    "ff3557239068805c49d8cb73e65e5cee2d9c204d5b": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -90,7 +90,7 @@
       "exportedName": "getProblems",
       "filename": "actions/problems.ts"
     },
-    "c01ca31fce0d3f3a9d5c4fe8e7dcb9a400d16af8c9": {
+    "c09165c1ff71714091b5e323394e495268a81dd825": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -105,7 +105,7 @@
       "exportedName": "getCategories",
       "filename": "actions/category.action.ts"
     },
-    "c0fbbdc05f58cc8608414154b4c7d28612d511e525": {
+    "c07cd28735e72980bcc09a4e4d4063e2db38913297": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -120,7 +120,7 @@
       "exportedName": "getCategory",
       "filename": "actions/category.action.ts"
     },
-    "4053663bceb8a80c0085656d61a1b89bee3cb8d166": {
+    "40e876de770b5b900f7e56bbdcf85a54d8d8c97729": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -135,7 +135,7 @@
       "exportedName": "getCategoryById",
       "filename": "actions/category.action.ts"
     },
-    "40df636e269e6ad8e68e86a17b941428478fb1279a": {
+    "40131704dc4521ee01a22baf5a13df204ed9261aec": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -150,7 +150,7 @@
       "exportedName": "createCategory",
       "filename": "actions/category.action.ts"
     },
-    "6079c58c3044096e2e3c0e124762f766628d945274": {
+    "604432ad4f7150aa34912aaf669043854cc088b434": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -165,7 +165,7 @@
       "exportedName": "updateCategory",
       "filename": "actions/category.action.ts"
     },
-    "4002126267c5e0c1a5eb6b4769d671952c3eb4b33f": {
+    "40e8cd58f30b1bca9b7f5066e79da668dbb316ae4d": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -180,7 +180,7 @@
       "exportedName": "deleteCategory",
       "filename": "actions/category.action.ts"
     },
-    "706fc56ae5305db762dbcd7da21f654785f49478af": {
+    "70c9d540d6cc9e6cfbaa94b6e959a5edec0de8a3e2": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,
@@ -195,7 +195,7 @@
       "exportedName": "addProblemToCategory",
       "filename": "actions/category.action.ts"
     },
-    "600fce90ff1d93c6a9f08094f28d2d9fce60ec2e62": {
+    "60f9844c9f8a7c184b730fb57326b9f06ea4eed5a0": {
       "workers": {
         "app/(main)/admin/categories/[id]/page": {
           "moduleId": 511115,

@@ -1,5 +1,5 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/user/recalculate-score/route.js")
-R.c("server/chunks/[root-of-the-server]__cf5329f9._.js")
+R.c("server/chunks/[root-of-the-server]__ca6bbaaf._.js")
 R.c("server/chunks/node_modules_next_b02555f7._.js")
 R.c("server/chunks/[root-of-the-server]__963c84c1._.js")
 R.c("server/chunks/node_modules_next_dist_3cae5f3a._.js")

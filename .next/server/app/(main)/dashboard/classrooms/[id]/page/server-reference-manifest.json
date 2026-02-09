@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -30,7 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "80ee7282f708e60661ecc42477a6d2afba42f1d5ed": {
+    "80f9aefed398528272c483af22313521fe7fd28a79": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -45,7 +45,7 @@
       "exportedName": "getUserScore",
       "filename": "actions/user.action.ts"
     },
-    "c0c910ffaeadb5655b8799d56a6573193c01a2861a": {
+    "c094dfd294597c9e88d6778cb1b5bbd0f5f5102400": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -60,7 +60,7 @@
       "exportedName": "$$RSC_SERVER_CACHE_0",
       "filename": "app/(main)/dashboard/classrooms/[id]/page.tsx"
     },
-    "002a588abb136c6f86adadd291e7fdda7347bfa1e9": {
+    "0050a8bf1e1530b53cfbeaf819dd49590f820fef19": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -75,7 +75,7 @@
       "exportedName": "getTeacherClassrooms",
       "filename": "actions/classroom.ts"
     },
-    "00dc41dbc84f1082ddd9f6a9207eb5b406ea5c543e": {
+    "00b575ee379f9217818290d39d627e5206d1d8c658": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -90,52 +90,7 @@
       "exportedName": "getStudentClassrooms",
       "filename": "actions/classroom.ts"
     },
-    "4037d92f3a67eb2428d5b2dab919914d5756aace36": {
-      "workers": {
-        "app/(main)/dashboard/classrooms/[id]/page": {
-          "moduleId": 122916,
-          "async": false,
-          "exportedName": "getClassroomByCode",
-          "filename": "actions/classroom.ts"
-        }
-      },
-      "layer": {
-        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
-      },
-      "exportedName": "getClassroomByCode",
-      "filename": "actions/classroom.ts"
-    },
-    "4052b0471161707b49db8311132ddb7c92790d847f": {
-      "workers": {
-        "app/(main)/dashboard/classrooms/[id]/page": {
-          "moduleId": 122916,
-          "async": false,
-          "exportedName": "joinClassroom",
-          "filename": "actions/classroom.ts"
-        }
-      },
-      "layer": {
-        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
-      },
-      "exportedName": "joinClassroom",
-      "filename": "actions/classroom.ts"
-    },
-    "405d122aba3f5928800ed130a7b71a1b47271751ba": {
-      "workers": {
-        "app/(main)/dashboard/classrooms/[id]/page": {
-          "moduleId": 122916,
-          "async": false,
-          "exportedName": "createClassroom",
-          "filename": "actions/classroom.ts"
-        }
-      },
-      "layer": {
-        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
-      },
-      "exportedName": "createClassroom",
-      "filename": "actions/classroom.ts"
-    },
-    "40e294f0f9e4303d3615ddc6a66cada537036c1b97": {
+    "405e846f3ed2c4db3c0dc7fe3d443278f67bc69ab8": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -150,22 +105,52 @@
       "exportedName": "getClassroomLiveTracking",
       "filename": "actions/classroom.ts"
     },
-    "60034d10a668ce8353cc35e9db8784a8a275d2b2e0": {
+    "40784afaa037419b9b378da29d5c3709241c36670a": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
           "async": false,
-          "exportedName": "toggleClassroomTracking",
+          "exportedName": "joinClassroom",
           "filename": "actions/classroom.ts"
         }
       },
       "layer": {
-        "app/(main)/dashboard/classrooms/[id]/page": "action-browser"
+        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
       },
-      "exportedName": "toggleClassroomTracking",
+      "exportedName": "joinClassroom",
       "filename": "actions/classroom.ts"
     },
-    "602532808556a300ed5e0f4a5f69437cc6db044dc7": {
+    "40ae20fdfabc5a178b90002022c88a9e26b3943214": {
+      "workers": {
+        "app/(main)/dashboard/classrooms/[id]/page": {
+          "moduleId": 122916,
+          "async": false,
+          "exportedName": "getClassroomByCode",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
+      },
+      "exportedName": "getClassroomByCode",
+      "filename": "actions/classroom.ts"
+    },
+    "40f4be4d93468c9a5f1904e0634595db554a15ea3d": {
+      "workers": {
+        "app/(main)/dashboard/classrooms/[id]/page": {
+          "moduleId": 122916,
+          "async": false,
+          "exportedName": "createClassroom",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/classrooms/[id]/page": "rsc"
+      },
+      "exportedName": "createClassroom",
+      "filename": "actions/classroom.ts"
+    },
+    "6006ec0b21c274362d081f60042b14b1553e15837d": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -180,7 +165,7 @@
       "exportedName": "removeStudentFromClassroom",
       "filename": "actions/classroom.ts"
     },
-    "6029e68e22d85ff157089c99e60915beba555ec65d": {
+    "6025ede7756effeca963f9f919bea4f5bb0a812a8c": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -195,7 +180,22 @@
       "exportedName": "getInstitutionClassrooms",
       "filename": "actions/classroom.ts"
     },
-    "700d160d9099ae66508f5d181cf879265ecd403e7d": {
+    "609df6e6c180a6908999c2bb2cab17909662d62f98": {
+      "workers": {
+        "app/(main)/dashboard/classrooms/[id]/page": {
+          "moduleId": 122916,
+          "async": false,
+          "exportedName": "toggleClassroomTracking",
+          "filename": "actions/classroom.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/dashboard/classrooms/[id]/page": "action-browser"
+      },
+      "exportedName": "toggleClassroomTracking",
+      "filename": "actions/classroom.ts"
+    },
+    "70439b6f98612fb3898e94018de02cb60a2f71ff7f": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -210,7 +210,7 @@
       "exportedName": "getClassroomWithStudents",
       "filename": "actions/classroom.ts"
     },
-    "6003528168c7674a84bb868c01fba11e7a85ec3436": {
+    "60d524aa91b2de3b64624b26cd3282f84a727e5525": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -225,7 +225,7 @@
       "exportedName": "createAssignment",
       "filename": "actions/assignment.ts"
     },
-    "f07500676e7437c89c7059a3d08b36e62d85af89e8": {
+    "f0e5e480002cc3040a8a08bbfbb9b849db86b1dbae": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -240,7 +240,7 @@
       "exportedName": "searchProblems",
       "filename": "actions/problems.ts"
     },
-    "700c4e6486b9377d27cb659a4ae483dea658d585bb": {
+    "701a6d25d4b7468b20f730dbbc9ce71c7fadc6147a": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -255,7 +255,7 @@
       "exportedName": "getClassroomAssignments",
       "filename": "actions/assignment.ts"
     },
-    "4095cf52719904b827b4deee82f67d5a76149d1129": {
+    "40fdc27308612ef878f36ea6cbc4122bd532597346": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,
@@ -270,7 +270,7 @@
       "exportedName": "refreshClassroomAssignments",
       "filename": "actions/assignment.ts"
     },
-    "78f6517bba230a956bb82c20c45f1fb75536890525": {
+    "7863e699dcd438e59c52bc1d0a63ef9f1103a9a11a": {
       "workers": {
         "app/(main)/dashboard/classrooms/[id]/page": {
           "moduleId": 122916,

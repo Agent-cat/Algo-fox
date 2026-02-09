@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/(auth)/signup/page": {
           "moduleId": 731972,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/(auth)/signup/page": {
           "moduleId": 731972,

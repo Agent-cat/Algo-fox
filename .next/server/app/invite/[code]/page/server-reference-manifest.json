@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/invite/[code]/page": {
           "moduleId": 637688,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/invite/[code]/page": {
           "moduleId": 637688,
@@ -30,67 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "401c0b56e0da3b528a24dc847cca9a8169ec930301": {
-      "workers": {
-        "app/invite/[code]/page": {
-          "moduleId": 637688,
-          "async": false,
-          "exportedName": "createInvite",
-          "filename": "actions/institution/invite.ts"
-        }
-      },
-      "layer": {
-        "app/invite/[code]/page": "rsc"
-      },
-      "exportedName": "createInvite",
-      "filename": "actions/institution/invite.ts"
-    },
-    "403793a01b4e61bf4760f03221283fe03f82e3feff": {
-      "workers": {
-        "app/invite/[code]/page": {
-          "moduleId": 637688,
-          "async": false,
-          "exportedName": "deleteInvite",
-          "filename": "actions/institution/invite.ts"
-        }
-      },
-      "layer": {
-        "app/invite/[code]/page": "rsc"
-      },
-      "exportedName": "deleteInvite",
-      "filename": "actions/institution/invite.ts"
-    },
-    "404868956ef6b4b20cd8403454848c0d661f9addce": {
-      "workers": {
-        "app/invite/[code]/page": {
-          "moduleId": 637688,
-          "async": false,
-          "exportedName": "acceptInvite",
-          "filename": "actions/institution/invite.ts"
-        }
-      },
-      "layer": {
-        "app/invite/[code]/page": "action-browser"
-      },
-      "exportedName": "acceptInvite",
-      "filename": "actions/institution/invite.ts"
-    },
-    "404e29d679764283f39ad846a4fa6f88e3cbdde468": {
-      "workers": {
-        "app/invite/[code]/page": {
-          "moduleId": 637688,
-          "async": false,
-          "exportedName": "getInstitutionInvites",
-          "filename": "actions/institution/invite.ts"
-        }
-      },
-      "layer": {
-        "app/invite/[code]/page": "rsc"
-      },
-      "exportedName": "getInstitutionInvites",
-      "filename": "actions/institution/invite.ts"
-    },
-    "4066b84c2f45d13f02d3bdb725aeccf656557b6247": {
+    "401b2640af7e4cee35bc71df08fa74c60bcb63180e": {
       "workers": {
         "app/invite/[code]/page": {
           "moduleId": 637688,
@@ -105,7 +45,67 @@
       "exportedName": "getInviteDetails",
       "filename": "actions/institution/invite.ts"
     },
-    "4070b35c934e0b3b368b7e82f87c0d943dad42d08a": {
+    "4082ff552ae62b18aa097df9116bf4b96b0260c792": {
+      "workers": {
+        "app/invite/[code]/page": {
+          "moduleId": 637688,
+          "async": false,
+          "exportedName": "getInstitutionInvites",
+          "filename": "actions/institution/invite.ts"
+        }
+      },
+      "layer": {
+        "app/invite/[code]/page": "rsc"
+      },
+      "exportedName": "getInstitutionInvites",
+      "filename": "actions/institution/invite.ts"
+    },
+    "409775e661649791d27fc1d70d882e4d6b1dae28aa": {
+      "workers": {
+        "app/invite/[code]/page": {
+          "moduleId": 637688,
+          "async": false,
+          "exportedName": "deleteInvite",
+          "filename": "actions/institution/invite.ts"
+        }
+      },
+      "layer": {
+        "app/invite/[code]/page": "rsc"
+      },
+      "exportedName": "deleteInvite",
+      "filename": "actions/institution/invite.ts"
+    },
+    "40d419ca45ec1ccba617881ac5d71803b646707a2c": {
+      "workers": {
+        "app/invite/[code]/page": {
+          "moduleId": 637688,
+          "async": false,
+          "exportedName": "createInvite",
+          "filename": "actions/institution/invite.ts"
+        }
+      },
+      "layer": {
+        "app/invite/[code]/page": "rsc"
+      },
+      "exportedName": "createInvite",
+      "filename": "actions/institution/invite.ts"
+    },
+    "40db331a51f0237eb2b7f839067004b96a1aac8adf": {
+      "workers": {
+        "app/invite/[code]/page": {
+          "moduleId": 637688,
+          "async": false,
+          "exportedName": "acceptInvite",
+          "filename": "actions/institution/invite.ts"
+        }
+      },
+      "layer": {
+        "app/invite/[code]/page": "action-browser"
+      },
+      "exportedName": "acceptInvite",
+      "filename": "actions/institution/invite.ts"
+    },
+    "40e7e288d76383a40bdb44e1dcc401072d4d45e409": {
       "workers": {
         "app/invite/[code]/page": {
           "moduleId": 637688,

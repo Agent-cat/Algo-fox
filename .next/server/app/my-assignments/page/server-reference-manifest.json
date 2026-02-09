@@ -1,6 +1,6 @@
 {
   "node": {
-    "00f4c838ce10f91796a39f1558a3b75432fa49882a": {
+    "00bcf3ce605b1623a740e5943a480613c43fdb63e0": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
@@ -15,7 +15,7 @@
       "exportedName": "checkSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "409bc5870257fe05de038549e85b0722c4e09c83d4": {
+    "408dfd6afd7486fd8166cc390a5cd7832cce5be989": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
@@ -30,37 +30,7 @@
       "exportedName": "resolveSessionConflict",
       "filename": "actions/auth.ts"
     },
-    "4095cf52719904b827b4deee82f67d5a76149d1129": {
-      "workers": {
-        "app/my-assignments/page": {
-          "moduleId": 462809,
-          "async": false,
-          "exportedName": "refreshClassroomAssignments",
-          "filename": "actions/assignment.ts"
-        }
-      },
-      "layer": {
-        "app/my-assignments/page": "rsc"
-      },
-      "exportedName": "refreshClassroomAssignments",
-      "filename": "actions/assignment.ts"
-    },
-    "4099ddd2d442f39886d1924e57ac5366b48e0feab2": {
-      "workers": {
-        "app/my-assignments/page": {
-          "moduleId": 462809,
-          "async": false,
-          "exportedName": "getAssignmentDetails",
-          "filename": "actions/assignment.ts"
-        }
-      },
-      "layer": {
-        "app/my-assignments/page": "rsc"
-      },
-      "exportedName": "getAssignmentDetails",
-      "filename": "actions/assignment.ts"
-    },
-    "409f14d17b68b32800d1b89d54d9c1362f16655a51": {
+    "405c781304e586174725bbebaa50dcc33066cc61cf": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
@@ -75,37 +45,37 @@
       "exportedName": "deleteAssignment",
       "filename": "actions/assignment.ts"
     },
-    "6003528168c7674a84bb868c01fba11e7a85ec3436": {
+    "40e4c9482003d07516f6d72233ae1e4d08f73de90d": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
           "async": false,
-          "exportedName": "createAssignment",
+          "exportedName": "getAssignmentDetails",
           "filename": "actions/assignment.ts"
         }
       },
       "layer": {
         "app/my-assignments/page": "rsc"
       },
-      "exportedName": "createAssignment",
+      "exportedName": "getAssignmentDetails",
       "filename": "actions/assignment.ts"
     },
-    "602cca1a113fc5f6dd104c638d2e02baf898bef1e6": {
+    "40fdc27308612ef878f36ea6cbc4122bd532597346": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
           "async": false,
-          "exportedName": "getAssignmentProgress",
+          "exportedName": "refreshClassroomAssignments",
           "filename": "actions/assignment.ts"
         }
       },
       "layer": {
         "app/my-assignments/page": "rsc"
       },
-      "exportedName": "getAssignmentProgress",
+      "exportedName": "refreshClassroomAssignments",
       "filename": "actions/assignment.ts"
     },
-    "6056904424410eeba8322d9865e2d963de944ba2a8": {
+    "602d5bb0c4b5fa0db9d89d6bab52519ed6a8dfb3bf": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
@@ -120,7 +90,37 @@
       "exportedName": "getStudentAssignments",
       "filename": "actions/assignment.ts"
     },
-    "700c4e6486b9377d27cb659a4ae483dea658d585bb": {
+    "6088de02c68394002ce2a31e66e8c4b5294d626d89": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "getAssignmentProgress",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "getAssignmentProgress",
+      "filename": "actions/assignment.ts"
+    },
+    "60d524aa91b2de3b64624b26cd3282f84a727e5525": {
+      "workers": {
+        "app/my-assignments/page": {
+          "moduleId": 462809,
+          "async": false,
+          "exportedName": "createAssignment",
+          "filename": "actions/assignment.ts"
+        }
+      },
+      "layer": {
+        "app/my-assignments/page": "rsc"
+      },
+      "exportedName": "createAssignment",
+      "filename": "actions/assignment.ts"
+    },
+    "701a6d25d4b7468b20f730dbbc9ce71c7fadc6147a": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
@@ -135,7 +135,7 @@
       "exportedName": "getClassroomAssignments",
       "filename": "actions/assignment.ts"
     },
-    "78f6517bba230a956bb82c20c45f1fb75536890525": {
+    "7863e699dcd438e59c52bc1d0a63ef9f1103a9a11a": {
       "workers": {
         "app/my-assignments/page": {
           "moduleId": 462809,
