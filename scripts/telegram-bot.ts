@@ -148,17 +148,17 @@ async function checkContests() {
     // Logic: If timeDiff is between 29.5 and 30.5, AND not sent "30m"
     if (timeDiffMinutes >= 29.5 && timeDiffMinutes <= 30.5) {
       notificationType = "30m";
-      messagePrefix = "⏰ *Contest Alert: 30 Minutes Remaining!*";
+      messagePrefix = " *Contest Alert: 30 Minutes Remaining!*";
     }
     // Check 10 minutes before
     else if (timeDiffMinutes >= 9.5 && timeDiffMinutes <= 10.5) {
       notificationType = "10m";
-      messagePrefix = "⏰ *Contest Alert: 10 Minutes Remaining!*";
+      messagePrefix = " *Contest Alert: 10 Minutes Remaining!*";
     }
     // Check Start time (approx 0)
     else if (timeDiffMinutes >= -0.5 && timeDiffMinutes <= 0.5) {
       notificationType = "start";
-      messagePrefix = "🚀 *Contest Started!*";
+      messagePrefix = " *Contest Started!*";
     }
 
     if (notificationType) {
