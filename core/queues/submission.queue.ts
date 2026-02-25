@@ -241,7 +241,7 @@ const worker = new Worker(
                         const memory = result.memory || 0;
                         const status = mapJudge0StatusToDb(result.status.id);
 
-                        
+
                         let errorMessage: string | null = null;
                         if (compilationError) {
                             errorMessage = globalErrorMessage;

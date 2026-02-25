@@ -51,10 +51,10 @@ export function CategoriesList({
     return (
         <div className="space-y-2">
             {categories.map((category) => (
-                <div key={category.id} className="rounded-lg border border-gray-100 dark:border-[#262626] overflow-hidden">
+                <div key={category.id} className="rounded-xl border border-gray-200 dark:border-[#262626] overflow-hidden bg-white dark:bg-[#111111]">
                     <button
                         onClick={() => onToggleCategory(category.id)}
-                        className="w-full flex items-center justify-between p-3 bg-gray-50/50 dark:bg-[#141414] hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors"
+                        className="w-full flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-[#141414] hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors border-b border-transparent hover:border-gray-100 dark:hover:border-[#262626]"
                     >
                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 truncate text-left flex-1 mr-2">
                             {category.name}
@@ -93,10 +93,10 @@ export function CategoriesList({
                                                     key={prob.id}
                                                     href={`/problems/${prob.slug}`}
                                                     className={cn(
-                                                        "flex items-center gap-3 p-2 rounded-md text-sm transition-colors ml-2",
+                                                        "flex items-center gap-3 p-2.5 rounded-lg text-sm transition-all ml-2 border border-transparent",
                                                         isCurrent
-                                                            ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400"
-                                                            : "hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400"
+                                                            ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-100 dark:border-orange-500/20"
+                                                            : "hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 border-transparent hover:border-gray-100 dark:hover:border-[#262626]"
                                                     )}
                                                 >
                                                     <div className={cn(

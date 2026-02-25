@@ -185,7 +185,7 @@ export default function ProblemSidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 z-40 bg-black/50 backdrop-blur-xs"
+            className="absolute inset-0 z-40 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Sidebar */}
@@ -193,18 +193,18 @@ export default function ProblemSidebar({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute top-0 left-0 bottom-0 w-80 z-50 shadow-2xl"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute top-0 left-0 bottom-0 w-80 z-50 shadow-2xl bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-[#262626]"
           >
-            <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a]">
+            <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="p-4 border-b border-dashed border-gray-200 dark:border-[#262626] flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Navigation</h2>
+              <div className="p-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#111111]/50">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Problems</h2>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors"
+                  className="p-1.5 hover:bg-white dark:hover:bg-[#1a1a1a] rounded-md text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#333]"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 

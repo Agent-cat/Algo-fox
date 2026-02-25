@@ -11,8 +11,9 @@ import { getPointsLabel } from '@/lib/points';
 import { CommentTree } from '../problems/discussion/CommentTree';
 import { useState } from 'react';
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
-import { remarkSolutionDirective } from "@/lib/markdown-plugins";
+import { remarkSolutionDirective, remarkMcqDirective } from "@/lib/markdown-plugins";
 import { preprocessMarkdown } from "@/lib/markdown-utils";
+import McqWidget from "@/components/markdown/McqWidget";
 import remarkDirective from 'remark-directive';
 
 type Tab = "description" | "solutions" | "submissions";
@@ -106,8 +107,12 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
 
                         <div className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]">
                             <Markdown
-                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                remarkPlugins={[remarkDirective, remarkGfm, remarkBreaks, remarkMcqDirective]}
                                 rehypePlugins={[rehypeRaw]}
+                                components={{
+                                    // @ts-ignore
+                                    'mcq-widget': McqWidget
+                                }}
                             >
                                 {problem.description}
                             </Markdown>

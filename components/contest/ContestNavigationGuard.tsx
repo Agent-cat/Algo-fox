@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { logContestViolation } from "@/actions/contest";
+import { toast } from "sonner";
 
 interface ContestNavigationGuardProps {
     contestId: string;
@@ -40,12 +40,11 @@ export default function ContestNavigationGuard({
             e.preventDefault();
             pushState();
 
-            // Log navigation attempt
-            logContestViolation(
-                contestId,
-                "NAVIGATION_ATTEMPT",
-                "Attempted to use browser back/forward"
-            );
+            // Show toast for navigation attempt
+            toast.error("Navigation blocked", {
+                description: "Browser back/forward is disabled during the contest.",
+                duration: 3000,
+            });
         };
 
         window.addEventListener("popstate", handlePopState);
@@ -70,11 +69,10 @@ export default function ContestNavigationGuard({
                     e.preventDefault();
                     e.stopPropagation();
 
-                    logContestViolation(
-                        contestId,
-                        "NAVIGATION_ATTEMPT",
-                        `Attempted to navigate to: ${href}`
-                    );
+                    toast.error("Navigation blocked", {
+                        description: `You cannot navigate away during the contest.`,
+                        duration: 3000,
+                    });
 
                     return false;
                 }
@@ -91,11 +89,10 @@ export default function ContestNavigationGuard({
             const isAllowed = allowedPaths.some(path => pathname?.startsWith(path));
 
             if (!isAllowed) {
-                logContestViolation(
-                    contestId,
-                    "NAVIGATION_ATTEMPT",
-                    `Unexpected navigation to: ${pathname}`
-                );
+                toast.error("Navigation blocked", {
+                    description: "You've been redirected back to the contest.",
+                    duration: 3000,
+                });
 
                 // Redirect back to contest
                 router.replace(initialPath.current || "/");

@@ -1,5 +1,0 @@
-{
-  "/(main)/problems/dsa/page": "app/(main)/problems/dsa/page.js",
-  "/(workspace)/problems/[slug]/page": "app/(workspace)/problems/[slug]/page.js",
-  "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js"
-}

@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../app/%28workspace%29/layout.tsx"],"sourcesContent":["\nexport default function WorkspaceLayout({\n  children,\n}: Readonly<{\n  children: React.ReactNode;\n}>) {\n  return <>{children}</>;\n}\n"],"names":[],"mappings":"0DACe,SAAS,EAAgB,UACtC,CAAQ,CAGR,EACA,MAAO,CAAA,EAAA,EAAA,GAAA,EAAA,EAAA,QAAA,CAAA,UAAG,GACZ"}
