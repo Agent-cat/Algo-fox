@@ -152,14 +152,19 @@ async function ProblemContentWithParams({
 
   return (
     <>
-      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#0a0a0a]">
-        <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
-          <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#0a0a0a] relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid opacity-30" />
+        <div className="relative z-10 space-y-6">
+          <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
+            <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
+            <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
+              For the best coding experience, please open this problem on a desktop or laptop device.
+            </p>
+          </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Desktop Required</h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
-          For the best coding experience, please open this problem on a desktop or laptop device.
-        </p>
       </div>
       <div className="hidden md:block">
         <WorkspaceClientWrapper
@@ -180,9 +185,12 @@ export default function ProblemPage({ params, searchParams }: PageProps) {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading problem...</p>
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
+            <div className="absolute inset-0 h-10 w-10 border-[3px] border-transparent border-b-orange-300 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+          </div>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading problem...</p>
         </div>
       </div>
     }>

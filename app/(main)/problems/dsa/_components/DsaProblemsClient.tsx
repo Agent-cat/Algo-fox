@@ -9,6 +9,7 @@ import { SearchBar } from "./shared/SearchBar";
 import { FilterBar } from "@/components/problems/FilterBar";
 import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
+import { motion } from "framer-motion";
 
 type ProblemWithStats = {
     id: string;
@@ -39,16 +40,13 @@ export default function DsaProblemsClient({
     const router = useRouter();
     const pathname = usePathname();
 
-    // DERIVED STATE FROM URL, DEFAULT TO 'PRACTICE'
     const mode = (searchParams.get("mode") as "practice" | "learn") || "practice";
     const [searchTerm, setSearchTerm] = useState("");
 
-    // LIFTED STATE FOR LEARN MODE CACHING
     const [categories, setCategories] = useState<any[]>(initialCategories);
     const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
     const [hasFetchedCategories, setHasFetchedCategories] = useState(initialCategories.length > 0);
 
-    // Sync categories from props (for router.refresh())
     useEffect(() => {
         if (initialCategories.length > 0) {
             setCategories(initialCategories);
@@ -89,37 +87,71 @@ export default function DsaProblemsClient({
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8"
+        >
             <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
+                {/* Page Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 }}
+                    className="mb-8"
+                >
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-1">
+                        DSA Problems
+                    </h1>
+
+                </motion.div>
+
                 {/* HEADER TOOLS */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+                <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+                >
                     <SearchBar
                         onSearch={handleSearch}
-                        placeholder={mode === "practice" ? "Search problems" : "Search categories"}
+                        placeholder={mode === "practice" ? "Search problems..." : "Search categories..."}
                         className="w-full md:flex-1"
                     />
                     <ModeToggle mode={mode} onModeChange={setMode} />
-                </div>
+                </motion.div>
 
-                {mode === "practice" ? (
-                    <>
-                        <FilterBar />
-                        <PracticeClient
-                            initialProblems={initialProblems}
-                            initialTotalPages={initialTotalPages}
-                            searchTerm={searchTerm}
-                            domain="DSA"
-                        />
-                    </>
-                ) : (
-                    <LearnMode
-                        searchTerm={searchTerm}
-                        categories={categories}
-                        isLoading={isCategoriesLoading}
-                    />
-                )}
+                {/* Content */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.15 }}
+                    className="bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden"
+                >
+                    {mode === "practice" ? (
+                        <>
+                            <div className="px-5 pt-4 pb-2">
+                                <FilterBar />
+                            </div>
+                            <PracticeClient
+                                initialProblems={initialProblems}
+                                initialTotalPages={initialTotalPages}
+                                searchTerm={searchTerm}
+                                domain="DSA"
+                            />
+                        </>
+                    ) : (
+                        <div className="p-5">
+                            <LearnMode
+                                searchTerm={searchTerm}
+                                categories={categories}
+                                isLoading={isCategoriesLoading}
+                            />
+                        </div>
+                    )}
+                </motion.div>
             </div>
-        </div >
+        </motion.div >
     );
 }
-

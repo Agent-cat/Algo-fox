@@ -6,6 +6,8 @@ import { Problem, ProblemType, Difficulty, ProblemDomain } from "@prisma/client"
 import { ProblemRow } from "../shared/ProblemRow";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { PROBLEMS_PAGE_SIZE, INTERSECTION_THRESHOLD } from "../shared/constants";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search } from "lucide-react";
 
 type ProblemWithStats = {
     id: string;
@@ -38,7 +40,6 @@ export default function PracticeClient({
 }: PracticeClientProps) {
     const [problems, setProblems] = useState<ProblemWithStats[]>(initialProblems);
 
-    // Reset problems when initialProblems changes (e.g. filter change)
     useEffect(() => {
         setProblems(initialProblems);
         setPage(1);
@@ -48,18 +49,11 @@ export default function PracticeClient({
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(page < initialTotalPages);
     const [isLoading, setIsLoading] = useState(false);
-    const [localSearchTerm, setLocalSearchTerm] = useState(""); // Internal for debouncing if needed, but here we just rely on parent or direct effect?
-    // Actually parent passes debounced term if SearchBar handles it, or raw term?
-    // SearchBar in parent handles input. DsaProblemsClient state updates.
-    // We should debounce in parent or here? SearchBar has internal debounce. DsaProblemsClient receives value *after* debounce?
-    // Let's check SearchBar.tsx. It calls onSearch with debounced value.
-    // So searchTerm prop here is already debounced.
 
     const [searchResults, setSearchResults] = useState<ProblemWithStats[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const observerTarget = useRef<HTMLDivElement>(null);
 
-    // Effect to handle search changes from prop
     useEffect(() => {
         const performSearch = async () => {
             if (!searchTerm || searchTerm.length < 2) {
@@ -82,12 +76,10 @@ export default function PracticeClient({
         performSearch();
     }, [searchTerm, type, domain]);
 
-    // Memoize displayed problems
     const displayedProblems = useMemo(() => {
         return searchTerm ? searchResults : problems;
     }, [searchTerm, searchResults, problems]);
 
-    // Load more problems (pagination)
     const loadMore = useCallback(async () => {
         if (isLoading || !hasMore || searchTerm || problems.length === 0) return;
 
@@ -95,7 +87,6 @@ export default function PracticeClient({
         try {
             const lastProblem = problems[problems.length - 1];
             const nextPage = page + 1;
-            // Using lastProblem.id as the cursor for the next set of problems
             const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain, undefined, undefined, lastProblem.id);
 
             if (res.problems.length > 0) {
@@ -112,9 +103,8 @@ export default function PracticeClient({
         }
     }, [isLoading, hasMore, page, type, domain, searchTerm, problems]);
 
-    // Intersection Observer for infinite scroll
     useEffect(() => {
-        if (searchTerm) return; // Disable infinite scroll during search
+        if (searchTerm) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -140,51 +130,86 @@ export default function PracticeClient({
     return (
         <div className="w-full">
             {/* List Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 dark:border-[#262626] text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-100 dark:border-[#1e1e1e] text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+            >
                 <div className="col-span-8 md:col-span-6">Title</div>
                 <div className="col-span-2 md:col-span-3">Difficulty</div>
                 <div className="col-span-2 md:col-span-3">Acceptance</div>
-            </div>
+            </motion.div>
 
             {/* List Items */}
-            <div className="mt-2">
-                {isSearching ? (
-                    <LoadingSpinner size="lg" message="Searching..." className="py-20" />
-                ) : displayedProblems.length > 0 ? (
-                    <>
-                        {displayedProblems.map((problem) => (
-                            <ProblemRow
-                                key={problem.id}
-                                id={problem.id}
-                                slug={problem.slug}
-                                title={problem.title}
-                                difficulty={problem.difficulty}
-                                acceptance={problem.acceptance}
-                                isSolved={problem.isSolved}
-                            />
-                        ))}
-                    </>
-                ) : (
-                    <div className="text-center py-20">
-                        <div className="text-gray-400">No problems found</div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                            {searchTerm ? "Try adjusting your search terms." : "No problems available."}
-                        </p>
-                    </div>
-                )}
+            <div className="mt-1">
+                <AnimatePresence mode="wait">
+                    {isSearching ? (
+                        <motion.div
+                            key="searching"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <LoadingSpinner size="lg" message="Searching..." className="py-20" />
+                        </motion.div>
+                    ) : displayedProblems.length > 0 ? (
+                        <motion.div
+                            key="results"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="divide-y divide-gray-50 dark:divide-[#111111]"
+                        >
+                            {displayedProblems.map((problem, idx) => (
+                                <ProblemRow
+                                    key={problem.id}
+                                    id={problem.id}
+                                    slug={problem.slug}
+                                    title={problem.title}
+                                    difficulty={problem.difficulty}
+                                    acceptance={problem.acceptance}
+                                    isSolved={problem.isSolved}
+                                    index={idx}
+                                />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="empty"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="text-center py-24"
+                        >
+                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] flex items-center justify-center">
+                                <Search className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+                            </div>
+                            <div className="text-gray-400 dark:text-gray-500 font-medium">No problems found</div>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1.5">
+                                {searchTerm ? "Try adjusting your search terms." : "No problems available."}
+                            </p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Infinite Scroll Trigger */}
             {hasMore && !searchTerm && (
-                <div ref={observerTarget} className="flex justify-center mt-12 mb-8 min-h-[60px]">
+                <div ref={observerTarget} className="flex justify-center mt-10 mb-8 min-h-[60px]">
                     {isLoading && <LoadingSpinner size="md" message="Loading more problems..." />}
                 </div>
             )}
 
             {!hasMore && !searchTerm && displayedProblems.length > 0 && (
-                <div className="text-center mt-12 text-sm text-gray-400">
-                    You've reached the end of the list.
-                </div>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-center mt-10 mb-4 text-xs text-gray-400 dark:text-gray-500 font-medium tracking-wide"
+                >
+                    — End of list —
+                </motion.div>
             )}
         </div>
     );

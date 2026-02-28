@@ -312,7 +312,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                      if (payload.data.status === "ACCEPTED") {
                          const desc = `Time: ${payload.data.time?.toFixed(3) || 0}s | Memory: ${payload.data.memory || 0}KB`;
                          if (mode === "SUBMIT") {
-                             toast.success("Submitted Successfully!", { description: desc });
+                             toast.success("Submitted Successfully!", { description: desc, descriptionClassName: "!text-white/90" });
                              setIsSolvedState(true);
                              setActiveTab("submissions");
 
@@ -334,7 +334,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                 }, 1500);
                              }
                          } else {
-                             toast.success("Run Accepted!", { description: desc });
+                             toast.success("Run Accepted!", { description: desc, descriptionClassName: "!text-white/90" });
                          }
                      } else {
                           toast.error(`Result: ${payload.data.status}`);
@@ -364,7 +364,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     }
 
     return (
-        <div className="h-screen w-full bg-white dark:bg-[#0a0a0a] flex flex-col overflow-hidden">
+        <div className="h-screen w-full bg-white dark:bg-[#0a0a0a] flex flex-col overflow-hidden animate-fadeIn">
              {/* TOUR COMPONENT - Only render if not in contest mode (optional) or just always render and let it handle its own state */}
              {!contestId && <ProblemTour />}
 
@@ -498,39 +498,63 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                         flex-direction: column;
                     }
                     .gutter {
-                        background-color: #f3f4f6;
+                        background-color: transparent;
                         background-repeat: no-repeat;
                         background-position: 50%;
-                        transition: background-color 0.2s;
+                        transition: background-color 0.25s ease, opacity 0.25s ease;
+                        position: relative;
+                    }
+                    .gutter::after {
+                        content: '';
+                        position: absolute;
+                        background: transparent;
+                        border-radius: 4px;
+                        transition: background-color 0.25s ease;
+                    }
+                    .gutter:hover::after {
+                        background: rgba(249, 115, 22, 0.25);
+                    }
+                    .gutter:active::after {
+                        background: rgba(249, 115, 22, 0.4);
                     }
                     .dark .gutter {
-                        background-color: #1a1a1a;
+                        background-color: transparent;
                     }
-                    .gutter:hover {
-                        background-color: #e5e7eb;
+                    .dark .gutter:hover::after {
+                        background: rgba(249, 115, 22, 0.2);
                     }
-                    .dark .gutter:hover {
-                        background-color: #262626;
+                    .dark .gutter:active::after {
+                        background: rgba(249, 115, 22, 0.35);
                     }
                     .gutter.gutter-horizontal {
                         cursor: col-resize;
                         border-left: 1px solid #e5e7eb;
-                        border-right: 1px solid #e5e7eb;
-                        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZgmwIA6Jhouse1DAAAAABJRU5ErkJggg==');
+                        border-right: none;
+                    }
+                    .gutter.gutter-horizontal::after {
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 3px;
+                        height: 32px;
                     }
                     .dark .gutter.gutter-horizontal {
-                        border-left: 1px solid #262626;
-                        border-right: 1px solid #262626;
+                        border-left: 1px solid #1e1e1e;
                     }
                     .gutter.gutter-vertical {
                         cursor: row-resize;
                         border-top: 1px solid #e5e7eb;
-                        border-bottom: 1px solid #e5e7eb;
-                        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABoV83XAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjAAIALAAJy8wOmAAAAABJRU5ErkJggg==');
+                        border-bottom: none;
+                    }
+                    .gutter.gutter-vertical::after {
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 32px;
+                        height: 3px;
                     }
                     .dark .gutter.gutter-vertical {
-                        border-top: 1px solid #262626;
-                        border-bottom: 1px solid #262626;
+                        border-top: 1px solid #1e1e1e;
                     }
                 `}</style>
                 </div>

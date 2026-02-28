@@ -570,13 +570,13 @@ model ContestViolation {
 // Course Allocation - Maps which courses/domains are available to which academic years
 model CourseAllocation {
   id     String        @id @default(cuid())
-  year   Int // Academic year: 1, 2, 3, 4, etc.
-  domain ProblemDomain // Course/Domain: DSA, SQL, etc.
+  year   Int
+  domain ProblemDomain //  DSA, SQL, etc.
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([year, domain]) // Prevent duplicate allocations
+  @@unique([year, domain])
   @@index([year])
   @@index([domain])
   @@map("course_allocation")
@@ -646,7 +646,7 @@ model Assignment {
   title       String
   description String?
   dueDate     DateTime?
-  timeLimit   Int?     // Time limit in minutes for completing the assignment
+  timeLimit   Int?     
 
   classroomId String
   classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
