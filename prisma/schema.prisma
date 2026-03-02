@@ -7,8 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
   id        String  @id
   name      String
@@ -26,22 +24,22 @@ model User {
   emailVerified Boolean  @default(false)
   image         String?
 
-  codeChefHandle   String?
-  leetCodeHandle   String?
-  codeforcesHandle String?
-  githubHandle     String?
-  codeChefVerified Boolean @default(false)
+  codeChefHandle     String?
+  leetCodeHandle     String?
+  codeforcesHandle   String?
+  githubHandle       String?
+  codeChefVerified   Boolean @default(false)
   codeforcesVerified Boolean @default(false)
-  leetCodeVerified Boolean @default(false)
+  leetCodeVerified   Boolean @default(false)
 
   role                Role    @default(STUDENT)
   onboardingCompleted Boolean @default(false)
   bio                 String?
   year                Int?
 
-  banned       Boolean?
-  banReason    String?
-  banExpires   DateTime?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,6 +62,7 @@ model User {
   @@index([collegeId])
   @@index([collegeId, totalScore])
   @@index([institutionId])
+  @@index([role, totalScore(sort: Desc)])
   @@map("user")
 }
 
@@ -142,7 +141,6 @@ model Problem {
 
   useFunctionTemplate Boolean @default(false)
   solution            String? @db.Text
-
 
   isMcq   Boolean @default(false)
   options Json?
@@ -257,7 +255,7 @@ model Submission {
   @@index([status])
   @@index([userId, status, mode, problemId])
   @@index([userId, status, createdAt])
-  @@index([contestId])
+  @@index([contestId, createdAt])
 }
 
 model TestCase {
@@ -431,9 +429,9 @@ model Classroom {
   teacherId String
   teacher   User   @relation("TeacherClassrooms", fields: [teacherId], references: [id])
 
-  contests Contest[]
+  contests    Contest[]
   assignments Assignment[]
-  students User[]    @relation("StudentClassrooms")
+  students    User[]       @relation("StudentClassrooms")
 
   isTrackingActive  Boolean   @default(false)
   trackingStartedAt DateTime?
@@ -601,20 +599,20 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   problemId String
-  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
-  parentId  String?
-  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 
-  votes     CommentVote[]
-  upvoteCount Int      @default(0)
+  votes       CommentVote[]
+  upvoteCount Int           @default(0)
 
-  isPinned  Boolean  @default(false)
+  isPinned Boolean @default(false)
 
   @@index([problemId])
   @@index([userId])
@@ -625,11 +623,11 @@ model CommentVote {
   type      VoteType
   createdAt DateTime @default(now())
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   commentId String
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
 }
@@ -642,19 +640,19 @@ enum VoteType {
 ////////////////////////////////////// Assignment Models ////////////////////////////////////////
 
 model Assignment {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   dueDate     DateTime?
-  timeLimit   Int?     
+  timeLimit   Int?
 
   classroomId String
   classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
-  problems    AssignmentProblem[]
+  problems AssignmentProblem[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([classroomId])
 }
@@ -676,11 +674,11 @@ model AssignmentProblem {
 }
 
 model TelegramChat {
-  id        String   @id @default(cuid())
-  chatId    String   @unique
-  type      String   // "private", "group", "supergroup", "channel"
-  title     String?
-  username  String?
+  id       String  @id @default(cuid())
+  chatId   String  @unique
+  type     String // "private", "group", "supergroup", "channel"
+  title    String?
+  username String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

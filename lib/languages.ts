@@ -1,5 +1,5 @@
 
-export interface Language {
+interface Language {
     id: number; // Judge0 ID
     name: string;
     monacoLanguage: string; // Monaco Editor language identifier
@@ -31,7 +31,7 @@ public class Main {
 
         // write your code here
 
-        
+
     }
 }`
     },
@@ -122,7 +122,7 @@ export function getLanguageById(id: number): Language | undefined {
     return LANGUAGES.find(lang => lang.id === id);
 }
 
-export function getLanguageByName(name: string): Language | undefined {
+function getLanguageByName(name: string): Language | undefined {
     return LANGUAGES.find(lang => lang.name === name);
 }
 

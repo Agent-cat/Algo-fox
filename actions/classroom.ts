@@ -438,58 +438,55 @@ export async function getClassroomLiveTracking(classroomId: string) {
     const cacheKeyName = cacheKey("live-tracking", classroomId);
 
     const fetchTracking = async () => {
-        const classroom = await prisma.classroom.findUnique({
+        // Query minimal classroom meta first
+        const classroomMeta = await prisma.classroom.findUnique({
             where: { id: classroomId },
+            select: { isTrackingActive: true, trackingStartedAt: true }
+        });
+
+        if (!classroomMeta) return null;
+
+        const { isTrackingActive, trackingStartedAt } = classroomMeta;
+
+        // Fetch students and ONLY fetch valid realtime submissions at DB-level
+        const studentsRaw = await prisma.user.findMany({
+            where: { enrolledClassrooms: { some: { id: classroomId } } },
             select: {
-                isTrackingActive: true,
-                trackingStartedAt: true,
-                students: {
-                    select: {
-                        id: true,
-                        name: true,
-                        image: true,
-                        submissions: {
-                            where: {
-                                mode: "SUBMIT",
-                            },
-                            orderBy: { createdAt: 'desc' },
-                            take: 20,
-                            include: {
-                                problem: { select: { title: true } }
-                            }
-                        }
-                    }
-                }
+                id: true,
+                name: true,
+                image: true,
+                submissions: isTrackingActive && trackingStartedAt ? {
+                    where: {
+                        mode: "SUBMIT",
+                        createdAt: { gte: trackingStartedAt }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 20,
+                    include: { problem: { select: { title: true } } }
+                } : false
             }
         });
 
-        if (!classroom) return null;
-
-        // Filter submissions if tracking is active
-        const studentsData = classroom.students.map(student => {
-            const filteredSubmissions = student.submissions.filter(sub =>
-                classroom.isTrackingActive &&
-                classroom.trackingStartedAt &&
-                new Date(sub.createdAt) >= new Date(classroom.trackingStartedAt)
-            ).map(sub => ({
+        const studentsData = studentsRaw.map((student) => {
+            const subs = Array.isArray(student.submissions) ? student.submissions.map((sub: any) => ({
                 id: sub.id,
-                code: sub.code,
+                code: sub.code || "",
                 status: sub.status,
                 problemTitle: sub.problem.title,
                 createdAt: sub.createdAt
-            }));
+            })) : [];
 
             return {
                 id: student.id,
                 name: student.name,
                 image: student.image,
-                submissions: filteredSubmissions
+                submissions: subs
             };
         });
 
         return {
-            isTrackingActive: classroom.isTrackingActive,
-            trackingStartedAt: classroom.trackingStartedAt,
+            isTrackingActive,
+            trackingStartedAt,
             students: studentsData
         };
     };

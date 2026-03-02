@@ -439,7 +439,7 @@ export async function getTeacherAssignmentAnalytics(
 /**
  * Delete an assignment
  */
-export async function deleteAssignment(assignmentId: string) {
+async function deleteAssignment(assignmentId: string) {
     const session = await auth.api.getSession({
         headers: await headers()
     });

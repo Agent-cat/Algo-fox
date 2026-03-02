@@ -8,7 +8,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
 import FocusBlur from "@/components/FocusBlur";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

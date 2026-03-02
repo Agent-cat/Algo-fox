@@ -1,7 +1,7 @@
 "use server";
 
 import { LeaderboardService } from "@/core/services/leaderboard.service";
-import { cacheTag, cacheLife } from "next/cache";
+import { cacheTag, cacheLife, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -33,6 +33,11 @@ export async function getLeaderboardData(requestedInstitutionId?: string, refres
     // Only admins can request a specific institution or "all"
     if (isAuthorized && requestedInstitutionId) {
         targetInstitutionId = requestedInstitutionId === "all" ? undefined : requestedInstitutionId;
+    }
+
+    if (refresh) {
+        revalidateTag(targetInstitutionId ? `leaderboard-inst-${targetInstitutionId}` : 'leaderboard-none','max');
+        revalidateTag('leaderboard-global','max');
     }
 
     return getCachedLeaderboardData(targetInstitutionId || undefined, refresh);

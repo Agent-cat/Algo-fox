@@ -5,7 +5,7 @@ import { SubmissionResult, TestCaseResult } from "@prisma/client";
 
 const QUEUE_NAME = "submission-queue";
 
-export const submissionQueue = new Queue(QUEUE_NAME, {
+const submissionQueue = new Queue(QUEUE_NAME, {
     connection,
 });
 

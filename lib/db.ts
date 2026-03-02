@@ -1,7 +1,7 @@
 
 import Dexie, { type Table } from 'dexie';
 
-export interface CodeDraft {
+interface CodeDraft {
     id: string; // Composite key: problemId_languageId
     problemId: string;
     languageId: number;
@@ -64,8 +64,6 @@ function getDB(): AlgoFoxDB {
 }
 
 // Export getter function that only creates DB in browser
-export { getDB };
-
 export async function saveCodeDraft(userId: string, problemId: string, languageId: number, code: string) {
     // Only save in browser environment
     if (typeof window === 'undefined' || !userId) {

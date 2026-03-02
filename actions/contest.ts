@@ -459,7 +459,7 @@ export async function getInstitutionalClassrooms(institutionId: string) {
     }
 }
 
-export async function getSelectableProblems(search: string) {
+async function getSelectableProblems(search: string) {
     try {
         const problems = await prisma.problem.findMany({
             where: {
@@ -479,7 +479,7 @@ export async function getSelectableProblems(search: string) {
     }
 }
 
-export async function acceptContestRules(contestId: string) {
+async function acceptContestRules(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -881,7 +881,7 @@ export async function logContestViolation(
 /**
  * Validate contest session - checks if session is valid for submissions
  */
-export async function validateContestSession(contestId: string, sessionId: string) {
+async function validateContestSession(contestId: string, sessionId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -945,7 +945,7 @@ export async function validateContestSession(contestId: string, sessionId: strin
 /**
  * Check if user is eligible to submit - pre-submission validation
  */
-export async function checkSubmissionEligibility(contestId: string) {
+async function checkSubmissionEligibility(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -1297,30 +1297,40 @@ export async function getContestLeaderboard(contestId: string) {
 
         if (!contest) return { success: false, error: "Contest not found" };
 
-        const leaderboard = await Promise.all(participations.map(async (p) => {
-            // Get valid submissions for this user in this contest
-            const submissions = await prisma.submission.findMany({
-                where: {
-                    userId: p.userId,
-                    contestId: contestId,
-                    createdAt: {
-                        gte: contest.startTime,
-                        lte: contest.endTime
-                    }
-                },
-                select: {
-                    id: true,
-                    status: true,
-                    problemId: true,
-                    createdAt: true,
-                    language: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
+        // Pre-fetch ALL valid submissions for this contest to prevent N+1 database queries
+        const allSubmissions = await prisma.submission.findMany({
+            where: {
+                contestId: contestId,
+                createdAt: {
+                    gte: contest.startTime,
+                    lte: contest.endTime
+                }
+            },
+            select: {
+                id: true,
+                status: true,
+                problemId: true,
+                createdAt: true,
+                userId: true,
+                language: {
+                    select: {
+                        id: true,
+                        name: true
                     }
                 }
-            });
+            }
+        });
+
+        // Group submissions by userId for fast O(1) memory lookup
+        const submissionsByUser = new Map<string, typeof allSubmissions>();
+        for (const sub of allSubmissions) {
+            const userSubs = submissionsByUser.get(sub.userId) || [];
+            userSubs.push(sub);
+            submissionsByUser.set(sub.userId, userSubs);
+        }
+
+        const leaderboard = participations.map((p) => {
+            const submissions = submissionsByUser.get(p.userId) || [];
 
             // Calculate total score
             // Logic: Best submission per problem counts
@@ -1384,7 +1394,7 @@ export async function getContestLeaderboard(contestId: string) {
                 problemsSolved: problemScores.size,
                 problemStats
             };
-        }));
+        });
 
         // Sort: High score first, then low time taken
         leaderboard.sort((a, b) => {
@@ -1413,7 +1423,7 @@ export async function getContestLeaderboard(contestId: string) {
 /**
  * Get current user's ranking in a contest
  */
-export async function getContestRanking(contestId: string) {
+async function getContestRanking(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });

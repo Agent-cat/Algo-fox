@@ -24,7 +24,7 @@ export async function getCourseAllocations() {
 }
 
 // Get courses allocated to a specific year
-export async function getCoursesByYear(year: number) {
+async function getCoursesByYear(year: number) {
   "use cache";
   cacheLife({ stale: 900, revalidate: 900 });
   cacheTag("course-allocations", `course-year-${year}`);
@@ -108,7 +108,7 @@ export async function getUserAllocatedCourses() {
 }
 
 // Allocate a course to a year (Admin/Institution Manager only)
-export async function allocateCourse(year: number, domain: ProblemDomain) {
+async function allocateCourse(year: number, domain: ProblemDomain) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -142,7 +142,7 @@ export async function allocateCourse(year: number, domain: ProblemDomain) {
 }
 
 // Remove course allocation (Admin/Institution Manager only)
-export async function removeCourseAllocation(year: number, domain: ProblemDomain) {
+async function removeCourseAllocation(year: number, domain: ProblemDomain) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

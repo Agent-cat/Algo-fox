@@ -24,7 +24,7 @@ export function cacheKey(prefix: string, ...parts: (string | number)[]): string 
 /**
  * Get data from Redis cache with automatic JSON parsing
  */
-export async function getFromCache<T>(key: string): Promise<T | null> {
+async function getFromCache<T>(key: string): Promise<T | null> {
   try {
     const data = await redis.get(key);
     if (!data) return null;
@@ -38,7 +38,7 @@ export async function getFromCache<T>(key: string): Promise<T | null> {
 /**
  * Set data in Redis cache with automatic JSON serialization
  */
-export async function setInCache<T>(
+async function setInCache<T>(
   key: string,
   data: T,
   ttlSeconds: number = CACHE_CONFIG.MEDIUM.ttl
@@ -64,7 +64,7 @@ export async function deleteFromCache(key: string): Promise<void> {
 /**
  * Delete multiple cache keys by pattern
  */
-export async function deleteByPattern(pattern: string): Promise<void> {
+async function deleteByPattern(pattern: string): Promise<void> {
   try {
     const keys = await redis.keys(pattern);
     if (keys.length > 0) {
@@ -101,7 +101,7 @@ export async function cachedFetch<T>(
 /**
  * Invalidate cache keys for an entity
  */
-export async function invalidateCache(
+async function invalidateCache(
   prefix: string,
   ...ids: (string | number)[]
 ): Promise<void> {

@@ -1,4 +1,4 @@
-export function convertToSQLite(sql: string): string {
+function convertToSQLite(sql: string): string {
     if (!sql || !sql.trim()) {
         return sql;
     }

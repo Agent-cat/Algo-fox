@@ -111,21 +111,21 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                         <thead>
                             <tr className="bg-gray-50/80 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#262626]">
                                 {/* Sticky Rank */}
-                                <th className="sticky left-0 z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] w-[70px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
+                                <th className="sticky left-0 z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[70px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
                                     <div className="flex items-center justify-center">Rank</div>
                                 </th>
                                 {/* Sticky Warrior */}
-                                <th className="sticky left-[70px] z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] w-[250px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
+                                <th className="sticky left-[70px] z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[250px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
                                     Warrior
                                 </th>
-                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] text-center w-[100px] border-r border-gray-200 dark:border-gray-800">
+                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center w-[100px] border-r border-gray-200 dark:border-gray-800">
                                     Score
                                 </th>
-                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] text-center w-[120px] border-r border-gray-200 dark:border-gray-800">
+                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center w-[120px] border-r border-gray-200 dark:border-gray-800">
                                     Time
                                 </th>
                                 {problems.map((p, idx) => (
-                                    <th key={p.id} className="px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0">
+                                    <th key={p.id} className="px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0">
                                         <div className="flex flex-col items-center">
                                             <span className="mb-1 text-gray-900 dark:text-white">Q{idx + 1}</span>
                                             <span className="text-[9px] lowercase font-medium opacity-50 truncate max-w-[100px]">{p.title}</span>
@@ -143,7 +143,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                         className={`group transition-all duration-200 ${
                                             student.id === currentUserId
                                             ? "bg-orange-50/30 dark:bg-orange-500/5 shadow-inner"
-                                            : "hover:bg-gray-50/30 dark:hover:bg-white/[0.01]"
+                                            : "hover:bg-gray-50/30 dark:hover:bg-white/1"
                                         }`}
                                     >
                                         <td className={`sticky left-0 z-10 px-4 py-4 border-r border-gray-200 dark:border-gray-800 ${
