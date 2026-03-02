@@ -81,9 +81,9 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
 export default function ContestStandingsPage({ params }: PageProps) {
     return (
         <Suspense fallback={
-            <div className="container mx-auto py-20 px-4 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading standings...</p>
+            <div className="container mx-auto py-20 px-4 flex flex-col items-center justify-center min-h-[50vh]">
+                <div className="w-8 h-8 rounded-full border-2 border-orange-500/20 border-t-orange-500 animate-spin mb-4" />
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading standings...</p>
             </div>
         }>
             <StandingsContent params={params} />
