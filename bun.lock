@@ -32,7 +32,6 @@
         "node-telegram-bot-api": "^0.63.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-haiku": "^2.4.1",
         "react-hook-form": "^7.69.0",
         "react-joyride": "^2.9.3",
         "react-markdown": "^10.1.0",
@@ -1282,8 +1281,6 @@
     "react-dom": ["react-dom@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0", "scheduler": "^0.23.2" }, "peerDependencies": { "react": "^18.3.1" } }, "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw=="],
 
     "react-floater": ["react-floater@0.7.9", "", { "dependencies": { "deepmerge": "^4.3.1", "is-lite": "^0.8.2", "popper.js": "^1.16.0", "prop-types": "^15.8.1", "tree-changes": "^0.9.1" }, "peerDependencies": { "react": "15 - 18", "react-dom": "15 - 18" } }, "sha512-NXqyp9o8FAXOATOEo0ZpyaQ2KPb4cmPMXGWkx377QtJkIXHlHRAGer7ai0r0C1kG5gf+KJ6Gy+gdNIiosvSicg=="],
-
-    "react-haiku": ["react-haiku@2.4.1", "", { "dependencies": { "react": ">=16.8.0" } }, "sha512-8f3JVL+VvmkHhd3OFQCtY46vmPJuVqNeaYH7aoZsh7mACvsafu3Sh3xvynBciaWi6/cl7ABIe9pR+Ur1kSJ69Q=="],
 
     "react-hook-form": ["react-hook-form@7.69.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-yt6ZGME9f4F6WHwevrvpAjh42HMvocuSnSIHUGycBqXIJdhqGSPQzTpGF+1NLREk/58IdPxEMfPcFCjlMhclGw=="],
 
