@@ -157,6 +157,15 @@ body {
   background-color: rgba(156, 163, 175, 0.3);
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .bg-grid {
   background-size: 20px 20px;
   background-image:

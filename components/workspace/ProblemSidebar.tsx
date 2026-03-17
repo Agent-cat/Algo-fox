@@ -194,54 +194,54 @@ export default function ProblemSidebar({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-0 left-0 bottom-0 w-80 z-50 shadow-2xl bg-white dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-[#262626]"
+            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-2xl bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626]"
           >
             <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="p-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#111111]/50">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Problems</h2>
+              {/* Tabs & Controls */}
+              <div className="px-5 pt-5 pb-4 flex items-center gap-3">
+                <div className="flex-1 flex p-1.5 gap-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200/50 dark:border-[#262626]">
+                  <button
+                    onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+                      activeTab === "problems"
+                        ? "bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-[#2c2c2c]/50"
+                    )}
+                  >
+                    <List className="w-4 h-4" />
+                    Practice
+                  </button>
+                  <button
+                    onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+                      activeTab === "learn"
+                        ? "bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-[#2c2c2c]/50"
+                    )}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Learn
+                  </button>
+                </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 hover:bg-white dark:hover:bg-[#1a1a1a] rounded-md text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#333]"
+                  className="p-2 shrink-0 bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm"
+                  title="Close Sidebar"
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Tabs */}
-              <div className="flex p-2 gap-2 border-b border-dashed border-gray-200 dark:border-[#262626]">
-                <button
-                  onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all",
-                    activeTab === "problems"
-                      ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-200 dark:ring-orange-500/20"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
-                  )}
-                >
-                  <List className="w-4 h-4" />
-                  Problems
-                </button>
-                <button
-                  onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all",
-                    activeTab === "learn"
-                      ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-orange-200 dark:ring-orange-500/20"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
-                  )}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  Learn
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Search Bar */}
-              <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+              <div className="px-5 pb-4 border-b border-gray-100 dark:border-[#262626] sticky top-0 bg-[#fafafa] dark:bg-[#121212] z-10">
+                <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+              </div>
 
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+              <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide">
                 {searchTerm ? (
                    <ProblemsList
                         problems={searchResults}

@@ -48,7 +48,7 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
     };
 
     return (
-        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#0a0a0a] pt-6 pb-20">
+        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#121212] pt-6 pb-20">
             <div className="w-full max-w-none px-4 md:px-8">
                 {/* Back Button */}
                 <div className="mb-4">
@@ -89,7 +89,7 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                             prose-li:text-gray-700 dark:prose-li:text-gray-300
                             prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
                             prose-code:text-orange-600 dark:prose-code:text-orange-400 prose-code:bg-orange-50 dark:prose-code:bg-orange-950/30 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
-                            prose-pre:bg-white dark:prose-pre:bg-[#0a0a0a] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
+                            prose-pre:bg-white dark:prose-pre:bg-[#121212] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
                             prose-img:rounded-lg prose-img:border prose-img:border-gray-100 dark:prose-img:border-[#262626] prose-img:my-6
                             prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1a1a1a] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6">
                             <Markdown

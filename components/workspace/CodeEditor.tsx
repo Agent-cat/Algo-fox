@@ -62,6 +62,8 @@ interface CodeEditorProps {
     keybinding: "standard" | "vim";
   };
   onOpenSettings?: () => void;
+  /** Optional file tabs bar to render above the toolbar */
+  fileTabs?: React.ReactNode;
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -79,6 +81,7 @@ export default function CodeEditor({
   settings,
   onOpenSettings,
   userId = "",
+  fileTabs,
 }: CodeEditorProps) {
   // Get system theme
   const { resolvedTheme } = useTheme();
@@ -157,6 +160,8 @@ export default function CodeEditor({
   const [editorError, setEditorError] = useState(false);
   const mountRetryRef = useRef(0);
   const MAX_RETRIES = 3;
+  // Used to suppress onChange during programmatic setValue (e.g. file switch)
+  const isProgrammaticSetRef = useRef(false);
 
   // Initialize loading state: ALWAYS FALSE for Optimistic UI
   // We want the editor to show up immediately.
@@ -301,9 +306,45 @@ export default function CodeEditor({
       document.removeEventListener("fullscreenchange", handleFullScreenChange);
   }, []);
 
-  // LOAD SAVED CODE (Only if NOT readOnly)
+  // ─── FILE-MANAGED MODE: Sync controlled value → internal state + Monaco ───
+  // When the parent switches between files it updates `controlledValue`.
+  // Because CodeEditor manages its own internal `code` state (initialized once
+  // at mount), we must manually sync any external change into both the state
+  // and the Monaco editor instance.
+  useEffect(() => {
+    // Only run when file tabs are active (parent manages code)
+    if (fileTabs === undefined) return;
+    if (controlledValue === undefined) return;
+
+    // Update internal state so subsequent onChange comparisons are correct
+    setCode(controlledValue);
+
+    // Push the new value into Monaco (programmatic, won't trigger user onChange)
+    if (editorRef.current) {
+      try {
+        const editor = editorRef.current;
+        const model = editor.getModel?.();
+        if (model && !model.isDisposed()) {
+          // Only set if different to avoid cursor jump on normal typing
+          if (editor.getValue() !== controlledValue) {
+            isProgrammaticSetRef.current = true;
+            editor.setValue(controlledValue);
+            // Reset flag immediately after (Monaco fires onChange synchronously)
+            isProgrammaticSetRef.current = false;
+          }
+        }
+      } catch (err) {
+        isProgrammaticSetRef.current = false;
+        console.debug("setValue on file switch (safe to ignore):", err);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlledValue, fileTabs]);
+
+  // LOAD SAVED CODE (Only if NOT readOnly and NOT in file-managed mode)
   useEffect(() => {
     if (readOnly) return; // Skip loading draft if read-only
+    if (fileTabs !== undefined) return; // Skip: parent manages code via file system
 
     let isMounted = true;
     let cancelled = false;
@@ -423,9 +464,10 @@ export default function CodeEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problemId, effectiveLanguageId, readOnly, isMounted, userId]);
 
-  // HANDLE AUTOSAVE (Only if NOT readOnly)
+  // HANDLE AUTOSAVE (Only if NOT readOnly and NOT in file-managed mode)
   const debouncedSave = (value: string) => {
     if (!problemId || readOnly) return; // Skip saving logic entirely if readOnly
+    if (fileTabs !== undefined) return;  // Skip: file system hook handles persistence
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -676,10 +718,13 @@ export default function CodeEditor({
   return (
     <div
       ref={editorContainerRef}
-      className={`h-full flex flex-col bg-white dark:bg-[#1e1e1e] border-l border-gray-200 dark:border-[#262626] ${
+      className={`h-full flex flex-col bg-[#fafafa] dark:bg-[#1e1e1e] border-l border-gray-200 dark:border-[#262626] ${
         isFullScreen ? "fixed inset-0 z-50" : ""
       }`}
     >
+      {/* FILE TABS */}
+      {fileTabs}
+
       {/* EDITOR TOOLBAR */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
         <div className="flex items-center gap-3">
@@ -704,7 +749,7 @@ export default function CodeEditor({
               )}
             </button>
             {isDropdownOpen && !readOnly && (
-              <div className="absolute top-full left-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-lg shadow-lg z-50 min-w-30">
+              <div className="absolute top-full left-0 mt-1 bg-[#fafafa] dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-lg shadow-lg z-50 min-w-30">
                 {availableLanguages.map((lang) => (
                   <button
                     key={lang.id}
@@ -788,7 +833,7 @@ export default function CodeEditor({
       {/* MONACO EDITOR */}
       <div className="flex-1 relative">
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
@@ -797,7 +842,7 @@ export default function CodeEditor({
             </div>
           </div>
         ) : editorError && mountRetryRef.current >= MAX_RETRIES ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3 text-center p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Editor failed to load. Please refresh the page.
@@ -827,6 +872,8 @@ export default function CodeEditor({
             beforeMount={handleEditorWillMount}
             onChange={(value) => {
               if (!isMounted) return;
+              // Ignore programmatic setValue calls (e.g. during file-tab switch)
+              if (isProgrammaticSetRef.current) return;
               const newVal = value || "";
               setCode(newVal);
               if (onChange) onChange(newVal);
@@ -851,7 +898,7 @@ export default function CodeEditor({
             onValidate={() => {}} // Suppress validation errors during disposal
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#1e1e1e] z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">

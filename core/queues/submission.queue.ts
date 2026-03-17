@@ -9,8 +9,8 @@ const submissionQueue = new Queue(QUEUE_NAME, {
     connection,
 });
 
-export const addSubmissionJob = async (submissionId: string) => {
-    await submissionQueue.add("process-submission", { submissionId });
+export const addSubmissionJob = async (submissionId: string, customTestCases?: { input: string; output: string }[]) => {
+    await submissionQueue.add("process-submission", { submissionId, customTestCases });
 };
 
 // Worker Implementation
@@ -49,8 +49,8 @@ const mapJudge0StatusToDb = (statusId: number): TestCaseResult | null => {
 
 const worker = new Worker(
     QUEUE_NAME,
-    async (job: Job<{ submissionId: string }>) => {
-        const { submissionId } = job.data;
+    async (job: Job<{ submissionId: string, customTestCases?: { input: string, output: string, id?: string, hidden?: boolean }[] }>) => {
+        const { submissionId, customTestCases = [] } = job.data;
 
         try {
             // 1. Fetch Submission Data
@@ -83,7 +83,17 @@ const worker = new Worker(
             // SUBMIT mode: all test cases (public + hidden)
             let testCasesToEvaluate: typeof allTestCases;
             if (mode === "RUN") {
-                testCasesToEvaluate = allTestCases.filter(tc => !tc.hidden);
+                testCasesToEvaluate = [
+                    ...allTestCases.filter(tc => !tc.hidden),
+                    ...customTestCases.map((ctc, idx) => ({
+                        ...ctc,
+                        id: `custom-${idx}`,
+                        hidden: false,
+                        problemId: problem.id,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    })) as any
+                ];
             } else {
                 testCasesToEvaluate = allTestCases;
             }
@@ -149,13 +159,23 @@ const worker = new Worker(
                 testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
             );
 
-            // 3. Store Tokens in DB (TestCase records)
-            const testCaseRecords = testCasesToEvaluate.map((tc, idx) => ({
-                index: allTestCases.findIndex(orig => orig.id === tc.id),
-                judge0TrackingId: judge0Tokens[idx].token,
-                processed: false, // Track local completion state
-                processingUpdateSent: false // Track if we've already broadcasted the "Processing" state
-            }));
+            const publicCasesCount = allTestCases.filter(tc => !tc.hidden).length;
+            const testCaseRecords = testCasesToEvaluate.map((tc, idx) => {
+                const problemCaseIndex = allTestCases.findIndex(orig => orig.id === tc.id);
+                // For problem cases: use their actual index within allTestCases
+                // For custom cases: use allTestCases.length + customIdx
+                //   so they align with the frontend's `problem.testCases.length + customIdx`
+                const finalIndex = problemCaseIndex >= 0
+                    ? problemCaseIndex
+                    : allTestCases.length + (idx - publicCasesCount);
+
+                return {
+                    index: finalIndex,
+                    judge0TrackingId: judge0Tokens[idx].token,
+                    processed: false,
+                    processingUpdateSent: false
+                };
+            });
             await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
             // 4. Poll and Incremental Update

@@ -53,7 +53,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
     const getStatusColor = (problemId: string) => {
         if (solvedProblemIds.includes(problemId)) return "bg-emerald-500 text-white border-emerald-600 dark:border-emerald-500";
         if (visitedProblemIds.includes(problemId)) return "bg-amber-400 text-white border-amber-500 dark:border-amber-400";
-        return "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-[#333] hover:border-orange-300 dark:hover:border-orange-500/50 hover:bg-white dark:hover:bg-[#262626]";
+        return "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-[#333] hover:border-orange-300 dark:hover:border-orange-500/50 hover:bg-[#fafafa] dark:hover:bg-[#262626]";
     };
 
     const handleEndContest = () => {
@@ -92,9 +92,9 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
             {isOpen ? (
                 <motion.div
                     initial={false}
-                    animate={{ width: 280, opacity: 1 }}
+                    animate={{ width: 360, opacity: 1 }}
                     transition={isMounted ? { duration: 0.3 } : { duration: 0 }}
-                    className="h-full bg-white dark:bg-[#0a0a0a] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col overflow-hidden"
+                    className="h-full bg-[#fafafa] dark:bg-[#121212] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col overflow-hidden"
                 >
                     <div className="p-4 border-b border-dashed border-gray-100 dark:border-[#262626] bg-orange-50/50 dark:bg-orange-500/5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                     initial={false}
                     animate={{ width: 48 }}
                     transition={isMounted ? { duration: 0.3 } : { duration: 0 }}
-                    className="h-full bg-white dark:bg-[#0a0a0a] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col items-center py-4 gap-4 overflow-hidden"
+                    className="h-full bg-[#fafafa] dark:bg-[#121212] border-r border-dashed border-gray-200 dark:border-[#262626] flex flex-col items-center py-4 gap-4 overflow-hidden"
                 >
                     <button
                         onClick={() => toggleSidebar(true)}
@@ -191,7 +191,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
             {/* End Contest Confirmation Modal */}
             {showEndModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
+                    <div className="bg-[#fafafa] dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
                         <div className="flex items-center gap-3 mb-4 text-red-600 dark:text-red-500">
                             <ShieldAlert className="w-8 h-8" />
                             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">End Contest Session?</h3>
@@ -208,7 +208,7 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
                             placeholder="Type 'end' to confirm"
                             value={endConfirmText}
                             onChange={(e) => setEndConfirmText(e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 dark:bg-[#0a0a0a] border-gray-200 dark:border-[#333] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
+                            className="w-full px-4 py-3 border rounded-lg mb-6 bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-[#333] text-gray-900 dark:text-white focus:bg-[#fafafa] dark:focus:bg-[#121212] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal"
                             autoFocus
                         />
 

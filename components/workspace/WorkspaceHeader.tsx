@@ -171,7 +171,7 @@ export default function WorkspaceHeader({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="h-14 bg-white dark:bg-[#0a0a0a] border-b border-gray-200/80 dark:border-[#1e1e1e] flex items-center justify-between px-4 z-10 relative"
+      className="h-14 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-200/80 dark:border-[#1e1e1e] flex items-center justify-between px-4 z-10 relative"
     >
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3' : ''}`}>
@@ -227,7 +227,7 @@ export default function WorkspaceHeader({
             {/* Navigation buttons */}
             <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#141414] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
               <motion.button
-                className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-white dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
                 disabled={!prevProblemSlug}
                 onClick={() => prevProblemSlug && router.push(`/problems/${prevProblemSlug}`)}
                 title="Previous Problem"
@@ -237,7 +237,7 @@ export default function WorkspaceHeader({
                 <ChevronLeft className="w-3.5 h-3.5" />
               </motion.button>
               <motion.button
-                className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-white dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
                 disabled={!nextProblemSlug}
                 onClick={() => nextProblemSlug && router.push(`/problems/${nextProblemSlug}`)}
                 title="Next Problem"
@@ -353,7 +353,7 @@ export default function WorkspaceHeader({
                     </span>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#0a0a0a] bg-orange-50 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center font-bold text-xs"
+                      className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-orange-50 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center font-bold text-xs"
                     >
                       {session.user.image ? (
                         <img
@@ -375,7 +375,7 @@ export default function WorkspaceHeader({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
+                        className="absolute right-0 top-full mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
                       >
                         {(session.user as any).role === "ADMIN" && (
                           <Link

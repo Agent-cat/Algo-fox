@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { userId, problemId, languageId, code, mode = "SUBMIT", contestId } = body;
+        const { userId, problemId, languageId, code, mode = "SUBMIT", contestId, customTestCases } = body;
 
         if (!userId || !problemId || !languageId || !code) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         await SubmissionService.invalidateClassroomTracking(userId);
 
         // 2. Add to Queue
-        await addSubmissionJob(submission.id);
+        await addSubmissionJob(submission.id, customTestCases);
 
         return NextResponse.json({ submissionId: submission.id }, { status: 201 });
 

@@ -19,11 +19,13 @@ const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     ssr: false // Client-side specific interaction
 });
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getParticipationStatus } from '@/actions/contest';
 import EditorSettingsModal from './EditorSettingsModal';
 import { useRouter } from 'next/navigation';
+import { useCodeFiles } from '@/hooks/use-code-files';
+import CodeFileTabs from './CodeFileTabs';
 
 interface FunctionTemplate {
     languageId: number;
@@ -48,7 +50,7 @@ interface WorkspaceProps {
 }
 
 import { authClient } from '@/lib/auth-client';
-import { DEFAULT_LANGUAGE_ID } from '@/lib/languages';
+import { DEFAULT_LANGUAGE_ID, getLanguageById } from '@/lib/languages';
 import { usePersistentSplit } from '@/hooks/use-layout';
 
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
@@ -111,6 +113,75 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             setCode("");
         }
     }, [problem.domain]);
+
+    // ─── FILE MANAGEMENT ─────────────────────────────────────────────────────
+    // We need the boilerplate per language for new files. We derive it lazily.
+    const getBoilerplateForLanguage = useCallback((langId: number): string => {
+        if (problem.domain === 'SQL') return '';
+        if (problem.useFunctionTemplate && problem.functionTemplates) {
+            const tmpl = problem.functionTemplates.find(t => t.languageId === langId);
+            if (tmpl?.functionTemplate) return tmpl.functionTemplate;
+        }
+        // Fall back to per-language boilerplate from languages.ts
+        return getLanguageById(langId)?.boilerplate ?? '// Write your code here';
+    }, [problem.domain, problem.useFunctionTemplate, problem.functionTemplates]);
+
+    const handleActiveCodeChange = useCallback((newCode: string) => {
+        setCode(newCode);
+    }, []);
+
+    const codeFiles = useCodeFiles({
+        userId: session?.user?.id ?? '',
+        problemId: problem.id,
+        languageId,
+        defaultCode: getBoilerplateForLanguage(languageId),
+        onActiveCodeChange: handleActiveCodeChange,
+    });
+
+    // Stable onChange for CodeEditor — avoids recreating a new function every render
+    const handleEditorChange = useCallback((value: string | undefined) => {
+        const v = value || '';
+        setCode(v);
+        codeFiles.updateCode(v);
+    }, [codeFiles.updateCode]);  // updateCode is already stable (useCallback in hook)
+
+    // Stable onOpenSettings
+    const handleOpenSettings = useCallback(() => setIsSettingsOpen(true), []);
+
+    // Stable add/remove handlers for CodeFileTabs
+    const handleAddFile = useCallback(() => {
+        codeFiles.addFile();
+        toast.success('New file created');
+    }, [codeFiles.addFile]);
+
+    const handleRemoveFile = useCallback((fileId: string) => {
+        codeFiles.removeFile(fileId);
+        toast.success('File removed');
+    }, [codeFiles.removeFile]);
+
+    // Memoize the CodeFileTabs element — only rebuilds when files list or active tab changes,
+    // NOT on every keypress / submission status change
+    const fileTabsNode = useMemo(() => {
+        if (!codeFiles.isLoaded) return null;
+        return (
+            <CodeFileTabs
+                files={codeFiles.files}
+                activeFileId={codeFiles.activeFileId}
+                onSelect={codeFiles.selectFile}
+                onAdd={handleAddFile}
+                onRename={codeFiles.renameFile}
+                onRemove={handleRemoveFile}
+            />
+        );
+    }, [
+        codeFiles.isLoaded,
+        codeFiles.files,
+        codeFiles.activeFileId,
+        codeFiles.selectFile,
+        codeFiles.renameFile,
+        handleAddFile,
+        handleRemoveFile,
+    ]);
 
     // Check existing contest participation on mount
     useEffect(() => {
@@ -203,6 +274,26 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
 
+    // Custom Test Cases state
+    const [customTestCases, setCustomTestCases] = useState<{ input: string; output: string }[]>([]);
+
+    const handleAddCustomCase = () => {
+        setCustomTestCases(prev => [...prev, { input: "", output: "" }]);
+        toast.success("Added new custom test case");
+    };
+
+    const handleUpdateCustomCase = (index: number, updates: { input?: string; output?: string }) => {
+        setCustomTestCases(prev => {
+            const next = [...prev];
+            next[index] = { ...next[index], ...updates };
+            return next;
+        });
+    };
+
+    const handleRemoveCustomCase = (index: number) => {
+        setCustomTestCases(prev => prev.filter((_, i) => i !== index));
+    };
+
     const {
         sizes: mainSizes,
         setSizes: setMainSizes,
@@ -259,7 +350,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     languageId: languageId,
                     code: code,
                     mode: mode,
-                    contestId: contestId
+                    contestId: contestId,
+                    customTestCases: mode === "RUN" ? customTestCases : undefined
                 })
             });
 
@@ -272,10 +364,17 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             const { submissionId } = data;
 
             setSubmissionMode(mode);
-            setSubmissionResults(problem.testCases.map((tc, idx) => ({
-                index: idx,
-                status: "PENDING"
-            })));
+            const initialResults = [
+                ...problem.testCases.map((tc, idx) => ({
+                    index: idx,
+                    status: "PENDING"
+                })),
+                ...(mode === "RUN" ? customTestCases.map((_, idx) => ({
+                    index: problem.testCases.length + idx,
+                    status: "PENDING"
+                })) : [])
+            ];
+            setSubmissionResults(initialResults);
             setSubmissionStatus(null);
 
             // Connect to SSE
@@ -364,7 +463,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     }
 
     return (
-        <div className="h-screen w-full bg-white dark:bg-[#0a0a0a] flex flex-col overflow-hidden animate-fadeIn">
+        <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
              {/* TOUR COMPONENT - Only render if not in contest mode (optional) or just always render and let it handle its own state */}
              {!contestId && <ProblemTour />}
 
@@ -458,9 +557,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             >
                                 <div id="code-editor" className="h-full overflow-hidden">
                                     <CodeEditor
-                                        key={`${problem.id}-${languageId}`} // Stable key: remount only when problem or language changes
+                                        key={`${problem.id}-${languageId}`}
                                         value={code}
-                                        onChange={(value) => setCode(value || "")}
+                                        onChange={handleEditorChange}
                                         languageId={languageId}
                                         onLanguageChange={handleLanguageChange}
                                         problemId={problem.id}
@@ -471,14 +570,19 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                                 : undefined
                                         }
                                         settings={editorSettings}
-                                        onOpenSettings={() => setIsSettingsOpen(true)}
+                                        onOpenSettings={handleOpenSettings}
                                         readOnly={isSubmitting}
                                         userId={session?.user?.id || ""}
+                                        fileTabs={fileTabsNode}
                                     />
                                 </div>
-                                <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-white dark:bg-[#0a0a0a]">
+                                <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
                                     <TestCases
                                         cases={problem.testCases}
+                                        customCases={customTestCases}
+                                        onAddCustomCase={handleAddCustomCase}
+                                        onUpdateCustomCase={handleUpdateCustomCase}
+                                        onRemoveCustomCase={handleRemoveCustomCase}
                                         results={submissionResults}
                                         status={submissionStatus}
                                         mode={submissionMode}

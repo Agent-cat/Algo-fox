@@ -81,15 +81,15 @@ export default function Submissions({ problemId }: SubmissionsProps) {
     }
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a]">
-            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-[#0a0a0a]">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212]">
+            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-[#121212]">
                 <div className="flex items-center gap-2">
                     <span className="w-1 h-3 bg-orange-500 rounded-full" />
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-widest">My Submissions</h3>
                 </div>
                 <button
                     onClick={() => loadSubmissions()}
-                    className="p-1.5 hover:bg-white dark:hover:bg-[#1a1a1a] hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-[#333] rounded-lg transition-all"
+                    className="p-1.5 hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-[#333] rounded-lg transition-all"
                 >
                     <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
@@ -142,7 +142,7 @@ export default function Submissions({ problemId }: SubmissionsProps) {
                                 <button
                                     onClick={() => loadSubmissions(submissions[submissions.length - 1].id)}
                                     disabled={loadingMore}
-                                    className="flex items-center gap-3 px-8 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/30 hover:shadow-sm transition-all disabled:opacity-50"
+                                    className="flex items-center gap-3 px-8 py-3 bg-[#fafafa] dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/30 hover:shadow-sm transition-all disabled:opacity-50"
                                 >
                                     {loadingMore ? (
                                         <>

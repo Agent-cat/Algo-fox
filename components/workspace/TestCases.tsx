@@ -1,13 +1,17 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { ProblemTestCase, TestCase } from '@prisma/client';
 import PeerComparisonCard from '@/components/analytics/PeerComparisonCard';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
 interface TestCasesProps {
     cases?: ProblemTestCase[];
+    customCases?: { input: string; output: string }[];
+    onAddCustomCase?: () => void;
+    onUpdateCustomCase?: (index: number, updates: { input?: string; output?: string }) => void;
+    onRemoveCustomCase?: (index: number) => void;
     results?: TestCase[];
     mode?: "RUN" | "SUBMIT" | null;
     status?: string | null;
@@ -46,7 +50,17 @@ const bannerVariants: Variants = {
     }
 };
 
-export default function TestCases({ cases, results, mode, status, problemId }: TestCasesProps) {
+export default function TestCases({
+    cases,
+    customCases = [],
+    onAddCustomCase,
+    onUpdateCustomCase,
+    onRemoveCustomCase,
+    results,
+    mode,
+    status,
+    problemId
+}: TestCasesProps) {
     const [activeTab, setActiveTab] = useState<number | "console">(0);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -195,13 +209,14 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
     }
 
     const indices = Array.from({ length: totalCount }, (_, i) => i);
+    const customIndices = Array.from({ length: customCases.length }, (_, i) => i);
 
     // Count passed/failed
     const passedCount = results ? results.filter(r => r.status === "ACCEPTED").length : 0;
     const totalResults = results ? results.length : 0;
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a] border-t border-gray-200/80 dark:border-[#1e1e1e]">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] border-t border-gray-200/80 dark:border-[#1e1e1e]">
             {/* Header - Always visible, acts as toggle */}
             <motion.div
                 className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#0d0d0d] border-b border-gray-100/80 dark:border-[#1a1a1a] cursor-pointer select-none group"
@@ -303,7 +318,7 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
 
                                     return (
                                         <motion.button
-                                            key={displayIndex}
+                                            key={`problem-case-${displayIndex}`}
                                             onClick={() => setActiveTab(displayIndex)}
                                             variants={tabButtonVariants}
                                             initial="idle"
@@ -343,6 +358,77 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                         </motion.button>
                                     );
                                 })}
+
+                                {/* Custom Cases Tabs */}
+                                {customIndices.map((customIdx) => {
+                                    const displayIndex = safeCases.length + customIdx;
+                                    const result = resultsMap?.get(displayIndex);
+                                    const caseStatus = result?.status;
+
+                                    const getStatusStyles = () => {
+                                        if (!caseStatus) return '';
+                                        switch (caseStatus) {
+                                            case 'ACCEPTED': return 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30';
+                                            case 'PROCESSING': return 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30';
+                                            case 'PENDING': return '';
+                                            default: return 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30';
+                                        }
+                                    };
+
+                                    return (
+                                        <motion.button
+                                            key={`custom-case-${customIdx}`}
+                                            onClick={() => setActiveTab(displayIndex)}
+                                            variants={tabButtonVariants}
+                                            initial="idle"
+                                            whileHover="hover"
+                                            whileTap="tap"
+                                            className={`
+                                                flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap border
+                                                ${activeTab === displayIndex
+                                                    ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#2a2a2a] shadow-sm'
+                                                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300'
+                                                }
+                                                ${getStatusStyles()}
+                                            `}
+                                        >
+                                            {caseStatus === 'ACCEPTED' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+                                            {caseStatus && caseStatus !== 'ACCEPTED' && caseStatus !== 'PENDING' && caseStatus !== 'PROCESSING' && <XCircle className="w-3.5 h-3.5 text-red-500" />}
+                                            {caseStatus === 'PENDING' && <Clock className="w-3.5 h-3.5 text-gray-400 animate-pulse" />}
+                                            {caseStatus === 'PROCESSING' && <div className="w-3 h-3 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />}
+
+                                            Custom {customIdx + 1}
+
+                                            {activeTab === displayIndex && onRemoveCustomCase && (
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onRemoveCustomCase(customIdx);
+                                                        setActiveTab(0);
+                                                    }}
+                                                    className="ml-1 p-0.5 hover:bg-red-500/20 rounded-md transition-colors"
+                                                >
+                                                    <Trash2 className="w-3 h-3 text-red-500" />
+                                                </div>
+                                            )}
+                                        </motion.button>
+                                    );
+                                })}
+
+                                {/* Add Custom Case Button */}
+                                {onAddCustomCase && mode !== "SUBMIT" && (
+                                    <motion.button
+                                        onClick={onAddCustomCase}
+                                        variants={tabButtonVariants}
+                                        initial="idle"
+                                        whileHover="hover"
+                                        whileTap="tap"
+                                        className="flex items-center justify-center p-1.5 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-500/10 border border-transparent hover:border-orange-500/20 transition-all"
+                                        title="Add custom test case"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </motion.button>
+                                )}
                             </div>
 
                             {/* Peer Comparison */}
@@ -372,7 +458,7 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                 initial="hidden"
                                                 animate="visible"
                                                 exit="exit"
-                                                className="h-full flex flex-col bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
+                                                className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
                                             >
                                                 {/* Console Header */}
                                                 <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#1e1e1e]">
@@ -470,7 +556,7 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                 initial="hidden"
                                                 animate="visible"
                                                 exit="exit"
-                                                className="h-full flex flex-col bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
+                                                className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
                                             >
                                                 <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#1e1e1e]">
                                                     <Code2 className="w-4 h-4 text-amber-500" />
@@ -522,17 +608,32 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                     </div>
                                                 </div>
                                             </motion.div>
-                                        )
-                                    ) : (() => {
+                                    )) : (() => {
                                         if (typeof activeTab !== "number") return null;
                                         const displayIndex = activeTab;
-                                        if (displayIndex >= totalCount) return <div className='text-gray-400 text-sm'>Select a case</div>;
+                                        const isCustom = displayIndex >= safeCases.length;
 
-                                        const testCase = displayCases[displayIndex];
-                                        const originalIndex = safeCases.findIndex(tc => tc.id === testCase.id);
-                                        const result = resultsMap?.get(originalIndex);
-                                        const isHidden = testCase.hidden;
-                                        const hideContents = mode === "SUBMIT";
+                                        let testCase: { input: string; output: string; hidden?: boolean; id?: string };
+                                        let originalIndex: number;
+                                        let result: TestCase | undefined;
+                                        let isHidden: boolean;
+                                        let hideContents: boolean = mode === "SUBMIT";
+
+                                        if (isCustom) {
+                                            const customIdx = displayIndex - safeCases.length;
+                                            testCase = customCases[customIdx];
+                                            originalIndex = displayIndex;
+                                            result = resultsMap?.get(displayIndex);
+                                            isHidden = false;
+                                            hideContents = false;
+                                        } else {
+                                            if (displayIndex >= totalCount) return <div className='text-gray-400 text-sm'>Select a case</div>;
+                                            const problemCase = displayCases[displayIndex];
+                                            testCase = problemCase;
+                                            originalIndex = safeCases.findIndex(tc => tc.id === problemCase.id);
+                                            result = resultsMap?.get(originalIndex);
+                                            isHidden = !!problemCase.hidden;
+                                        }
 
                                         return (
                                             <motion.div
@@ -595,9 +696,18 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                             transition={{ delay: 0.05 }}
                                                         >
                                                             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Input</div>
-                                                            <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
-                                                                {testCase.input}
-                                                            </div>
+                                                            {isCustom ? (
+                                                                <textarea
+                                                                    value={testCase.input}
+                                                                    onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { input: e.target.value })}
+                                                                    placeholder="Enter custom input..."
+                                                                    className="w-full bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500/50 min-h-[100px] resize-y"
+                                                                />
+                                                            ) : (
+                                                                <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
+                                                                    {testCase.input}
+                                                                </div>
+                                                            )}
                                                         </motion.div>
 
                                                         {/* Output Grid */}
@@ -609,14 +719,23 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                         >
                                                             <div>
                                                                 <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Expected Output</div>
-                                                                <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap h-full">
-                                                                    {testCase.output}
-                                                                </div>
+                                                                {isCustom ? (
+                                                                    <textarea
+                                                                        value={testCase.output}
+                                                                        onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { output: e.target.value })}
+                                                                        placeholder="Enter expected output (optional)..."
+                                                                        className="w-full bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500/50 min-h-[100px] resize-y"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap h-full">
+                                                                        {testCase.output}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <div>
                                                                 <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Your Output</div>
                                                                 <div className={`
-                                                                    border rounded-xl p-3.5 font-mono text-sm whitespace-pre-wrap h-full transition-colors duration-300
+                                                                    border rounded-xl p-3.5 font-mono text-sm whitespace-pre-wrap h-full transition-colors duration-300 min-h-[100px]
                                                                     ${result?.status === 'ACCEPTED'
                                                                         ? 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-900 dark:text-emerald-300'
                                                                         : result?.status === 'WRONG_ANSWER'
@@ -631,7 +750,7 @@ export default function TestCases({ cases, results, mode, status, problemId }: T
                                                     </>
                                                 )}
                                             </motion.div>
-                                        );
+                                        )
                                     })()}
                                 </AnimatePresence>
                             </div>

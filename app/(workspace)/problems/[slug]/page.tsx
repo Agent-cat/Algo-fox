@@ -152,7 +152,7 @@ async function ProblemContentWithParams({
 
   return (
     <>
-      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#0a0a0a] relative overflow-hidden">
+      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-30" />
         <div className="relative z-10 space-y-6">
           <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
@@ -184,7 +184,7 @@ async function ProblemContentWithParams({
 export default function ProblemPage({ params, searchParams }: PageProps) {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />

@@ -78,7 +78,7 @@ export function CategoriesList({
                                 }}
                                 className="overflow-hidden"
                             >
-                                <div className="p-2 space-y-1 bg-white dark:bg-[#0a0a0a]">
+                                <div className="p-2 space-y-1 bg-[#fafafa] dark:bg-[#121212]">
                                     {loadingCategoryProblems === category.id ? (
                                         <div className="flex justify-center p-2">
                                             <Loader2 className="w-4 h-4 animate-spin text-orange-500" />

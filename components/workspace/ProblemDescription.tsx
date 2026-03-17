@@ -115,9 +115,9 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
     ];
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#0a0a0a]">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212]">
             {/* HEADER TABS */}
-            <div className={`flex items-center gap-1 border-b border-gray-200/80 dark:border-[#1e1e1e] px-3 py-2 ${contestId ? 'bg-orange-50/30 dark:bg-orange-500/5' : 'bg-gray-50/30 dark:bg-[#0a0a0a]'}`}>
+            <div className={`flex items-center gap-1 border-b border-gray-200/80 dark:border-[#1e1e1e] px-3 py-2 ${contestId ? 'bg-orange-50/30 dark:bg-orange-500/5' : 'bg-gray-50/30 dark:bg-[#121212]'}`}>
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <motion.button
@@ -130,7 +130,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                             className={`
                                 relative flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium rounded-lg transition-colors duration-200 border
                                 ${activeTab === tab.key
-                                    ? "bg-white dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]"
+                                    ? "bg-[#fafafa] dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]"
                                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border-transparent hover:bg-gray-100/50 dark:hover:bg-[#141414]/50"
                                 }
                                 ${tab.key === "solutions" && problem.difficulty === "CONCEPT" ? "opacity-50 cursor-not-allowed" : ""}
@@ -331,7 +331,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                                                     prose-li:text-gray-700 dark:prose-li:text-gray-300
                                                     prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
                                                     prose-code:text-orange-600 dark:prose-code:text-orange-400 prose-code:bg-orange-50 dark:prose-code:bg-orange-950/30 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
-                                                    prose-pre:bg-white dark:prose-pre:bg-[#0a0a0a] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
+                                                    prose-pre:bg-[#fafafa] dark:prose-pre:bg-[#121212] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
                                                     prose-img:rounded-lg prose-img:border prose-img:border-gray-100 dark:prose-img:border-[#262626] prose-img:my-6
                                                     prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1a1a1a] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6"
                                             >

@@ -28,7 +28,7 @@ async function AssignmentsContent() {
 
 export default function MyAssignmentsPage() {
     return (
-        <div className="min-h-screen bg-gray-50/30 dark:bg-[#0a0a0a] pt-24 pb-12">
+        <div className="min-h-screen bg-gray-50/30 dark:bg-[#121212] pt-24 pb-12">
             <div className="max-w-6xl mx-auto px-6">
                 <div className="mb-8">
                     <Link
