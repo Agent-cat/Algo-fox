@@ -2,10 +2,31 @@
 import Dexie, { type Table } from 'dexie';
 
 interface CodeDraft {
-    id: string; // Composite key: problemId_languageId
+    id: string; // Composite key: userId_problemId_languageId
     problemId: string;
     languageId: number;
     code: string;
+    updatedAt: number;
+}
+
+export interface CodeFile {
+    id: string;        // Composite key: userId_problemId_languageId_fileId
+    fileId: string;    // Unique file id
+    userId: string;
+    problemId: string;
+    languageId: number;
+    name: string;
+    code: string;
+    order: number;
+    updatedAt: number;
+}
+
+export interface CodeFilesMeta {
+    id: string;         // userId_problemId_languageId
+    userId: string;
+    problemId: string;
+    languageId: number;
+    activeFileId: string | null;
     updatedAt: number;
 }
 
@@ -14,23 +35,32 @@ const DB_NAME = 'AlgoFoxDB';
 
 class AlgoFoxDB extends Dexie {
     codeDrafts!: Table<CodeDraft>;
+    codeFiles!: Table<CodeFile>;
+    codeFilesMeta!: Table<CodeFilesMeta>;
 
     constructor() {
         super(DB_NAME);
 
-        // Version 2: new schema with id as primary key
-        // Start directly at version 2 to avoid primary key migration issues
+        // Version 2: existing codeDrafts schema
         this.version(2).stores({
             codeDrafts: 'id, problemId, languageId, updatedAt'
+        });
+
+        // Version 3: add codeFiles and codeFilesMeta tables
+        // OPTIMIZATION: compound index [userId+problemId+languageId] on codeFiles
+        // enables fast WHERE queries without full table scans.
+        this.version(3).stores({
+            codeDrafts: 'id, problemId, languageId, updatedAt',
+            codeFiles: 'id, [userId+problemId+languageId], updatedAt',
+            codeFilesMeta: 'id'
         });
     }
 }
 
-// Only create database instance on client side (browser)
+// Singleton — created once per browser tab
 let db: AlgoFoxDB | null = null;
 
 function getDB(): AlgoFoxDB {
-    // Only create database in browser environment
     if (typeof window === 'undefined') {
         throw new Error('IndexedDB is only available in browser environment');
     }
@@ -38,19 +68,17 @@ function getDB(): AlgoFoxDB {
     if (!db) {
         db = new AlgoFoxDB();
 
-        // Initialize database with error handling for schema migration
+        // Dexie auto-opens, but we handle upgrade failures gracefully
         db.open().catch(async (error: any) => {
-            // If migration fails due to primary key change, delete and recreate
-            if (error.name === 'UpgradeError' ||
+            if (
+                error.name === 'UpgradeError' ||
                 error.message?.includes('primary key') ||
-                error.message?.includes('Not yet support for changing primary key')) {
+                error.message?.includes('Not yet support for changing primary key')
+            ) {
                 console.warn('Database schema migration failed, recreating database...');
                 try {
                     await Dexie.delete(DB_NAME);
-                    // Reload page to reinitialize with new schema
-                    if (typeof window !== 'undefined') {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 } catch (deleteError) {
                     console.error('Failed to recreate database:', deleteError);
                 }
@@ -63,53 +91,57 @@ function getDB(): AlgoFoxDB {
     return db;
 }
 
-// Export getter function that only creates DB in browser
-export async function saveCodeDraft(userId: string, problemId: string, languageId: number, code: string) {
-    // Only save in browser environment
-    if (typeof window === 'undefined' || !userId) {
-        return;
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+function makeFileId(): string {
+    // crypto.randomUUID is available in all modern browsers (secure + no collisions)
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
     }
+    return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+}
+
+function metaKey(userId: string, problemId: string, languageId: number) {
+    return `${userId}_${problemId}_${languageId}`;
+}
+
+function fileKey(userId: string, problemId: string, languageId: number, fileId: string) {
+    return `${userId}_${problemId}_${languageId}_${fileId}`;
+}
+
+// ─── CODE DRAFTS (existing) ───────────────────────────────────────────────────
+
+export async function saveCodeDraft(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    code: string
+) {
+    if (typeof window === 'undefined' || !userId) return;
 
     try {
         const db = getDB();
-        if (!db.isOpen()) {
-            await db.open();
-        }
-
         const now = Date.now();
         const id = `${userId}_${problemId}_${languageId}`;
 
-        // Clean up expired entries (optimistic, don't wait)
-        db.codeDrafts.where('updatedAt').below(now - EXPIRATION_TIME_MS).delete();
+        // Fire-and-forget cleanup — does not block the save
+        db.codeDrafts.where('updatedAt').below(now - EXPIRATION_TIME_MS).delete().catch(() => {});
 
-        // Also verify if we need to migrate/cleanup old format entries (optional but nice)
-        // For now, simple key change is sufficient to segregate data.
-
-        await db.codeDrafts.put({
-            id,
-            problemId,
-            languageId,
-            code,
-            updatedAt: now
-        });
+        await db.codeDrafts.put({ id, problemId, languageId, code, updatedAt: now });
     } catch (error: any) {
-        // If still failing, just log and continue (database will be recreated on reload)
         console.error('Failed to save code draft:', error);
     }
 }
 
-export async function getCodeDraft(userId: string, problemId: string, languageId: number): Promise<string | null> {
-    // Only get in browser environment
-    if (typeof window === 'undefined' || !userId) {
-        return null;
-    }
+export async function getCodeDraft(
+    userId: string,
+    problemId: string,
+    languageId: number
+): Promise<string | null> {
+    if (typeof window === 'undefined' || !userId) return null;
 
     try {
         const db = getDB();
-        if (!db.isOpen()) {
-            await db.open();
-        }
-
         const id = `${userId}_${problemId}_${languageId}`;
         const draft = await db.codeDrafts.get(id);
 
@@ -117,15 +149,160 @@ export async function getCodeDraft(userId: string, problemId: string, languageId
 
         const now = Date.now();
         if (now - draft.updatedAt > EXPIRATION_TIME_MS) {
-            // Expired
-            await db.codeDrafts.delete(id);
+            db.codeDrafts.delete(id).catch(() => {}); // fire-and-forget
             return null;
         }
 
         return draft.code;
     } catch (error: any) {
-        // Log error but don't throw - return null to allow app to continue
         console.error('Failed to get code draft:', error);
         return null;
     }
+}
+
+// ─── CODE FILES (new) ─────────────────────────────────────────────────────────
+
+/**
+ * Get all files for a problem+language, sorted by order.
+ * Uses the compound index [userId+problemId+languageId] for O(log n) lookup.
+ */
+export async function getCodeFiles(
+    userId: string,
+    problemId: string,
+    languageId: number
+): Promise<CodeFile[]> {
+    if (typeof window === 'undefined' || !userId) return [];
+
+    try {
+        const db = getDB();
+        const files = await db.codeFiles
+            .where('[userId+problemId+languageId]')
+            .equals([userId, problemId, languageId])
+            .toArray();
+
+        return files.sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error('Failed to get code files:', error);
+        return [];
+    }
+}
+
+/** Get active file id for a problem+language */
+export async function getActiveFileId(
+    userId: string,
+    problemId: string,
+    languageId: number
+): Promise<string | null> {
+    if (typeof window === 'undefined' || !userId) return null;
+
+    try {
+        const db = getDB();
+        const meta = await db.codeFilesMeta.get(metaKey(userId, problemId, languageId));
+        return meta?.activeFileId ?? null;
+    } catch (error) {
+        console.error('Failed to get active file id:', error);
+        return null;
+    }
+}
+
+/** Set active file id — fire-and-forget safe */
+export function setActiveFileId(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    activeFileId: string | null
+): void {
+    if (typeof window === 'undefined' || !userId) return;
+
+    const db = getDB();
+    const id = metaKey(userId, problemId, languageId);
+    db.codeFilesMeta
+        .put({ id, userId, problemId, languageId, activeFileId, updatedAt: Date.now() })
+        .catch((error) => console.error('Failed to set active file id:', error));
+}
+
+/** Create a new code file */
+export async function createCodeFile(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    name: string,
+    code: string,
+    order: number
+): Promise<CodeFile | null> {
+    if (typeof window === 'undefined' || !userId) return null;
+
+    try {
+        const db = getDB();
+        const fileId = makeFileId();
+        const id = fileKey(userId, problemId, languageId, fileId);
+
+        const newFile: CodeFile = {
+            id,
+            fileId,
+            userId,
+            problemId,
+            languageId,
+            name,
+            code,
+            order,
+            updatedAt: Date.now(),
+        };
+
+        await db.codeFiles.put(newFile);
+        return newFile;
+    } catch (error) {
+        console.error('Failed to create code file:', error);
+        return null;
+    }
+}
+
+/** Update file code — called on every debounced keystroke */
+export function updateCodeFileContent(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    fileId: string,
+    code: string
+): void {
+    if (typeof window === 'undefined' || !userId) return;
+
+    const db = getDB();
+    const id = fileKey(userId, problemId, languageId, fileId);
+    db.codeFiles
+        .update(id, { code, updatedAt: Date.now() })
+        .catch((error) => console.error('Failed to update code file content:', error));
+}
+
+/** Rename a file */
+export function renameCodeFile(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    fileId: string,
+    name: string
+): void {
+    if (typeof window === 'undefined' || !userId) return;
+
+    const db = getDB();
+    const id = fileKey(userId, problemId, languageId, fileId);
+    db.codeFiles
+        .update(id, { name, updatedAt: Date.now() })
+        .catch((error) => console.error('Failed to rename code file:', error));
+}
+
+/** Delete a file */
+export function deleteCodeFile(
+    userId: string,
+    problemId: string,
+    languageId: number,
+    fileId: string
+): void {
+    if (typeof window === 'undefined' || !userId) return;
+
+    const db = getDB();
+    const id = fileKey(userId, problemId, languageId, fileId);
+    db.codeFiles
+        .delete(id)
+        .catch((error) => console.error('Failed to delete code file:', error));
 }

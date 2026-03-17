@@ -33,16 +33,16 @@ async function ClassroomsData() {
 
 export default function ClassroomsPage() {
     return (
-        <div className="min-h-screen dark:bg-[#0a0a0a] pt-12">
+        <div className="min-h-screen dark:bg-[#121212] pt-12">
             {/* Header */}
-            <div className="relative mb-12 bg-white dark:bg-[#0a0a0a]   dark:border-[#262626]  overflow-hidden">
+            <div className="relative mb-12 bg-[#fafafa] dark:bg-[#121212]   dark:border-[#262626]  overflow-hidden">
                 <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="flex flex-col items-center text-center gap-4">
                         <div className="relative group cursor-default">
                             <div className="absolute -inset-1 rounded-full"></div>
-                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-white dark:bg-[#0a0a0a] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
+                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-[#fafafa] dark:bg-[#121212] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
                                 <School className="w-4 h-4" />
                                 MY CLASSROOMS
                             </div>

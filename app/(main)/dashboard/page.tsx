@@ -21,7 +21,7 @@ async function DashboardContent() {
   const submissions = user.submissions;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <aside className="lg:col-span-3 space-y-6">

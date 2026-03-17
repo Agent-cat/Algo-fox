@@ -66,7 +66,7 @@ export default function ProblemsSelectionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading courses...</p>
@@ -77,7 +77,7 @@ export default function ProblemsSelectionPage() {
 
   if (displayedCourses.length === 0) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight sm:text-5xl mb-4">
@@ -93,7 +93,7 @@ export default function ProblemsSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8">
 
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
