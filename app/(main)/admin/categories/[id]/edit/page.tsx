@@ -9,6 +9,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { getCategories } from "@/actions/category.action";
+import { ProblemDomain } from "@prisma/client";
 
 import { Suspense } from "react";
 
@@ -17,6 +19,8 @@ const categorySchema = z.object({
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase, alphanumeric, and hyphen-separated"),
   description: z.string().optional(),
   order: z.number().int(),
+  domain: z.string(),
+  parentId: z.string().optional().nullable(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -30,15 +34,37 @@ function EditCategoryContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [category, setCategory] = useState<any>(null);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CategoryFormValues>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
       slug: "",
       description: "",
       order: 0,
+      domain: "DSA",
+      parentId: null,
     }
   });
+
+  const [parentCategories, setParentCategories] = useState<any[]>([]);
+  const [isParentsLoading, setIsParentsLoading] = useState(false);
+  const selectedDomain = watch("domain") as ProblemDomain;
+
+  useEffect(() => {
+    const fetchParents = async () => {
+      setIsParentsLoading(true);
+      try {
+        const res = await getCategories(selectedDomain);
+        // Exclude current category from being its own parent
+        setParentCategories(res.categories?.filter((c: any) => c.id !== categoryId) || []);
+      } catch (error) {
+        console.error("Failed to fetch parent categories:", error);
+      } finally {
+        setIsParentsLoading(false);
+      }
+    };
+    fetchParents();
+  }, [selectedDomain, categoryId]);
 
   useEffect(() => {
     if (categoryId) {
@@ -57,6 +83,8 @@ function EditCategoryContent() {
           slug: res.category.slug,
           description: res.category.description || "",
           order: res.category.order,
+          domain: res.category.domain,
+          parentId: res.category.parentId || "",
         });
       } else {
         toast.error(res.error || "Failed to load category");
@@ -77,6 +105,8 @@ function EditCategoryContent() {
         description: data.description || undefined,
         slug: data.slug,
         order: data.order,
+        domain: data.domain as ProblemDomain,
+        parentId: data.parentId || null,
       });
 
       if (res.success) {
@@ -165,6 +195,40 @@ function EditCategoryContent() {
             </div>
 
             <div>
+              <label htmlFor="domain" className="block text-sm font-semibold text-gray-700 mb-2">
+                Domain *
+              </label>
+              <select
+                {...register("domain")}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all font-medium"
+              >
+                <option value="DSA">DSA</option>
+                <option value="SQL">SQL</option>
+                <option value="APTITUDE">Aptitude</option>
+              </select>
+              {errors.domain && <p className="text-xs text-red-500 mt-1">{errors.domain.message}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="parentId" className="block text-sm font-semibold text-gray-700 mb-2">
+                Parent Category (Optional)
+              </label>
+              <select
+                {...register("parentId")}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all disabled:opacity-50"
+                disabled={isParentsLoading}
+              >
+                <option value="">None (Top-level)</option>
+                {parentCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">Pick a parent to create a sub-category</p>
+            </div>
+
+            <div>
               <label htmlFor="order" className="block text-sm font-semibold text-gray-700 mb-2">
                 Display Order
               </label>
@@ -174,7 +238,7 @@ function EditCategoryContent() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-gray-400"
                 placeholder="0"
               />
-              <p className="mt-1 text-xs text-gray-500">Lower numbers appear first</p>
+              <p className="mt-1 text-xs text-gray-500">Lower numbers appear first within the same level</p>
               {errors.order && <p className="text-xs text-red-500 mt-1">{errors.order.message}</p>}
             </div>
 

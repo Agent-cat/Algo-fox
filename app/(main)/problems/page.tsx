@@ -59,6 +59,26 @@ export default function ProblemsSelectionPage() {
         </svg>
       ),
     },
+    {
+      id: "aptitude",
+      href: "/problems/aptitude",
+      domain: "APTITUDE" as ProblemDomain,
+      title: "Aptitude",
+      description: "Master logical reasoning and quantitative aptitude.",
+      bgFrom: "",
+      bgTo: "",
+      buttonBg: "bg-black dark:bg-white",
+      buttonText: "text-white dark:text-black",
+      buttonHover: "hover:bg-gray-900 dark:hover:bg-gray-200",
+      badge: "Learn",
+      icon: (
+        <svg className="w-8 h-8 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4L6 20" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4L18 20" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 15H16" />
+        </svg>
+      ),
+    },
   ];
 
   // Filter courses based on allocations
@@ -131,7 +151,7 @@ export default function ProblemsSelectionPage() {
                     </div>
                   </>
                 )}
-                {course.id === "sql" && (
+                {(course.id === "sql" || course.id === "aptitude") && (
                   <>
                     <div className="absolute inset-0 opacity-20"
                       style={{ backgroundImage: 'linear-gradient(#9ca3af 1px, transparent 1px), linear-gradient(90deg, #9ca3af 1px, transparent 1px)', backgroundSize: '20px 20px' }}>

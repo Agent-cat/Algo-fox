@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getCategoryById, updateCategory } from "@/actions/category.action";
+import { getCategoryById, updateCategory, getCategories } from "@/actions/category.action";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -17,18 +17,35 @@ function EditSqlCategoryContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [category, setCategory] = useState<any>(null);
+  const [parentCategories, setParentCategories] = useState<any[]>([]);
+  const [isParentsLoading, setIsParentsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     slug: "",
     order: 0,
+    parentId: "",
   });
 
   useEffect(() => {
     if (categoryId) {
       fetchCategory();
+      fetchParents();
     }
   }, [categoryId]);
+
+  const fetchParents = async () => {
+    setIsParentsLoading(true);
+    try {
+      const res = await getCategories("SQL");
+      // Filter out current category
+      setParentCategories(res.categories?.filter((cat: any) => cat.id !== categoryId) || []);
+    } catch (error) {
+      console.error("Failed to fetch parents:", error);
+    } finally {
+      setIsParentsLoading(false);
+    }
+  };
 
   const fetchCategory = async () => {
     try {
@@ -40,6 +57,7 @@ function EditSqlCategoryContent() {
           description: res.category.description || "",
           slug: res.category.slug,
           order: res.category.order,
+          parentId: res.category.parentId || "",
         });
       } else {
         toast.error(res.error || "Failed to load category");
@@ -62,6 +80,8 @@ function EditSqlCategoryContent() {
         description: formData.description || undefined,
         slug: formData.slug,
         order: formData.order,
+        parentId: formData.parentId || null,
+        domain: "SQL",
       });
 
       if (res.success) {
@@ -157,6 +177,26 @@ function EditSqlCategoryContent() {
             </div>
 
             <div>
+              <label htmlFor="parentId" className="block text-sm font-semibold text-gray-700 mb-2">
+                Parent Category (Optional)
+              </label>
+              <select
+                id="parentId"
+                value={formData.parentId}
+                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+                disabled={isParentsLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
+              >
+                <option value="">None (Top-level)</option>
+                {parentCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="order" className="block text-sm font-semibold text-gray-700 mb-2">
                 Display Order
               </label>
@@ -168,7 +208,7 @@ function EditSqlCategoryContent() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="0"
               />
-              <p className="mt-1 text-xs text-gray-500">Lower numbers appear first</p>
+              <p className="mt-1 text-[10px] text-gray-500 italic">Lower numbers appear first within the same level</p>
             </div>
 
             <div className="flex items-center gap-4 pt-4">

@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Plus, Minus, CheckCircle2 } from "lucide-react";
 import { getCategoryProblems } from "@/actions/category.action";
 import { Difficulty, Problem } from "@prisma/client";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { DIFFICULTY_COLORS, INTERSECTION_THRESHOLD } from "../shared/constants";
 
@@ -18,9 +18,21 @@ interface CategoryCardProps {
   description?: string | null;
   problemCount: number;
   solvedCount: number;
+  displayOrder?: string;
+  subCategories?: any[];
+  isSubCategory?: boolean;
 }
 
-export default function CategoryCard({ id, name, description, problemCount, solvedCount }: CategoryCardProps) {
+export default function CategoryCard({
+  id,
+  name,
+  description,
+  problemCount,
+  solvedCount,
+  displayOrder,
+  subCategories = [],
+  isSubCategory = false
+}: CategoryCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [problems, setProblems] = useState<ProblemWithStats[]>([]);
   const [page, setPage] = useState(1);
@@ -29,8 +41,29 @@ export default function CategoryCard({ id, name, description, problemCount, solv
   const [isInitialLoad, setIsInitialLoad] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const progressPercentage = problemCount > 0 ? (solvedCount / problemCount) * 100 : 0;
-  const isCompleted = problemCount > 0 && solvedCount === problemCount;
+  // Helper to get recursive counts
+  const getRecursiveCounts = useCallback((cat: any) => {
+    let pCount = cat._count?.categoryProblems || 0;
+    let sCount = cat.solvedCount || 0;
+
+    if (cat.children && cat.children.length > 0) {
+      cat.children.forEach((child: any) => {
+        const childCounts = getRecursiveCounts(child);
+        pCount += childCounts.pCount;
+        sCount += childCounts.sCount;
+      });
+    }
+    return { pCount, sCount };
+  }, []);
+
+  const { pCount: totalProblemCount, sCount: totalSolvedCount } = getRecursiveCounts({
+    _count: { categoryProblems: problemCount },
+    solvedCount,
+    children: subCategories
+  });
+
+  const progressPercentage = totalProblemCount > 0 ? (totalSolvedCount / totalProblemCount) * 100 : 0;
+  const isCompleted = totalProblemCount > 0 && totalSolvedCount === totalProblemCount;
 
   const loadProblems = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     if (isLoading) return;
@@ -105,57 +138,49 @@ export default function CategoryCard({ id, name, description, problemCount, solv
     >
       <motion.button
         onClick={handleToggle}
-        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl p-4 hover:border-gray-300 dark:hover:border-[#333333] transition-all text-left hover:shadow-md"
-        whileHover={{ scale: 1.005, y: -1 }}
+        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-md py-3 px-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all text-left group"
         whileTap={{ scale: 0.998 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{name}</h3>
-              {isCompleted && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                >
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                </motion.div>
-              )}
-            </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400 font-medium text-sm min-w-[1.2rem]">{displayOrder || "•"}</span>
+            <h3 className={`text-sm md:text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors ${isSubCategory ? "text-xs md:text-sm" : ""}`}>
+              {name}
+            </h3>
+            {isCompleted && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="ml-1"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+              </motion.div>
+            )}
+          </div>
 
-            {/* Progress Bar */}
-            <div className="mb-2">
-              <div className="flex items-center gap-2.5 mb-1.5">
-                <div className="flex-1 bg-white/40 dark:bg-[#1a1a1a] backdrop-blur-sm rounded-full h-2 overflow-hidden border border-gray-200/50 dark:border-[#333333] shadow-inner relative">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-orange-500/90 to-orange-600/90 rounded-full relative overflow-hidden"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercentage}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-transparent" />
-                  </motion.div>
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium min-w-[40px] text-right">
-                  {Math.round(progressPercentage)}%
-                </span>
+          <div className="flex items-center gap-4 flex-1 max-w-[400px] justify-end">
+            <div className="flex items-center gap-3 w-full max-w-[280px]">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-400 tabular-nums whitespace-nowrap">
+                ({totalSolvedCount}/{totalProblemCount})
+              </span>
+              <div className="flex-1 bg-gray-100 dark:bg-[#1f1f1f] h-3.5 rounded-sm overflow-hidden relative">
+                <motion.div
+                  className="h-full bg-[#E94E24]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercentage}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 dark:text-gray-300 text-xs font-medium">{solvedCount}/{problemCount}</span>
-              <span className="text-gray-500 dark:text-gray-400 text-xs">problems solved</span>
+            <div className="flex-shrink-0">
+              {isExpanded ? (
+                <Minus className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+              ) : (
+                <Plus className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+              )}
             </div>
           </div>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="ml-4"
-          >
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          </motion.div>
         </div>
       </motion.button>
 
@@ -171,7 +196,26 @@ export default function CategoryCard({ id, name, description, problemCount, solv
             }}
             className="overflow-hidden"
           >
-            <div className="mt-3 bg-gradient-to-b from-gray-50 dark:from-[#1a1a1a] to-white dark:to-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626] shadow-sm">
+            <div className={`mt-3 bg-gradient-to-b from-gray-50 dark:from-[#1a1a1a] to-white dark:to-[#141414] rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm ${isSubCategory ? 'p-2 mt-2' : 'p-4'}`}>
+              {/* Render Sub-categories first if they exist */}
+              {subCategories && subCategories.length > 0 && (
+                <div className="mb-4 space-y-2 pl-4 border-l-2 border-orange-500/40 dark:border-orange-500/30">
+                  {subCategories.map((subCat) => (
+                    <CategoryCard
+                      key={subCat.id}
+                      id={subCat.id}
+                      name={subCat.name}
+                      description={subCat.description}
+                      problemCount={subCat._count?.categoryProblems || 0}
+                      solvedCount={subCat.solvedCount || 0}
+                      displayOrder={subCat.displayOrder}
+                      subCategories={subCat.children}
+                      isSubCategory={true}
+                    />
+                  ))}
+                </div>
+              )}
+
               {isInitialLoad ? (
                 <LoadingSpinner size="md" className="py-6" />
               ) : problems.length === 0 ? (
@@ -180,45 +224,51 @@ export default function CategoryCard({ id, name, description, problemCount, solv
                 </div>
               ) : (
                 <>
-                  <div className="space-y-2">
-                    {problems.map((problem, index) => (
-                      <motion.div
-                        key={problem.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05, duration: 0.3 }}
-                        className="group"
-                      >
-                        <Link
-                          href={`/problems/${problem.slug}`}
-                          className="flex items-center justify-between p-3 bg-white dark:bg-[#141414] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333333] hover:shadow-sm"
+                  <div className={cn("space-y-4", isSubCategory && "pl-5 border-l-2 border-orange-500/20 dark:border-orange-500/10 ml-3")}>
+                    <div className="space-y-2">
+                      {problems.map((problem, index) => (
+                        <motion.div
+                          key={problem.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05, duration: 0.3 }}
+                          className="group"
                         >
-                          <div className="flex items-center gap-2.5 flex-1">
-                            {problem.isSolved && (
-                              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                            )}
-                            <span className="font-medium text-gray-900 dark:text-gray-100 text-sm group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                              {problem.title}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getDifficultyColor(
-                                problem.difficulty
-                              )}`}
-                            >
-                              {problem.difficulty === "MEDIUM"
-                                ? "Med."
-                                : problem.difficulty.charAt(0) +
-                                problem.difficulty.slice(1).toLowerCase()}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 min-w-[50px] text-right">
-                              {problem.acceptance.toFixed(1)}%
-                            </span>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                          <Link
+                            href={`/problems/${problem.slug}`}
+                            className="flex items-center justify-between p-3 bg-white dark:bg-[#141414] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333333] hover:shadow-sm"
+                          >
+                            <div className="flex items-center gap-2.5 flex-1">
+                              {problem.isSolved && (
+                                <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                              )}
+                              <span className="font-medium text-gray-900 dark:text-gray-100 text-sm group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                                {problem.title}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getDifficultyColor(
+                                  problem.difficulty
+                                )}`}
+                              >
+                                {problem.difficulty === "CONCEPT"
+                                  ? "Concept"
+                                  : problem.difficulty === "MEDIUM"
+                                  ? "Med."
+                                  : problem.difficulty.charAt(0) +
+                                    problem.difficulty.slice(1).toLowerCase()}
+                              </span>
+                              {problem.difficulty !== "CONCEPT" && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400 min-w-[50px] text-right">
+                                  {problem.acceptance.toFixed(1)}%
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Infinite Scroll Trigger */}

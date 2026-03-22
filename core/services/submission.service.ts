@@ -399,4 +399,18 @@ export class SubmissionService {
             console.error("Failed to invalidate classroom tracking cache:", error);
         }
     }
+
+    static async markConceptAsSolved(userId: string, problemId: string) {
+        // Use a default language (e.g., JavaScript ID 63) for concept submissions
+        const DEFAULT_CONCEPT_LANG_ID = 63;
+        const submission = await this.createSubmission(
+            userId,
+            problemId,
+            DEFAULT_CONCEPT_LANG_ID,
+            "// CONCEPT COMPLETED",
+            "SUBMIT"
+        );
+        await this.updateSubmissionStatus(submission.id, "ACCEPTED", 0, 0);
+        return submission;
+    }
 }

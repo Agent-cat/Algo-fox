@@ -114,63 +114,18 @@ export async function updateUserInfo(data: {
 
     const userId = session.user.id;
 
-    try {
-        // Fetch current user to check for changes
-        const currentUser = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                codeChefHandle: true,
-                codeforcesHandle: true,
-                leetCodeHandle: true,
-            }
-        });
+    const res = await UserService.updateUserInfo(userId, data);
 
-        const updateData: any = {
-            name: data.name,
-            bio: data.bio,
-            leetCodeHandle: data.leetCodeHandle,
-            codeChefHandle: data.codeChefHandle,
-            codeforcesHandle: data.codeforcesHandle,
-            githubHandle: data.githubHandle,
-        };
-
-        // Reset verification if handle changed
-        if (currentUser) {
-            if (data.codeChefHandle !== undefined && data.codeChefHandle !== currentUser.codeChefHandle) {
-                updateData.codeChefVerified = false;
-            }
-            if (data.codeforcesHandle !== undefined && data.codeforcesHandle !== currentUser.codeforcesHandle) {
-                updateData.codeforcesVerified = false;
-            }
-            if (data.leetCodeHandle !== undefined && data.leetCodeHandle !== currentUser.leetCodeHandle) {
-                updateData.leetCodeVerified = false;
-            }
-        }
-
-        await prisma.user.update({
-            where: { id: userId },
-            data: updateData
-        });
-
-        // Invalidate Redis cache
-        try {
-            const redis = (await import("@/lib/redis")).default;
-            await redis.del(`dashboard:stats:${userId}`);
-        } catch (error) {
-            console.error("Failed to invalidate dashboard redis cache:", error);
-        }
-
+    if (res.success) {
         revalidatePath("/dashboard");
-        revalidatePath("/dashboard/settings"); // Added to refresh settings page
+        revalidatePath("/dashboard/settings");
         updateTag(`user-${userId}`);
         updateTag(`user-score-${userId}`);
         updateTag(`dashboard-${userId}`);
         updateTag('dashboard-stats');
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to update user info:", error);
-        return { success: false, error: "Failed to update profile" };
     }
+
+    return res;
 }
 
 /**
@@ -229,21 +184,5 @@ export async function getUserSettings() {
     const userId = session.user.id;
     cacheTag(`user-${userId}`);
 
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-            institution: true
-        }
-    });
-
-    if (!user) return null;
-
-    return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        bio: user.bio,
-        institutionName: user.institution?.name
-    };
+    return UserService.getUserSettings(userId);
 }

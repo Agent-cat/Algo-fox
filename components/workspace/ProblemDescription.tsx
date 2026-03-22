@@ -5,11 +5,13 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import { Problem } from '@prisma/client';
-import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle } from 'lucide-react';
+import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 import Submissions from './Submissions';
 import { getPointsLabel } from '@/lib/points';
 import { CommentTree } from '../problems/discussion/CommentTree';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import { remarkSolutionDirective, remarkMcqDirective } from "@/lib/markdown-plugins";
 import { preprocessMarkdown } from "@/lib/markdown-utils";
@@ -28,6 +30,8 @@ interface ProblemDescriptionProps {
     onTabChange: (tab: Tab) => void;
     isSolved: boolean;
     contestId?: string;
+    domain?: string;
+    nextProblemSlug?: string | null;
 }
 
 const tabVariants = {
@@ -70,8 +74,9 @@ const staggerItem: Variants = {
     }
 };
 
-export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved, contestId }: ProblemDescriptionProps) {
+export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug }: ProblemDescriptionProps) {
     const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
+    const router = useRouter();
 
     const getDifficultyConfig = (difficulty: string) => {
         switch (difficulty) {
@@ -111,7 +116,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
     const tabs: { key: Tab; label: string; icon: React.ReactNode; contestOnly?: boolean }[] = [
         { key: "description", label: "Description", icon: <FileText className="w-4 h-4" /> },
         ...(!contestId ? [{ key: "solutions" as Tab, label: "Solutions", icon: <BadgeCheck className="w-4 h-4" /> }] : []),
-        { key: "submissions", label: contestId ? "My Verdicts" : "Submissions", icon: <List className="w-4 h-4" /> },
+        ...(domain !== "APTITUDE" ? [{ key: "submissions" as Tab, label: contestId ? "My Verdicts" : "Submissions", icon: <List className="w-4 h-4" /> }] : []),
     ];
 
     return (
@@ -173,7 +178,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="px-6 py-6 space-y-6"
+                            className={`${domain === "APTITUDE" ? "px-8 py-8 md:px-10 md:py-10" : "px-6 py-6"} space-y-6`}
                         >
                             <motion.div
                                 variants={staggerContainer}
@@ -181,8 +186,11 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                                 animate="visible"
                             >
                                 {/* Title with solved badge beside it */}
-                                <motion.div variants={staggerItem} className="flex items-center gap-3 mb-4 flex-wrap">
-                                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                                <motion.div variants={staggerItem} className={`flex items-center gap-3 flex-wrap ${domain === "APTITUDE" ? "mb-6" : "mb-4"}`}>
+                                    <h1 className={`font-bold text-gray-900 dark:text-gray-100 tracking-tight ${domain === "APTITUDE" ? "text-4xl md:text-5xl font-black flex items-center gap-3" : "text-2xl"}`}>
+                                        {domain === "APTITUDE" && (
+                                            <span className="w-10 h-10 bg-orange-600 text-white rounded-lg flex items-center justify-center text-xl shadow-lg shadow-orange-500/20 shrink-0">A</span>
+                                        )}
                                         {problem.title}
                                     </h1>
                                     {isSolved && (
@@ -252,7 +260,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.2, duration: 0.4 }}
-                                className="prose prose-[1rem] max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]"
+                                className={`${domain === "APTITUDE" ? "prose-xl" : "prose-[1rem]"} prose max-w-none prose-slate dark:prose-invert prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a1a] prose-code:px-1 prose-code:py-0.5 select-none prose-code:rounded prose-code:font-mono prose-pre:bg-gray-50 dark:prose-pre:bg-[#141414] prose-pre:text-gray-900 dark:prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-[#262626]`}
                             >
                                 <Markdown
                                     remarkPlugins={[remarkDirective, remarkGfm, remarkBreaks, remarkMcqDirective]}

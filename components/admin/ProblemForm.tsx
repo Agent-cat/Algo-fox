@@ -15,6 +15,7 @@ import { TagInput } from "./TagInput";
 import FunctionTemplateEditor, { FunctionTemplate } from "./FunctionTemplateEditor";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { getCategories } from "@/actions/category.action";
 
 // FUNCTION TEMPLATE SCHEMA
 const functionTemplateSchema = z.object({
@@ -33,13 +34,17 @@ const formSchema = z.object({
     hiddenQuery: z.string().optional().nullable(),
     tags: z.array(z.string()).optional(),
     testCases: z.array(z.object({
-        input: z.string(),
-        output: z.string().min(1, "Output is required"),
+        input: z.string().optional(),
+        output: z.string().optional(),
         hidden: z.boolean().optional()
-    })).min(1, "At least one test case is required"),
+    })).optional(),
     useFunctionTemplate: z.boolean().optional(),
     functionTemplates: z.array(functionTemplateSchema).optional(),
     solution: z.string().optional().nullable(),
+    isMcq: z.boolean().optional(),
+    options: z.array(z.string()).optional(),
+    answer: z.string().optional(),
+    categoryId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -91,15 +96,51 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [solutionPreview, setSolutionPreview] = useState(false);
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
+    const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
 
     useEffect(() => {
         if (initialData?.useFunctionTemplate !== undefined) setUseFunctionTemplate(initialData.useFunctionTemplate);
         if (initialData?.functionTemplates) setFunctionTemplates(initialData.functionTemplates);
-    }, [initialData]);
+
+        // Fetch categories for the domain
+        const loadCategories = async () => {
+            const res = await getCategories(domain);
+            if (res.categories) {
+                // Build tree
+                const map = new Map();
+                res.categories.forEach((cat: any) => map.set(cat.id, { ...cat, children: [] }));
+                const roots: any[] = [];
+                res.categories.forEach((cat: any) => {
+                    const node = map.get(cat.id);
+                    if (cat.parentId && map.has(cat.parentId)) {
+                        map.get(cat.parentId).children.push(node);
+                    } else {
+                        roots.push(node);
+                    }
+                });
+
+                // Flatten tree for select
+                const flatten = (nodes: any[], level = 0): any[] => {
+                    let result: any[] = [];
+                    nodes.sort((a, b) => a.order - b.order).forEach(node => {
+                        result.push({ ...node, level });
+                        if (node.children) {
+                            result = [...result, ...flatten(node.children, level + 1)];
+                        }
+                    });
+                    return result;
+                };
+
+                setFetchedCategories(flatten(roots));
+            }
+        };
+        loadCategories();
+    }, [initialData, domain]);
 
     const router = useRouter();
     const isDSA = domain === "DSA";
-    const totalSteps = isDSA ? 5 : 4;
+    const isAptitude = domain === "APTITUDE";
+    const totalSteps = isDSA ? 5 : isAptitude ? 3 : 4;
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -115,6 +156,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             useFunctionTemplate: initialData?.useFunctionTemplate || false,
             functionTemplates: initialData?.functionTemplates || [],
             solution: initialData?.solution || "",
+            isMcq: initialData?.isMcq || domain === "APTITUDE",
+            options: (initialData as any)?.options || ["", "", "", ""],
+            answer: (initialData as any)?.answer || "",
+            categoryId: (initialData as any)?.categoryId || "",
         }
     });
 
@@ -134,12 +179,18 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
             { id: 5, name: "Templates", icon: Braces, desc: "Starter code" },
         ]
-        : [
-            { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
-            { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
-            { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
-            { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
-        ];
+        : isAptitude
+            ? [
+                { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
+                { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
+                { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
+            ]
+            : [
+                { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
+                { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
+                { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
+                { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
+            ];
 
     const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         e?.preventDefault();
@@ -148,7 +199,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         if (currentStep === 1) isValid = await trigger(["title", "slug", "difficulty"]);
         else if (currentStep === 2) isValid = await trigger(["description"]);
         else if (currentStep === 3) isValid = await trigger(["solution"]);
-        else if (currentStep === 4) isValid = await trigger(["testCases"]);
+        else if (currentStep === 4 && !isAptitude) isValid = await trigger(["testCases"]);
         else isValid = true;
         if (isValid && currentStep < totalSteps) {
             setCurrentStep(prev => prev + 1);
@@ -182,6 +233,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             tags: selectedTags.map(t => t.slug),
             useFunctionTemplate: isDSA ? useFunctionTemplate : false,
             functionTemplates: isDSA && useFunctionTemplate ? functionTemplates : [],
+            isMcq: data.isMcq,
+            options: data.isMcq ? data.options?.filter(o => o.trim() !== "") : [],
+            answer: data.isMcq ? data.answer : null,
+            testCases: isAptitude ? [] : data.testCases,
+            categoryId: data.categoryId || null,
         };
         const res = await onSubmit(submissionData);
         if (res.success) {
@@ -312,6 +368,61 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 setValue("tags", newTags.map(t => t.slug));
                                             }}
                                         />
+                                    </div>
+
+                                    {(watch("isMcq") || isAptitude) && (
+                                        <div className="p-6 rounded-2xl bg-blue-50/30 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MCQ Options</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input type="checkbox" {...register("isMcq")} className="hidden" />
+                                                    <span className="text-[10px] text-blue-500/60 font-medium italic">At least 2 required</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {[0, 1, 2, 3].map((idx) => (
+                                                    <div key={idx} className="flex gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            value={watch(`options.${idx}`)}
+                                                            checked={watch("answer") === watch(`options.${idx}`) && watch("answer") !== "" && !!watch("answer")}
+                                                            onChange={() => setValue("answer", watch(`options.${idx}`) || "")}
+                                                            className="mt-3.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                        />
+                                                        <input
+                                                            {...register(`options.${idx}` as const)}
+                                                            placeholder={`Option ${idx + 1}`}
+                                                            className={`${inputCls} py-2`}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="pt-2">
+                                                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
+                                                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400 truncate bg-white dark:bg-[#111] px-3 py-2 rounded-lg border border-blue-100 dark:border-blue-500/10 min-h-[40px] flex items-center">
+                                                    {watch("answer") || "Select correct option using radio button"}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Category Selection */}
+                                    <div className="pt-4">
+                                        <label className={labelCls}>Assign to Category</label>
+                                        <select
+                                            {...register("categoryId")}
+                                            className={inputCls}
+                                        >
+                                            <option value="">No Category (Unassigned)</option>
+                                            {fetchedCategories.map(cat => (
+                                                <option key={cat.id} value={cat.id}>
+                                                    {"\u00A0".repeat(cat.level * 4)}
+                                                    {cat.level > 0 ? "↳ " : ""}
+                                                    {cat.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="mt-1 text-[10px] text-gray-400">Linking this will show it in "Learn" mode for {domain}.</p>
                                     </div>
                                 </div>
 

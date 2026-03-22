@@ -5,17 +5,38 @@ import { useRouter } from "next/navigation";
 import { createCategory } from "@/actions/category.action";
 import { toast } from "sonner";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { getCategories } from "@/actions/category.action";
+import { useEffect } from "react";
 
 export default function CreateDsaCategoryPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [parentCategories, setParentCategories] = useState<any[]>([]);
+  const [isParentsLoading, setIsParentsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     slug: "",
     order: 0,
+    parentId: "",
   });
+
+  useEffect(() => {
+    const fetchParents = async () => {
+      setIsParentsLoading(true);
+      try {
+        const res = await getCategories("DSA");
+        setParentCategories(res.categories || []);
+      } catch (error) {
+        console.error("Failed to fetch parent categories:", error);
+      } finally {
+        setIsParentsLoading(false);
+      }
+    };
+    fetchParents();
+  }, []);
 
   const generateSlug = (name: string) => {
     return name
@@ -46,6 +67,7 @@ export default function CreateDsaCategoryPage() {
         slug: formData.slug,
         order: formData.order,
         domain: "DSA",
+        parentId: formData.parentId || null,
       });
 
       if (res.success) {
@@ -128,6 +150,26 @@ export default function CreateDsaCategoryPage() {
             </div>
 
             <div className="space-y-2">
+              <label htmlFor="parentId" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                Parent Category (Optional)
+              </label>
+              <select
+                id="parentId"
+                value={formData.parentId}
+                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+                disabled={isParentsLoading}
+                className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-50"
+              >
+                <option value="">None (Top-level)</option>
+                {parentCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
               <label htmlFor="order" className="text-sm font-bold text-gray-700 dark:text-gray-300">
                 Display Order
               </label>
@@ -139,6 +181,7 @@ export default function CreateDsaCategoryPage() {
                  className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="0"
               />
+              <p className="text-[10px] text-gray-500">Lower numbers appear first within the same level</p>
             </div>
 
             <div className="flex items-center gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-[#262626]">

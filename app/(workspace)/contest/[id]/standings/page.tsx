@@ -40,7 +40,7 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
         );
     }
 
-    const res = await getContestLeaderboard(id);
+    const res = await getContestLeaderboard(id) as any;
 
     if (!res.success) {
         return (

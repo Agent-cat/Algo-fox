@@ -54,7 +54,7 @@ export function useCodeFiles({
 
     // ─── LOAD ─────────────────────────────────────────────────────────────────
     useEffect(() => {
-        if (!userId || !problemId) return;
+        if (!problemId) return; // problemId is mandatory, userId can be empty for guest persistence
         let cancelled = false;
 
         async function load() {

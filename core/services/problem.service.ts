@@ -317,7 +317,12 @@ export class ProblemService {
                 testCases: true,
                 user: { select: { name: true, image: true } },
                 tags: { select: { name: true, slug: true } },
-                functionTemplates: true // Include for DSA function template boilerplates
+                functionTemplates: true, // Include for DSA function template boilerplates
+                categoryProblems: {
+                    include: {
+                        category: true
+                    }
+                }
             }
         });
 
@@ -345,7 +350,12 @@ export class ProblemService {
                 include: {
                     testCases: true,
                     tags: { select: { name: true, slug: true } },
-                    functionTemplates: true
+                    functionTemplates: true,
+                    categoryProblems: {
+                        include: {
+                            category: true
+                        }
+                    }
                 }
             });
             return { success: true, data: problem };
@@ -455,6 +465,10 @@ export class ProblemService {
         useFunctionTemplate?: boolean;
         functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
         solution?: string | null;
+        isMcq?: boolean;
+        options?: any;
+        answer?: string | null;
+        categoryId?: string | null;
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -467,8 +481,12 @@ export class ProblemService {
                     hidden: data.hidden,
                     hiddenQuery: data.hiddenQuery || null,
                     domain: data.domain || "DSA",
+                    type: data.categoryId ? "LEARN" : "PRACTICE",
                     useFunctionTemplate: data.useFunctionTemplate || false,
                     solution: data.solution || null,
+                    isMcq: data.isMcq || false,
+                    options: data.options || null,
+                    answer: data.answer || null,
                     testCases: {
                         create: data.testCases.map(tc => ({
                             input: tc.input,
@@ -486,6 +504,12 @@ export class ProblemService {
                             functionTemplate: ft.functionTemplate,
                             driverCode: ft.driverCode,
                         }))
+                    } : undefined,
+                    categoryProblems: data.categoryId ? {
+                        create: {
+                            categoryId: data.categoryId,
+                            order: 0
+                        }
                     } : undefined
                 },
             });
@@ -503,9 +527,12 @@ export class ProblemService {
     // UPDATING A PROBLEM
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, tags, functionTemplates, ...problemData } = data;
+            const { testCases, tags, functionTemplates, options, ...problemData } = data;
 
             const updateData: any = { ...problemData };
+            if (options) {
+                updateData.options = options;
+            }
             if (testCases) {
                 updateData.testCases = {
                     deleteMany: {},
@@ -533,6 +560,17 @@ export class ProblemService {
                         functionTemplate: ft.functionTemplate,
                         driverCode: ft.driverCode,
                     }))
+                };
+            }
+
+            if (data.categoryId !== undefined) {
+                updateData.type = data.categoryId ? "LEARN" : "PRACTICE";
+                updateData.categoryProblems = {
+                    deleteMany: {}, // Remove from all existing categories
+                    create: data.categoryId ? [{
+                        categoryId: data.categoryId,
+                        order: 0
+                    }] : []
                 };
             }
 

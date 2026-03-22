@@ -90,6 +90,13 @@ async function AdminDashboardStats() {
                         <ArrowRight className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
                     </Link>
                     <Link
+                        href="/admin/aptitude/problems"
+                        className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors group"
+                    >
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">Aptitude Problems</span>
+                        <ArrowRight className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                    </Link>
+                    <Link
                         href="/admin/users"
                         className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors group"
                     >

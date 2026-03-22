@@ -5,9 +5,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { unstable_cache as cache, unstable_noStore as noStore } from "next/cache";
+
 import { cacheTag, cacheLife } from "next/cache";
-import { after } from "next/server"; // For background tasks
+
 
 const contestSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -21,6 +21,8 @@ const contestSchema = z.object({
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
 });
+
+import { ContestService } from "@/core/services/contest.service";
 
 const contestWithProblemsSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -459,55 +461,6 @@ export async function getInstitutionalClassrooms(institutionId: string) {
     }
 }
 
-async function getSelectableProblems(search: string) {
-    try {
-        const problems = await prisma.problem.findMany({
-            where: {
-                OR: [
-                    { title: { contains: search, mode: "insensitive" } },
-                    { slug: { contains: search, mode: "insensitive" } },
-                ],
-                hidden: false,
-            },
-            select: { id: true, title: true, difficulty: true, slug: true },
-            take: 10,
-        });
-        return { success: true, problems };
-    } catch (error) {
-        console.error("Failed to fetch problems:", error);
-        return { success: false, error: "Failed to fetch problems" };
-    }
-}
-
-async function acceptContestRules(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-
-    if (!session?.user) return { success: false, error: "Unauthorized" };
-
-    try {
-        await prisma.contestParticipation.upsert({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            },
-            update: { acceptedRules: true },
-            create: {
-                userId: session.user.id,
-                contestId: contestId,
-                acceptedRules: true
-            }
-        });
-        revalidatePath(`/contest/${contestId}`);
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: "Failed to accept rules" };
-    }
-}
-
 export async function finishContestAction(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -572,8 +525,8 @@ export async function finalizeContest(contestId: string) {
         if (contest.isFinalized) return { success: false, error: "Contest is already finalized" };
 
         // Reuse leaderboard logic to get rankings
-        const leaderboard = await getContestLeaderboard(contestId);
-        if (!leaderboard.success || !leaderboard.students) {
+        const leaderboard = await getContestLeaderboard(contestId) as any;
+        if (!leaderboard || !leaderboard.success || !leaderboard.students) {
             return { success: false, error: "Failed to fetch leaderboard" };
         }
 
@@ -879,127 +832,6 @@ export async function logContestViolation(
 }
 
 /**
- * Validate contest session - checks if session is valid for submissions
- */
-async function validateContestSession(contestId: string, sessionId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-
-    if (!session?.user) return { success: false, valid: false, error: "Unauthorized" };
-
-    try {
-        const participation = await prisma.contestParticipation.findUnique({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            },
-            include: {
-                contest: {
-                    select: { startTime: true, endTime: true }
-                }
-            }
-        });
-
-        if (!participation) {
-            return { success: true, valid: false, reason: "No participation found" };
-        }
-
-        // Check if blocked
-        if (participation.isBlocked) {
-            return { success: true, valid: false, reason: "Blocked due to violations" };
-        }
-
-        // Check if finished
-        if (participation.isFinished) {
-            return { success: true, valid: false, reason: "Contest already finished" };
-        }
-
-        // Check session ID (multi-tab detection)
-        if (participation.sessionId !== sessionId) {
-            // Log multi-tab violation
-            await logContestViolation(contestId, "MULTI_TAB", "Multiple tabs detected");
-            return { success: true, valid: false, reason: "Session mismatch - possible multiple tabs" };
-        }
-
-        // Check time bounds
-        const now = new Date();
-        if (now > participation.contest.endTime) {
-            return { success: true, valid: false, reason: "Contest has ended" };
-        }
-
-        return {
-            success: true,
-            valid: true,
-            totalViolations: participation.totalViolations,
-            isFlagged: participation.isFlagged
-        };
-    } catch (error) {
-        console.error("Failed to validate session:", error);
-        return { success: false, valid: false, error: "Failed to validate session" };
-    }
-}
-
-/**
- * Check if user is eligible to submit - pre-submission validation
- */
-async function checkSubmissionEligibility(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-
-    if (!session?.user) return { eligible: false, error: "Unauthorized" };
-
-    try {
-        const participation = await prisma.contestParticipation.findUnique({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            },
-            include: {
-                contest: {
-                    select: { startTime: true, endTime: true }
-                }
-            }
-        });
-
-        if (!participation) {
-            return { eligible: false, reason: "No participation found" };
-        }
-
-        // Check various conditions
-        if (participation.isBlocked) {
-            return { eligible: false, reason: "Blocked due to excessive violations" };
-        }
-
-        if (participation.isFinished) {
-            return { eligible: false, reason: "You have already finished this contest" };
-        }
-
-        const now = new Date();
-        if (now < participation.contest.startTime) {
-            return { eligible: false, reason: "Contest has not started" };
-        }
-
-        if (now > participation.contest.endTime) {
-            return { eligible: false, reason: "Contest has ended" };
-        }
-
-        return {
-            eligible: true,
-            warnings: participation.isFlagged ? ["Your session has been flagged for review"] : []
-        };
-    } catch (error) {
-        console.error("Failed to check eligibility:", error);
-        return { eligible: false, error: "Failed to check eligibility" };
-    }
-}
-
-/**
  * Get participation status - for UI state
  */
 export async function getParticipationStatus(contestId: string) {
@@ -1257,190 +1089,19 @@ export async function getContestLeaderboard(contestId: string) {
     cacheTag(`leaderboard-${contestId}`)
     // @ts-ignore
     cacheLife("leaderboard")
-
     try {
-        const participations = await prisma.contestParticipation.findMany({
-            where: {
-                contestId,
-                // startedAt: { not: null } // Only started participants (Fix if field exists, otherwise rely on created)
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        image: true
-                    }
-                }
-            }
-        });
+        const result = await ContestService.getLeaderboard(contestId);
 
-        const contest = await prisma.contest.findUnique({
-            where: { id: contestId },
-            include: {
-                problems: {
-                    include: {
-                        problem: {
-                            select: {
-                                id: true,
-                                title: true,
-                                difficulty: true,
-                                slug: true,
-                                score: true
-                            }
-                        }
-                    },
-                    orderBy: { order: "asc" }
-                }
-            }
-        });
-
-        if (!contest) return { success: false, error: "Contest not found" };
-
-        // Pre-fetch ALL valid submissions for this contest to prevent N+1 database queries
-        const allSubmissions = await prisma.submission.findMany({
-            where: {
-                contestId: contestId,
-                createdAt: {
-                    gte: contest.startTime,
-                    lte: contest.endTime
-                }
-            },
-            select: {
-                id: true,
-                status: true,
-                problemId: true,
-                createdAt: true,
-                userId: true,
-                language: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
-            }
-        });
-
-        // Group submissions by userId for fast O(1) memory lookup
-        const submissionsByUser = new Map<string, typeof allSubmissions>();
-        for (const sub of allSubmissions) {
-            const userSubs = submissionsByUser.get(sub.userId) || [];
-            userSubs.push(sub);
-            submissionsByUser.set(sub.userId, userSubs);
+        if (!result) {
+            return { success: false, error: "Contest not found" };
         }
-
-        const leaderboard = participations.map((p) => {
-            const submissions = submissionsByUser.get(p.userId) || [];
-
-            // Calculate total score
-            // Logic: Best submission per problem counts
-            const problemScores = new Map<string, number>();
-            const problemSolveTimes = new Map<string, Date>();
-            const problemSubmissionCounts = new Map<string, number>();
-            const problemBestSubmissions = new Map<string, any>();
-
-            submissions.forEach(sub => {
-                const currentCount = problemSubmissionCounts.get(sub.problemId) || 0;
-                problemSubmissionCounts.set(sub.problemId, currentCount + 1);
-
-                if (sub.status === "ACCEPTED") {
-                    const currentBest = problemScores.get(sub.problemId) || 0;
-                    const problemDef = contest.problems.find(cp => cp.problemId === sub.problemId);
-                    const maxScore = problemDef?.problem.score || 0;
-
-                    if (maxScore > currentBest) {
-                         problemScores.set(sub.problemId, maxScore);
-                         const currentBestTime = problemSolveTimes.get(sub.problemId);
-                         if (!currentBestTime || sub.createdAt < currentBestTime) {
-                             problemSolveTimes.set(sub.problemId, sub.createdAt);
-                             problemBestSubmissions.set(sub.problemId, sub);
-                         }
-                    }
-                }
-            });
-
-            let totalScore = 0;
-            let totalTimeMs = 0;
-
-            problemScores.forEach((score, problemId) => {
-                totalScore += score;
-                const solventTime = problemSolveTimes.get(problemId);
-                if (solventTime) {
-                    totalTimeMs += (solventTime.getTime() - contest.startTime.getTime());
-                }
-            });
-
-            // Map stats for each problem in the contest
-            const problemStats = contest.problems.map(cp => {
-                const bestSub = problemBestSubmissions.get(cp.problemId);
-                return {
-                    problemId: cp.problemId,
-                    title: cp.problem.title,
-                    slug: cp.problem.slug,
-                    score: problemScores.get(cp.problemId) || 0,
-                    maxScore: cp.problem.score,
-                    submissions: problemSubmissionCounts.get(cp.problemId) || 0,
-                    solved: problemScores.has(cp.problemId),
-                    solvedAt: problemSolveTimes.get(cp.problemId),
-                    language: bestSub?.language?.name || null,
-                    languageId: bestSub?.language?.id || null
-                };
-            });
-
-            return {
-                ...p.user,
-                score: totalScore,
-                timeTaken: totalTimeMs,
-                problemsSolved: problemScores.size,
-                problemStats
-            };
-        });
-
-        // Sort: High score first, then low time taken
-        leaderboard.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.timeTaken - b.timeTaken;
-        });
 
         return {
             success: true,
-            students: leaderboard,
-            isFinalized: contest.isFinalized,
-            problems: contest.problems.map(cp => ({
-                id: cp.problemId,
-                title: cp.problem.title,
-                slug: cp.problem.slug,
-                maxScore: cp.problem.score
-            }))
+            ...result
         };
-
     } catch (error) {
         console.error("Leaderboard error:", error);
         return { success: false, error: "Failed to generate leaderboard" };
-    }
-}
-
-/**
- * Get current user's ranking in a contest
- */
-async function getContestRanking(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-
-    if (!session?.user) return { success: false, error: "Unauthorized" };
-
-    try {
-        const result = await getContestLeaderboard(contestId);
-
-        if (!result.success || !result.students) {
-            return { success: false, error: "Failed to get ranking" };
-        }
-
-        const rank = result.students.findIndex((s: any) => s.id === session.user.id) + 1;
-
-        return { success: true, rank: rank > 0 ? rank : null };
-    } catch (error) {
-         return { success: false, error: "Failed to get ranking" };
     }
 }

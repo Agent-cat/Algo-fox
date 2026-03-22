@@ -67,21 +67,8 @@ export async function markConceptAsCompleted(problemId: string) {
 
     const userId = session.user.id;
 
-    // Use a default language (e.g., JavaScript ID 63) for concept submissions since language doesn't matter
-    const DEFAULT_CONCEPT_LANG_ID = 63;
-
     try {
-        // Create a submission with ACCEPTED status
-        const submission = await SubmissionService.createSubmission(
-            userId,
-            problemId,
-            DEFAULT_CONCEPT_LANG_ID,
-            "// CONCEPT COMPLETED",
-            "SUBMIT"
-        );
-
-        // Update status to ACCEPTED
-        await SubmissionService.updateSubmissionStatus(submission.id, "ACCEPTED", 0, 0);
+        await SubmissionService.markConceptAsSolved(userId, problemId);
 
         // Move heavy stats updates to background
         after(async () => {

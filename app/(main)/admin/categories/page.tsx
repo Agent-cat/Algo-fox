@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getCategories, deleteCategory } from "@/actions/category.action";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, LayoutGrid, Hash, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ProblemDomain } from "@prisma/client";
 
 interface Category {
   id: string;
@@ -13,6 +14,9 @@ interface Category {
   description: string | null;
   slug: string;
   order: number;
+  parentId: string | null;
+  domain: ProblemDomain;
+  level?: number;
   _count: {
     categoryProblems: number;
   };
@@ -21,13 +25,41 @@ interface Category {
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDomain, setSelectedDomain] = useState<ProblemDomain>("DSA");
   const router = useRouter();
 
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const res = await getCategories();
-      setCategories(res.categories);
+      const res = await getCategories(selectedDomain);
+
+      // Build and flatten tree
+      const cats = res.categories as Category[];
+      const map = new Map<string, any>();
+      cats.forEach(cat => map.set(cat.id, { ...cat, children: [] }));
+
+      const roots: any[] = [];
+      cats.forEach(cat => {
+        const node = map.get(cat.id);
+        if (cat.parentId && map.has(cat.parentId)) {
+          map.get(cat.parentId).children.push(node);
+        } else {
+          roots.push(node);
+        }
+      });
+
+      const flatten = (nodes: any[], level = 0): Category[] => {
+        let result: Category[] = [];
+        nodes.sort((a, b) => a.order - b.order).forEach(node => {
+          result.push({ ...node, level });
+          if (node.children) {
+            result = [...result, ...flatten(node.children, level + 1)];
+          }
+        });
+        return result;
+      };
+
+      setCategories(flatten(roots));
     } catch (error) {
       console.error("Failed to fetch categories:", error);
       toast.error("Failed to load categories");
@@ -38,7 +70,7 @@ export default function AdminCategoriesPage() {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [selectedDomain]);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"? This will remove all problems from this category.`)) {
@@ -61,15 +93,37 @@ export default function AdminCategoriesPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Learn Categories</h1>
-            <p className="text-gray-500 dark:text-gray-400">Manage categories for the Learn mode.</p>
+            <p className="text-gray-500 dark:text-gray-400">Manage categories and hierarchy for the Learn mode.</p>
           </div>
-          <Link
-            href="/admin/categories/create"
-            className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-orange-200"
-          >
-            <Plus className="w-5 h-5" />
-            New Category
-          </Link>
+          <div className="flex items-center gap-3">
+             <div className="flex p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626]">
+                {[
+                  { id: "DSA", label: "DSA", icon: LayoutGrid },
+                  { id: "SQL", label: "SQL", icon: Hash },
+                  { id: "APTITUDE", label: "Aptitude", icon: GraduationCap }
+                ].map((dom) => (
+                  <button
+                    key={dom.id}
+                    onClick={() => setSelectedDomain(dom.id as ProblemDomain)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                      selectedDomain === dom.id
+                        ? "bg-white dark:bg-[#262626] text-orange-600 dark:text-orange-400 shadow-sm"
+                        : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    <dom.icon className="w-4 h-4" />
+                    {dom.label}
+                  </button>
+                ))}
+            </div>
+            <Link
+              href="/admin/categories/create"
+              className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-orange-200 dark:shadow-none"
+            >
+              <Plus className="w-5 h-5" />
+              New Category
+            </Link>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
@@ -86,8 +140,9 @@ export default function AdminCategoriesPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-100 dark:border-[#262626]">
-                    <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name & Level</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Order</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Problems</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
                   </tr>
@@ -96,13 +151,26 @@ export default function AdminCategoriesPage() {
                   {categories.map((category) => (
                     <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900 dark:text-white">{category.name}</div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{category.slug}</div>
+                        <div className="flex items-center gap-1">
+                          {category.level && category.level > 0 ? (
+                            <div className="flex items-center text-gray-300 dark:text-gray-700 select-none">
+                              {"\u00A0".repeat(category.level * 4)}
+                              <span className="mr-2">↳</span>
+                            </div>
+                          ) : null}
+                          <div>
+                            <div className={`font-semibold text-gray-900 dark:text-white ${category.level && category.level > 0 ? "text-sm" : ""}`}>{category.name}</div>
+                            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono mt-0.5">{category.slug}</div>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
-                          {category.description || <span className="text-gray-400 dark:text-gray-600">No description</span>}
+                        <div className="text-sm text-gray-600 dark:text-gray-400 max-w-sm truncate">
+                          {category.description || <span className="text-gray-300 dark:text-transparent">---</span>}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-xs font-mono text-gray-400">{category.order}</span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1a1a1a] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">

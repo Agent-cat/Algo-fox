@@ -14,6 +14,8 @@ interface Category {
   description: string | null;
   slug: string;
   order: number;
+  parentId: string | null;
+  level?: number;
   _count: {
     categoryProblems: number;
   };
@@ -28,7 +30,33 @@ export default function SqlAdminCategoriesPage() {
     setIsLoading(true);
     try {
       const res = await getCategories("SQL");
-      setCategories(res.categories);
+      const cats = res.categories as Category[];
+
+      const map = new Map<string, any>();
+      cats.forEach(cat => map.set(cat.id, { ...cat, children: [] }));
+
+      const roots: any[] = [];
+      cats.forEach(cat => {
+        const node = map.get(cat.id);
+        if (cat.parentId && map.has(cat.parentId)) {
+          map.get(cat.parentId).children.push(node);
+        } else {
+          roots.push(node);
+        }
+      });
+
+      const flatten = (nodes: any[], level = 0): Category[] => {
+        let result: Category[] = [];
+        nodes.sort((a, b) => a.order - b.order).forEach(node => {
+          result.push({ ...node, level });
+          if (node.children) {
+            result = [...result, ...flatten(node.children, level + 1)];
+          }
+        });
+        return result;
+      };
+
+      setCategories(flatten(roots));
     } catch (error) {
       console.error("Failed to fetch categories:", error);
       toast.error("Failed to load categories");
@@ -76,8 +104,18 @@ export default function SqlAdminCategoriesPage() {
         renderItem={(category) => (
           <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
             <td className="px-6 py-4">
-              <div className="font-semibold text-gray-900 dark:text-gray-100">{category.name}</div>
-              <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{category.slug}</div>
+              <div className="flex items-center gap-1">
+                {category.level && category.level > 0 ? (
+                  <div className="flex items-center text-gray-300 dark:text-gray-700 select-none">
+                    {"\u00A0".repeat(category.level * 4)}
+                    <span className="mr-2">↳</span>
+                  </div>
+                ) : null}
+                <div>
+                  <div className={`font-semibold text-gray-900 dark:text-gray-100 ${category.level && category.level > 0 ? "text-sm" : ""}`}>{category.name}</div>
+                  <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono mt-0.5">{category.slug}</div>
+                </div>
+              </div>
             </td>
             <td className="px-6 py-4">
               <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md truncate">

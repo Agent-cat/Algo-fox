@@ -13,7 +13,7 @@ interface ProblemSimple {
 
 interface ProblemsListProps {
     problems: ProblemSimple[];
-    solvedProblemIds: string[];
+    solvedSet: Set<string>;
     currentProblemId: string;
     isLoading: boolean;
     hasMore: boolean;
@@ -26,7 +26,7 @@ interface ProblemsListProps {
 
 export function ProblemsList({
     problems,
-    solvedProblemIds,
+    solvedSet,
     currentProblemId,
     isLoading,
     hasMore,
@@ -55,7 +55,7 @@ export function ProblemsList({
     return (
         <div className="space-y-1">
             {problems.map((prob) => {
-                const isSolved = solvedProblemIds.includes(prob.id);
+                const isSolved = solvedSet.has(prob.id);
                 const isCurrent = currentProblemId === prob.id;
 
                 return (

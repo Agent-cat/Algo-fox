@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, BookOpen, List } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -32,6 +32,8 @@ interface CategorySimple {
   id: string;
   name: string;
   slug: string;
+  parentId?: string | null;
+  children?: CategorySimple[];
 }
 
 export default function ProblemSidebar({
@@ -42,6 +44,9 @@ export default function ProblemSidebar({
   problemType,
   solvedProblemIds
 }: ProblemSidebarProps) {
+  // PERFORMANCE: Use a Set for O(1) lookups of solved problem IDs
+  const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
+
   const [activeTab, setActiveTab] = useState<"problems" | "learn">(
     problemType === "LEARN" ? "learn" : "problems"
   );
@@ -54,7 +59,7 @@ export default function ProblemSidebar({
 
   // Learn Tab State
   const [categories, setCategories] = useState<CategorySimple[]>([]);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [categoryProblems, setCategoryProblems] = useState<Record<string, ProblemSimple[]>>({});
   const [loadingCategories, setLoadingCategories] = useState(false);
 
@@ -95,11 +100,18 @@ export default function ProblemSidebar({
     search();
   }, [debouncedSearchTerm, activeTab, domain]);
 
-  // PREFETCH: Load both problems and categories on mount
+  // PREFETCH: Load both problems and categories on mount and when domain changes
   useEffect(() => {
+    setProblems([]);
+    setPage(1);
+    setHasMore(true);
+    setCategories([]);
+    setExpandedCategories([]);
+    setCategoryProblems({});
+
     loadProblems(1);
     loadCategories();
-  }, []); // Run once on mount
+  }, [domain]); // Re-run when domain changes
 
   // Sync active tab if problem type changes
   useEffect(() => {
@@ -140,7 +152,24 @@ export default function ProblemSidebar({
     try {
       const res = await getCategories(domain);
       if (res && res.categories) {
-        setCategories(res.categories);
+        const cats = res.categories as CategorySimple[];
+
+        // Build Tree
+        const map = new Map<string, CategorySimple>();
+        cats.forEach(cat => map.set(cat.id, { ...cat, children: [] }));
+
+        const roots: CategorySimple[] = [];
+        cats.forEach(cat => {
+            const node = map.get(cat.id)!;
+            if (cat.parentId && map.has(cat.parentId)) {
+                map.get(cat.parentId)!.children!.push(node);
+            } else {
+                roots.push(node);
+            }
+        });
+
+        // Ensure orders are preserved if needed (getCategories should already be sorted)
+        setCategories(roots);
       }
     } catch (error) {
       console.error("Failed to load categories", error);
@@ -150,12 +179,14 @@ export default function ProblemSidebar({
   };
 
   const toggleCategory = async (categoryId: string) => {
-    if (expandedCategory === categoryId) {
-      setExpandedCategory(null);
+    const isExpanded = expandedCategories.includes(categoryId);
+
+    if (isExpanded) {
+      setExpandedCategories(prev => prev.filter(id => id !== categoryId));
       return;
     }
 
-    setExpandedCategory(categoryId);
+    setExpandedCategories(prev => [...prev, categoryId]);
 
     if (!categoryProblems[categoryId]) {
       setLoadingCategoryProblems(categoryId);
@@ -245,7 +276,7 @@ export default function ProblemSidebar({
                 {searchTerm ? (
                    <ProblemsList
                         problems={searchResults}
-                        solvedProblemIds={solvedProblemIds}
+                        solvedSet={solvedSet}
                         currentProblemId={currentProblemId}
                         isLoading={false}
                         hasMore={false}
@@ -257,7 +288,7 @@ export default function ProblemSidebar({
                 ) : activeTab === "problems" ? (
                    <ProblemsList
                         problems={problems}
-                        solvedProblemIds={solvedProblemIds}
+                        solvedSet={solvedSet}
                         currentProblemId={currentProblemId}
                         isLoading={isLoadingProblems}
                         hasMore={hasMore}
@@ -267,10 +298,10 @@ export default function ProblemSidebar({
                    <CategoriesList
                         categories={categories}
                         loadingCategories={loadingCategories}
-                        expandedCategory={expandedCategory}
+                        expandedCategories={expandedCategories}
                         categoryProblems={categoryProblems}
                         loadingCategoryProblems={loadingCategoryProblems}
-                        solvedProblemIds={solvedProblemIds}
+                        solvedSet={solvedSet}
                         currentProblemId={currentProblemId}
                         onToggleCategory={toggleCategory}
                    />

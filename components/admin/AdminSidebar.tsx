@@ -31,6 +31,10 @@ const sidebarItems: SidebarItem[] = [
   { type: "link", name: "Practice Problems", icon: Database, href: "/admin/sql/problems" },
   { type: "link", name: "Learn Categories", icon: Database, href: "/admin/sql/categories" },
 
+  { type: "header", name: "Aptitude Tracker" },
+  { type: "link", name: "Practice Problems", icon: BookOpen, href: "/admin/aptitude/problems" },
+  { type: "link", name: "Learn Categories", icon: BookOpen, href: "/admin/aptitude/categories" },
+
   { type: "header", name: "Management" },
   { type: "link", name: "Allocate Courses", icon: BookOpen, href: "/admin/course-allocation" },
   { type: "link", name: "Institutions", icon: Building2, href: "/admin/institutions" },

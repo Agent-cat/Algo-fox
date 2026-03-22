@@ -57,7 +57,7 @@ function EditProblemContent() {
         <div className="w-full max-w-5xl mx-auto space-y-8 animate-fade-in-up">
             <div className="flex flex-col gap-1 mb-8">
                 <Link
-                    href="/admin/dsa/problems"
+                    href={problem.domain === "DSA" ? "/admin/dsa/problems" : problem.domain === "SQL" ? "/admin/sql/problems" : problem.domain === "APTITUDE" ? "/admin/aptitude/problems" : "/admin/problems"}
                     className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
@@ -92,11 +92,16 @@ function EditProblemContent() {
                             tags: problem.tags || [],
                             useFunctionTemplate: problem.useFunctionTemplate || false,
                             functionTemplates: problem.functionTemplates || [],
-                            solution: problem.solution || ""
+                            solution: problem.solution || "",
+                            isMcq: problem.isMcq,
+                            options: problem.options || ["", "", "", ""],
+                            answer: problem.answer || "",
+                            categoryId: problem.categoryProblems?.[0]?.categoryId || ""
                         }}
                         onSubmit={(data) => updateProblem(id, data)}
                         submitLabel="Save Changes"
                         domain={problem.domain || "DSA"}
+                        redirectPath={problem.domain === "DSA" ? "/admin/dsa/problems" : problem.domain === "SQL" ? "/admin/sql/problems" : problem.domain === "APTITUDE" ? "/admin/aptitude/problems" : "/admin/problems"}
                     />
                 )}
             </div>

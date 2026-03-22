@@ -8,6 +8,7 @@ import { Laptop2 } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import ConceptViewer from "@/components/problems/ConceptViewer";
+import AptitudeWorkspaceClientWrapper from "@/components/workspace/AptitudeWorkspaceClientWrapper";
 import { Suspense } from "react";
 
 // MIGRATED: Removed export const revalidate = 3600 (incompatible with Cache Components)
@@ -71,20 +72,16 @@ async function ProblemContentWithParams({
         contestData = contestResponse.contest;
 
         // Contextual Check: Is this problem solved IN THIS SPECIFIC CONTEST?
-        if (session.user.role === "ADMIN") {
-             isSolved = true;
-        } else {
-            const contestSubmission = await prisma.submission.findFirst({
-              where: {
-                problemId: problem.id,
-                userId: session.user.id,
-                status: "ACCEPTED",
-                mode: "SUBMIT",
-                contestId: contestId
-              }
-            });
-            isSolved = !!contestSubmission;
+      const contestSubmission = await prisma.submission.findFirst({
+        where: {
+          problemId: problem.id,
+          userId: session.user.id,
+          status: "ACCEPTED",
+          mode: "SUBMIT",
+          contestId: contestId
         }
+      });
+      isSolved = !!contestSubmission;
 
         // Fetch all solved problems in this contest for the user
         const contestSolvedSubmissions = await prisma.submission.findMany({
@@ -100,35 +97,27 @@ async function ProblemContentWithParams({
         solvedProblemIds = contestSolvedSubmissions.map(s => s.problemId);
       } else {
            // Fallback if contest not found
-           if (session.user.role === "ADMIN") {
-                isSolved = true;
-            } else {
-                const submission = await prisma.submission.findFirst({
-                    where: {
-                    problemId: problem.id,
-                    userId: session.user.id,
-                    status: "ACCEPTED",
-                    mode: "SUBMIT"
-                    }
-                });
-                isSolved = !!submission;
-            }
+        const submission = await prisma.submission.findFirst({
+          where: {
+          problemId: problem.id,
+          userId: session.user.id,
+          status: "ACCEPTED",
+          mode: "SUBMIT"
+          }
+      });
+      isSolved = !!submission;
       }
     } else {
         // Global Check (Not in a contest context)
-        if (session.user.role === "ADMIN") {
-            isSolved = true;
-        } else {
-            const submission = await prisma.submission.findFirst({
-                where: {
-                problemId: problem.id,
-                userId: session.user.id,
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-                }
-            });
-            isSolved = !!submission;
-        }
+        const submission = await prisma.submission.findFirst({
+            where: {
+            problemId: problem.id,
+            userId: session.user.id,
+            status: "ACCEPTED",
+            mode: "SUBMIT"
+            }
+        });
+        isSolved = !!submission;
 
         // Fetch all solved problems for the user (Global)
         const allSolved = await prisma.submission.findMany({
@@ -147,6 +136,36 @@ async function ProblemContentWithParams({
   if (problem.difficulty === "CONCEPT") {
     return (
       <ConceptViewer problem={problem} isSolved={isSolved} />
+    );
+  }
+
+  if (problem.domain === "APTITUDE") {
+    return (
+      <>
+        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid opacity-30" />
+          <div className="relative z-10 space-y-6">
+            <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
+              <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
+              <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
+                The aptitude practice workspace is optimized for desktop. Please open this on a larger screen for the best experience.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:block">
+          <AptitudeWorkspaceClientWrapper
+            problem={problem}
+            isSolved={isSolved}
+            solvedProblemIds={solvedProblemIds}
+            nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
+            prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
+          />
+        </div>
+      </>
     );
   }
 

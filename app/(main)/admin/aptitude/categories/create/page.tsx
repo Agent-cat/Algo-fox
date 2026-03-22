@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { getCategories } from "@/actions/category.action";
 import { useEffect } from "react";
 
-export default function CreateSqlCategoryPage() {
+export default function CreateAptitudeCategoryPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [parentCategories, setParentCategories] = useState<any[]>([]);
@@ -28,7 +28,7 @@ export default function CreateSqlCategoryPage() {
     const fetchParents = async () => {
       setIsParentsLoading(true);
       try {
-        const res = await getCategories("SQL");
+        const res = await getCategories("APTITUDE");
         setParentCategories(res.categories || []);
       } catch (error) {
         console.error("Failed to fetch parent categories:", error);
@@ -67,13 +67,13 @@ export default function CreateSqlCategoryPage() {
         description: formData.description || undefined,
         slug: formData.slug,
         order: formData.order,
-        domain: "SQL",
+        domain: "APTITUDE",
         parentId: formData.parentId || null,
       });
 
       if (res.success) {
-        toast.success("Category created successfully");
-        router.push("/admin/sql/categories");
+        toast.success("Aptitude category created successfully");
+        router.push("/admin/aptitude/categories");
         router.refresh();
       } else {
         toast.error(res.error || "Failed to create category");
@@ -87,24 +87,27 @@ export default function CreateSqlCategoryPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-slate-950">
+    <div className="min-h-screen pt-24 pb-12 px-6">
       <div className="max-w-2xl mx-auto ml-0">
         <Link
-          href="/admin/sql/categories"
-          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-6"
+          href="/admin/aptitude/categories"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to SQL Categories
+          Back to Aptitude Categories
         </Link>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none p-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create SQL Category</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">Add a new category for the SQL Learn mode.</p>
+        {/* Card Container */}
+        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-8 border-b border-gray-100 dark:border-[#262626]">
+             <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Create Aptitude Category</h1>
+             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Add a new category for the Aptitude section.</p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Category Name *
+          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                Category Name <span className="text-orange-500">*</span>
               </label>
               <input
                 type="text"
@@ -112,14 +115,14 @@ export default function CreateSqlCategoryPage() {
                 required
                 value={formData.name}
                 onChange={handleNameChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-950 dark:text-white transition-all"
-                placeholder="e.g., SELECT Queries"
+                className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                placeholder="e.g., Numerical Ability"
               />
             </div>
 
-            <div>
-              <label htmlFor="slug" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Slug *
+            <div className="space-y-2">
+              <label htmlFor="slug" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                Slug <span className="text-orange-500">*</span>
               </label>
               <input
                 type="text"
@@ -127,14 +130,14 @@ export default function CreateSqlCategoryPage() {
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-950 dark:text-white transition-all font-mono text-sm"
-                placeholder="select-queries"
+                 className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-mono text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                placeholder="numerical-ability"
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">URL-friendly identifier (auto-generated from name)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">URL-friendly identifier (auto-generated)</p>
             </div>
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-bold text-gray-700 dark:text-gray-300">
                 Description
               </label>
               <textarea
@@ -142,13 +145,13 @@ export default function CreateSqlCategoryPage() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-950 dark:text-white transition-all resize-none"
+                 className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all resize-none"
                 placeholder="Brief description of this category..."
               />
             </div>
 
-            <div>
-              <label htmlFor="parentId" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label htmlFor="parentId" className="text-sm font-bold text-gray-700 dark:text-gray-300">
                 Parent Category (Optional)
               </label>
               <select
@@ -156,7 +159,7 @@ export default function CreateSqlCategoryPage() {
                 value={formData.parentId}
                 onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
                 disabled={isParentsLoading}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-950 dark:text-white transition-all disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-50"
               >
                 <option value="">None (Top-level)</option>
                 {parentCategories.map((cat) => (
@@ -167,8 +170,8 @@ export default function CreateSqlCategoryPage() {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="order" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label htmlFor="order" className="text-sm font-bold text-gray-700 dark:text-gray-300">
                 Display Order
               </label>
               <input
@@ -176,23 +179,23 @@ export default function CreateSqlCategoryPage() {
                 id="order"
                 value={formData.order}
                 onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-950 dark:text-white transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="0"
               />
-              <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400 font-medium">Lower numbers appear first within the same level</p>
+              <p className="text-[10px] text-gray-500">Lower numbers appear first within the same level</p>
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex items-center gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-[#262626]">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-orange-200 dark:shadow-none hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Creating..." : "Create Category"}
               </button>
               <Link
-                href="/admin/sql/categories"
-                className="px-6 py-3 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-all"
+                href="/admin/aptitude/categories"
+                className="px-6 py-3 bg-transparent hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 font-bold text-sm rounded-xl transition-all"
               >
                 Cancel
               </Link>
@@ -203,4 +206,3 @@ export default function CreateSqlCategoryPage() {
     </div>
   );
 }
-

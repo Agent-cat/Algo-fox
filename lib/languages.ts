@@ -122,9 +122,6 @@ export function getLanguageById(id: number): Language | undefined {
     return LANGUAGES.find(lang => lang.id === id);
 }
 
-function getLanguageByName(name: string): Language | undefined {
-    return LANGUAGES.find(lang => lang.name === name);
-}
 
 export const DEFAULT_LANGUAGE_ID = 63;
 

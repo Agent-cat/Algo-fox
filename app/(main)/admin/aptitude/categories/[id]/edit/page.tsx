@@ -9,7 +9,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { Suspense } from "react";
 
-function EditDsaCategoryContent() {
+function EditAptitudeCategoryContent() {
   const params = useParams();
   const router = useRouter();
   const categoryId = params?.id as string;
@@ -37,11 +37,11 @@ function EditDsaCategoryContent() {
   const fetchParents = async () => {
     setIsParentsLoading(true);
     try {
-      const res = await getCategories("DSA");
-      // Filter out the current category to prevent self-parenting
+      const res = await getCategories("APTITUDE");
+      // Filter out self
       setParentCategories(res.categories?.filter((cat: any) => cat.id !== categoryId) || []);
     } catch (error) {
-      console.error("Failed to fetch parent categories:", error);
+      console.error("Failed to fetch parents:", error);
     } finally {
       setIsParentsLoading(false);
     }
@@ -81,12 +81,12 @@ function EditDsaCategoryContent() {
         slug: formData.slug,
         order: formData.order,
         parentId: formData.parentId || null,
-        domain: "DSA",
+        domain: "APTITUDE",
       });
 
       if (res.success) {
         toast.success("Category updated successfully");
-        router.push("/admin/dsa/categories");
+        router.push("/admin/aptitude/categories");
         router.refresh();
       } else {
         toast.error(res.error || "Failed to update category");
@@ -101,7 +101,7 @@ function EditDsaCategoryContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-white flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#0a0a0a] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
@@ -112,7 +112,7 @@ function EditDsaCategoryContent() {
       <div className="min-h-screen pt-24 pb-12 px-6 flex items-center justify-center text-center">
         <div>
            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Category Not Found</h1>
-           <Link href="/admin/dsa/categories" className="text-orange-600 hover:underline mt-2 inline-block">Go Back</Link>
+           <Link href="/admin/aptitude/categories" className="text-orange-600 hover:underline mt-2 inline-block">Go Back</Link>
         </div>
       </div>
     );
@@ -122,17 +122,17 @@ function EditDsaCategoryContent() {
     <div className="min-h-screen pt-24 pb-12 px-6">
       <div className="max-w-2xl mx-auto ml-0">
         <Link
-          href="/admin/dsa/categories"
+          href="/admin/aptitude/categories"
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to DSA Categories
+          Back to Aptitude Categories
         </Link>
 
         {/* Card Container */}
         <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
           <div className="p-8 border-b border-gray-100 dark:border-[#262626]">
-             <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Edit DSA Category</h1>
+             <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Edit Aptitude Category</h1>
              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Update category details and order.</p>
           </div>
 
@@ -148,7 +148,7 @@ function EditDsaCategoryContent() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                placeholder="e.g., Arrays & Strings"
+                placeholder="e.g., Numerical Ability"
               />
             </div>
 
@@ -163,7 +163,7 @@ function EditDsaCategoryContent() {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-mono text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                placeholder="arrays-strings"
+                placeholder="numerical-ability"
               />
                <p className="text-xs text-gray-500 dark:text-gray-500">URL-friendly identifier</p>
             </div>
@@ -214,7 +214,7 @@ function EditDsaCategoryContent() {
                 className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="0"
               />
-              <p className="text-[10px] text-gray-500">Lower numbers appear first within the same level</p>
+              <p className="mt-1 text-[10px] text-gray-500 italic">Lower numbers appear first within the same level</p>
             </div>
 
             <div className="flex items-center gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-[#262626]">
@@ -226,7 +226,7 @@ function EditDsaCategoryContent() {
                 {isSubmitting ? "Updating..." : "Update Category"}
               </button>
               <Link
-                href="/admin/dsa/categories"
+                href="/admin/aptitude/categories"
                 className="px-6 py-3 bg-transparent hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 font-bold text-sm rounded-xl transition-all"
               >
                 Cancel
@@ -239,15 +239,14 @@ function EditDsaCategoryContent() {
   );
 }
 
-export default function EditDsaCategoryPage() {
+export default function EditAptitudeCategoryPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen pt-24 pb-12 px-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-orange-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     }>
-      <EditDsaCategoryContent />
+      <EditAptitudeCategoryContent />
     </Suspense>
   );
 }
-

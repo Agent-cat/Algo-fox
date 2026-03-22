@@ -62,20 +62,6 @@ export async function deleteFromCache(key: string): Promise<void> {
 }
 
 /**
- * Delete multiple cache keys by pattern
- */
-async function deleteByPattern(pattern: string): Promise<void> {
-  try {
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-  } catch (error) {
-    console.error("[Cache] Delete pattern error:", error);
-  }
-}
-
-/**
  * Get or set pattern - tries cache first, falls back to fetcher
  */
 export async function cachedFetch<T>(
@@ -96,15 +82,4 @@ export async function cachedFetch<T>(
   setInCache(key, data, ttlSeconds).catch(() => {});
 
   return data;
-}
-
-/**
- * Invalidate cache keys for an entity
- */
-async function invalidateCache(
-  prefix: string,
-  ...ids: (string | number)[]
-): Promise<void> {
-  const pattern = `algofox:${prefix}:${ids.length > 0 ? ids.join(":") : "*"}`;
-  await deleteByPattern(pattern);
 }

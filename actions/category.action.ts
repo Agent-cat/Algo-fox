@@ -70,6 +70,7 @@ export async function createCategory(data: {
   slug: string;
   order?: number;
   domain?: ProblemDomain;
+  parentId?: string | null;
 }) {
 
   const session = await auth.api.getSession({
@@ -97,7 +98,7 @@ export async function createCategory(data: {
 
 // UPDATING A CATEGORY --> ADMIN ONLY
 
-export async function updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; }) {
+export async function updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; domain?: ProblemDomain; parentId?: string | null; }) {
 
   const session = await auth.api.getSession({
     headers: await headers()
@@ -224,6 +225,10 @@ export async function createProblemAndAddToCategory(
     hidden: boolean;
     hiddenQuery?: string | null;
     testCases?: { input: string; output: string; hidden?: boolean }[];
+    isMcq?: boolean;
+    options?: string[];
+    answer?: string | null;
+    solution?: string | null;
   }
 ) {
   const session = await auth.api.getSession({

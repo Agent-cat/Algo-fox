@@ -21,7 +21,7 @@ interface Category {
   };
 }
 
-export default function DsaAdminCategoriesPage() {
+export default function AptitudeAdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function DsaAdminCategoriesPage() {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const res = await getCategories("DSA");
+      const res = await getCategories("APTITUDE");
       const cats = res.categories as Category[];
 
       const map = new Map<string, any>();
@@ -87,9 +87,9 @@ export default function DsaAdminCategoriesPage() {
   return (
     <div className="min-h-screen pt-4">
       <AdminListPage
-        title="DSA Learn Categories"
-        subtitle="Manage categories for the DSA Learn mode with ease."
-        createLink="/admin/dsa/categories/create"
+        title="Aptitude Categories"
+        subtitle="Manage categories for the Aptitude section."
+        createLink="/admin/aptitude/categories/create"
         createLabel="New Category"
         data={categories}
         isLoading={isLoading}
@@ -98,7 +98,7 @@ export default function DsaAdminCategoriesPage() {
         columns={[
           { label: "Name" },
           { label: "Description" },
-          { label: "Problems" },
+          { label: "Questions" },
           { label: "Actions", className: "text-right" }
         ]}
         renderItem={(category) => (
@@ -124,20 +124,20 @@ export default function DsaAdminCategoriesPage() {
             </td>
             <td className="px-6 py-4">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1a1a1a] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
-                {category._count.categoryProblems} problems
+                {category._count.categoryProblems} questions
               </span>
             </td>
             <td className="px-6 py-4 text-right">
               <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Link
-                  href={`/admin/dsa/categories/${category.id}`}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
-                  title="View Problems"
+                  href={`/admin/aptitude/categories/${category.id}`}
+                  className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-colors"
+                  title="View Questions"
                 >
                   <Eye className="w-4 h-4" />
                 </Link>
                 <Link
-                  href={`/admin/dsa/categories/${category.id}/edit`}
+                  href={`/admin/aptitude/categories/${category.id}/edit`}
                   className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-colors"
                   title="Edit"
                 >
@@ -158,5 +158,3 @@ export default function DsaAdminCategoriesPage() {
     </div>
   );
 }
-
-

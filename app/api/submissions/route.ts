@@ -47,30 +47,11 @@ export async function POST(req: NextRequest) {
 
         // CONTEST SECURITY CHECKS
         if (contestId) {
-            const contest = await prisma.contest.findUnique({
-                where: { id: contestId },
-                select: { endTime: true }
-            });
+            const { ContestService } = await import("@/core/services/contest.service");
+            const validation = await ContestService.validateSession(userId, contestId);
 
-            if (!contest) {
-                return NextResponse.json({ error: "Contest not found" }, { status: 404 });
-            }
-
-            if (new Date() > contest.endTime) {
-                return NextResponse.json({ error: "Contest has already ended" }, { status: 403 });
-            }
-
-            const participation = await prisma.contestParticipation.findUnique({
-                where: {
-                    userId_contestId: {
-                        userId,
-                        contestId
-                    }
-                }
-            });
-
-            if (participation?.isFinished) {
-                return NextResponse.json({ error: "You have already ended your contest session" }, { status: 403 });
+            if (!validation.success) {
+                return NextResponse.json({ error: validation.error }, { status: 403 });
             }
         }
 

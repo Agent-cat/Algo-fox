@@ -55,6 +55,3 @@ export async function getUpcomingContests(ignoreCache = false) {
     return { success: true, contests };
 }
 
-async function refreshContests() {
-    revalidateTag("external-contests", "max");
-}

@@ -30,7 +30,7 @@ export interface CodeFilesMeta {
     updatedAt: number;
 }
 
-const EXPIRATION_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours
+const EXPIRATION_TIME_MS = 365 * 24 * 60 * 60 * 1000; // 1 year (essentially persistent as requested)
 const DB_NAME = 'AlgoFoxDB';
 
 class AlgoFoxDB extends Dexie {
@@ -117,15 +117,14 @@ export async function saveCodeDraft(
     languageId: number,
     code: string
 ) {
-    if (typeof window === 'undefined' || !userId) return;
+    if (typeof window === 'undefined') return;
 
     try {
         const db = getDB();
         const now = Date.now();
-        const id = `${userId}_${problemId}_${languageId}`;
-
-        // Fire-and-forget cleanup — does not block the save
-        db.codeDrafts.where('updatedAt').below(now - EXPIRATION_TIME_MS).delete().catch(() => {});
+        // Use a fallback for guests to ensure persistence
+        const effectiveUserId = userId || "guest";
+        const id = `${effectiveUserId}_${problemId}_${languageId}`;
 
         await db.codeDrafts.put({ id, problemId, languageId, code, updatedAt: now });
     } catch (error: any) {
@@ -138,21 +137,17 @@ export async function getCodeDraft(
     problemId: string,
     languageId: number
 ): Promise<string | null> {
-    if (typeof window === 'undefined' || !userId) return null;
+    if (typeof window === 'undefined') return null;
 
     try {
         const db = getDB();
-        const id = `${userId}_${problemId}_${languageId}`;
+        const effectiveUserId = userId || "guest";
+        const id = `${effectiveUserId}_${problemId}_${languageId}`;
         const draft = await db.codeDrafts.get(id);
 
         if (!draft) return null;
 
-        const now = Date.now();
-        if (now - draft.updatedAt > EXPIRATION_TIME_MS) {
-            db.codeDrafts.delete(id).catch(() => {}); // fire-and-forget
-            return null;
-        }
-
+        // Note: Expiration check removed to keep code stored as requested
         return draft.code;
     } catch (error: any) {
         console.error('Failed to get code draft:', error);
@@ -171,13 +166,14 @@ export async function getCodeFiles(
     problemId: string,
     languageId: number
 ): Promise<CodeFile[]> {
-    if (typeof window === 'undefined' || !userId) return [];
+    if (typeof window === 'undefined') return [];
 
     try {
         const db = getDB();
+        const effectiveUserId = userId || "guest";
         const files = await db.codeFiles
             .where('[userId+problemId+languageId]')
-            .equals([userId, problemId, languageId])
+            .equals([effectiveUserId, problemId, languageId])
             .toArray();
 
         return files.sort((a, b) => a.order - b.order);
@@ -193,11 +189,12 @@ export async function getActiveFileId(
     problemId: string,
     languageId: number
 ): Promise<string | null> {
-    if (typeof window === 'undefined' || !userId) return null;
+    if (typeof window === 'undefined') return null;
 
     try {
         const db = getDB();
-        const meta = await db.codeFilesMeta.get(metaKey(userId, problemId, languageId));
+        const effectiveUserId = userId || "guest";
+        const meta = await db.codeFilesMeta.get(metaKey(effectiveUserId, problemId, languageId));
         return meta?.activeFileId ?? null;
     } catch (error) {
         console.error('Failed to get active file id:', error);
@@ -212,12 +209,13 @@ export function setActiveFileId(
     languageId: number,
     activeFileId: string | null
 ): void {
-    if (typeof window === 'undefined' || !userId) return;
+    if (typeof window === 'undefined') return;
 
     const db = getDB();
-    const id = metaKey(userId, problemId, languageId);
+    const effectiveUserId = userId || "guest";
+    const id = metaKey(effectiveUserId, problemId, languageId);
     db.codeFilesMeta
-        .put({ id, userId, problemId, languageId, activeFileId, updatedAt: Date.now() })
+        .put({ id, userId: effectiveUserId, problemId, languageId, activeFileId, updatedAt: Date.now() })
         .catch((error) => console.error('Failed to set active file id:', error));
 }
 
@@ -230,17 +228,18 @@ export async function createCodeFile(
     code: string,
     order: number
 ): Promise<CodeFile | null> {
-    if (typeof window === 'undefined' || !userId) return null;
+    if (typeof window === 'undefined') return null;
 
     try {
         const db = getDB();
+        const effectiveUserId = userId || "guest";
         const fileId = makeFileId();
-        const id = fileKey(userId, problemId, languageId, fileId);
+        const id = fileKey(effectiveUserId, problemId, languageId, fileId);
 
         const newFile: CodeFile = {
             id,
             fileId,
-            userId,
+            userId: effectiveUserId,
             problemId,
             languageId,
             name,
@@ -265,10 +264,11 @@ export function updateCodeFileContent(
     fileId: string,
     code: string
 ): void {
-    if (typeof window === 'undefined' || !userId) return;
+    if (typeof window === 'undefined') return;
 
     const db = getDB();
-    const id = fileKey(userId, problemId, languageId, fileId);
+    const effectiveUserId = userId || "guest";
+    const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .update(id, { code, updatedAt: Date.now() })
         .catch((error) => console.error('Failed to update code file content:', error));
@@ -282,10 +282,11 @@ export function renameCodeFile(
     fileId: string,
     name: string
 ): void {
-    if (typeof window === 'undefined' || !userId) return;
+    if (typeof window === 'undefined') return;
 
     const db = getDB();
-    const id = fileKey(userId, problemId, languageId, fileId);
+    const effectiveUserId = userId || "guest";
+    const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .update(id, { name, updatedAt: Date.now() })
         .catch((error) => console.error('Failed to rename code file:', error));
@@ -298,10 +299,11 @@ export function deleteCodeFile(
     languageId: number,
     fileId: string
 ): void {
-    if (typeof window === 'undefined' || !userId) return;
+    if (typeof window === 'undefined') return;
 
     const db = getDB();
-    const id = fileKey(userId, problemId, languageId, fileId);
+    const effectiveUserId = userId || "guest";
+    const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .delete(id)
         .catch((error) => console.error('Failed to delete code file:', error));

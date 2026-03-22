@@ -541,6 +541,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                 onTabChange={setActiveTab}
                                 isSolved={isSolvedState}
                                 contestId={contestId}
+                                domain={problem.domain}
                             />
                         </div>
 

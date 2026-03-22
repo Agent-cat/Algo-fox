@@ -40,6 +40,7 @@ export class CategoryService {
                         slug: true,
                         order: true,
                         domain: true,
+                        parentId: true,
                         _count: {
                             select: { categoryProblems: true }
                         }
@@ -122,6 +123,14 @@ export class CategoryService {
                 include: {
                     _count: {
                         select: { categoryProblems: true }
+                    },
+                    children: {
+                        orderBy: { order: "asc" },
+                        include: {
+                            _count: {
+                                select: { categoryProblems: true }
+                            }
+                        }
                     }
                 }
             });
@@ -151,6 +160,14 @@ export class CategoryService {
                 include: {
                     _count: {
                         select: { categoryProblems: true }
+                    },
+                    children: {
+                        orderBy: { order: "asc" },
+                        include: {
+                            _count: {
+                                select: { categoryProblems: true }
+                            }
+                        }
                     }
                 }
             });
@@ -276,6 +293,7 @@ export class CategoryService {
         slug: string;
         order?: number;
         domain?: ProblemDomain;
+        parentId?: string | null;
     }) {
         try {
             // CREATING THE CATEGORY
@@ -286,7 +304,8 @@ export class CategoryService {
                     description: data.description,
                     slug: data.slug,
                     order: data.order ?? 0,
-                    domain: data.domain || "DSA"
+                    domain: data.domain || "DSA",
+                    parentId: data.parentId || null
                 }
             });
 
@@ -308,7 +327,7 @@ export class CategoryService {
     }
 
     // UPDATING A CATEGORY
-    static async updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; }) {
+    static async updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; domain?: ProblemDomain; parentId?: string | null; }) {
         try {
             const category = await prisma.category.update({
                 where: { id },
@@ -458,6 +477,10 @@ export class CategoryService {
             hidden: boolean;
             hiddenQuery?: string | null;
             testCases?: { input: string; output: string; hidden?: boolean }[];
+            isMcq?: boolean;
+            options?: string[];
+            answer?: string | null;
+            solution?: string | null;
         }
     ) {
         try {
@@ -483,10 +506,14 @@ export class CategoryService {
                     hiddenQuery: data.hiddenQuery || null,
                     type: "LEARN",
                     domain: category.domain,
+                    isMcq: data.isMcq ?? false,
+                    options: data.options ?? [],
+                    answer: data.answer || null,
+                    solution: data.solution || null,
                     testCases: {
                         create: data.testCases?.map(tc => ({
-                            input: tc.input,
-                            output: tc.output,
+                            input: tc.input || "",
+                            output: tc.output || "",
                             hidden: tc.hidden ?? false
                         })) || []
                     }

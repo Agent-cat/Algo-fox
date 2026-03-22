@@ -23,26 +23,6 @@ export async function getCourseAllocations() {
   }
 }
 
-// Get courses allocated to a specific year
-async function getCoursesByYear(year: number) {
-  "use cache";
-  cacheLife({ stale: 900, revalidate: 900 });
-  cacheTag("course-allocations", `course-year-${year}`);
-
-  try {
-    const allocations = await prisma.courseAllocation.findMany({
-      where: { year },
-      select: { domain: true },
-    });
-    return {
-      success: true,
-      domains: allocations.map((a) => a.domain),
-    };
-  } catch (error) {
-    console.error("Error fetching courses by year:", error);
-    return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[] };
-  }
-}
 
 // Get user's allocated courses (based on their year)
 export async function getUserAllocatedCourses() {
@@ -107,72 +87,6 @@ export async function getUserAllocatedCourses() {
   }
 }
 
-// Allocate a course to a year (Admin/Institution Manager only)
-async function allocateCourse(year: number, domain: ProblemDomain) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  const userRole = (session.user as any).role;
-  if (!["ADMIN", "INSTITUTION_MANAGER"].includes(userRole)) {
-    return { success: false, error: "Insufficient permissions" };
-  }
-
-  try {
-    await prisma.courseAllocation.create({
-      data: { year, domain },
-    });
-
-    revalidatePath("/admin/course-allocation");
-    revalidatePath("/dashboard/institution/course-allocation");
-    revalidatePath("/problems");
-
-    return { success: true };
-  } catch (error: any) {
-    console.error("Error allocating course:", error);
-    if (error.code === "P2002") {
-      return { success: false, error: "Course already allocated to this year" };
-    }
-    return { success: false, error: "Failed to allocate course" };
-  }
-}
-
-// Remove course allocation (Admin/Institution Manager only)
-async function removeCourseAllocation(year: number, domain: ProblemDomain) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  const userRole = (session.user as any).role;
-  if (!["ADMIN", "INSTITUTION_MANAGER"].includes(userRole)) {
-    return { success: false, error: "Insufficient permissions" };
-  }
-
-  try {
-    await prisma.courseAllocation.delete({
-      where: {
-        year_domain: { year, domain },
-      },
-    });
-
-    revalidatePath("/admin/course-allocation");
-    revalidatePath("/dashboard/institution/course-allocation");
-    revalidatePath("/problems");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error removing course allocation:", error);
-    return { success: false, error: "Failed to remove allocation" };
-  }
-}
 
 // Bulk update allocations for a year
 export async function updateYearAllocations(year: number, domains: ProblemDomain[]) {

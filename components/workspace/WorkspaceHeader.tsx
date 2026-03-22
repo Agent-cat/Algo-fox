@@ -216,7 +216,11 @@ export default function WorkspaceHeader({
               </motion.button>
             )}
             <Link
-              href={domain === "SQL" ? "/problems/sql" : "/problems/dsa"}
+              href={
+                domain === "SQL" ? "/problems/sql" :
+                domain === "APTITUDE" ? "/problems/aptitude" :
+                "/problems/dsa"
+              }
               className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-[#141414]"
             >
               <span className="sr-only">List</span>
@@ -273,54 +277,58 @@ export default function WorkspaceHeader({
 
       {/* CENTER: ACTIONS */}
       <div className={`flex items-center gap-2 ${contestId ? 'flex-1 justify-center' : ''}`}>
-        <motion.button
-          id="run-button"
-          className={`
-            flex items-center gap-2 px-5 py-2
-            bg-gray-100 dark:bg-[#141414] hover:bg-gray-200 dark:hover:bg-[#1c1c1c]
-            text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg
-            transition-colors duration-200 disabled:opacity-50
-            border border-gray-200/80 dark:border-[#262626]
-            ${contestId ? 'shadow-sm' : ''}
-          `}
-          onClick={onRun}
-          disabled={isRunning || isSubmitting}
-          whileHover={{ y: -1 }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        >
-          {isRunning ? (
-            <motion.div
-              className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-600 rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-            />
-          ) : (
-            <Play className="w-3.5 h-3.5 fill-current" />
-          )}
-          {isRunning ? 'Running...' : 'Run'}
-        </motion.button>
+        {domain !== "APTITUDE" && (
+          <>
+            <motion.button
+              id="run-button"
+              className={`
+                flex items-center gap-2 px-5 py-2
+                bg-gray-100 dark:bg-[#141414] hover:bg-gray-200 dark:hover:bg-[#1c1c1c]
+                text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg
+                transition-colors duration-200 disabled:opacity-50
+                border border-gray-200/80 dark:border-[#262626]
+                ${contestId ? 'shadow-sm' : ''}
+              `}
+              onClick={onRun}
+              disabled={isRunning || isSubmitting}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            >
+              {isRunning ? (
+                <motion.div
+                  className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-600 rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                />
+              ) : (
+                <Play className="w-3.5 h-3.5 fill-current" />
+              )}
+              {isRunning ? 'Running...' : 'Run'}
+            </motion.button>
 
-        <motion.button
-          id="submit-button"
-          onClick={onSubmit}
-          disabled={isSubmitting}
-          className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        >
-          {isSubmitting ? (
-            <motion.div
-              className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-            />
-          ) : (
-            <Send className="w-3.5 h-3.5" />
-          )}
-          {isSubmitting ? 'Submitting...' : 'Submit'}
-        </motion.button>
+            <motion.button
+              id="submit-button"
+              onClick={onSubmit}
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            >
+              {isSubmitting ? (
+                <motion.div
+                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
+            </motion.button>
+          </>
+        )}
 
         {contestId && timeLeft && (
           <motion.div

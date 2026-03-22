@@ -21,13 +21,70 @@ interface LearnModeProps {
   isLoading: boolean;
 }
 
+interface TreeCategory extends Category {
+  children?: TreeCategory[];
+  displayOrder?: string;
+}
+
 export default function LearnMode({ searchTerm = "", categories, isLoading }: LearnModeProps) {
   // Internal state removed, using props
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Build tree structure
+  const buildTree = (cats: any[]): TreeCategory[] => {
+    const map = new Map<string, TreeCategory>();
+    cats.forEach(cat => map.set(cat.id, { ...cat, children: [] }));
+
+    const roots: TreeCategory[] = [];
+
+    // First, sort all categories by order
+    const sortedCats = [...cats].sort((a, b) => a.order - b.order);
+
+    sortedCats.forEach(cat => {
+      const node = map.get(cat.id)!;
+      if (cat.parentId && map.has(cat.parentId)) {
+        map.get(cat.parentId)!.children?.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    // Assign display numbers (1, 1.1, etc.)
+    const assignNumbers = (nodes: TreeCategory[], prefix: string = "") => {
+      nodes.forEach((node, index) => {
+        const currentNumber = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+        node.displayOrder = currentNumber;
+        if (node.children && node.children.length > 0) {
+          assignNumbers(node.children, currentNumber);
+        }
+      });
+    };
+
+    assignNumbers(roots);
+    return roots;
+  };
+
+  const categoryTree = buildTree(categories);
+
+  // Helper to filter tree
+  const filterTree = (nodes: TreeCategory[]): TreeCategory[] => {
+    return nodes.reduce((acc: TreeCategory[], node) => {
+      const matches =
+        node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (node.description && node.description.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      const filteredChildren = node.children ? filterTree(node.children) : [];
+
+      if (matches || filteredChildren.length > 0) {
+        acc.push({
+          ...node,
+          children: filteredChildren
+        });
+      }
+      return acc;
+    }, []);
+  };
+
+  const filteredTree = searchTerm ? filterTree(categoryTree) : categoryTree;
 
   if (isLoading && categories.length === 0) {
     return <LoadingSpinner size="lg" message="Loading categories..." className="min-h-[400px]" />;
@@ -47,8 +104,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading }: Le
   return (
     <div className="w-full">
       <div className="space-y-4">
-        {filteredCategories.length > 0 ? (
-          filteredCategories.map((category) => (
+        {filteredTree.length > 0 ? (
+          filteredTree.map((category) => (
             <CategoryCard
               key={category.id}
               id={category.id}
@@ -56,6 +113,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading }: Le
               description={category.description}
               problemCount={category._count.categoryProblems}
               solvedCount={category.solvedCount || 0}
+              displayOrder={category.displayOrder}
+              subCategories={category.children}
             />
           ))
         ) : (

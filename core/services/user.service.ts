@@ -138,4 +138,91 @@ export class UserService {
             return { success: false, error: "Failed to complete onboarding" };
         }
     }
+
+    /**
+     * Update user profile information
+     */
+    static async updateUserInfo(userId: string, data: {
+        name?: string;
+        bio?: string;
+        leetCodeHandle?: string;
+        codeChefHandle?: string;
+        hackerrankHandle?: string;
+        codeforcesHandle?: string;
+        githubHandle?: string;
+    }): Promise<{ success: boolean; error?: string }> {
+        try {
+            // Fetch current user to check for changes
+            const currentUser = await prisma.user.findUnique({
+                where: { id: userId },
+                select: {
+                    codeChefHandle: true,
+                    codeforcesHandle: true,
+                    leetCodeHandle: true,
+                }
+            });
+
+            const updateData: any = {
+                name: data.name,
+                bio: data.bio,
+                leetCodeHandle: data.leetCodeHandle,
+                codeChefHandle: data.codeChefHandle,
+                codeforcesHandle: data.codeforcesHandle,
+                githubHandle: data.githubHandle,
+            };
+
+            // Reset verification if handle changed
+            if (currentUser) {
+                if (data.codeChefHandle !== undefined && data.codeChefHandle !== currentUser.codeChefHandle) {
+                    updateData.codeChefVerified = false;
+                }
+                if (data.codeforcesHandle !== undefined && data.codeforcesHandle !== currentUser.codeforcesHandle) {
+                    updateData.codeforcesVerified = false;
+                }
+                if (data.leetCodeHandle !== undefined && data.leetCodeHandle !== currentUser.leetCodeHandle) {
+                    updateData.leetCodeVerified = false;
+                }
+            }
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: updateData
+            });
+
+            // Invalidate Redis cache
+            try {
+                await redis.del(`dashboard:stats:${userId}`);
+            } catch (error) {
+                console.error("Failed to invalidate dashboard redis cache:", error);
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to update user info in service:", error);
+            return { success: false, error: "Failed to update profile" };
+        }
+    }
+
+    /**
+     * Get user settings data
+     */
+    static async getUserSettings(userId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                institution: true
+            }
+        });
+
+        if (!user) return null;
+
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            bio: user.bio,
+            institutionName: user.institution?.name
+        };
+    }
 }
