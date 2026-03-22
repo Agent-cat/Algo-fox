@@ -29,12 +29,14 @@ interface DsaProblemsClientProps {
     initialProblems: ProblemWithStats[];
     initialTotalPages: number;
     initialCategories?: any[];
+    userRole: string;
 }
 
 export default function DsaProblemsClient({
     initialProblems,
     initialTotalPages,
     initialCategories = [],
+    userRole,
 }: DsaProblemsClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -147,6 +149,8 @@ export default function DsaProblemsClient({
                                 searchTerm={searchTerm}
                                 categories={categories}
                                 isLoading={isCategoriesLoading}
+                                userRole={userRole}
+                                domain="DSA"
                             />
                         </div>
                     )}

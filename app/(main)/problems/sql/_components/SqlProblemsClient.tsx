@@ -29,12 +29,14 @@ interface SqlProblemsClientProps {
     initialProblems: ProblemWithStats[];
     initialTotalPages: number;
     initialCategories?: any[];
+    userRole: string;
 }
 
 export default function SqlProblemsClient({
     initialProblems,
     initialTotalPages,
     initialCategories = [],
+    userRole,
 }: SqlProblemsClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -147,6 +149,8 @@ export default function SqlProblemsClient({
                                 searchTerm={searchTerm}
                                 categories={categories}
                                 isLoading={isCategoriesLoading}
+                                userRole={userRole}
+                                domain="SQL"
                             />
                         </div>
                     )}

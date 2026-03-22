@@ -2,6 +2,9 @@
 
 import CategoryCard from "./CategoryCard";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
+import { Download } from "lucide-react";
+import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
+import { useState } from "react";
 
 interface Category {
   id: string;
@@ -19,6 +22,8 @@ interface LearnModeProps {
   searchTerm?: string;
   categories: any[];
   isLoading: boolean;
+  userRole?: string;
+  domain: string;
 }
 
 interface TreeCategory extends Category {
@@ -26,8 +31,9 @@ interface TreeCategory extends Category {
   displayOrder?: string;
 }
 
-export default function LearnMode({ searchTerm = "", categories, isLoading }: LearnModeProps) {
-  // Internal state removed, using props
+export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain }: LearnModeProps) {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
 
   // Build tree structure
   const buildTree = (cats: any[]): TreeCategory[] => {
@@ -102,7 +108,29 @@ export default function LearnMode({ searchTerm = "", categories, isLoading }: Le
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {canDownload && (
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 dark:bg-orange-500/10 dark:hover:bg-orange-500/20 text-orange-700 dark:text-orange-400 font-medium rounded-xl transition-colors text-sm"
+          >
+            <Download className="w-4 h-4" />
+            Download All Progress
+          </button>
+        </div>
+      )}
+
+      {isDownloadModalOpen && (
+        <DownloadProgressModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => setIsDownloadModalOpen(false)}
+          categoryTitle="All Categories"
+          userRole={userRole!}
+          domain={domain}
+        />
+      )}
+
       <div className="space-y-4">
         {filteredTree.length > 0 ? (
           filteredTree.map((category) => (
@@ -115,6 +143,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading }: Le
               solvedCount={category.solvedCount || 0}
               displayOrder={category.displayOrder}
               subCategories={category.children}
+              userRole={userRole}
+              domain={domain}
             />
           ))
         ) : (

@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, CheckCircle2 } from "lucide-react";
+import { Plus, Minus, CheckCircle2, Download } from "lucide-react";
+import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
 import { getCategoryProblems } from "@/actions/category.action";
 import { Difficulty, Problem } from "@prisma/client";
 import Link from "next/link";
@@ -21,6 +22,8 @@ interface CategoryCardProps {
   displayOrder?: string;
   subCategories?: any[];
   isSubCategory?: boolean;
+  userRole?: string;
+  domain: string;
 }
 
 export default function CategoryCard({
@@ -31,8 +34,12 @@ export default function CategoryCard({
   solvedCount,
   displayOrder,
   subCategories = [],
-  isSubCategory = false
+  isSubCategory = false,
+  userRole,
+  domain
 }: CategoryCardProps) {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
   const [isExpanded, setIsExpanded] = useState(false);
   const [problems, setProblems] = useState<ProblemWithStats[]>([]);
   const [page, setPage] = useState(1);
@@ -136,12 +143,25 @@ export default function CategoryCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <motion.button
-        onClick={handleToggle}
-        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-md py-3 px-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all text-left group"
-        whileTap={{ scale: 0.998 }}
-        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      {isDownloadModalOpen && (
+        <DownloadProgressModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => setIsDownloadModalOpen(false)}
+          categoryTitle={name}
+          categoryId={id}
+          userRole={userRole!}
+          domain={domain}
+        />
+      )}
+      <div
+        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-md hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all group flex"
       >
+        <motion.button
+          onClick={handleToggle}
+          className="flex-1 py-3 px-4 text-left focus:outline-none"
+          whileTap={{ scale: 0.998 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-gray-400 font-medium text-sm min-w-[1.2rem]">{displayOrder || "•"}</span>
@@ -183,6 +203,21 @@ export default function CategoryCard({
           </div>
         </div>
       </motion.button>
+        {canDownload && (
+          <div className="flex items-center px-4 border-l border-gray-100 dark:border-[#2a2a2a]">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDownloadModalOpen(true);
+              }}
+              title="Download Progress"
+              className="p-2 text-gray-400 hover:text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
+            >
+              <Download className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+      </div>
 
       <AnimatePresence>
         {isExpanded && (
@@ -211,6 +246,8 @@ export default function CategoryCard({
                       displayOrder={subCat.displayOrder}
                       subCategories={subCat.children}
                       isSubCategory={true}
+                      userRole={userRole}
+                      domain={domain}
                     />
                   ))}
                 </div>

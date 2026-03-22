@@ -9,10 +9,12 @@ import { motion } from "framer-motion";
 
 interface AptitudeClientProps {
     initialCategories?: any[];
+    userRole: string;
 }
 
 export default function AptitudeClient({
     initialCategories = [],
+    userRole,
 }: AptitudeClientProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [categories, setCategories] = useState<any[]>(initialCategories);
@@ -94,6 +96,8 @@ export default function AptitudeClient({
                             searchTerm={searchTerm}
                             categories={categories}
                             isLoading={isCategoriesLoading}
+                            userRole={userRole}
+                            domain="APTITUDE"
                         />
                     </div>
                 </motion.div>

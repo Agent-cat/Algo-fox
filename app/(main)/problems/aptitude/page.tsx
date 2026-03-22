@@ -60,6 +60,7 @@ async function AptitudeContent() {
     return (
         <AptitudeClient
             initialCategories={categoriesRes.categories}
+            userRole={session?.user?.role as string}
         />
     );
 }

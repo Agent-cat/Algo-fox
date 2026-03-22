@@ -85,6 +85,7 @@ async function DsaProblemsContent({
             initialProblems={problems}
             initialTotalPages={totalPages}
             initialCategories={categoriesRes.categories}
+            userRole={session?.user?.role as string}
         />
     );
 }
