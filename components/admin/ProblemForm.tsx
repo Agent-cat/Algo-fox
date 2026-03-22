@@ -59,6 +59,7 @@ interface ProblemFormProps {
     submitLabel: string;
     domain?: ProblemDomain;
     redirectPath?: string;
+    slugPrefix?: string;
 }
 
 function MarkdownPreview({ content, placeholder }: { content: string; placeholder?: string }) {
@@ -88,7 +89,7 @@ const DIFFICULTY_OPTIONS = [
     { value: "HARD", label: "Hard", color: "text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30" },
 ];
 
-export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath }: ProblemFormProps) {
+export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath, slugPrefix = "/problems/" }: ProblemFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedTags, setSelectedTags] = useState<{ name: string, slug: string }[]>(initialData?.tags || []);
@@ -348,12 +349,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                                     <div>
                                         <label className={labelCls}>URL Slug</label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600 text-sm font-mono">/problems/</span>
+                                        <div className="relative flex items-center">
+                                            <div className="absolute left-4 text-gray-400 dark:text-gray-600 text-sm font-mono pointer-events-none whitespace-nowrap">
+                                                {slugPrefix}
+                                            </div>
                                             <input
                                                 {...register("slug")}
                                                 placeholder="two-sum"
-                                                className={`${inputCls} pl-[5.5rem]`}
+                                                style={{ paddingLeft: `${(slugPrefix.length * 0.6) + 1}rem` }}
+                                                className={inputCls}
                                             />
                                         </div>
                                         {errors.slug && <p className="mt-1.5 text-xs text-red-500">{errors.slug.message}</p>}

@@ -23,7 +23,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showRulesPopup, setShowRulesPopup] = useState(false);
-    const [hasAcceptedRules, setHasAcceptedRules] = useState(contest.hasAcceptedRules || false);
+    const [hasAcceptedRules, setHasAcceptedRules] = useState(false);
     const [isSubmittingContest, setIsSubmittingContest] = useState(false);
     const isFinished = contest.isFinished || false;
 
@@ -79,14 +79,8 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
 
     useEffect(() => {
         if (isFinished) return;
-        const accepted = localStorage.getItem(`contest-rules-${contest.id}`);
-        // If we have local storage record AND the server says we accepted rules (or we rely on server only)
-        // But let's trust server state 'hasAcceptedRules' primarily if available
-        if (hasAcceptedRules) {
-             if (hasStarted && !hasEnded) {
-                // Already started logic
-             }
-        } else if (hasStarted && !hasEnded) {
+        // Force showing rules popup if not already accepted in this session
+        if (!hasAcceptedRules && hasStarted && !hasEnded) {
             setShowRulesPopup(true);
         }
     }, [contest.id, hasStarted, hasEnded, hasAcceptedRules, isFinished]);
@@ -115,13 +109,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     }, [hasStarted, startTime, endTime]);
 
     const handleContestStart = (newSessionId: string) => {
-        localStorage.setItem(`contest-rules-${contest.id}`, "true");
         setHasAcceptedRules(true);
         setShowRulesPopup(false);
         setSessionId(newSessionId);
-
-        // Reload page to refresh questions (if shuffled) or unlock content
-        window.location.reload();
     };
 
     const totalPages = Math.ceil(contest.problems.length / PROBLEMS_PER_PAGE);
@@ -158,7 +148,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                 contestTitle={contest.title}
                 requiresPassword={contest.requiresPassword}
                 isOpen={showRulesPopup}
-                onClose={() => setShowRulesPopup(false)}
+                onClose={() => router.push("/contests")}
                 onStart={handleContestStart}
             />
 

@@ -108,14 +108,22 @@ export default function ContestEntryModal({
         return;
       }
 
-      try {
-        await document.documentElement.requestFullscreen();
-      } catch (e) {
-        console.warn("Fullscreen failed", e);
-      }
+      // Important: Call onStart FIRST so parent state updates,
+      // but wrap fullscreen in a micro-task or the browser might cancel it
+      // during the DOM re-render of the parent.
+      onStart(result.sessionId!);
+
+      setTimeout(async () => {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+          }
+        } catch (e) {
+          console.warn("Fullscreen failed", e);
+        }
+      }, 100);
 
       toast.success("Good luck!");
-      onStart(result.sessionId!);
     } catch {
       toast.error("Failed to initialize contest");
       setIsLoading(false);
@@ -129,11 +137,15 @@ export default function ContestEntryModal({
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={onClose}
+        onClick={() => {
+          if (!requiresPassword || step !== "PASSWORD") {
+            onClose();
+          }
+        }}
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-md rounded-3xl shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-2xl rounded-[40px] shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Progress / Navigation Header */}
         <div className="px-8 pt-8 flex items-center justify-between">
@@ -181,9 +193,11 @@ export default function ContestEntryModal({
                );
             })}
           </div>
-          <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          {(!requiresPassword || step !== "PASSWORD") && (
+            <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         <div className="p-8 min-h-[400px] flex flex-col">
@@ -231,22 +245,22 @@ export default function ContestEntryModal({
                  <p className="text-gray-500 dark:text-gray-400">Strict proctoring is active.</p>
                </div>
 
-               <div className="space-y-6">
-                 {RULES.map((rule, idx) => {
-                     const Icon = rule.icon;
-                     return (
-                         <div key={idx} className="flex gap-4">
-                             <div className="w-10 h-10 shrink-0 rounded-full bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center">
-                                 <Icon className="w-5 h-5 text-gray-900 dark:text-white" />
-                             </div>
-                             <div>
-                                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{rule.title}</h3>
-                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{rule.description}</p>
-                             </div>
-                         </div>
-                     )
-                 })}
-               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {RULES.map((rule, idx) => {
+                      const Icon = rule.icon;
+                      return (
+                          <div key={idx} className="p-5 bg-gray-50/50 dark:bg-[#111] border border-gray-100 dark:border-[#1e1e1e] rounded-[24px] group hover:border-orange-500/30 transition-all duration-300">
+                              <div className="w-10 h-10 shrink-0 rounded-2xl bg-white dark:bg-[#1a1a1a] flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                                  <Icon className="w-5 h-5 text-gray-900 dark:text-orange-500" />
+                              </div>
+                              <div>
+                                  <h3 className="font-bold text-gray-900 dark:text-white text-[15px] mb-1">{rule.title}</h3>
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium">{rule.description}</p>
+                              </div>
+                          </div>
+                      )
+                  })}
+                </div>
 
                <div className="mt-auto pt-8">
                 <button

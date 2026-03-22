@@ -48,15 +48,15 @@ async function ProblemContentWithParams({
   const { slug } = await params;
   const { contestId } = await searchParams;
 
-  const problem = await getProblem(slug);
+  // Parallelize core data fetching
+  const [problem, session] = await Promise.all([
+    getProblem(slug),
+    auth.api.getSession({ headers: await headers() })
+  ]);
 
   if (!problem) {
     return notFound();
   }
-
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
 
   let isSolved = false;
   let contestData = null;

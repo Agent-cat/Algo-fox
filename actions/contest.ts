@@ -35,12 +35,28 @@ const contestWithProblemsSchema = z.object({
     classroomId: z.string().optional(),
     institutionId: z.string().optional().nullable(),
     backgroundImage: z.string().optional(),
+    ogImage: z.string().optional(),
+    useOgImage: z.boolean().default(false),
     prizes: z.string().optional(),
     rules: z.string().optional(),
+    scoring: z.string().optional(),
+    isProtected: z.boolean().default(true),
+    targetEmails: z.array(z.string()).default([]),
     problems: z.array(z.any()), // Full problem data objects
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
 });
+
+export async function checkContestSlug(slug: string) {
+    try {
+        const contest = await prisma.contest.findUnique({
+            where: { slug }
+        });
+        return { success: true, isAvailable: !contest };
+    } catch (error) {
+        return { success: false, error: "Failed to check slug" };
+    }
+}
 
 /**
  * Fetches contests visible to the current user.
@@ -392,8 +408,13 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
                     visibility: validatedData.visibility as any,
                     hidden: validatedData.hidden,
                     backgroundImage: validatedData.backgroundImage,
+                    ogImage: validatedData.ogImage,
+                    useOgImage: validatedData.useOgImage,
                     prizes: validatedData.prizes,
                     rules: validatedData.rules,
+                    scoring: validatedData.scoring,
+                    isProtected: validatedData.isProtected,
+                    targetEmails: validatedData.targetEmails,
                     institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
                     classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
                     creatorId: currentUser.id,

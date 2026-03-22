@@ -459,15 +459,20 @@ model Contest {
 
   // Customization fields
   backgroundImage String? @db.Text
+  ogImage         String? @db.Text
+  useOgImage      Boolean @default(false)
   prizes          String? @db.Text
   rules           String? @db.Text
+  scoring         String? @db.Text
   hidden          Boolean @default(false)
+  isProtected     Boolean @default(true) // For cheating protection
   isFinalized     Boolean @default(false)
 
   contestPassword    String? // Optional password/access code
   randomizeQuestions Boolean @default(false)
 
   visibility    ContestVisibility @default(PUBLIC)
+  targetEmails  String[]          @default([]) // Specific emails for private contests
   institutionId String?
   institution   Institution?      @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
