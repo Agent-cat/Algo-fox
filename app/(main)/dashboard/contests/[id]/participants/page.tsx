@@ -20,6 +20,7 @@ interface Participant {
     tempBlockedUntil: string | null;
     unblockedBy: string | null;
     unblockedAt: string | null;
+    ipAddress: string | null;
     user: {
         id: string;
         name: string;
@@ -238,9 +239,17 @@ export default function ContestParticipantsPage() {
                                     {expandedId === p.id && (
                                         <div className="px-4 pb-4 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#1a1a1a]">
                                             <div className="pt-4">
-                                                {/* Action buttons */}
-                                                {(p.isBlocked || p.permanentlyBlocked) && (
-                                                    <div className="mb-4">
+                                                <div className="flex flex-col md:flex-row gap-4 mb-4">
+                                                    {/* IP Info */}
+                                                    <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl p-3 flex-1">
+                                                        <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Entry IP Address</p>
+                                                        <p className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100">
+                                                            {p.ipAddress || 'unknown'}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Action buttons */}
+                                                    {(p.isBlocked || p.permanentlyBlocked) && (
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -252,8 +261,8 @@ export default function ContestParticipantsPage() {
                                                             <Unlock className="w-4 h-4" />
                                                             {unblocking === p.userId ? 'Unblocking...' : 'Unblock Participant'}
                                                         </button>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
 
                                                 {/* Violations list */}
                                                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recent Violations:</p>

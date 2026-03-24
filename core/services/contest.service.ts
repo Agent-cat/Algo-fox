@@ -153,7 +153,8 @@ export class ContestService {
                 score: totalScore,
                 timeTaken: totalTime,
                 problemsSolved: problemScores.size,
-                problemStats
+                problemStats,
+                ipAddress: p.ipAddress
             };
         });
 

@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
+    await connection();
+    const headersList = await headers();
     try {
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: headersList
         });
 
         if (!session?.user) {

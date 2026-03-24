@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { getClientIP, isIPAllowed } from "@/lib/ip";
 
 import { cacheTag, cacheLife } from "next/cache";
 
@@ -20,6 +21,8 @@ const contestSchema = z.object({
     problems: z.array(z.string()).min(1, "Select at least one problem"),
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
+    isIPRestricted: z.boolean().default(false),
+    allowedIPs: z.array(z.string()).default([]),
 });
 
 import { ContestService } from "@/core/services/contest.service";
@@ -45,6 +48,8 @@ const contestWithProblemsSchema = z.object({
     problems: z.array(z.any()), // Full problem data objects
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
+    isIPRestricted: z.boolean().default(false),
+    allowedIPs: z.array(z.string()).default([]),
 });
 
 export async function checkContestSlug(slug: string) {
@@ -156,12 +161,8 @@ export async function getVisibleContests() {
  * Cached contest detail fetcher
  * Returns contest data without user-specific context
  */
-async function getCachedContest(contestId: string) {
-    "use cache"
-    cacheTag(`contest-${contestId}`);
-    // @ts-ignore
-    cacheLife("contest-detail");
-
+async function getContestData(contestId: string) {
+    // Removed cache directives to ensure live data for IP checks
     return prisma.contest.findUnique({
         where: { id: contestId },
         include: {
@@ -194,7 +195,7 @@ export async function getContestDetail(contestId: string) {
     });
 
     try {
-        const contest = await getCachedContest(contestId);
+        const contest = await getContestData(contestId);
 
         if (!contest) {
             return { success: false, error: "Contest not found" };
@@ -241,6 +242,8 @@ export async function getContestDetail(contestId: string) {
         if (!isAuthorized) {
             return { success: false, error: "Unauthorized access to this contest." };
         }
+
+        // We no longer block users based on IP, we just record it.
 
         const canSeeProblems = (hasStarted || isAdmin || isCreator) && (participation?.acceptedRules || isCreator || isAdmin);
 
@@ -358,6 +361,8 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
                         order: index,
                     })),
                 },
+                isIPRestricted: validatedData.isIPRestricted,
+                allowedIPs: validatedData.allowedIPs,
             },
         });
 
@@ -420,6 +425,8 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
                     creatorId: currentUser.id,
                     contestPassword: validatedData.contestPassword || null,
                     randomizeQuestions: validatedData.randomizeQuestions || false,
+                    isIPRestricted: validatedData.isIPRestricted,
+                    allowedIPs: validatedData.allowedIPs,
                 }
             });
 
@@ -466,6 +473,180 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
     } catch (error) {
         console.error("Failed to create contest with problems:", error);
         return { success: false, error: "Failed to create contest" };
+    }
+}
+
+export async function getContestForEdit(contestId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    try {
+        const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            include: {
+                problems: {
+                    include: {
+                        problem: {
+                            include: {
+                                testCases: true,
+                                tags: true
+                            }
+                        }
+                    },
+                    orderBy: { order: "asc" }
+                }
+            }
+        });
+
+        if (!contest) return { success: false, error: "Contest not found" };
+
+        const currentUser = session.user as any;
+        if (currentUser.role !== "ADMIN" && contest.creatorId !== currentUser.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        return { success: true, contest };
+    } catch (error) {
+        console.error("Failed to fetch contest for edit:", error);
+        return { success: false, error: "Failed to fetch contest" };
+    }
+}
+
+export async function updateContestWithProblems(contestId: string, data: z.infer<typeof contestWithProblemsSchema>) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    const currentUser = session.user as any;
+
+    try {
+        const existingContest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            select: { creatorId: true }
+        });
+
+        if (!existingContest) return { success: false, error: "Contest not found" };
+
+        if (currentUser.role !== "ADMIN" && existingContest.creatorId !== currentUser.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const validatedData = contestWithProblemsSchema.parse(data);
+
+        await prisma.$transaction(async (tx) => {
+            // Update contest basic info
+            await tx.contest.update({
+                where: { id: contestId },
+                data: {
+                    title: validatedData.title,
+                    slug: validatedData.slug,
+                    description: validatedData.description,
+                    startTime: validatedData.startTime,
+                    endTime: validatedData.endTime,
+                    visibility: validatedData.visibility as any,
+                    hidden: validatedData.hidden,
+                    backgroundImage: validatedData.backgroundImage,
+                    ogImage: validatedData.ogImage,
+                    useOgImage: validatedData.useOgImage,
+                    prizes: validatedData.prizes,
+                    rules: validatedData.rules,
+                    scoring: validatedData.scoring,
+                    isProtected: validatedData.isProtected,
+                    targetEmails: validatedData.targetEmails,
+                    institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
+                    classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
+                    contestPassword: validatedData.contestPassword || null,
+                    randomizeQuestions: validatedData.randomizeQuestions || false,
+                    isIPRestricted: validatedData.isIPRestricted,
+                    allowedIPs: validatedData.allowedIPs,
+                }
+            });
+
+            // For simplicity in this implementation, we'll delete old contest problems and create new ones
+            // Note: In production, you might want to identify which ones to update/delete/create
+
+            // Delete existing contest problems
+            await tx.contestProblem.deleteMany({
+                where: { contestId }
+            });
+
+            // Create new problems/links
+            for (let i = 0; i < validatedData.problems.length; i++) {
+                const p = validatedData.problems[i];
+                let problemId = p.id;
+
+                // If it's a new problem (id is temporary or missing), create it
+                if (!p.id || p.id.startsWith("temp-")) {
+                    const uniqueSlug = `${validatedData.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`;
+                    const newProblem = await tx.problem.create({
+                        data: {
+                            title: p.title,
+                            description: p.description,
+                            difficulty: p.difficulty,
+                            slug: uniqueSlug,
+                            score: p.score || 10,
+                            domain: p.domain,
+                            type: "CONTEST",
+                            hidden: true,
+                            testCases: {
+                                create: p.testCases.map((tc: any) => ({
+                                    input: tc.input,
+                                    output: tc.output,
+                                    hidden: tc.hidden,
+                                })),
+                            },
+                        }
+                    });
+                    problemId = newProblem.id;
+                } else {
+                    // Update existing problem if it belongs to this contest
+                    // Note: This logic assumes contest problems are "owned" by the contest if they are type=CONTEST
+                    const existingProblem = await tx.problem.findUnique({ where: { id: p.id } });
+                    if (existingProblem && existingProblem.type === "CONTEST") {
+                        await tx.problem.update({
+                            where: { id: p.id },
+                            data: {
+                                title: p.title,
+                                description: p.description,
+                                difficulty: p.difficulty,
+                                score: p.score || 10,
+                                domain: p.domain,
+                                testCases: {
+                                    deleteMany: {},
+                                    create: p.testCases.map((tc: any) => ({
+                                        input: tc.input,
+                                        output: tc.output,
+                                        hidden: tc.hidden,
+                                    })),
+                                },
+                            }
+                        });
+                    }
+                }
+
+                await tx.contestProblem.create({
+                    data: {
+                        contestId,
+                        problemId,
+                        order: i,
+                    }
+                });
+            }
+        });
+
+        revalidatePath("/dashboard/contests");
+        revalidatePath(`/contests/${validatedData.slug}`);
+        revalidatePath(`/contest/${contestId}`);
+        revalidateTag(`contest-${contestId}`, "max");
+        return { success: true, contestId };
+    } catch (error) {
+        console.error("Failed to update contest:", error);
+        return { success: false, error: "Failed to update contest" };
     }
 }
 
@@ -625,10 +806,21 @@ export async function verifyContestPassword(contestId: string, password?: string
     try {
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
-            select: { contestPassword: true }
+            select: {
+                contestPassword: true,
+                isIPRestricted: true,
+                allowedIPs: true,
+                creatorId: true
+            }
         });
 
         if (!contest) return { success: false, error: "Contest not found" };
+
+        const currentUser = session.user as any;
+        const isAdmin = currentUser.role === "ADMIN";
+        const isCreator = contest.creatorId === currentUser.id;
+
+        // IP Restriction was removed to allow users but track IP instead.
 
         if (contest.contestPassword && contest.contestPassword !== password) {
             return { success: false, error: "Invalid contest password" };
@@ -655,10 +847,25 @@ export async function startContestSession(contestId: string, password?: string) 
     try {
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
-            select: { startTime: true, endTime: true, contestPassword: true }
+            select: {
+                startTime: true,
+                endTime: true,
+                contestPassword: true,
+                isIPRestricted: true,
+                allowedIPs: true,
+                creatorId: true
+            }
         });
 
         if (!contest) return { success: false, error: "Contest not found" };
+
+        const currentUser = session.user as any;
+        const isAdmin = currentUser.role === "ADMIN";
+        const isCreator = contest.creatorId === currentUser.id;
+
+        const clientIP = await getClientIP();
+
+        // The IP recording happens below in upsert contestParticipation
 
         if (contest.contestPassword && contest.contestPassword !== password) {
             return { success: false, error: "Invalid contest password" };
@@ -695,7 +902,7 @@ export async function startContestSession(contestId: string, password?: string) 
             return { success: false, error: "You have already finished this contest" };
         }
 
-        // Update or create participation with new session
+        // Update or create participation with new session and record the IP
         const participation = await prisma.contestParticipation.upsert({
             where: {
                 userId_contestId: {
@@ -706,14 +913,16 @@ export async function startContestSession(contestId: string, password?: string) 
             update: {
                 sessionId,
                 sessionStartedAt: now,
-                acceptedRules: true
+                acceptedRules: true,
+                ipAddress: clientIP
             },
             create: {
                 userId: session.user.id,
                 contestId: contestId,
                 sessionId,
                 sessionStartedAt: now,
-                acceptedRules: true
+                acceptedRules: true,
+                ipAddress: clientIP
             }
         });
 
@@ -1106,7 +1315,7 @@ export async function getParticipantViolations(contestId: string, userId: string
  * - Calculates scores
  */
 export async function getContestLeaderboard(contestId: string) {
-    "use cache"
+    // Dynamic content - removed specialized cache to ensure IP checks are always live
     cacheTag(`leaderboard-${contestId}`)
     // @ts-ignore
     cacheLife("leaderboard")

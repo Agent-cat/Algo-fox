@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { CreateContestWizard } from "@/components/contest/CreateContestWizard";
+import CreateContestWizard from "@/components/contest/CreateContestWizard";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";

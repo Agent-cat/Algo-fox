@@ -27,6 +27,7 @@ interface ContestStudent {
     problemsSolved: number;
     timeTaken: number;
     problemStats?: ProblemStat[];
+    ipAddress?: string | null;
 }
 
 interface ContestProblem {
@@ -94,7 +95,41 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
 
                 <div className="flex items-center gap-3">
                     {canFinalize && (
-                        <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
+                        <>
+                            <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
+                            <button
+                                onClick={() => {
+                                    const headers = ["Rank", "Name", "Score", "Time Taken (ms)", "IP Address"];
+                                    problems.forEach((p, i) => headers.push(`Q${i+1} (${p.title})`));
+
+                                    const csvRows = [headers.join(",")];
+
+                                    students.forEach((s, idx) => {
+                                        const rank = idx + 1;
+                                        const name = s.name ? `"${s.name.replace(/"/g, '""')}"` : "Anonymous";
+                                        const row = [rank, name, s.score, s.timeTaken, s.ipAddress || ""];
+
+                                        problems.forEach(p => {
+                                            const stat = s.problemStats?.find(ps => ps.problemId === p.id);
+                                            row.push(stat?.solved ? stat.score : 0);
+                                        });
+
+                                        csvRows.push(row.join(","));
+                                    });
+
+                                    const blob = new Blob([csvRows.join("\\n")], { type: "text/csv" });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = `contest-${contestId}-results.csv`;
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                }}
+                                className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                            >
+                                Download Results
+                            </button>
+                        </>
                     )}
                     <div className="px-4 py-1.5 bg-orange-500/5 dark:bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center gap-2 shadow-sm">
                         <User className="w-3.5 h-3.5 text-orange-500" />

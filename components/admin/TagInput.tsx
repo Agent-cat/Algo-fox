@@ -104,13 +104,13 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                 {value.map((tag) => (
                     <span
                         key={tag.slug}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm font-medium border border-orange-100"
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-[#222] text-[#39424e] dark:text-gray-300 rounded-[3px] text-sm font-bold border border-gray-300 dark:border-[#444] shadow-sm"
                     >
                         {tag.name}
                         <button
                             type="button"
                             onClick={() => handleRemoveTag(tag.slug)}
-                            className="ml-2"
+                            className="ml-2 hover:text-red-500 transition-colors"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -133,13 +133,13 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                         if (inputValue.trim()) setShowSuggestions(true);
                     }}
                     onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#333] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-300 font-mono text-sm shadow-sm"
                     placeholder={placeholder}
                 />
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && inputValue.trim() && (
-                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl border border-gray-100 dark:border-[#333] max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded-[3px] shadow-xl border border-gray-200 dark:border-[#333] max-h-60 overflow-y-auto">
                         {isSearching ? (
                             <div className="p-4 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" /> Searching...
@@ -162,7 +162,7 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                                     <button
                                         type="button"
                                         onClick={handleCreateTag}
-                                        className="w-full text-left px-4 py-3 hover:bg-orange-50 dark:hover:bg-[#262626] text-orange-600 dark:text-orange-400 text-sm transition-colors flex items-center gap-2 border-t border-gray-50 dark:border-[#262626] font-medium"
+                                        className="w-full text-left px-4 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm transition-colors flex items-center gap-2 border-t border-gray-100 dark:border-[#222] font-bold"
                                     >
                                         <Plus className="w-4 h-4" />
                                         Create "{inputValue}"

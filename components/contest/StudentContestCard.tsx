@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface StudentContestCardProps {
   contest: {
@@ -149,73 +150,71 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
           </p>
         )}
 
-        <div className="mt-auto space-y-4">
-          {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-y-3 gap-x-4 p-4 bg-gray-50 dark:bg-[#1a1a1a]/50 rounded-xl border border-gray-100 dark:border-[#262626]">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] uppercase font-bold text-gray-400">
-                Start Time
+        <div className="mt-auto pt-4 space-y-6">
+          {/* Detailed Info Grid */}
+          <div className="grid grid-cols-2 gap-4 p-5 rounded-3xl bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-gray-100 dark:border-white/5 shadow-inner">
+            <div className="space-y-1">
+              <span className="text-[9px] uppercase font-black text-gray-400 tracking-widest block">
+                Start Date
               </span>
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                {format(startTime, "MMM d, HH:mm")}
+              <div className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-200">
+                <Calendar className="w-3.5 h-3.5 text-orange-500" />
+                {format(startTime, "MMM d")}
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] uppercase font-bold text-gray-400">
-                Duration
+            <div className="space-y-1">
+              <span className="text-[9px] uppercase font-black text-gray-400 tracking-widest block">
+                Window
               </span>
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                <Timer className="w-3.5 h-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-200">
+                <Clock className="w-3.5 h-3.5 text-blue-500" />
                 {duration}h
               </div>
             </div>
-            {isLive && timeLeft && (
-              <div className="col-span-2 flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#262626] mt-1">
-                <span className="text-[10px] uppercase font-bold text-orange-600 dark:text-orange-500">
-                  Time Remaining
+
+            {timeLeft && (
+               <div className="col-span-2 pt-3 border-t border-gray-200 dark:border-white/5 flex items-center justify-between">
+                <span className={cn(
+                    "text-[10px] font-black uppercase tracking-widest",
+                    isLive ? "text-orange-500 animate-pulse" : "text-blue-500"
+                )}>
+                    {isLive ? "Closing In" : "Starts In"}
                 </span>
-                <span className="font-mono text-sm font-bold text-orange-600 dark:text-orange-500">
-                  {timeLeft}
+                <span className={cn(
+                    "font-mono text-sm font-black tabular-nums",
+                    isLive ? "text-orange-600 dark:text-orange-500" : "text-blue-600 dark:text-blue-400"
+                )}>
+                    {timeLeft}
                 </span>
-              </div>
-            )}
-            {!isLive && !isPast && timeLeft && (
-              <div className="col-span-2 flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#262626] mt-1">
-                <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-500">
-                  Starts In
-                </span>
-                <span className="font-mono text-sm font-bold text-blue-600 dark:text-blue-500">
-                  {timeLeft}
-                </span>
-              </div>
+               </div>
             )}
           </div>
 
-          {/* Action Button */}
+          {/* New Immervise Button Design */}
           {isLive ? (
             <Link
               href={`/contest/${contest.id}`}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 active:scale-95"
+              className="group/btn relative flex items-center justify-center gap-3 w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all shadow-2xl active:scale-[0.98] overflow-hidden"
             >
-              <Play className="w-4 h-4 fill-current" />
-              Enter Contest
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+              <Play className="relative z-10 w-3.5 h-3.5 fill-current transition-transform group-hover/btn:translate-x-1" />
+              <span className="relative z-10">Initiate Challenge</span>
             </Link>
           ) : isPast ? (
             <Link
               href={`/contest/${contest.id}/standings`}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-900 dark:text-white font-bold rounded-xl transition-all border border-gray-200 dark:border-[#333]"
+              className="flex items-center justify-center gap-3 w-full py-4 bg-white/80 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 text-gray-900 dark:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all border border-gray-200 dark:border-white/10 active:scale-[0.98]"
             >
-              <Trophy className="w-4 h-4" />
-              View Results
+              <Trophy className="w-3.5 h-3.5" />
+              Archives
             </Link>
           ) : (
             <Link
               href={`/contest/${contest.id}`}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-white dark:bg-[#141414] border-2 border-dashed border-gray-300 dark:border-[#333] hover:border-orange-500 dark:hover:border-orange-500 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 font-bold rounded-xl transition-all"
+              className="flex items-center justify-center gap-3 w-full py-4 bg-transparent hover:bg-white/10 text-gray-400 hover:text-orange-500 font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl transition-all border-2 border-dashed border-gray-200 dark:border-white/10 active:scale-[0.98]"
             >
-              <Clock className="w-4 h-4" />
-              View Details
+                <Clock className="w-3.5 h-3.5" />
+                Coming Soon
             </Link>
           )}
         </div>

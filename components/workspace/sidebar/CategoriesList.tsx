@@ -53,21 +53,24 @@ function CategoryItem({
 
     return (
         <div className={cn(
-            "rounded-xl overflow-hidden transition-all duration-300 mb-1.5",
-            level === 0 ? "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#111111]" : "ml-4 border-l-2 border-orange-500/20 dark:border-orange-500/10 bg-transparent"
+            "rounded-xl overflow-hidden transition-all duration-300",
+            level === 0 ? "mb-2" : "ml-4 border-l border-gray-100 dark:border-[#1a1a1a]"
         )}>
             <button
                 onClick={() => onToggleCategory(category.id)}
                 className={cn(
-                    "w-full flex items-center justify-between p-3.5 transition-all text-left group",
-                    level === 0 ? "bg-gray-50/50 dark:bg-[#141414]/50 hover:bg-gray-100 dark:hover:bg-[#161616]" : "bg-transparent hover:bg-orange-50/20 dark:hover:bg-orange-500/5"
+                    "w-full flex items-center justify-between transition-all text-left group",
+                    level === 0
+                        ? "p-4 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.02] shadow-sm"
+                        : "p-3 bg-transparent hover:bg-gray-100 dark:hover:bg-white/[0.04] rounded-lg"
                 )}
             >
-                <div className="flex items-center gap-2 flex-1 overflow-hidden">
+                <div className="flex items-center gap-3 flex-1 overflow-hidden">
                     <span className={cn(
-                        "text-sm font-semibold text-gray-700 dark:text-gray-300 truncate",
-                        level > 0 && "text-[13px] font-medium"
+                        "font-bold text-gray-800 dark:text-gray-200 truncate",
+                        level === 0 ? "text-[15px]" : "text-sm font-semibold opacity-80"
                     )}>
+
                         {category.name}
                     </span>
                 </div>
@@ -87,8 +90,8 @@ function CategoryItem({
                         className="overflow-hidden"
                     >
                         <div className={cn(
-                           "space-y-1 bg-[#fafafa] dark:bg-[#121212]/30",
-                           level === 0 ? "p-3 pt-1" : "p-2 pl-4"
+                           "space-y-1 transition-all",
+                           level === 0 ? "p-3 pt-2" : "p-1.5 pl-4"
                         )}>
                             {/* Render Sub-categories first */}
                             {category.children && category.children.length > 0 && (
@@ -115,7 +118,7 @@ function CategoryItem({
                                     <Loader2 className="w-5 h-5 animate-spin text-orange-500/50" />
                                 </div>
                             ) : (
-                                <div className="space-y-1 mt-1">
+                                <div className="space-y-0.5 mt-1">
                                     {categoryProblems[category.id]?.map((prob) => {
                                         const isSolved = solvedSet.has(prob.id);
                                         const isCurrent = currentProblemId === prob.id;
@@ -125,32 +128,38 @@ function CategoryItem({
                                                 key={prob.id}
                                                 href={`/problems/${prob.slug}`}
                                                 className={cn(
-                                                    "group/prob flex items-center justify-between p-2.5 rounded-lg text-[13px] transition-all border border-transparent hover:shadow-sm",
+                                                    "group/prob flex items-center justify-between p-3 rounded-xl text-[14px] transition-all border border-transparent",
                                                     isCurrent
-                                                        ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-100/50 dark:border-orange-500/20"
-                                                        : "hover:bg-white dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 hover:border-gray-200/50 dark:hover:border-[#262626]"
+                                                        ? "bg-orange-50/50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/50 dark:border-orange-500/20 shadow-sm"
+                                                        : "hover:bg-gray-100 dark:hover:bg-white/[0.04] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                                                 )}
                                             >
-                                                <div className="flex items-center gap-3 overflow-hidden">
-                                                    <div className={cn(
-                                                        "w-1.5 h-1.5 rounded-full shrink-0 transition-all",
-                                                        isSolved ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-gray-300 dark:bg-[#262626] group-hover/prob:bg-orange-400"
-                                                    )} />
-                                                    <span className="truncate group-hover/prob:text-gray-900 dark:group-hover/prob:text-gray-100 transition-colors">
+                                                <div className="flex items-center gap-3.5 overflow-hidden">
+                                                    <div className="w-5 flex justify-center shrink-0">
+                                                        {isSolved ? (
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                                                        ) : (
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-800" />
+                                                        )}
+                                                    </div>
+                                                    <span className={cn(
+                                                        "truncate font-semibold tracking-tight transition-colors",
+                                                        isCurrent ? "font-bold" : "font-medium"
+                                                    )}>
                                                         {prob.title}
                                                     </span>
                                                 </div>
-                                                <div className="hidden sm:block">
+                                                <div className="flex-shrink-0">
                                                      {prob.difficulty === "CONCEPT" && (
-                                                         <span className="text-[9px] font-bold text-orange-500/70 border border-orange-500/20 px-1.5 rounded uppercase">Theory</span>
+                                                         <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-lg uppercase tracking-widest border border-indigo-500/10">Theory</span>
                                                      )}
                                                 </div>
                                             </Link>
                                         );
                                     })}
                                     {!loadingCategoryProblems && (!categoryProblems[category.id] || categoryProblems[category.id].length === 0) && (!category.children || category.children.length === 0) && (
-                                        <p className="text-[10px] text-gray-400 text-center py-4 italic font-medium opacity-60">
-                                            No content available in this module
+                                        <p className="text-[11px] text-gray-400 dark:text-gray-600 text-center py-6 font-bold uppercase tracking-[0.15em] opacity-80">
+                                            Empty Module
                                         </p>
                                     )}
                                 </div>

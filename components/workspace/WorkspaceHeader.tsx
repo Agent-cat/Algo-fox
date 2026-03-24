@@ -190,7 +190,7 @@ export default function WorkspaceHeader({
               animate={{ opacity: 1, x: 0 }}
               className="flex flex-col"
             >
-              <span className="text-[10px] font-black uppercase tracking-widest text-orange-600 leading-none">Contest</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 leading-none">Contest</span>
               <span className="text-xs font-bold text-gray-900 dark:text-gray-100 leading-tight">Arena Active</span>
             </motion.div>
           )}
@@ -311,7 +311,7 @@ export default function WorkspaceHeader({
               id="submit-button"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
               whileTap={{ scale: 0.96 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -334,9 +334,9 @@ export default function WorkspaceHeader({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center px-4 py-1.5 bg-orange-50 dark:bg-orange-500/10 rounded-lg border border-orange-200 dark:border-orange-500/30 ml-4"
+            className="flex flex-col items-center justify-center px-4 py-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#262626] ml-4 transition-colors"
           >
-            <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest leading-none mb-0.5">Time Left</span>
+            <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5">Time Left</span>
             <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 leading-none tabular-nums">{timeLeft}</span>
           </motion.div>
         )}
@@ -361,7 +361,7 @@ export default function WorkspaceHeader({
                     </span>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-orange-50 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center font-bold text-xs"
+                      className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
                     >
                       {session.user.image ? (
                         <img
@@ -417,7 +417,7 @@ export default function WorkspaceHeader({
             ) : (
               <Link
                 href="/signin"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-orange-600 transition-colors"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Sign In
               </Link>
@@ -428,10 +428,10 @@ export default function WorkspaceHeader({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2 bg-orange-50 dark:bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-500/30"
+            className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 px-3 py-1.5 rounded-full border border-red-100 dark:border-red-500/30"
           >
-            <ShieldAlert className="w-4 h-4 text-orange-600" />
-            <span className="text-[10px] font-black text-orange-700 dark:text-orange-400 uppercase tracking-tighter">Proctored Mode</span>
+            <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-500" />
+            <span className="text-[10px] font-black text-red-700 dark:text-red-400 uppercase tracking-tighter">Proctored Mode</span>
           </motion.div>
         )}
       </div>

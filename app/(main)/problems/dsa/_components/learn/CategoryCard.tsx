@@ -154,7 +154,12 @@ export default function CategoryCard({
         />
       )}
       <div
-        className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-md hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all group flex"
+        className={cn(
+          "w-full transition-all group flex",
+          isSubCategory
+            ? "bg-transparent border-none py-1.5 hover:bg-gray-100/50 dark:hover:bg-white/[0.03] rounded-lg"
+            : "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/[0.02] shadow-sm hover:shadow-md"
+        )}
       >
         <motion.button
           onClick={handleToggle}
@@ -226,15 +231,18 @@ export default function CategoryCard({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{
-              height: { duration: 0.3, ease: "easeInOut" },
+              height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
               opacity: { duration: 0.2 }
             }}
             className="overflow-hidden"
           >
-            <div className={`mt-3 bg-gradient-to-b from-gray-50 dark:from-[#1a1a1a] to-white dark:to-[#141414] rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm ${isSubCategory ? 'p-2 mt-2' : 'p-4'}`}>
+            <div className={cn(
+              "mt-2 ml-4 pl-4 border-l border-gray-100 dark:border-[#1a1a1a] space-y-4",
+              !isSubCategory && "pb-4"
+            )}>
               {/* Render Sub-categories first if they exist */}
               {subCategories && subCategories.length > 0 && (
-                <div className="mb-4 space-y-2 pl-4 border-l-2 border-orange-500/40 dark:border-orange-500/30">
+                <div className="space-y-1">
                   {subCategories.map((subCat) => (
                     <CategoryCard
                       key={subCat.id}
@@ -261,51 +269,49 @@ export default function CategoryCard({
                 </div>
               ) : (
                 <>
-                  <div className={cn("space-y-4", isSubCategory && "pl-5 border-l-2 border-orange-500/20 dark:border-orange-500/10 ml-3")}>
-                    <div className="space-y-2">
-                      {problems.map((problem, index) => (
-                        <motion.div
-                          key={problem.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05, duration: 0.3 }}
-                          className="group"
+                  <div className="space-y-1">
+                    {problems.map((problem, index) => (
+                      <motion.div
+                        key={problem.id}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.03, duration: 0.2 }}
+                      >
+                        <Link
+                          href={`/problems/${problem.slug}`}
+                          className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all group/item border border-transparent hover:border-gray-200 dark:hover:border-white/5"
                         >
-                          <Link
-                            href={`/problems/${problem.slug}`}
-                            className="flex items-center justify-between p-3 bg-white dark:bg-[#141414] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-all border border-gray-100 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333333] hover:shadow-sm"
-                          >
-                            <div className="flex items-center gap-2.5 flex-1">
-                              {problem.isSolved && (
-                                <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                              )}
-                              <span className="font-medium text-gray-900 dark:text-gray-100 text-sm group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                                {problem.title}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getDifficultyColor(
-                                  problem.difficulty
-                                )}`}
-                              >
-                                {problem.difficulty === "CONCEPT"
-                                  ? "Concept"
-                                  : problem.difficulty === "MEDIUM"
-                                  ? "Med."
-                                  : problem.difficulty.charAt(0) +
-                                    problem.difficulty.slice(1).toLowerCase()}
-                              </span>
-                              {problem.difficulty !== "CONCEPT" && (
-                                <span className="text-xs text-gray-500 dark:text-gray-400 min-w-[50px] text-right">
-                                  {problem.acceptance.toFixed(1)}%
-                                </span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 flex justify-center">
+                              {problem.isSolved ? (
+                                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                              ) : (
+                                <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700 group-hover/item:bg-orange-500/50 transition-colors" />
                               )}
                             </div>
-                          </Link>
-                        </motion.div>
-                      ))}
-                    </div>
+                            <span className="text-base font-semibold text-gray-800 dark:text-gray-200 group-hover/item:text-gray-900 dark:group-hover/item:text-white transition-colors">
+                              {problem.title}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-6">
+                            <span
+                              className={cn(
+                                "text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg",
+                                getDifficultyColor(problem.difficulty)
+                              )}
+                            >
+                              {problem.difficulty}
+                            </span>
+                            {problem.difficulty !== "CONCEPT" && (
+                              <span className="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums min-w-[4rem] text-right">
+                                {problem.acceptance.toFixed(1)}%
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
                   </div>
 
                   {/* Infinite Scroll Trigger */}

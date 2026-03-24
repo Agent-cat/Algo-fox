@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search, Trophy, Calendar, Users, Globe, School, ArrowRight, Timer } from "lucide-react";
+import { Plus, Search, Trophy, Calendar, Users, Globe, School, ArrowRight, Timer, Edit } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
@@ -129,6 +129,13 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <Link
+                                                        href={`/dashboard/contests/${contest.id}/edit`}
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded"
+                                                    >
+                                                        <Edit className="w-3.5 h-3.5" />
+                                                        Edit
+                                                    </Link>
                                                     <Link
                                                         href={`/dashboard/contests/${contest.id}/participants`}
                                                         className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 rounded"

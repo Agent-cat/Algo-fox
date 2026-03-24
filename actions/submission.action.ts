@@ -62,7 +62,7 @@ export async function markConceptAsCompleted(problemId: string) {
     });
 
     if (!session || !session.user) {
-        throw new Error("Unauthorized");
+        return { success: false, error: "Unauthorized" };
     }
 
     const userId = session.user.id;

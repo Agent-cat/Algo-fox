@@ -316,6 +316,13 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         setSolvedIds(solvedProblemIds);
     }, [solvedProblemIds]);
 
+    const {
+        sizes: sidebarSizes,
+        setSizes: setSidebarSizes,
+        layoutKey: sidebarLayoutKey,
+        isHydrated: sidebarHydrated
+    } = usePersistentSplit('algofox_workspace_sidebar_split', [20, 80]);
+
     const handleSubmission = async (mode: "RUN" | "SUBMIT") => {
         if (!code) {
             toast.error("Code cannot be empty");
@@ -458,9 +465,80 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         }
     };
 
-    if (!mainHydrated || !verticalHydrated) {
+    if (!mainHydrated || !verticalHydrated || !sidebarHydrated) {
         return null; // or a loading skeleton
     }
+
+    const mainEditorContent = (
+        <Split
+            className="split flex h-full w-full"
+            sizes={mainSizes}
+            minSize={300}
+            gutterSize={4}
+            snapOffset={30}
+            onDragEnd={setMainSizes}
+        >
+            {/* LEFT SIDE: DESCRIPTION */}
+            <div id="problem-description" className="h-full overflow-hidden">
+                <ProblemDescription
+                    problem={problem}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    isSolved={isSolvedState}
+                    contestId={contestId}
+                    domain={problem.domain}
+                />
+            </div>
+
+            {/* RIGHT SIDE: EDITOR + TESTCASES */}
+            <div className="h-full overflow-hidden flex flex-col">
+                <Split
+                    key={verticalLayoutKey} // Force remount if we programmatically resize
+                    className="split-vertical flex flex-col h-full"
+                    direction="vertical"
+                    sizes={verticalSizes}
+                    minSize={0} // Allow collapsing fully if needed
+                    gutterSize={4}
+                    onDragEnd={setVerticalSizes}
+                >
+                    <div id="code-editor" className="h-full overflow-hidden">
+                        <CodeEditor
+                            key={`${problem.id}-${languageId}`}
+                            value={code}
+                            onChange={handleEditorChange}
+                            languageId={languageId}
+                            onLanguageChange={handleLanguageChange}
+                            problemId={problem.id}
+                            domain={problem.domain}
+                            functionTemplates={
+                                problem.useFunctionTemplate && problem.functionTemplates
+                                    ? problem.functionTemplates
+                                    : undefined
+                            }
+                            settings={editorSettings}
+                            onOpenSettings={handleOpenSettings}
+                            readOnly={isSubmitting}
+                            userId={session?.user?.id || ""}
+                            fileTabs={fileTabsNode}
+                        />
+                    </div>
+                    <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
+                        <TestCases
+                            cases={problem.testCases}
+                            customCases={customTestCases}
+                            onAddCustomCase={handleAddCustomCase}
+                            onUpdateCustomCase={handleUpdateCustomCase}
+                            onRemoveCustomCase={handleRemoveCustomCase}
+                            results={submissionResults}
+                            status={submissionStatus}
+                            mode={submissionMode}
+                            problemId={problem.id}
+                        />
+                    </div>
+                </Split>
+            </div>
+        </Split>
+    );
 
     return (
         <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
@@ -517,84 +595,31 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 onToggleSidebar={() => setIsSidebarOpen(true)}
             />
             <div className="flex-1 overflow-hidden flex flex-row min-h-0">
-                {contest && (
-                    <ContestSidebar
-                        contest={contest}
-                        currentProblemId={problem.id}
-                        solvedProblemIds={solvedProblemIds}
-                    />
-                )}
-                <div className="flex-1 overflow-hidden min-w-0">
+                {contest ? (
                     <Split
-                        className="split flex h-full"
-                        sizes={mainSizes}
-                        minSize={300}
+                        key={sidebarLayoutKey}
+                        className="split flex h-full w-full"
+                        sizes={sidebarSizes}
+                        minSize={[0, 400]}
                         gutterSize={4}
-                        snapOffset={30}
-                        onDragEnd={setMainSizes}
+                        onDragEnd={setSidebarSizes}
                     >
-                        {/* LEFT SIDE: DESCRIPTION */}
-                        <div id="problem-description" className="h-full overflow-hidden">
-                            <ProblemDescription
-                                problem={problem}
-                                activeTab={activeTab}
-                                onTabChange={setActiveTab}
-                                isSolved={isSolvedState}
-                                contestId={contestId}
-                                domain={problem.domain}
+                        <div className="h-full overflow-hidden min-w-0 shrink-0 border-r border-gray-200 dark:border-[#262626]">
+                            <ContestSidebar
+                                contest={contest}
+                                currentProblemId={problem.id}
+                                solvedProblemIds={solvedProblemIds}
                             />
                         </div>
-
-                        {/* RIGHT SIDE: EDITOR + TESTCASES */}
-                        <div className="h-full overflow-hidden flex flex-col">
-                            <Split
-                                key={verticalLayoutKey} // Force remount if we programmatically resize
-                                className="split-vertical flex flex-col h-full"
-                                direction="vertical"
-                                sizes={verticalSizes}
-                                minSize={0} // Allow collapsing fully if needed
-                                gutterSize={4}
-                                onDragEnd={setVerticalSizes}
-                            >
-                                <div id="code-editor" className="h-full overflow-hidden">
-                                    <CodeEditor
-                                        key={`${problem.id}-${languageId}`}
-                                        value={code}
-                                        onChange={handleEditorChange}
-                                        languageId={languageId}
-                                        onLanguageChange={handleLanguageChange}
-                                        problemId={problem.id}
-                                        domain={problem.domain}
-                                        functionTemplates={
-                                            problem.useFunctionTemplate && problem.functionTemplates
-                                                ? problem.functionTemplates
-                                                : undefined
-                                        }
-                                        settings={editorSettings}
-                                        onOpenSettings={handleOpenSettings}
-                                        readOnly={isSubmitting}
-                                        userId={session?.user?.id || ""}
-                                        fileTabs={fileTabsNode}
-                                    />
-                                </div>
-                                <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
-                                    <TestCases
-                                        cases={problem.testCases}
-                                        customCases={customTestCases}
-                                        onAddCustomCase={handleAddCustomCase}
-                                        onUpdateCustomCase={handleUpdateCustomCase}
-                                        onRemoveCustomCase={handleRemoveCustomCase}
-                                        results={submissionResults}
-                                        status={submissionStatus}
-                                        mode={submissionMode}
-                                        problemId={problem.id}
-                                    />
-                                </div>
-                            </Split>
+                        <div className="h-full overflow-hidden min-w-0 flex-1">
+                            {mainEditorContent}
                         </div>
                     </Split>
+                ) : (
+                    mainEditorContent
+                )}
 
-                    <style jsx global>{`
+                <style jsx global>{`
                     .split {
                         display: flex;
                     }
@@ -662,7 +687,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                         border-top: 1px solid #1e1e1e;
                     }
                 `}</style>
-                </div>
             </div>
         </div>
     );

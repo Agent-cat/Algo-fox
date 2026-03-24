@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { authClient } from "@/lib/auth-client";
 
@@ -80,17 +80,27 @@ export default function DevToolsBlocker() {
 
     // 5. DevTools Detection via Console
     let devtools = false;
+    let isReloading = false;
     const element = new Image();
+
+    const triggerReload = () => {
+      if (isReloading) return;
+      isReloading = true;
+      toast.error("DevTools detected! Reloading page...", {
+        duration: 3000,
+        position: "top-center"
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    };
 
     const detectDevTools = () => {
       if (devtools) {
         console.clear();
         console.log('%cSTOP!', 'color: red; font-size: 50px; font-weight: bold;');
         console.log('%cThis is a browser feature intended for developers.', 'color: red; font-size: 20px;');
-
-        setTimeout(() => {
-          devtools = false;
-        }, 1000);
+        triggerReload();
       }
     };
 
@@ -110,6 +120,7 @@ export default function DevToolsBlocker() {
       if (widthThreshold || heightThreshold) {
         devtools = true;
         detectDevTools();
+        triggerReload();
       }
     };
 
@@ -121,18 +132,23 @@ export default function DevToolsBlocker() {
 
     const checkResizeInterval = setInterval(checkDevToolsResize, 500);
 
-    // 7. Aggressive Debugger Loop
+    // 7. Aggressive Debugger Loop (using Function to persist through minifiers after build)
     const runDebugger = setInterval(() => {
-        (function() {
-            // @ts-ignore
-            debugger;
-        })();
+        const start = performance.now();
+        Function('debugger')();
+        // If debugger paused execution, performance diff will be high
+        if (performance.now() - start > 100) {
+            triggerReload();
+        }
     }, 100);
 
     let debuggerTimeoutId: NodeJS.Timeout;
     const debuggerLoop = () => {
-        // @ts-ignore
-        debugger;
+        const start = performance.now();
+        Function('debugger')();
+        if (performance.now() - start > 100) {
+            triggerReload();
+        }
         debuggerTimeoutId = setTimeout(debuggerLoop, 50);
     };
     debuggerLoop();

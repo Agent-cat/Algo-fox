@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { createContest, getInstitutionalClassrooms, createContestWithProblems, checkContestSlug } from "@/actions/contest";
+import { createContest, getInstitutionalClassrooms, createContestWithProblems, checkContestSlug, updateContestWithProblems } from "@/actions/contest";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
@@ -51,6 +51,8 @@ const contestSchema = z.object({
     })).optional(),
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
+    isIPRestricted: z.boolean().default(false),
+    allowedIPs: z.string().optional(),
 });
 
 type FormData = z.infer<typeof contestSchema>;
@@ -120,48 +122,61 @@ function MarkdownEditor({ label, name, register, watch, setValue, placeholder }:
 }
 
 interface CreateContestWizardProps {
-    institutionId: string | null;
-    userId: string;
-    userRole: string;
+    institutionId?: string | null;
+    userId?: string;
+    userRole?: string;
+    initialData?: any;
+    isEditing?: boolean;
 }
 
-export function CreateContestWizard({ institutionId, userId, userRole }: CreateContestWizardProps) {
+export default function CreateContestWizard({
+    institutionId: initialInstitutionId,
+    userId,
+    userRole,
+    initialData,
+    isEditing
+}: CreateContestWizardProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("Details");
     const [isLoading, setIsLoading] = useState(false);
+    const [institutionId, setInstitutionId] = useState<string | null>(initialInstitutionId || initialData?.institutionId || null);
     const [classrooms, setClassrooms] = useState<any[]>([]);
     const [contestProblems, setContestProblems] = useState<ContestProblem[]>([]);
     const [showProblemForm, setShowProblemForm] = useState<"DSA" | "SQL" | null>(null);
     const [isCreatingProblem, setIsCreatingProblem] = useState(false);
     const [isSlugAvailable, setIsSlugAvailable] = useState<boolean | null>(null);
     const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+    const [problemToEdit, setProblemToEdit] = useState<ContestProblem | null>(null);
+
 
     const { register, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(contestSchema) as any,
         defaultValues: {
-            title: "",
-            slug: "",
-            description: "",
-            startDate: "",
-            startTimeOfDay: "12:00",
-            startAmPm: "AM",
-            endDate: "",
-            endTimeOfDay: "12:00",
+            title: initialData?.title || "",
+            slug: initialData?.slug || "",
+            description: initialData?.description || "",
+            startDate: initialData?.startTime ? new Date(initialData.startTime).toISOString().split('T')[0] : "",
+            startTimeOfDay: initialData?.startTime ? new Date(initialData.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "",
+            startAmPm: "AM", // We'll set this below if needed
+            endDate: initialData?.endTime ? new Date(initialData.endTime).toISOString().split('T')[0] : "",
+            endTimeOfDay: initialData?.endTime ? new Date(initialData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : "",
             endAmPm: "AM",
-            hasNoEndTime: false,
-            visibility: userRole === "CONTEST_MANAGER" ? (institutionId ? "INSTITUTION" : "CLASSROOM") : "PUBLIC",
-            hidden: false,
-            classroomId: "",
-            backgroundImage: "",
-            ogImage: "",
-            useOgImage: false,
-            prizes: "",
-            rules: "",
-            scoring: "",
-            isProtected: true,
-            targetEmails: "",
-            problems: [],
-            randomizeQuestions: false,
+            hasNoEndTime: !initialData?.endTime,
+            visibility: initialData?.visibility || (userRole === "CONTEST_MANAGER" ? (initialInstitutionId ? "INSTITUTION" : "CLASSROOM") : "PUBLIC"),
+            hidden: initialData?.hidden || false,
+            classroomId: initialData?.classroomId || "",
+            backgroundImage: initialData?.backgroundImage || "",
+            ogImage: initialData?.ogImage || "",
+            useOgImage: initialData?.useOgImage || false,
+            prizes: initialData?.prizes || "",
+            rules: initialData?.rules || "",
+            scoring: initialData?.scoring || "",
+            isProtected: initialData?.isProtected !== undefined ? initialData.isProtected : true,
+            targetEmails: initialData?.targetEmails?.join(", ") || "",
+            problems: [], // We'll set this via useEffect
+            randomizeQuestions: initialData?.randomizeQuestions || false,
+            isIPRestricted: initialData?.isIPRestricted || false,
+            allowedIPs: initialData?.allowedIPs?.join(", ") || "",
         } as Partial<FormData>,
         mode: "onBlur",
         reValidateMode: "onChange",
@@ -169,16 +184,18 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
 
     const visibility = watch("visibility");
     const isHidden = watch("hidden");
-    const isContestManager = userRole === "CONTEST_MANAGER";
+    // const isContestManager = userRole === "CONTEST_MANAGER"; // userRole is no longer a prop
 
     // Fetch classrooms if institution visibility or classroom visibility is selected
     useEffect(() => {
-        if (institutionId && (visibility === "CLASSROOM" || visibility === "INSTITUTION")) {
-            getInstitutionalClassrooms(institutionId).then(res => {
+        // Assuming institutionId is available from initialData or context if editing
+        const currentInstitutionId = initialData?.institutionId || institutionId; // Use initialData's institutionId if available
+        if (currentInstitutionId && (visibility === "CLASSROOM" || visibility === "INSTITUTION")) {
+            getInstitutionalClassrooms(currentInstitutionId).then(res => {
                 if (res.success) setClassrooms(res.classrooms || []);
             });
         }
-    }, [visibility, institutionId]);
+    }, [visibility, initialData?.institutionId, institutionId]);
 
     // Manual debounce for slug check
     const debounceTimer = useRef<NodeJS.Timeout|null>(null);
@@ -191,6 +208,11 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
 
         setIsCheckingSlug(true);
         debounceTimer.current = setTimeout(async () => {
+            if (isEditing && slug === initialData?.slug) {
+                setIsSlugAvailable(true);
+                setIsCheckingSlug(false);
+                return;
+            }
             const res = await checkContestSlug(slug);
             if (res.success) {
                 setIsSlugAvailable(res.isAvailable ?? false);
@@ -220,6 +242,32 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
         }
     }, [title, setValue]);
 
+    // Set initial problems if editing
+    useEffect(() => {
+        if (isEditing && initialData?.problems) {
+            const mappedProblems = initialData.problems.map((cp: any) => ({
+                id: cp.problem.id,
+                title: cp.problem.title,
+                domain: cp.problem.domain,
+                data: cp.problem, // Store full problem data
+            }));
+            setContestProblems(mappedProblems);
+            setValue("problems", mappedProblems.map((p: any) => ({ id: p.id, title: p.title, domain: p.domain })));
+        }
+    }, [isEditing, initialData, setValue]);
+
+    // Set AM/PM for start/end times based on initialData
+    useEffect(() => {
+        if (initialData?.startTime) {
+            const startHour = new Date(initialData.startTime).getHours();
+            setValue("startAmPm", startHour >= 12 ? "PM" : "AM");
+        }
+        if (initialData?.endTime) {
+            const endHour = new Date(initialData.endTime).getHours();
+            setValue("endAmPm", endHour >= 12 ? "PM" : "AM");
+        }
+    }, [initialData, setValue]);
+
     const handleProblemSubmit = async (data: any, domain: "DSA" | "SQL") => {
         setIsCreatingProblem(true);
         try {
@@ -248,7 +296,14 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
         setValue("problems", updated.map(p => ({ id: p.id, title: p.title, domain: p.domain })));
     };
 
-    const onSubmit = async (data: FormData) => {
+    const onInvalid = (errors: any) => {
+        console.error("Form errors:", errors);
+        const firstErrorPath = Object.keys(errors)[0];
+        const firstError = errors[firstErrorPath];
+        toast.error(`Please fix errors in ${firstErrorPath}: ${firstError?.message || 'Invalid input'}`);
+    };
+
+    const onSubmit = async (formData: FormData) => {
         // Validate problems
         if (contestProblems.length === 0) {
             toast.error("Please add at least one problem");
@@ -263,10 +318,11 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
         }
 
         setIsLoading(true);
+        const toastId = toast.loading(isEditing ? "Updating contest..." : "Creating contest...");
         try {
             // Parse emails
-            const emailArray = data.targetEmails
-                ? data.targetEmails.split(",").map(e => e.trim()).filter(e => e.length > 0)
+            const emailArray = formData.targetEmails
+                ? formData.targetEmails.split(",").map(e => e.trim()).filter(e => e.length > 0)
                 : [];
 
             const parseTime = (timeStr: string, amPm: "AM" | "PM") => {
@@ -276,35 +332,44 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                 return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
             };
 
-            const startTimeOfDay24 = parseTime(data.startTimeOfDay, data.startAmPm);
+            const startTimeOfDay24 = parseTime(formData.startTimeOfDay, formData.startAmPm);
             let finalStartTime = new Date();
-            if (data.startDate && startTimeOfDay24) {
-                finalStartTime = new Date(`${data.startDate}T${startTimeOfDay24}`);
+            if (formData.startDate && startTimeOfDay24) {
+                finalStartTime = new Date(`${formData.startDate}T${startTimeOfDay24}`);
             }
 
             let finalEndTime = new Date("2099-12-31T23:59:00");
-            if (!data.hasNoEndTime && data.endDate && data.endTimeOfDay) {
-                const endTimeOfDay24 = parseTime(data.endTimeOfDay, data.endAmPm);
-                finalEndTime = new Date(`${data.endDate}T${endTimeOfDay24}`);
+            if (!formData.hasNoEndTime && formData.endDate && formData.endTimeOfDay) {
+                const endTimeOfDay24 = parseTime(formData.endTimeOfDay, formData.endAmPm);
+                finalEndTime = new Date(`${formData.endDate}T${endTimeOfDay24}`);
             }
 
-            const res = await createContestWithProblems({
-                ...data,
+            const currentInstitutionId = initialData?.institutionId || institutionId; // Use initialData's institutionId if available
+
+            const contestData = {
+                ...formData,
                 startTime: finalStartTime,
                 endTime: finalEndTime,
-                institutionId: data.visibility !== "PUBLIC" ? institutionId : null,
+                institutionId: formData.visibility !== "PUBLIC" ? currentInstitutionId : null,
                 targetEmails: emailArray,
                 problems: contestProblems.map(p => p.data),
-            });
+                isIPRestricted: formData.isIPRestricted,
+                allowedIPs: formData.allowedIPs ? formData.allowedIPs.split(",").map(ip => ip.trim()).filter(ip => ip.length > 0) : [],
+            };
+
+            const res = isEditing && initialData?.id
+                ? await updateContestWithProblems(initialData.id, contestData)
+                : await createContestWithProblems(contestData);
 
             if (res.success) {
-                toast.success("Contest created successfully!");
-                router.push(`/contest/${res.contestId}`);
+                toast.success(isEditing ? "Contest updated successfully!" : "Contest launched successfully!", { id: toastId });
+                router.push("/dashboard/contests");
+                router.refresh();
             } else {
-                toast.error(res.error || "Failed to create contest");
+                toast.error(res.error || `Failed to ${isEditing ? 'update' : 'create'} contest`, { id: toastId });
             }
         } catch (error) {
-            toast.error("Something went wrong");
+            toast.error("Something went wrong", { id: toastId });
         } finally {
             setIsLoading(false);
         }
@@ -583,6 +648,38 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                                             className="w-5 h-5 text-orange-600 rounded border-gray-300"
                                         />
                                     </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-[#333]">
+                                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-[#333] rounded-xl">
+                                            <div className="space-y-0.5">
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                                    IP Restriction
+                                                    <div className="px-2 py-0.5 bg-red-100 dark:bg-red-500/10 text-[10px] text-red-600 rounded uppercase font-bold">Advanced</div>
+                                                </p>
+                                                <p className="text-xs text-gray-500">Allow access only from specific IP addresses.</p>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                {...register("isIPRestricted")}
+                                                className="w-5 h-5 text-orange-600 rounded border-gray-300"
+                                            />
+                                        </div>
+
+                                        {watch("isIPRestricted") && (
+                                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                                <label className="block text-xs font-bold text-[#39424e] dark:text-gray-300 font-mono uppercase tracking-wider">
+                                                    Allowed IP Addresses
+                                                </label>
+                                                <textarea
+                                                    {...register("allowedIPs")}
+                                                    rows={3}
+                                                    className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono text-sm"
+                                                    placeholder="103.25.1.10, 103.25.1.11, ..."
+                                                />
+                                                <p className="text-[11px] text-gray-500 font-serif italic">Separate multiple IP addresses with commas.</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -703,7 +800,7 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                 </div>
 
                 {/* Main Content Area */}
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 pb-16">
+                <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-12 pb-16">
                     <div className="w-full">
                         {renderTabContent()}
                     </div>
@@ -775,7 +872,7 @@ export function CreateContestWizard({ institutionId, userId, userRole }: CreateC
                                         ) : (
                                             <CheckCircle2 className="w-4 h-4" />
                                         )}
-                                        Launch Contest
+                                        {isEditing ? "Update Contest" : "Launch Contest"}
                                     </motion.button>
                                 )}
                             </AnimatePresence>

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
     Plus, Trash2, Eye, EyeOff, Code2, Check,
-    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft
+    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,19 +65,19 @@ interface ProblemFormProps {
 function MarkdownPreview({ content, placeholder }: { content: string; placeholder?: string }) {
     if (!content?.trim()) {
         return (
-            <div className="w-full h-full min-h-[480px] flex flex-col items-center justify-center text-gray-400 dark:text-gray-600 gap-3">
+            <div className="w-full h-full min-h-[460px] flex flex-col items-center justify-center text-[#738f93] bg-[#f8f9fa] dark:bg-[#111] gap-3 font-mono">
                 <BookOpen className="w-10 h-10 opacity-30" />
                 <span className="text-sm italic">{placeholder || "Nothing to preview yet..."}</span>
             </div>
         );
     }
     return (
-        <div className="w-full min-h-[480px] px-2 py-4 overflow-auto prose prose-base dark:prose-invert max-w-none
-            prose-pre:bg-[#1e1e2e] prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:border prose-pre:border-gray-700/40
-            prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a2e] prose-code:rounded prose-code:px-1.5 prose-code:text-[0.85em]
-            prose-headings:text-gray-900 dark:prose-headings:text-white prose-headings:font-bold
-            prose-a:text-orange-500 prose-strong:text-gray-900 dark:prose-strong:text-white
-            prose-blockquote:border-orange-400 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
+        <div className="w-full min-h-[460px] px-6 py-6 overflow-auto prose prose-base dark:prose-invert max-w-none bg-[#f8f9fa] dark:bg-[#111] text-[#39424e] dark:text-gray-300 font-mono text-[15px]
+            prose-pre:bg-[#1e1e2e] prose-pre:text-gray-100 prose-pre:rounded-[3px] prose-pre:border prose-pre:border-gray-700/40
+            prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a2e] prose-code:rounded-[3px] prose-code:px-1.5 prose-code:text-[0.85em]
+            prose-headings:text-[#39424e] dark:prose-headings:text-white prose-headings:font-bold prose-headings:font-mono
+            prose-a:text-[#26bd58] prose-strong:text-[#39424e] dark:prose-strong:text-white
+            prose-blockquote:border-[#26bd58] prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </div>
     );
@@ -255,71 +255,33 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     const progressPct = Math.round((currentStep / totalSteps) * 100);
 
-    const inputCls = "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] focus:border-orange-500 dark:focus:border-orange-400 focus:ring-0 outline-none transition-all text-gray-900 dark:text-white bg-white dark:bg-[#111] placeholder:text-gray-400 dark:placeholder:text-gray-600 text-sm";
-    const labelCls = "block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2";
+    const inputCls = "w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-gray-900 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600";
+    const labelCls = "text-[14px] font-bold text-[#39424e] dark:text-gray-300 font-mono mb-1.5 flex gap-1";
 
     return (
         <div className="w-full">
 
-            {/* ── TOP PROGRESS BAR ── */}
-            <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-gray-200 dark:bg-[#222]">
-                <div
-                    className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500 ease-out"
-                    style={{ width: `${progressPct}%` }}
-                />
-            </div>
-
-            {/* ── STEP NAV (sticky below topbar) ── */}
-            <div className="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-[#1e1e1e]">
-                <div className="max-w-6xl mx-auto px-8 py-0">
-                    <div className="flex items-stretch">
-                        {steps.map((step, i) => {
-                            const Icon = step.icon;
-                            const isActive = currentStep === step.id;
-                            const isDone = currentStep > step.id;
-                            const isClickable = step.id < currentStep;
-                            return (
-                                <button
-                                    key={step.id}
-                                    type="button"
-                                    onClick={() => handleStepClick(step.id)}
-                                    disabled={!isClickable && !isActive}
-                                    className={`
-                                        relative flex items-center gap-3 px-6 py-4 text-left transition-all
-                                        border-b-2 flex-1 group
-                                        ${isActive
-                                            ? "border-orange-500 text-orange-600 dark:text-orange-400"
-                                            : isDone
-                                                ? "border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
-                                                : "border-transparent text-gray-300 dark:text-gray-700 cursor-default"
-                                        }
-                                    `}
-                                >
-                                    <div className={`
-                                        w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all
-                                        ${isActive
-                                            ? "bg-orange-500 text-white shadow-md shadow-orange-200 dark:shadow-orange-900/30"
-                                            : isDone
-                                                ? "bg-gray-100 dark:bg-[#222] text-gray-500 dark:text-gray-400"
-                                                : "bg-gray-100 dark:bg-[#1e1e1e] text-gray-400 dark:text-gray-600"
-                                        }
-                                    `}>
-                                        {isDone ? <Check className="w-3.5 h-3.5" /> : <span className="text-xs font-bold">{step.id}</span>}
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        <div className={`text-sm font-semibold leading-tight ${isActive ? "text-gray-900 dark:text-white" : ""}`}>
-                                            {step.name}
-                                        </div>
-                                        <div className="text-[11px] text-gray-400 dark:text-gray-600 leading-tight mt-0.5">{step.desc}</div>
-                                    </div>
-                                    {i < steps.length - 1 && (
-                                        <ChevronRight className="w-3.5 h-3.5 text-gray-200 dark:text-gray-700 absolute right-0 top-1/2 -translate-y-1/2" />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+            {/* ── TABS NAV (HackerRank Style) ── */}
+            <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1a1a1a] rounded-[3px] mb-8">
+                {steps.map((step) => {
+                    const isActive = currentStep === step.id;
+                    const isClickable = step.id <= currentStep;
+                    return (
+                        <button
+                            key={step.id}
+                            type="button"
+                            onClick={() => handleStepClick(step.id)}
+                            disabled={!isClickable && !isActive}
+                            className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
+                                isActive
+                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#0a0a0a]"
+                                : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
+                            }`}
+                        >
+                            {step.name}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* ── FORM ── */}
@@ -328,10 +290,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                     {/* ─── STEP 1: Basics ─── */}
                     {currentStep === 1 && (
-                        <div className="py-12 space-y-10">
+                        <div className="py-2 space-y-10">
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Basic Details</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Define the problem identity and visibility settings.</p>
+                                <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Basic Details</h2>
+                                <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Define the problem identity and visibility settings.</p>
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -375,12 +337,12 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     </div>
 
                                     {(watch("isMcq") || isAptitude) && (
-                                        <div className="p-6 rounded-2xl bg-blue-50/30 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 space-y-4">
+                                        <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#444] space-y-4">
                                             <div className="flex items-center justify-between">
-                                                <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MCQ Options</label>
+                                                <label className="text-[10px] font-bold text-[#39424e] dark:text-gray-300 uppercase tracking-widest">MCQ Options</label>
                                                 <div className="flex items-center gap-2">
                                                     <input type="checkbox" {...register("isMcq")} className="hidden" />
-                                                    <span className="text-[10px] text-blue-500/60 font-medium italic">At least 2 required</span>
+                                                    <span className="text-[10px] text-gray-500 font-medium italic">At least 2 required</span>
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
@@ -391,7 +353,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                             value={watch(`options.${idx}`)}
                                                             checked={watch("answer") === watch(`options.${idx}`) && watch("answer") !== "" && !!watch("answer")}
                                                             onChange={() => setValue("answer", watch(`options.${idx}`) || "")}
-                                                            className="mt-3.5 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                            className="mt-3 w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                                         />
                                                         <input
                                                             {...register(`options.${idx}` as const)}
@@ -403,7 +365,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             </div>
                                             <div className="pt-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
-                                                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400 truncate bg-white dark:bg-[#111] px-3 py-2 rounded-lg border border-blue-100 dark:border-blue-500/10 min-h-[40px] flex items-center">
+                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#0a0a0a] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
                                                     {watch("answer") || "Select correct option using radio button"}
                                                 </div>
                                             </div>
@@ -441,10 +403,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                     type="button"
                                                     onClick={() => setValue("difficulty", opt.value as Difficulty)}
                                                     className={`
-                                                        py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all
+                                                        py-3 px-4 rounded-[3px] border text-sm font-bold transition-all
                                                         ${difficultyValue === opt.value
                                                             ? opt.color + " border-current scale-[1.02] shadow-sm"
-                                                            : "border-gray-200 dark:border-[#222] text-gray-400 dark:text-gray-600 hover:border-gray-300 dark:hover:border-[#333]"
+                                                            : "border-gray-300 dark:border-[#444] text-gray-400 dark:text-gray-600 hover:border-gray-400 dark:hover:border-[#555]"
                                                         }
                                                     `}
                                                 >
@@ -461,10 +423,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 type="button"
                                                 onClick={() => setValue("hidden", false)}
                                                 className={`
-                                                    flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-semibold transition-all
+                                                    flex items-center justify-center gap-2 py-3 rounded-[3px] border text-sm font-semibold transition-all
                                                     ${!hiddenValue
-                                                        ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                                                        : "border-gray-200 dark:border-[#222] text-gray-400 dark:text-gray-600"
+                                                        ? "border-[#26bd58] bg-emerald-50 dark:bg-emerald-500/10 text-[#26bd58]"
+                                                        : "border-gray-300 dark:border-[#444] text-gray-400 dark:text-gray-600"
                                                     }
                                                 `}
                                             >
@@ -474,10 +436,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 type="button"
                                                 onClick={() => setValue("hidden", true)}
                                                 className={`
-                                                    flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-semibold transition-all
+                                                    flex items-center justify-center gap-2 py-3 rounded-[3px] border text-sm font-semibold transition-all
                                                     ${hiddenValue
                                                         ? "border-gray-400 bg-gray-100 dark:bg-[#222] text-gray-700 dark:text-gray-300"
-                                                        : "border-gray-200 dark:border-[#222] text-gray-400 dark:text-gray-600"
+                                                        : "border-gray-300 dark:border-[#444] text-gray-400 dark:text-gray-600"
                                                     }
                                                 `}
                                             >
@@ -487,7 +449,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     </div>
 
                                     {/* Preview card */}
-                                    <div className="mt-2 p-5 rounded-2xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-[#1e1e1e]">
+                                    <div className="mt-2 p-5 rounded-[3px] bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#444]">
                                         <div className="text-xs text-gray-400 dark:text-gray-600 mb-3 font-semibold uppercase tracking-wider">Preview</div>
                                         <div className="font-bold text-gray-900 dark:text-white truncate">
                                             {titleValue || <span className="text-gray-300 dark:text-gray-700 font-normal">Problem title will appear here</span>}
@@ -512,42 +474,64 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                     {/* ─── STEP 2: Description ─── */}
                     {currentStep === 2 && (
-                        <div className="py-12 space-y-6">
+                        <div className="py-2 space-y-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Problem Description</h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Write a clear problem statement using Markdown.</p>
+                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Problem Description</h2>
+                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Write a clear problem statement using Markdown.</p>
                                 </div>
-                                <div className="flex items-center gap-0.5 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
-                                    <button type="button" onClick={() => setDescriptionPreview(false)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${!descriptionPreview ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
-                                        <Code2 className="w-3.5 h-3.5" /> Write
-                                    </button>
-                                    <button type="button" onClick={() => setDescriptionPreview(true)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${descriptionPreview ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
-                                        <Eye className="w-3.5 h-3.5" /> Preview
-                                    </button>
-                                </div>
+
                             </div>
 
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                <div className={descriptionPreview ? "hidden xl:block" : ""}>
-                                    <textarea
-                                        {...register("description")}
-                                        rows={28}
-                                        placeholder={"# Problem\n\nDescribe the problem here...\n\n## Constraints\n- 1 ≤ n ≤ 10⁵\n\n## Example\n\n**Input:** nums = [2,7,11,15], target = 9\n**Output:** [0,1]"}
-                                        className="w-full h-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] focus:border-orange-400 dark:focus:border-orange-400 focus:ring-0 outline-none font-mono text-sm leading-7 text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none"
-                                    />
+                            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
+                                {/* Toolbar mimicking Contest Wizard */}
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#111]">
+                                    <div className="flex items-center gap-1 text-gray-400">
+                                        <button type="button" onClick={() => setValue("description", descriptionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
+                                        <button type="button" onClick={() => setValue("description", descriptionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
+                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button type="button" onClick={() => setValue("description", descriptionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <FileText className="w-4 h-4" />
+                                        </button>
+                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button type="button" onClick={() => setValue("description", descriptionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                        <button type="button" onClick={() => setValue("description", descriptionValue + "`inline code` ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <Code2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDescriptionPreview(!descriptionPreview)}
+                                        className="px-3 py-1.5 text-xs font-semibold bg-[#ebf0f4] dark:bg-[#222] text-[#39424e] dark:text-gray-300 border border-[#dcdcdc] dark:border-[#444] rounded-[3px] shadow-sm hover:bg-[#e2e8ec] dark:hover:bg-[#333] transition-colors flex items-center gap-2"
+                                    >
+                                        {descriptionPreview ? <><Code2 className="w-3.5 h-3.5" /> Edit</> : <><Eye className="w-3.5 h-3.5" /> Preview</>}
+                                    </button>
                                 </div>
-                                <div className={`rounded-2xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#111] px-6 py-2 overflow-y-auto ${descriptionPreview ? "" : "hidden xl:block"}`} style={{ minHeight: 460 }}>
-                                    <MarkdownPreview content={descriptionValue} placeholder="Start writing on the left to see a live preview..." />
+
+                                <div className="grid grid-cols-1">
+                                    {!descriptionPreview ? (
+                                        <div className="border-r border-gray-200 dark:border-[#333]">
+                                            <textarea
+                                                {...register("description")}
+                                                rows={28}
+                                                placeholder={"# Problem\n\nDescribe the problem here...\n\n## Constraints\n- 1 ≤ n ≤ 10⁵\n\n## Example\n\n**Input:** nums = [2,7,11,15], target = 9\n**Output:** [0,1]"}
+                                                className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="bg-[#f8f9fa] dark:bg-[#111] overflow-y-auto min-h-[500px]">
+                                            <MarkdownPreview content={descriptionValue} placeholder="Nothing to preview yet..." />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             {errors.description && <p className="text-xs text-red-500 mt-1">⚠ {errors.description.message}</p>}
 
                             {/* SQL: Hidden Query */}
                             {domain === "SQL" && (
-                                <div className="mt-6 space-y-3 p-6 rounded-2xl border border-dashed border-gray-200 dark:border-[#2a2a2a] bg-gray-50/50 dark:bg-[#0d0d0d]">
+                                <div className="mt-6 space-y-3 p-6 rounded-[3px] border border-dashed border-gray-300 dark:border-[#444] bg-gray-50/50 dark:bg-[#0d0d0d]">
                                     <div>
                                         <label className={labelCls}>Hidden Query <span className="normal-case font-normal text-gray-400">(Optional)</span></label>
                                         <p className="text-xs text-gray-400 dark:text-gray-600 mb-3">Prepended to the user's code before execution (e.g. schema setup).</p>
@@ -555,7 +539,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             {...register("hiddenQuery")}
                                             rows={6}
                                             placeholder={"-- CREATE TABLE employees (\n--   id INT PRIMARY KEY,\n--   name VARCHAR(100)\n-- );"}
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] focus:border-orange-400 dark:focus:border-orange-400 focus:ring-0 outline-none font-mono text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] resize-none"
+                                            className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none font-mono text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] resize-none"
                                         />
                                     </div>
                                 </div>
@@ -565,35 +549,57 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                     {/* ─── STEP 3: Solution ─── */}
                     {currentStep === 3 && (
-                        <div className="py-12 space-y-6">
+                        <div className="py-2 space-y-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Solution / Editorial</h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Shown only after a user successfully solves the problem.</p>
+                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Solution / Editorial</h2>
+                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Shown only after a user successfully solves the problem.</p>
                                 </div>
-                                <div className="flex items-center gap-0.5 p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#2a2a2a] flex-shrink-0">
-                                    <button type="button" onClick={() => setSolutionPreview(false)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${!solutionPreview ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
-                                        <Code2 className="w-3.5 h-3.5" /> Write
-                                    </button>
-                                    <button type="button" onClick={() => setSolutionPreview(true)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${solutionPreview ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
-                                        <Eye className="w-3.5 h-3.5" /> Preview
-                                    </button>
-                                </div>
+
                             </div>
 
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                                <div className={solutionPreview ? "hidden xl:block" : ""}>
-                                    <textarea
-                                        {...register("solution")}
-                                        rows={28}
-                                        placeholder={"# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```"}
-                                        className="w-full h-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] focus:border-orange-400 dark:focus:border-orange-400 focus:ring-0 outline-none font-mono text-sm leading-7 text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none"
-                                    />
+                            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
+                                {/* Toolbar mimicking Contest Wizard */}
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#111]">
+                                    <div className="flex items-center gap-1 text-gray-400">
+                                        <button type="button" onClick={() => setValue("solution", solutionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
+                                        <button type="button" onClick={() => setValue("solution", solutionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
+                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button type="button" onClick={() => setValue("solution", solutionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <FileText className="w-4 h-4" />
+                                        </button>
+                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button type="button" onClick={() => setValue("solution", solutionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                        <button type="button" onClick={() => setValue("solution", solutionValue + "`inline code` ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
+                                            <Code2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSolutionPreview(!solutionPreview)}
+                                        className="px-3 py-1.5 text-xs font-semibold bg-[#ebf0f4] dark:bg-[#222] text-[#39424e] dark:text-gray-300 border border-[#dcdcdc] dark:border-[#444] rounded-[3px] shadow-sm hover:bg-[#e2e8ec] dark:hover:bg-[#333] transition-colors flex items-center gap-2"
+                                    >
+                                        {solutionPreview ? <><Code2 className="w-3.5 h-3.5" /> Edit</> : <><Eye className="w-3.5 h-3.5" /> Preview</>}
+                                    </button>
                                 </div>
-                                <div className={`rounded-2xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#111] px-6 py-2 overflow-y-auto ${solutionPreview ? "" : "hidden xl:block"}`} style={{ minHeight: 460 }}>
-                                    <MarkdownPreview content={solutionValue} placeholder="Start writing your solution to see a live preview..." />
+
+                                <div className="grid grid-cols-1">
+                                    {!solutionPreview ? (
+                                        <div className="border-r border-gray-200 dark:border-[#333]">
+                                            <textarea
+                                                {...register("solution")}
+                                                rows={28}
+                                                placeholder={"# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```"}
+                                                className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="bg-[#f8f9fa] dark:bg-[#111] overflow-y-auto min-h-[500px]">
+                                            <MarkdownPreview content={solutionValue} placeholder="Nothing to preview yet..." />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -601,16 +607,16 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                     {/* ─── STEP 4: Test Cases ─── */}
                     {currentStep === 4 && (
-                        <div className="py-12 space-y-8">
+                        <div className="py-2 space-y-8">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Test Cases</h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Define input/output pairs used to validate submissions.</p>
+                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Test Cases</h2>
+                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Define input/output pairs used to validate submissions.</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => append({ input: "", output: "", hidden: false })}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-orange-200 dark:shadow-none"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#39424e] dark:bg-white text-white dark:text-[#39424e] text-sm font-bold rounded-[3px] transition-all shadow-sm"
                                 >
                                     <Plus className="w-4 h-4" /> Add Test Case
                                 </button>
@@ -618,14 +624,14 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                             <div className="space-y-5">
                                 {fields.map((field, index) => (
-                                    <div key={field.id} className="group rounded-2xl border border-gray-150 dark:border-[#1e1e1e] bg-white dark:bg-[#0f0f0f] overflow-hidden hover:border-orange-200 dark:hover:border-orange-500/20 transition-colors shadow-sm">
+                                    <div key={field.id} className="group rounded-[3px] border border-gray-300 dark:border-[#444] bg-white dark:bg-[#0f0f0f] overflow-hidden hover:border-gray-400 dark:hover:border-[#555] transition-colors shadow-sm">
                                         {/* Card header */}
-                                        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-[#1a1a1a] bg-gray-50/80 dark:bg-[#111]">
+                                        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-300 dark:border-[#444] bg-gray-50/80 dark:bg-[#111]">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs font-bold">
+                                                <div className="w-6 h-6 rounded-full bg-[#39424e] dark:bg-white text-white dark:text-[#39424e] flex items-center justify-center text-xs font-bold">
                                                     {index + 1}
                                                 </div>
-                                                <span className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider">Test Case {index + 1}</span>
+                                                <span className="text-[13px] font-bold text-[#39424e] dark:text-gray-300 font-mono">Test Case {index + 1}</span>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -645,7 +651,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             </div>
                                         </div>
                                         {/* Card body */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-[#1a1a1a]">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-300 dark:divide-[#444]">
                                             <div className="p-5 space-y-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                                                     Input {domain === "SQL" && <span className="font-normal opacity-60 ml-1">— optional</span>}
@@ -653,7 +659,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.input` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222] focus:border-orange-400 dark:focus:border-orange-400 focus:ring-0 outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"nums = [2,7,11,15]\ntarget = 9"}
                                                 />
                                             </div>
@@ -662,7 +668,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.output` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222] focus:border-orange-400 dark:focus:border-orange-400 focus:ring-0 outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"[0, 1]"}
                                                 />
                                             </div>
@@ -673,11 +679,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     <p className="text-xs text-red-500">⚠ {errors.testCases.root?.message || "Invalid test cases"}</p>
                                 )}
                                 {fields.length === 0 && (
-                                    <div className="py-16 text-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-[#222]">
+                                    <div className="py-16 text-center rounded-[3px] border border-dashed border-gray-300 dark:border-[#444]">
                                         <FlaskConical className="w-10 h-10 mx-auto text-gray-300 dark:text-gray-700 mb-3" />
                                         <p className="text-sm text-gray-400 dark:text-gray-600">No test cases yet.</p>
                                         <button type="button" onClick={() => append({ input: "", output: "", hidden: false })}
-                                            className="mt-4 px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-colors">
+                                            className="mt-4 px-4 py-2 text-sm font-semibold text-[#39424e] dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-[3px] transition-colors">
                                             + Add your first test case
                                         </button>
                                     </div>
@@ -688,10 +694,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                     {/* ─── STEP 5: Code Templates (DSA only) ─── */}
                     {isDSA && currentStep === 5 && (
-                        <div className="py-12 space-y-8">
+                        <div className="py-2 space-y-8">
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Code Templates</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Define the starter code users will see when they open the problem.</p>
+                                <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Code Templates</h2>
+                                <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Define the starter code users will see when they open the problem.</p>
                             </div>
                             <FunctionTemplateEditor
                                 value={functionTemplates}
@@ -702,47 +708,42 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         </div>
                     )}
 
-                    {/* ─── FOOTER NAV ─── */}
-                    <div className="sticky bottom-0 py-5 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-t border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between gap-4">
+                    {/* ── FOOTER NAV ── */}
+                    <div className="flex items-center justify-between py-6 border-t border-gray-200 dark:border-[#333] mt-12">
                         <button
                             type="button"
                             onClick={handleBack}
                             disabled={currentStep === 1}
-                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className="px-6 py-2.5 text-gray-500 font-bold text-sm hover:text-gray-900 transition-colors disabled:opacity-30"
                         >
-                            <ChevronLeft className="w-4 h-4" /> Previous
+                            Previous
                         </button>
 
-                        <div className="flex items-center gap-2">
-                            {steps.map(s => (
-                                <div key={s.id} className={`w-1.5 h-1.5 rounded-full transition-all ${s.id === currentStep ? "w-6 bg-orange-500" : s.id < currentStep ? "bg-orange-300 dark:bg-orange-500/50" : "bg-gray-200 dark:bg-[#2a2a2a]"}`} />
-                            ))}
+                        <div className="flex gap-4">
+                            {currentStep < totalSteps ? (
+                                <button
+                                    type="button"
+                                    onClick={handleNext}
+                                    className="px-8 py-2.5 bg-[#39424e] dark:bg-white hover:bg-black dark:hover:bg-gray-200 text-white dark:text-black font-bold text-[14px] rounded-[3px] shadow-sm transition-all flex items-center gap-2"
+                                >
+                                    Next Section
+                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                </button>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="px-10 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-[14px] rounded-[3px] shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Check className="w-4 h-4" />
+                                    )}
+                                    {submitLabel}
+                                </button>
+                            )}
                         </div>
-
-                        {currentStep < totalSteps ? (
-                            <button
-                                type="button"
-                                onClick={handleNext}
-                                className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:bg-gray-700 dark:hover:bg-gray-100 transition-all"
-                            >
-                                Continue <ChevronRight className="w-4 h-4" />
-                            </button>
-                        ) : (
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-all disabled:opacity-60 shadow-lg shadow-orange-200 dark:shadow-orange-900/30"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <><Check className="w-4 h-4" />{submitLabel}</>
-                                )}
-                            </button>
-                        )}
                     </div>
                 </div>
             </form>

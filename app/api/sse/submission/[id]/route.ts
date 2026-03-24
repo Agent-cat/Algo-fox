@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -9,10 +9,12 @@ export async function GET(
     req: NextRequest,
     context: { params: Promise<{ id: string }> } // Explicit type for params
 ) {
+    await connection();
+    const headersList = await headers();
     const { id: submissionId } = await context.params;
 
     const session = await auth.api.getSession({
-        headers: await headers()
+        headers: headersList
     });
 
     if (!session || !session.user) {

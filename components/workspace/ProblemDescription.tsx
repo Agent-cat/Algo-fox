@@ -122,7 +122,7 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
     return (
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212]">
             {/* HEADER TABS */}
-            <div className={`flex items-center gap-1 border-b border-gray-200/80 dark:border-[#1e1e1e] px-3 py-2 ${contestId ? 'bg-orange-50/30 dark:bg-orange-500/5' : 'bg-gray-50/30 dark:bg-[#121212]'}`}>
+            <div className={`flex items-center gap-1 border-b border-gray-200/80 dark:border-[#1e1e1e] px-3 py-2 bg-[#fafafa] dark:bg-[#121212]`}>
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <motion.button
