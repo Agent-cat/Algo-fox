@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import dynamic from "next/dynamic";
 import {
   AlignLeft,
@@ -68,7 +68,7 @@ interface CodeEditorProps {
 
 const AUTOSAVE_DELAY = 1000; // 1 second
 
-export default function CodeEditor({
+const CodeEditor = memo(({
   onChange,
   onLanguageChange,
   defaultValue,
@@ -82,7 +82,7 @@ export default function CodeEditor({
   onOpenSettings,
   userId = "",
   fileTabs,
-}: CodeEditorProps) {
+}: CodeEditorProps) => {
   // Get system theme
   const { resolvedTheme } = useTheme();
 
@@ -917,4 +917,6 @@ export default function CodeEditor({
       />
     </div>
   );
-}
+});
+
+export default CodeEditor;

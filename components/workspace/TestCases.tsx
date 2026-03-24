@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, memo } from 'react';
 import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { ProblemTestCase, TestCase } from '@prisma/client';
 import PeerComparisonCard from '@/components/analytics/PeerComparisonCard';
@@ -16,6 +16,8 @@ interface TestCasesProps {
     mode?: "RUN" | "SUBMIT" | null;
     status?: string | null;
     problemId?: string;
+    isCollapsed: boolean;
+    onToggleCollapse: () => void;
 }
 
 const tabButtonVariants = {
@@ -50,7 +52,7 @@ const bannerVariants: Variants = {
     }
 };
 
-export default function TestCases({
+const TestCases = memo(({
     cases,
     customCases = [],
     onAddCustomCase,
@@ -59,10 +61,11 @@ export default function TestCases({
     results,
     mode,
     status,
-    problemId
-}: TestCasesProps) {
+    isCollapsed,
+    onToggleCollapse,
+    problemId,
+}: TestCasesProps) => {
     const [activeTab, setActiveTab] = useState<number | "console">(0);
-    const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Check if there's any compilation error or error message
     const hasError = useMemo(() => {
@@ -172,12 +175,14 @@ export default function TestCases({
         }
     }, [hasError, results]);
 
-    // Auto-expand when results come in
+    // AUTO-EXPAND handled by parent (Workspace) via handleSubmission
+    /*
     useEffect(() => {
         if (results && results.length > 0) {
             setIsCollapsed(false);
         }
     }, [results]);
+    */
 
     // Calculate runtime and memory
     const { submissionRuntime, submissionMemory } = useMemo(() => {
@@ -219,8 +224,8 @@ export default function TestCases({
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] border-t border-gray-200/80 dark:border-[#1e1e1e]">
             {/* Header - Always visible, acts as toggle */}
             <motion.div
-                className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#0d0d0d] border-b border-gray-100/80 dark:border-[#1a1a1a] cursor-pointer select-none group"
-                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#0d0d0d] border-b border-gray-100/80 dark:border-[#1a1a1a] cursor-pointer select-none group h-10 shrink-0"
+                onClick={onToggleCollapse}
                 whileTap={{ scale: 0.998 }}
             >
                 <div className="flex items-center gap-3">
@@ -760,4 +765,6 @@ export default function TestCases({
             </AnimatePresence>
         </div>
     );
-}
+});
+
+export default TestCases;

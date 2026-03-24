@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LayoutGrid, List, LogOut, ShieldAlert } from "lucide-react";
@@ -14,7 +14,7 @@ interface ContestSidebarProps {
     solvedProblemIds: string[];
 }
 
-export default function ContestSidebar({ contest, currentProblemId, solvedProblemIds }: ContestSidebarProps) {
+const ContestSidebar = memo(({ contest, currentProblemId, solvedProblemIds }: ContestSidebarProps) => {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(true);
     const [visitedProblemIds, setVisitedProblemIds] = useState<string[]>([]);
@@ -195,4 +195,6 @@ export default function ContestSidebar({ contest, currentProblemId, solvedProble
             )}
         </div>
     );
-}
+});
+
+export default ContestSidebar;

@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import Submissions from './Submissions';
 import { getPointsLabel } from '@/lib/points';
 import { CommentTree } from '../problems/discussion/CommentTree';
-import { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import { remarkSolutionDirective, remarkMcqDirective } from "@/lib/markdown-plugins";
@@ -74,7 +74,7 @@ const staggerItem: Variants = {
     }
 };
 
-export default function ProblemDescription({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug }: ProblemDescriptionProps) {
+const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug }: ProblemDescriptionProps) => {
     const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
     const router = useRouter();
 
@@ -406,6 +406,8 @@ export default function ProblemDescription({ problem, activeTab, onTabChange, is
                     )}
                 </AnimatePresence>
             </div>
-        </div >
+        </div>
     );
-}
+});
+
+export default ProblemDescription;

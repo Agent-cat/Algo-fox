@@ -19,7 +19,7 @@ const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     ssr: false // Client-side specific interaction
 });
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getParticipationStatus } from '@/actions/contest';
 import EditorSettingsModal from './EditorSettingsModal';
@@ -274,6 +274,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
 
+
     // Custom Test Cases state
     const [customTestCases, setCustomTestCases] = useState<{ input: string; output: string }[]>([]);
 
@@ -308,6 +309,31 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         isHydrated: verticalHydrated
     } = usePersistentSplit('algofox_workspace_vertical_split', [60, 40]);
 
+    const [isTestCasesCollapsed, setIsTestCasesCollapsed] = useState(false);
+
+    // Toggle test cases pane
+    const toggleTestCases = useCallback(() => {
+        setIsTestCasesCollapsed(prev => {
+            const nextVal = !prev;
+            if (nextVal) {
+                // Collapse: Editor takes almost everything
+                setVerticalSizesProgrammatically([95.5, 4.5]);
+            } else {
+                // Expand: Reset to default
+                setVerticalSizesProgrammatically([60, 40]);
+            }
+            return nextVal;
+        });
+    }, [setVerticalSizesProgrammatically]);
+
+    // Sync isTestCasesCollapsed based on manual drag
+    useEffect(() => {
+        if (verticalHydrated) {
+            if (verticalSizes[1] < 10) setIsTestCasesCollapsed(true);
+            else setIsTestCasesCollapsed(false);
+        }
+    }, [verticalSizes, verticalHydrated]);
+
     // Solved Problem IDs State (for Sidebar & Optimistic Updates)
     const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
 
@@ -334,10 +360,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             return;
         }
 
-        // AUTO-EXPAND: Check if TestCases pane is collapsed (e.g., < 5%)
-        // Vertical split sizes are [Editor%, TestCases%]
-        // If TestCases is too small, reset to default [60, 40]
-        if (verticalSizes[1] < 5) {
+        // AUTO-EXPAND
+        if (isTestCasesCollapsed || verticalSizes[1] < 5) {
+            setIsTestCasesCollapsed(false);
             setVerticalSizesProgrammatically([60, 40]);
         }
 
@@ -497,7 +522,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     className="split-vertical flex flex-col h-full"
                     direction="vertical"
                     sizes={verticalSizes}
-                    minSize={0} // Allow collapsing fully if needed
+                    minSize={[100, 40]} // Guarantee header remains visible at bottom
                     gutterSize={4}
                     onDragEnd={setVerticalSizes}
                 >
@@ -533,6 +558,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             status={submissionStatus}
                             mode={submissionMode}
                             problemId={problem.id}
+                            isCollapsed={isTestCasesCollapsed}
+                            onToggleCollapse={toggleTestCases}
                         />
                     </div>
                 </Split>
@@ -626,6 +653,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     .split-vertical {
                         display: flex;
                         flex-direction: column;
+                    }
+                    .split-vertical > div {
+                        transition: flex-basis 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    }
+                    .split-vertical > .gutter-vertical {
+                        transition: top 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                     }
                     .gutter {
                         background-color: transparent;

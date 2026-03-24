@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition, memo } from "react";
 import { getRandomProblem } from "@/actions/problems";
 import { ProblemType, ProblemDomain } from "@prisma/client";
 import {
@@ -68,6 +68,51 @@ function ThemeToggleButton() {
   );
 }
 
+const ContestTimer = memo(({ endTime, contestId }: { endTime: string | Date; contestId: string }) => {
+    const [timeLeft, setTimeLeft] = useState<string>("");
+    const notifiedMins = useRef<Set<number>>(new Set());
+
+    useEffect(() => {
+        const targetDate = new Date(endTime);
+        const updateTimer = () => {
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
+            if (diff <= 0) {
+                setTimeLeft("00:00:00");
+                return;
+            }
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            setTimeLeft(`${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+            const totalMinutes = Math.floor(diff / (1000 * 60));
+            if ([30, 10, 5, 1].includes(totalMinutes) && !notifiedMins.current.has(totalMinutes)) {
+                toast.warning(`${totalMinutes} minute${totalMinutes > 1 ? 's' : ''} remaining!`, {
+                    description: "Make sure to submit your work before the time expires.",
+                    duration: 10000,
+                });
+                notifiedMins.current.add(totalMinutes);
+            }
+        };
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [endTime]);
+
+    if (!timeLeft) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center px-4 py-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#262626] ml-4 transition-colors"
+        >
+            <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5 whitespace-nowrap">Time Left</span>
+            <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 leading-none tabular-nums">{timeLeft}</span>
+        </motion.div>
+    );
+});
+
 interface WorkspaceHeaderProps {
   onSubmit: () => void;
   onRun: () => void;
@@ -82,7 +127,7 @@ interface WorkspaceHeaderProps {
   onToggleSidebar?: () => void;
 }
 
-export default function WorkspaceHeader({
+const WorkspaceHeader = memo(({
   onSubmit,
   onRun,
   isSubmitting,
@@ -94,14 +139,12 @@ export default function WorkspaceHeader({
   domain,
   type,
   onToggleSidebar
-}: WorkspaceHeaderProps) {
+}: WorkspaceHeaderProps) => {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [isRandomizing, startRandomizing] = useTransition();
   const profileRef = useRef<HTMLDivElement>(null);
-  const [timeLeft, setTimeLeft] = useState<string>("");
-  const notifiedMins = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -117,43 +160,6 @@ export default function WorkspaceHeader({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  useEffect(() => {
-    if (!contestId || !endTime) return;
-
-    const targetDate = new Date(endTime);
-
-    const updateTimer = () => {
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setTimeLeft("00:00:00");
-        return;
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeLeft(
-        `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-      );
-
-      const totalMinutes = Math.floor(diff / (1000 * 60));
-      if ([30, 10, 5, 1].includes(totalMinutes) && !notifiedMins.current.has(totalMinutes)) {
-        toast.warning(`${totalMinutes} minute${totalMinutes > 1 ? 's' : ''} remaining!`, {
-          description: "Make sure to submit your work before the time expires.",
-          duration: 10000,
-        });
-        notifiedMins.current.add(totalMinutes);
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [contestId, endTime]);
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -330,15 +336,8 @@ export default function WorkspaceHeader({
           </>
         )}
 
-        {contestId && timeLeft && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center px-4 py-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#262626] ml-4 transition-colors"
-          >
-            <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5">Time Left</span>
-            <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 leading-none tabular-nums">{timeLeft}</span>
-          </motion.div>
+        {contestId && endTime && (
+            <ContestTimer contestId={contestId} endTime={endTime} />
         )}
       </div>
 
@@ -437,4 +436,6 @@ export default function WorkspaceHeader({
       </div>
     </motion.div>
   );
-}
+});
+
+export default WorkspaceHeader;
