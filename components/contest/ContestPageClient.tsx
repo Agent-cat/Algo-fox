@@ -16,24 +16,13 @@ export function ContestPageClient({ internalContests, externalContests }: Contes
     const [viewMode, setViewMode] = useState<"internal" | "calendar">("internal");
 
     return (
-        <div className="min-h-screen dark:bg-[#121212] pb-20 pt-12">
+        <div className="min-h-screen dark:bg-[#121212] pb-20 pt-4">
              {/* Header */}
-             <div className="relative mb-12 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-100 dark:border-[#262626] pb-32 overflow-hidden">
+             <div className="relative mb-0 bg-[#fafafa] dark:bg-[#121212] pb-8 overflow-hidden">
                 <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
 
                 <div className="max-w-[1800px] mx-auto px-8 relative z-10">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        {/* Hidden spacer to balance flex */}
-                         <div className="hidden md:block w-[300px]" />
-
-                        <div className="relative group cursor-default">
-                            <div className="absolute -inset-1 rounded-full"></div>
-                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-[#fafafa] dark:bg-[#121212] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
-                                <Trophy className="w-4 h-4" />
-                                Competition Arena
-                            </div>
-                        </div>
-
+                    <div className="flex flex-col md:flex-row items-center justify-end gap-6">
                          {/* View Toggle - Positioned right */}
                          <div className="w-full md:w-[300px] flex justify-center md:justify-end">
                              <div className="bg-white/80 dark:bg-[#141414]/80 backdrop-blur-md p-1 rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm flex items-center gap-1">
@@ -84,7 +73,7 @@ export function ContestPageClient({ internalContests, externalContests }: Contes
                 </div>
             </div>
 
-            <div className="max-w-[1800px] mx-auto px-8 relative -mt-8">
+            <div className="max-w-[1800px] mx-auto px-8 relative">
                 <AnimatePresence mode="wait">
                     {viewMode === "internal" ? (
                         <motion.div

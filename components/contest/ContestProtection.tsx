@@ -75,19 +75,29 @@ export default function ContestProtection({
 
   // Ref to track fullscreen needs for event listeners (avoids stale closures)
   const needsFullscreenRef = useRef(false);
+  const isPermanentlyBlockedRef = useRef(false);
+  const showWarningPopupRef = useRef(false);
 
   useEffect(() => {
     needsFullscreenRef.current = needsFullscreen;
   }, [needsFullscreen]);
+
+  useEffect(() => {
+    showWarningPopupRef.current = showWarningPopup;
+  }, [showWarningPopup]);
+
+  useEffect(() => {
+    isPermanentlyBlockedRef.current = violations.permanentlyBlocked;
+  }, [violations.permanentlyBlocked]);
 
   // Global debounce - only ONE violation allowed every 2 seconds
   const canLogViolation = useCallback(() => {
     const now = Date.now();
     if (paused) return false;
 
-    // If already processing or locked - DO NOT log more violations
+    // If already processing or permanently blocked - DO NOT log more violations
     if (isProcessingViolation.current) return false;
-    if (isEditorLocked) return false;
+    if (isPermanentlyBlockedRef.current) return false;
     // NOTE: We allow logging even if showWarningPopup is true (e.g. for tab switching while popup is open)
     // Violations are logged even during temp block to allow escalation to permanent block
 
@@ -95,7 +105,7 @@ export default function ContestProtection({
     if (now - lastViolationTime.current < 2000) return false;
 
     return true;
-  }, [isEditorLocked, paused]);
+  }, [paused]);
 
   // Log violation to server and update state
   const handleViolation = useCallback(
@@ -397,8 +407,8 @@ export default function ContestProtection({
       if (
         paused ||
         isProcessingViolation.current ||
-        isEditorLocked ||
-        showWarningPopup ||
+        isPermanentlyBlockedRef.current ||
+        showWarningPopupRef.current ||
         needsFullscreenRef.current
       )
         return;
@@ -592,27 +602,19 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-[560px] rounded-2xl overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
             style={{
               animation: 'cp-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03) inset',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
             }}
           >
-            {/* Top accent line */}
-            <div
-              className="h-[3px] w-full"
-              style={{
-                background: violations.permanentlyBlocked
-                  ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 50%, #ef4444 100%)'
-                  : 'linear-gradient(90deg, #f97316 0%, #f59e0b 50%, #f97316 100%)',
-              }}
-            />
+
 
             <div className="px-6 pt-6 pb-2">
               {/* Icon + Title Row */}
               <div className="flex items-center gap-4 mb-1">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  className={`w-10 h-10 rounded-none flex items-center justify-center shrink-0 ${
                     violations.permanentlyBlocked
                       ? 'bg-red-500/10 dark:bg-red-500/15'
                       : 'bg-orange-500/10 dark:bg-orange-500/15'
@@ -651,7 +653,7 @@ export default function ContestProtection({
 
             {/* Timer Section */}
             {tempBlockTimeLeft > 0 && (
-              <div className="mx-6 mt-4 mb-2 p-5 rounded-xl bg-gray-50 dark:bg-[#1c1c1f] border border-gray-100 dark:border-[#2a2a2e]">
+              <div className="mx-6 mt-4 mb-2 p-5 rounded-none bg-gray-50 dark:bg-[#1c1c1f] border border-gray-100 dark:border-[#2a2a2e]">
                 <div className="text-[10px] font-medium text-gray-400 dark:text-[#666] uppercase tracking-[0.15em] text-center mb-2">
                   Resumes in
                 </div>
@@ -664,72 +666,26 @@ export default function ContestProtection({
               </div>
             )}
 
-            {/* Warning Dots + Progress */}
-            {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 && (
-              <div className="mx-6 mt-4 mb-2">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-[11px] font-medium text-gray-400 dark:text-[#666]">
-                    Warnings
-                  </span>
-                  <span className="text-[11px] font-semibold text-gray-600 dark:text-[#999]">
-                    {violations.total} of {MAX_WARNINGS}
-                  </span>
-                </div>
-                {/* Segmented dots */}
-                <div className="flex gap-1.5">
-                  {Array.from({ length: MAX_WARNINGS }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 h-2 rounded-full transition-all duration-500"
-                      style={{
-                        background:
-                          i < violations.total
-                            ? violations.total >= 4
-                              ? '#ef4444'
-                              : '#f97316'
-                            : 'rgba(0,0,0,0.06)',
-                        boxShadow:
-                          i < violations.total
-                            ? violations.total >= 4
-                              ? '0 0 8px rgba(239,68,68,0.3)'
-                              : '0 0 8px rgba(249,115,22,0.2)'
-                            : 'none',
-                      }}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center justify-between mt-1.5">
-                  <span className="text-[10px] text-gray-300 dark:text-[#444]">Safe</span>
-                  <span className={`text-[10px] font-medium ${violations.total >= 4 ? 'text-red-500' : 'text-orange-400'}`}>
-                    {violations.total >= 4 ? 'Critical' : violations.total >= 2 ? 'Caution' : ''}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Divider */}
-            <div className="mx-6 h-px bg-gray-100 dark:bg-[#2a2a2e] my-2" />
-
             {/* Action */}
             <div className="px-6 pb-5 pt-3">
               {!violations.permanentlyBlocked && tempBlockTimeLeft <= 0 ? (
                 <button
                   onClick={handleDismissWarning}
-                  className="w-full py-3 rounded-xl text-[13px] font-semibold text-white bg-gray-900 dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 active:scale-[0.98]"
+                  className="w-full py-3 rounded-none text-[13px] font-semibold text-white bg-gray-900 dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 active:scale-[0.98]"
                 >
                   Continue
                 </button>
               ) : tempBlockTimeLeft > 0 ? (
                 <button
                   disabled
-                  className="w-full py-3 rounded-xl text-[13px] font-semibold text-gray-400 dark:text-[#555] bg-gray-100 dark:bg-[#1c1c1f] cursor-not-allowed border border-gray-200 dark:border-[#2a2a2e]"
+                  className="w-full py-3 rounded-none text-[13px] font-semibold text-gray-400 dark:text-[#555] bg-gray-100 dark:bg-[#1c1c1f] cursor-not-allowed border border-gray-200 dark:border-[#2a2a2e]"
                 >
                   Locked
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full py-3 rounded-xl text-[13px] font-semibold text-red-500/80 bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 cursor-not-allowed"
+                  className="w-full py-3 rounded-none text-[13px] font-semibold text-red-500/80 bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 cursor-not-allowed"
                 >
                   Contact Administrator
                 </button>
@@ -753,38 +709,25 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-[520px] rounded-2xl overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
             style={{
               animation: 'cp-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
             }}
           >
-            {/* Animated scan line */}
-            <div className="h-[3px] w-full overflow-hidden relative">
-              <div
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b)' }}
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)',
-                  animation: 'cp-scan-line 2s ease-in-out infinite',
-                }}
-              />
-            </div>
+
 
             <div className="p-8 flex flex-col items-center text-center">
               {/* Shield Icon */}
               <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-orange-500/10 dark:bg-orange-500/15"
+                className="w-16 h-16 rounded-none flex items-center justify-center mb-6 bg-orange-500/10 dark:bg-orange-500/15"
                 style={{ animation: 'cp-glow-pulse 3s ease-in-out infinite' }}
               >
                 <ShieldX className="w-8 h-8 text-orange-500" />
               </div>
 
               {/* Tag */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/8 dark:bg-orange-500/10 border border-orange-500/15 mb-4">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-orange-500/8 dark:bg-orange-500/10 border border-orange-500/15 mb-4">
                 <Monitor className="w-3 h-3 text-orange-500" />
                 <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
                   Fullscreen Required
@@ -800,7 +743,7 @@ export default function ContestProtection({
 
               <button
                 onClick={handleReEnterFullscreen}
-                className="w-full py-3.5 rounded-xl text-[13px] font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 flex items-center justify-center gap-2.5 group active:scale-[0.98]"
+                className="w-full py-3.5 rounded-none text-[13px] font-semibold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 flex items-center justify-center gap-2.5 group active:scale-[0.98]"
                 style={{
                   boxShadow: '0 4px 16px rgba(249,115,22,0.25)',
                 }}
@@ -831,11 +774,6 @@ export default function ContestProtection({
         <span className="text-[11px] text-gray-600 dark:text-[#999] font-medium">
           Proctored
         </span>
-        {violations.total > 0 && (
-          <span className="min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-600 dark:text-orange-400 dark:bg-orange-500/15">
-            {violations.total}
-          </span>
-        )}
       </div>
     </>
   );

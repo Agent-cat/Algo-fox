@@ -89,7 +89,7 @@ export class ContestService {
                 include: {
                     problems: {
                         include: {
-                            problem: { select: { id: true, title: true, score: true, slug: true } }
+                            problem: { select: { id: true, title: true, score: true, slug: true, description: true } }
                         },
                         orderBy: { order: "asc" }
                     }
@@ -121,15 +121,25 @@ export class ContestService {
             const problemScores = new Map<string, number>();
             const problemSolveTimes = new Map<string, number>();
             const problemSubmissionCounts = new Map<string, number>();
+            const problemWrongAttempts = new Map<string, number>();
 
-            userSubs.forEach(s => {
+            // Sort submissions by time to accurately count attempts before solving
+            const sortedSubs = [...userSubs].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+            sortedSubs.forEach(s => {
                 problemSubmissionCounts.set(s.problemId, (problemSubmissionCounts.get(s.problemId) || 0) + 1);
+
                 if (s.status === "ACCEPTED") {
-                    const prob = contest.problems.find(cp => cp.problemId === s.problemId);
-                    const maxScore = prob?.problem.score || 0;
-                    if (maxScore > (problemScores.get(s.problemId) || 0)) {
+                    if (!problemScores.has(s.problemId)) {
+                        const prob = contest.problems.find(cp => cp.problemId === s.problemId);
+                        const maxScore = prob?.problem.score || 0;
                         problemScores.set(s.problemId, maxScore);
                         problemSolveTimes.set(s.problemId, s.createdAt.getTime() - contest.startTime.getTime());
+                    }
+                } else {
+                    // Only count as wrong if not yet solved
+                    if (!problemScores.has(s.problemId)) {
+                        problemWrongAttempts.set(s.problemId, (problemWrongAttempts.get(s.problemId) || 0) + 1);
                     }
                 }
             });
@@ -144,6 +154,7 @@ export class ContestService {
                 score: problemScores.get(cp.problemId) || 0,
                 maxScore: cp.problem.score,
                 submissions: problemSubmissionCounts.get(cp.problemId) || 0,
+                wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
                 solved: problemScores.has(cp.problemId),
                 solvedAt: problemSolveTimes.get(cp.problemId),
             }));
@@ -153,6 +164,7 @@ export class ContestService {
                 score: totalScore,
                 timeTaken: totalTime,
                 problemsSolved: problemScores.size,
+                totalViolations: p.totalViolations,
                 problemStats,
                 ipAddress: p.ipAddress
             };
@@ -164,6 +176,7 @@ export class ContestService {
             problems: contest.problems.map(cp => ({
                 id: cp.problemId,
                 title: cp.problem.title,
+                description: cp.problem.description,
                 slug: cp.problem.slug,
                 maxScore: cp.problem.score
             }))

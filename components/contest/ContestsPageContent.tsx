@@ -34,13 +34,13 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
     return (
         <div className="space-y-12 pb-24">
             {/* Filters Bar */}
-            <div className="sticky top-4 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-200 dark:border-[#262626] p-2 rounded-2xl shadow-lg shadow-gray-200/20 dark:shadow-none max-w-4xl mx-auto -mt-24 mb-12">
+            <div className="sticky top-4 z-40 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-xl border border-gray-100 dark:border-white/10 p-1.5 rounded-xl shadow-2xl dark:shadow-none max-w-4xl mx-auto -mt-4 mb-12">
                 <div className="flex flex-col md:flex-row gap-2">
                     {/* Tab Switcher */}
-                    <div className="flex bg-gray-100 dark:bg-[#141414] p-1.5 rounded-xl md:w-fit shrink-0">
+                    <div className="flex bg-gray-50 dark:bg-[#1a1a1a] p-1 rounded-lg md:w-fit shrink-0">
                         <button
                             onClick={() => setActiveTab("active")}
-                             className={`flex-1 md:flex-none px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === "active"
+                             className={`flex-1 md:flex-none px-6 py-2 rounded-md text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === "active"
                                  ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm"
                                  : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                                  }`}
@@ -50,7 +50,7 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
                         </button>
                         <button
                             onClick={() => setActiveTab("past")}
-                             className={`flex-1 md:flex-none px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === "past"
+                             className={`flex-1 md:flex-none px-6 py-2 rounded-md text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeTab === "past"
                                  ? "bg-white dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm"
                                  : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                                  }`}
@@ -65,10 +65,10 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                         <input
                             type="text"
-                            placeholder="Search contests..."
+                            placeholder="Find your challenge..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-[#141414] border border-transparent focus:bg-white dark:focus:bg-[#1a1a1a] focus:border-orange-500/50 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none transition-all"
+                            className="w-full h-full pl-11 pr-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] border border-transparent focus:bg-white dark:focus:bg-[#262626] focus:border-orange-500/50 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none transition-all"
                         />
                     </div>
                 </div>
@@ -91,7 +91,7 @@ export function ContestsPageContent({ contests }: ContestsPageContentProps) {
                         </p>
                     </motion.div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex flex-col gap-4">
                         {filteredContests.map((contest) => (
                             <StudentContestCard key={contest.id} contest={contest} />
                         ))}

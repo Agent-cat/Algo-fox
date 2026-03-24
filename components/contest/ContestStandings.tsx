@@ -5,6 +5,12 @@ import { Trophy, Medal, User, Crown, CheckCircle2, Clock, Hash, ChevronLeft, Che
 import Link from "next/link";
 import { FinalizeContestButton } from "./FinalizeContestButton";
 import { LanguageLogo } from "./LanguageLogo";
+import * as XLSX from "xlsx";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Copy, X } from "lucide-react";
+import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ProblemStat {
     problemId: string;
@@ -13,6 +19,7 @@ interface ProblemStat {
     score: number;
     maxScore: number;
     submissions: number;
+    wrongAttempts: number;
     solved: boolean;
     solvedAt: string | null;
     language: string | null;
@@ -28,11 +35,13 @@ interface ContestStudent {
     timeTaken: number;
     problemStats?: ProblemStat[];
     ipAddress?: string | null;
+    totalViolations?: number;
 }
 
 interface ContestProblem {
     id: string;
     title: string;
+    description?: string | null;
     slug: string;
     maxScore: number;
 }
@@ -50,6 +59,7 @@ const PAGE_SIZE = 50;
 
 export function ContestStandings({ students, currentUserId, contestId, isFinalized = false, userRole, problems = [] }: ContestStandingsProps) {
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedProblem, setSelectedProblem] = useState<ContestProblem | null>(null);
 
     // Check for permissions
     const canFinalize = ["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(userRole || "");
@@ -99,35 +109,34 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                             <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
                             <button
                                 onClick={() => {
-                                    const headers = ["Rank", "Name", "Score", "Time Taken (ms)", "IP Address"];
-                                    problems.forEach((p, i) => headers.push(`Q${i+1} (${p.title})`));
+                                    const rows = students.map((s, idx) => {
+                                            const row: any = {
+                                                "Rank": idx + 1,
+                                                "Name": s.name || "Anonymous",
+                                                "Score": s.score,
+                                                "Time Taken (ms)": s.timeTaken,
+                                                "Total Violations": s.totalViolations || 0,
+                                                "IP Address History": s.ipAddress || ""
+                                            };
 
-                                    const csvRows = [headers.join(",")];
+                                            problems.forEach((p, i) => {
+                                                const stat = s.problemStats?.find(ps => ps.problemId === p.id);
+                                                const score = stat?.solved ? stat.score : 0;
+                                                const wrong = stat?.wrongAttempts || 0;
+                                                row[`Q${i+1} (${p.title})`] = `${score} (${wrong})`;
+                                            });
 
-                                    students.forEach((s, idx) => {
-                                        const rank = idx + 1;
-                                        const name = s.name ? `"${s.name.replace(/"/g, '""')}"` : "Anonymous";
-                                        const row = [rank, name, s.score, s.timeTaken, s.ipAddress || ""];
-
-                                        problems.forEach(p => {
-                                            const stat = s.problemStats?.find(ps => ps.problemId === p.id);
-                                            row.push(stat?.solved ? stat.score : 0);
-                                        });
-
-                                        csvRows.push(row.join(","));
+                                        return row;
                                     });
 
-                                    const blob = new Blob([csvRows.join("\\n")], { type: "text/csv" });
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement("a");
-                                    a.href = url;
-                                    a.download = `contest-${contestId}-results.csv`;
-                                    a.click();
-                                    URL.revokeObjectURL(url);
+                                    const worksheet = XLSX.utils.json_to_sheet(rows);
+                                    const workbook = XLSX.utils.book_new();
+                                    XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+                                    XLSX.writeFile(workbook, `contest-${contestId}-results.xlsx`);
                                 }}
-                                className="px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                                className="px-4 py-1.5 bg-[#1d6f42] hover:bg-[#155331] text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
                             >
-                                Download Results
+                                Download Excel
                             </button>
                         </>
                     )}
@@ -160,10 +169,15 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                     Time
                                 </th>
                                 {problems.map((p, idx) => (
-                                    <th key={p.id} className="px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0">
+                                    <th
+                                        key={p.id}
+                                        onClick={() => setSelectedProblem(p)}
+                                        className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0 transition-colors cursor-pointer hover:bg-orange-500/5 text-gray-400 group/th"
+                                    >
                                         <div className="flex flex-col items-center">
-                                            <span className="mb-1 text-gray-900 dark:text-white">Q{idx + 1}</span>
+                                            <span className="mb-1 text-gray-900 dark:text-white group-hover/th:text-orange-500 transition-colors">Q{idx + 1}</span>
                                             <span className="text-[9px] lowercase font-medium opacity-50 truncate max-w-[100px]">{p.title}</span>
+                                            <span className="text-[8px] font-black opacity-0 group-hover/th:opacity-100 text-orange-500 mt-1 transition-opacity">View Details</span>
                                         </div>
                                     </th>
                                 ))}
@@ -349,17 +363,75 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                 )}
             </div>
 
-            {/* End Indicator for single page */}
-            {totalPages <= 1 && students.length > 5 && (
-                <div className="py-6 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-50/50 dark:bg-[#0d0d0d] border border-gray-100 dark:border-[#1a1a1a] rounded-lg">
-                        <Trophy className="w-3 h-3 text-gray-400" />
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                            Leaderboard Complete
-                        </span>
+            {/* Problem Details Modal */}
+            <AnimatePresence>
+                {selectedProblem && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedProblem(null)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-3xl bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+                        >
+                            {/* Modal Header */}
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gray-50/50 dark:bg-[#141414]/50">
+                                <div className="flex flex-col">
+                                    <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                        Problem Statement
+                                    </h3>
+                                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
+                                        {selectedProblem.title}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(selectedProblem.description || "");
+                                            toast.success("Question description copied!");
+                                        }}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-gray-500 dark:text-gray-400 transition-colors"
+                                        title="Copy description"
+                                    >
+                                        <Copy className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedProblem(null)}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-gray-500 dark:text-gray-400 transition-colors"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                                <article className="prose prose-sm prose-orange dark:prose-invert max-w-none">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {selectedProblem.description || "*No description available.*"}
+                                    </ReactMarkdown>
+                                </article>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-[#141414]/50 flex justify-end">
+                                <button
+                                    onClick={() => setSelectedProblem(null)}
+                                    className="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-lg"
+                                >
+                                    Dismiss
+                                </button>
+                            </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     );
 }

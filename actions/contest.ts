@@ -27,6 +27,32 @@ const contestSchema = z.object({
 
 import { ContestService } from "@/core/services/contest.service";
 
+export async function deleteContest(id: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    const userRole = (session.user as any).role;
+    if (!["ADMIN", "CONTEST_MANAGER"].includes(userRole)) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+        await prisma.contest.delete({
+            where: { id }
+        });
+
+        revalidatePath("/dashboard/contests");
+        revalidatePath("/contests");
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete contest:", error);
+        return { success: false, error: "Failed to delete contest" };
+    }
+}
+
 const contestWithProblemsSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
     slug: z.string().min(3, "Slug must be at least 3 characters"),
@@ -106,11 +132,20 @@ export async function getVisibleContests() {
         if (currentUser.role === "ADMIN") {
             const contests = await prisma.contest.findMany({
                 include: {
-                    _count: { select: { problems: true } }
+                    _count: { select: { problems: true } },
+                    participants: {
+                        where: { userId: currentUser.id },
+                        select: { isFinished: true, acceptedRules: true }
+                    }
                 },
                 orderBy: { startTime: "desc" },
             });
-            return { success: true, contests };
+            const mappedContests = contests.map(c => ({
+                ...c,
+                isParticipating: c.participants.length > 0 && c.participants[0].acceptedRules,
+                isFinished: c.participants.length > 0 && c.participants[0].isFinished
+            }));
+            return { success: true, contests: mappedContests };
         }
 
         const contests = await prisma.contest.findMany({
@@ -138,12 +173,22 @@ export async function getVisibleContests() {
                 ],
             },
             include: {
-                _count: { select: { problems: true } }
+                _count: { select: { problems: true } },
+                participants: {
+                    where: { userId: currentUser.id },
+                    select: { isFinished: true, acceptedRules: true }
+                }
             },
             orderBy: { startTime: "desc" },
         });
 
-        return { success: true, contests };
+        const mappedContests = contests.map(c => ({
+            ...c,
+            isParticipating: c.participants.length > 0 && c.participants[0].acceptedRules,
+            isFinished: c.participants.length > 0 && c.participants[0].isFinished
+        }));
+
+        return { success: true, contests: mappedContests };
     } catch (error) {
         console.error("Failed to fetch contests:", error);
         return { success: false, error: "Failed to fetch contests" };
@@ -902,6 +947,12 @@ export async function startContestSession(contestId: string, password?: string) 
             return { success: false, error: "You have already finished this contest" };
         }
 
+        // Update IP History - append new IP if not already present
+        let ipHistory = existingParticipation?.ipAddress || clientIP;
+        if (existingParticipation?.ipAddress && clientIP && !existingParticipation.ipAddress.includes(clientIP)) {
+            ipHistory = `${existingParticipation.ipAddress}, ${clientIP}`;
+        }
+
         // Update or create participation with new session and record the IP
         const participation = await prisma.contestParticipation.upsert({
             where: {
@@ -914,7 +965,7 @@ export async function startContestSession(contestId: string, password?: string) 
                 sessionId,
                 sessionStartedAt: now,
                 acceptedRules: true,
-                ipAddress: clientIP
+                ipAddress: ipHistory
             },
             create: {
                 userId: session.user.id,

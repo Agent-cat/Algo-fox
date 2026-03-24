@@ -145,7 +145,7 @@ export default function ContestEntryModal({
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-2xl rounded-[40px] shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-3xl rounded-none shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Progress / Navigation Header */}
         <div className="px-8 pt-8 flex items-center justify-between">
@@ -186,7 +186,7 @@ export default function ContestEntryModal({
                 <div
                     key={i}
                     className={cn(
-                        "h-1 rounded-full transition-all duration-300",
+                        "h-1 rounded-none transition-all duration-300",
                         isActive ? "w-8 bg-orange-600" : isCompleted ? "w-2 bg-orange-200 dark:bg-orange-900" : "w-2 bg-gray-100 dark:bg-[#262626]"
                     )}
                 />
@@ -205,7 +205,7 @@ export default function ContestEntryModal({
           {step === "PASSWORD" && (
             <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
               <div className="mb-8">
-                <div className="w-12 h-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center mb-6">
+                <div className="w-12 h-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-none flex items-center justify-center mb-6">
                     <Lock className="w-6 h-6 text-gray-900 dark:text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Private Contest</h2>
@@ -220,7 +220,7 @@ export default function ContestEntryModal({
                     onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
                     placeholder="Password"
                     autoFocus
-                    className="w-full bg-gray-50 dark:bg-[#141414] border-gray-200 dark:border-[#262626] rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-300 dark:text-white dark:placeholder:text-gray-700"
+                    className="w-full bg-gray-50 dark:bg-[#141414] border-gray-200 dark:border-[#262626] rounded-none px-4 py-4 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-300 dark:text-white dark:placeholder:text-gray-700"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export default function ContestEntryModal({
                 <button
                     onClick={handleVerifyPassword}
                     disabled={!password || isLoading}
-                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-none font-bold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     {isLoading ? "Verifying..." : "Continue"}
                     {!isLoading && <ArrowRight className="w-4 h-4" />}
@@ -249,8 +249,8 @@ export default function ContestEntryModal({
                   {RULES.map((rule, idx) => {
                       const Icon = rule.icon;
                       return (
-                          <div key={idx} className="p-5 bg-gray-50/50 dark:bg-[#111] border border-gray-100 dark:border-[#1e1e1e] rounded-[24px] group hover:border-orange-500/30 transition-all duration-300">
-                              <div className="w-10 h-10 shrink-0 rounded-2xl bg-white dark:bg-[#1a1a1a] flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                          <div key={idx} className="p-5 bg-gray-50/50 dark:bg-[#111] border border-gray-100 dark:border-[#1e1e1e] rounded-none group hover:border-orange-500/30 transition-all duration-300">
+                              <div className="w-10 h-10 shrink-0 rounded-none bg-white dark:bg-[#1a1a1a] flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
                                   <Icon className="w-5 h-5 text-gray-900 dark:text-orange-500" />
                               </div>
                               <div>
@@ -265,7 +265,7 @@ export default function ContestEntryModal({
                <div className="mt-auto pt-8">
                 <button
                     onClick={() => setStep("CONFIRM")}
-                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold text-sm tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-4 rounded-none font-bold text-sm tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                 >
                     I Understand
                     <ArrowRight className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function ContestEntryModal({
                 </button>
 
                 <div className="text-center mb-8">
-                   <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 mx-auto rounded-full flex items-center justify-center mb-6 animate-pulse">
+                   <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 mx-auto rounded-none flex items-center justify-center mb-6 animate-pulse">
                         <Shield className="w-8 h-8 text-orange-600 dark:text-orange-500" />
                    </div>
                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ready to Start?</h2>
@@ -295,14 +295,14 @@ export default function ContestEntryModal({
                    </p>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl p-4 mb-6">
+                <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-none p-4 mb-6">
                     <label className="flex items-start gap-3 cursor-pointer">
                         <div className="relative flex items-center mt-0.5">
                             <input
                                 type="checkbox"
                                 checked={agreed}
                                 onChange={(e) => setAgreed(e.target.checked)}
-                                className="peer h-5 w-5 appearance-none rounded-md border-2 border-gray-300 dark:border-gray-600 checked:border-orange-500 checked:bg-orange-500 transition-all"
+                                className="peer h-5 w-5 appearance-none rounded-none border-2 border-gray-300 dark:border-gray-600 checked:border-orange-500 checked:bg-orange-500 transition-all"
                             />
                             <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" />
                         </div>
@@ -316,7 +316,7 @@ export default function ContestEntryModal({
                     <button
                         onClick={handleStartContest}
                         disabled={!agreed || isLoading}
-                        className="w-full bg-linear-to-r from-orange-600 to-orange-500 text-white py-4 rounded-xl font-bold text-sm tracking-wide hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-linear-to-r from-orange-600 to-orange-500 text-white py-4 rounded-none font-bold text-sm tracking-wide hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isLoading ? (
                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
