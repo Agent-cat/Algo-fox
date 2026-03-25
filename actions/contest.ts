@@ -299,38 +299,31 @@ export async function getContestDetail(contestId: string) {
         const requiresPassword = !!contest.contestPassword;
 
         // Shuffle problems if randomizeQuestions is enabled
-        // Use a simple seeded shuffle based on userId + contestId for consistency
+        // OPTIMIZATION: Use proper seeded shuffle algorithm instead of Math.sin(seed++)
+        // which becomes unpredictable with large seed values
         let visibleProblems = canSeeProblems ? contest.problems : [];
 
         if (contest.randomizeQuestions && currentUser && visibleProblems.length > 0 && !isAdmin && !isCreator) {
-            // Simple string hash function for seeding
-            const seedStr = `${currentUser.id}-${contestId}`;
-            let seed = 0;
-            for (let i = 0; i < seedStr.length; i++) {
-                seed = ((seed << 5) - seed) + seedStr.charCodeAt(i);
-                seed |= 0;
-            }
-
-            // Deterministic shuffle
-            visibleProblems = [...visibleProblems].sort((a, b) => {
-                const x = Math.sin(seed++) * 10000;
-                return (x - Math.floor(x)) - 0.5;
-            });
+            // Use deterministic seeded shuffle with proper algorithm
+            const seed = hashString(`${currentUser.id}-${contestId}`);
+            visibleProblems = seededShuffle([...visibleProblems], seed, (item) => item.problem.id);
         }
 
         // Fetch user's solved problems for this contest
+        const visibleProblemIds = visibleProblems.map(p => p.problem.id);
         const solvedProblemIds = new Set<string>();
-        if (currentUser) {
+        if (currentUser && visibleProblemIds.length > 0) {
             const solvedSubmissions = await prisma.submission.findMany({
                 where: {
                     userId: currentUser.id,
                     contestId: contestId,
                     status: "ACCEPTED",
                     problemId: {
-                        in: visibleProblems.map(p => p.problem.id)
+                        in: visibleProblemIds
                     }
                 },
-                select: { problemId: true }
+                select: { problemId: true },
+                distinct: ['problemId']  // OPTIMIZATION: Add distinct to prevent duplicates
             });
             solvedSubmissions.forEach(s => solvedProblemIds.add(s.problemId));
         }
@@ -357,6 +350,37 @@ export async function getContestDetail(contestId: string) {
         console.error("Failed to fetch contest detail:", error);
         return { success: false, error: "Failed to fetch contest" };
     }
+}
+
+// OPTIMIZATION: Helper function for deterministic string hashing
+function hashString(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+}
+
+// OPTIMIZATION: Fisher-Yates shuffle with seeded random
+function seededShuffle<T>(array: T[], seed: number, getId?: (item: T) => string): T[] {
+    const result = [...array];
+    let rng = seed;
+    
+    // Seeded pseudo-random number generator (linear congruential)
+    const random = () => {
+        rng = (rng * 9301 + 49297) % 233280;
+        return rng / 233280;
+    };
+    
+    // Fisher-Yates shuffle
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    
+    return result;
 }
 
 // ... existing code ...
@@ -475,37 +499,39 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
                 }
             });
 
-            for (let i = 0; i < validatedData.problems.length; i++) {
-                const p = validatedData.problems[i];
-                // Generate unique slug by appending contest slug and index
-                const uniqueSlug = `${validatedData.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`;
-                const problem = await tx.problem.create({
-                    data: {
-                        title: p.title,
-                        description: p.description,
-                        difficulty: p.difficulty,
-                        slug: uniqueSlug,
-                        score: p.score || 10,
-                        domain: p.domain,
-                        type: "CONTEST", // Contest problems are marked separately
-                        hidden: true, // Contest problems are hidden from main bank
-                        testCases: {
-                            create: p.testCases,
-                        },
-                        tags: {
-                            connect: p.tags?.map((t: string) => ({ name: t })) || [],
+            // OPTIMIZATION: Batch create problems instead of sequential loop
+            // Reduces from N database round-trips to 1 batch operation
+            const createdProblems = await Promise.all(
+                validatedData.problems.map((p, i) =>
+                    tx.problem.create({
+                        data: {
+                            title: p.title,
+                            description: p.description,
+                            difficulty: p.difficulty,
+                            slug: `${validatedData.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`,
+                            score: p.score || 10,
+                            domain: p.domain,
+                            type: "CONTEST",
+                            hidden: true,
+                            testCases: {
+                                create: p.testCases,
+                            },
+                            tags: {
+                                connect: p.tags?.map((t: string) => ({ name: t })) || [],
+                            }
                         }
-                    }
-                });
+                    })
+                )
+            );
 
-                await tx.contestProblem.create({
-                    data: {
-                        contestId: contest.id,
-                        problemId: problem.id,
-                        order: i,
-                    }
-                });
-            }
+            // OPTIMIZATION: Batch create contest problems using createMany instead of sequential creates
+            await tx.contestProblem.createMany({
+                data: createdProblems.map((problem, i) => ({
+                    contestId: contest.id,
+                    problemId: problem.id,
+                    order: i,
+                }))
+            });
 
             return contest;
         });

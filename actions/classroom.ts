@@ -350,8 +350,30 @@ export async function getClassroomWithStudents(
                             select: {
                                 id: true,
                                 name: true,
+                                collegeId: true,
                                 totalScore: true,
                                 image: true,
+                                codeChefHandle: true,
+                                leetCodeHandle: true,
+                                codeforcesHandle: true,
+                                leetCodeRating: true,
+                                leetCodeSolved: true,
+                                leetCodeContests: true,
+                                codeforcesRating: true,
+                                codeforcesSolved: true,
+                                codeforcesContests: true,
+                                codeChefRating: true,
+                                codeChefSolved: true,
+                                codeChefContests: true,
+                                updatedAt: true,
+                                _count: {
+                                    select: {
+                                        submissions: {
+                                            where: { status: "ACCEPTED" }
+                                        },
+                                        contestParticipations: true
+                                    }
+                                }
                             },
                             orderBy: { totalScore: "desc" },
                             skip,

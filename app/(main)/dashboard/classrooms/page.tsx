@@ -33,7 +33,7 @@ async function ClassroomsData() {
 
 export default function ClassroomsPage() {
     return (
-        <div className="min-h-screen dark:bg-[#121212] pt-12">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] pt-12">
             {/* Header */}
             <div className="relative mb-12 bg-[#fafafa] dark:bg-[#121212]   dark:border-[#262626]  overflow-hidden">
                 <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>

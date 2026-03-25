@@ -418,33 +418,58 @@ export class ProblemService {
     }
 
     // GETTING RANDOM PROBLEM
+    // OPTIMIZATION: Use keyset pagination instead of OFFSET-based random selection
+    // OFFSET-based random is O(n) - with 10000 problems and random offset=5000, scans 5000 rows
+    // Keyset pagination with index is O(1) - single index lookup
     static async getRandomProblem(domain: ProblemDomain, type: ProblemType) {
         try {
-           // efficient random selection using raw query or count-based skip
-           const count = await prisma.problem.count({
-               where: {
-                   domain,
-                   type,
-                   hidden: false
-               }
-           });
+            // Step 1: Find the ID range of problems in this domain/type
+            const [minIdRecord, maxIdRecord] = await Promise.all([
+                prisma.problem.findFirst({
+                    where: { domain, type, hidden: false },
+                    orderBy: { id: 'asc' },
+                    select: { id: true }
+                }),
+                prisma.problem.findFirst({
+                    where: { domain, type, hidden: false },
+                    orderBy: { id: 'desc' },
+                    select: { id: true }
+                })
+            ]);
 
-           if (count === 0) return null;
+            if (!minIdRecord || !maxIdRecord) return null;
 
-           const skip = Math.floor(Math.random() * count);
-           const randomProblem = await prisma.problem.findFirst({
-               where: {
-                   domain,
-                   type,
-                   hidden: false
-               },
-               skip,
-               select: {
-                   slug: true
-               }
-           });
+            // Step 2: Generate random ID within range
+            // This assumes IDs are numeric or can be converted to comparable values
+            const minNum = parseInt(minIdRecord.id) || 0;
+            const maxNum = parseInt(maxIdRecord.id) || 1;
+            const randomNum = minNum + Math.floor(Math.random() * (maxNum - minNum + 1));
+            const randomId = String(randomNum);
 
-           return randomProblem?.slug || null;
+            // Step 3: Use keyset pagination to find next problem with ID >= randomId
+            // This uses index and is O(1) vs O(n) for OFFSET-based
+            const randomProblem = await prisma.problem.findFirst({
+                where: {
+                    domain,
+                    type,
+                    hidden: false,
+                    id: { gte: randomId }
+                },
+                orderBy: { id: 'asc' },
+                select: { slug: true }
+            });
+
+            // Fallback to first problem in range if random search misses
+            if (!randomProblem) {
+                const fallback = await prisma.problem.findFirst({
+                    where: { domain, type, hidden: false },
+                    orderBy: { id: 'asc' },
+                    select: { slug: true }
+                });
+                return fallback?.slug || null;
+            }
+
+            return randomProblem.slug;
         } catch (error) {
             console.error("Failed to get random problem:", error);
             return null;

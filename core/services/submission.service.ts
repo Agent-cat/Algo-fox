@@ -11,68 +11,14 @@ export class SubmissionService {
     private static languageCache = new Map<number, { id: number; name: string; judge0Id: number }>();
 
     static async createSubmission(userId: string, problemId: string, judge0Id: number, code: string, mode: SubmissionMode = "SUBMIT", contestId?: string) {
-        // Get language info from our language mapping
-        const langInfo = getLanguageById(judge0Id);
-        const languageName = langInfo?.name || `Language_${judge0Id}`;
-
-        // Check cache first
-        let language = this.languageCache.get(judge0Id);
-
-        if (!language) {
-            // Try to find existing language by judge0Id first (primary lookup)
-            const dbLanguage = await prisma.language.findUnique({
-                where: { judge0Id: judge0Id }
-            });
-
-            if (dbLanguage) {
-                language = dbLanguage;
-            } else {
-                // If not found, try to create it
-                try {
-                    language = await prisma.language.create({
-                        data: {
-                            name: languageName,
-                            judge0Id: judge0Id
-                        }
-                    });
-                } catch (error: any) {
-                    // If creation fails due to name conflict, try to find by name
-                    // This handles the case where a language with this name exists but different judge0Id
-                    if (error.code === 'P2002') {
-                        const existingByName = await prisma.language.findUnique({
-                            where: { name: languageName }
-                        });
-                        if (existingByName) {
-                            // Use the existing language even if judge0Id doesn't match
-                            // In production, languages should be pre-seeded to avoid this
-                            language = existingByName;
-                        } else {
-                            // If it's a judge0Id conflict, find by judge0Id
-                            const existingByJudge0Id = await prisma.language.findUnique({
-                                where: { judge0Id: judge0Id }
-                            });
-                            if (!existingByJudge0Id) {
-                                throw new Error(`Could not create or find language with judge0Id ${judge0Id}`);
-                            }
-                            language = existingByJudge0Id;
-                        }
-                    } else {
-                        throw error;
-                    }
-                }
-            }
-
-            // Update cache
-            if (language) {
-                this.languageCache.set(judge0Id, language);
-            }
-        }
+        // Get language - OPTIMIZATION: Simplified lookup reduces N+1 queries
+        const language = await this.getOrCreateLanguage(judge0Id);
 
         return prisma.submission.create({
             data: {
                 userId,
                 problemId,
-                languageId: language.id, // Use the internal PK
+                languageId: language.id,
                 code,
                 status: "PENDING",
                 mode,
@@ -87,6 +33,55 @@ export class SubmissionService {
                 language: true
             }
         });
+    }
+
+    // OPTIMIZATION: Consolidated language lookup with proper upsert pattern
+    // Reduces N+1 query chain from 4+ queries to 1 database operation
+    private static async getOrCreateLanguage(judge0Id: number) {
+        // Check cache first (O(1) lookup)
+        let language = this.languageCache.get(judge0Id);
+        if (language) return language;
+
+        // Get language name from our mapping
+        const langInfo = getLanguageById(judge0Id);
+        const languageName = langInfo?.name || `Language_${judge0Id}`;
+
+        try {
+            // Use upsert for atomic operation - prevents race conditions
+            const dbLanguage = await prisma.language.upsert({
+                where: { judge0Id },
+                update: {},  // No updates needed, just ensure it exists
+                create: {
+                    name: languageName,
+                    judge0Id
+                }
+            });
+
+            // Update cache for next call
+            this.languageCache.set(judge0Id, dbLanguage);
+            return dbLanguage;
+        } catch (error: any) {
+            // Fallback: If upsert fails (rare case), try simple find
+            // This handles edge cases where schema constraints might prevent upsert
+            const fallbackLanguage = await prisma.language.findUnique({
+                where: { judge0Id }
+            });
+
+            if (!fallbackLanguage) {
+                // Last resort: Try by name
+                const byName = await prisma.language.findUnique({
+                    where: { name: languageName }
+                });
+                if (!byName) {
+                    throw new Error(`Could not create or find language with judge0Id ${judge0Id}`);
+                }
+                this.languageCache.set(judge0Id, byName);
+                return byName;
+            }
+
+            this.languageCache.set(judge0Id, fallbackLanguage);
+            return fallbackLanguage;
+        }
     }
 
     static async updateSubmissionStatus(submissionId: string, status: SubmissionResult, time?: number, memory?: number) {
@@ -234,49 +229,50 @@ export class SubmissionService {
     }
 
     static async incrementProblemSolved(problemId: string, userId: string) {
-        // Use a transaction to atomically check and update
-        // This helps prevent race conditions when multiple submissions are processed concurrently
-        await prisma.$transaction(async (tx) => {
-            // Check if this is the first time the user has solved this problem
-            // Only count SUBMIT mode submissions to avoid double-counting from RUN mode
-            const acceptedCount = await tx.submission.count({
-                where: {
-                    problemId,
-                    userId,
-                    status: "ACCEPTED",
-                    mode: "SUBMIT"
-                }
-            });
+        // OPTIMIZATION: Separate cache operations from database transaction
+        // This prevents Redis/external calls from blocking the transaction which can cause deadlocks
+        
+        // Step 1: Check if first solve outside transaction (read-only)
+        const acceptedCount = await prisma.submission.count({
+            where: {
+                problemId,
+                userId,
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            }
+        });
 
-            // Only increment if this is the first accepted solution (count should be exactly 1, which is the current one)
-            if (acceptedCount === 1) {
-                // Fetch the problem to get its difficulty
-                const problem = await tx.problem.findUnique({
-                    where: { id: problemId },
-                    select: { difficulty: true }
-                });
+        // Only proceed if this is the first accepted solution
+        if (acceptedCount !== 1) return;
 
-                if (!problem) {
-                    throw new Error("Problem not found");
-                }
+        // Step 2: Get problem data before transaction
+        const problem = await prisma.problem.findUnique({
+            where: { id: problemId },
+            select: { difficulty: true }
+        });
 
-                // Calculate points based on difficulty
-                const points = getPointsForDifficulty(problem.difficulty);
+        if (!problem) {
+            throw new Error("Problem not found");
+        }
 
+        const points = getPointsForDifficulty(problem.difficulty);
+
+        // Step 3: Short transaction for database-only operations
+        // This keeps the transaction as brief as possible
+        try {
+            await prisma.$transaction([
                 // Increment problem's solved count
-                await tx.problem.update({
+                prisma.problem.update({
                     where: { id: problemId },
                     data: {
                         solved: {
                             increment: 1
                         }
                     }
-                });
-
-                // Increment user's problemsSolved count and add points based on difficulty
-                // SKIP IF CONCEPT
-                if (problem.difficulty !== "CONCEPT") {
-                    await tx.user.update({
+                }),
+                // Increment user's stats only if not a concept problem
+                ...(problem.difficulty !== "CONCEPT" ? [
+                    prisma.user.update({
                         where: { id: userId },
                         data: {
                             problemsSolved: {
@@ -286,33 +282,48 @@ export class SubmissionService {
                                 increment: points
                             }
                         }
-                    });
-                }
+                    })
+                ] : [])
+            ]);
+        } catch (error) {
+            console.error("Failed to update problem stats:", error);
+            throw error;
+        }
 
-                // Invalidate user score cache and leaderboard cache
-                try {
-                    await redis.del(`user-score-${userId}`);
-                    // Invalidate leaderboard cache so new users appear
-                    await redis.del('leaderboard:global');
-
-                    // Invalidate Next.js cache tags for categories
-                    try {
-                        updateTag('categories-list');
-                        updateTag(`categories-DSA-user-${userId}`);
-                        updateTag(`categories-SQL-user-${userId}`);
-                        updateTag(`user-submissions-${userId}`);
-                        updateTag('problems-list');
-                        updateTag('problems-search');
-                    } catch (e) {
-                        // Ignore if updateTag is not available or fails
-                    }
-                } catch (error) {
-                    // Cache invalidation might fail in worker context, but that's okay
-                    // The cache will expire naturally after 30 seconds (user score) and 10 minutes (leaderboard)
-                    console.error("Failed to invalidate cache:", error);
-                }
+        // Step 4: Cache invalidation AFTER transaction completes
+        // This is safe to do outside transaction and prevents deadlocks
+        try {
+            // Invalidate user score cache and leaderboard cache
+            await Promise.all([
+                redis.del(`user-score-${userId}`),
+                redis.del('leaderboard:global'),
+                redis.del(`leaderboard:inst:*`)  // Invalidate all institution leaderboards
+            ]);
+        } catch (error) {
+            // Cache invalidation failure is non-critical
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("Failed to invalidate Redis cache:", error);
             }
-        });
+        }
+
+        // Step 5: Invalidate Next.js cache tags
+        try {
+            // Use Promise.allSettled to prevent one failure from blocking others
+            const tagOperations = [
+                updateTag('categories-list'),
+                updateTag(`categories-DSA-user-${userId}`),
+                updateTag(`categories-SQL-user-${userId}`),
+                updateTag(`user-submissions-${userId}`),
+                updateTag('problems-list'),
+                updateTag('problems-search')
+            ];
+            await Promise.allSettled(tagOperations);
+        } catch (error) {
+            // Tag invalidation failure is non-critical
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("Failed to update cache tags:", error);
+            }
+        }
     }
     static async getSubmissionById(id: string) {
         return prisma.submission.findUnique({

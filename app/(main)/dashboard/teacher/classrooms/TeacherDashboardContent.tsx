@@ -14,10 +14,11 @@ export function TeacherDashboardContent({ classrooms, institutionId }: TeacherDa
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#0a0a0a]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+            <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-gray-100 dark:border-[#262626] pb-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 border-b border-gray-100/50 dark:border-[#1e1e1e] pb-6">
                     <div className="space-y-3">
                         <Link
                             href="/dashboard"

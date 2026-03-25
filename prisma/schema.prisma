@@ -32,6 +32,19 @@ model User {
   codeforcesVerified Boolean @default(false)
   leetCodeVerified   Boolean @default(false)
 
+  // Competitive Programming Stats
+  leetCodeRating   Int @default(0)
+  leetCodeSolved   Int @default(0)
+  leetCodeContests Int @default(0)
+
+  codeforcesRating   Int @default(0)
+  codeforcesSolved   Int @default(0)
+  codeforcesContests Int @default(0)
+
+  codeChefRating   Int @default(0)
+  codeChefSolved   Int @default(0)
+  codeChefContests Int @default(0)
+
   role                Role    @default(STUDENT)
   onboardingCompleted Boolean @default(false)
   bio                 String?

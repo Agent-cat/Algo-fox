@@ -187,10 +187,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                             >
                                 {/* Title with solved badge beside it */}
                                 <motion.div variants={staggerItem} className={`flex items-center gap-3 flex-wrap ${domain === "APTITUDE" ? "mb-6" : "mb-4"}`}>
-                                    <h1 className={`font-bold text-gray-900 dark:text-gray-100 tracking-tight ${domain === "APTITUDE" ? "text-4xl md:text-5xl font-black flex items-center gap-3" : "text-2xl"}`}>
-                                        {domain === "APTITUDE" && (
-                                            <span className="w-10 h-10 bg-orange-600 text-white rounded-lg flex items-center justify-center text-xl shadow-lg shadow-orange-500/20 shrink-0">A</span>
-                                        )}
+                                    <h1 className={`font-bold text-gray-900 dark:text-gray-100 tracking-tight ${domain === "APTITUDE" ? "text-4xl md:text-5xl font-black" : "text-2xl"}`}>
                                         {problem.title}
                                     </h1>
                                     {isSolved && (

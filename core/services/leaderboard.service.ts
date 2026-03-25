@@ -1,6 +1,6 @@
 
 import { prisma } from "@/lib/prisma";
-import { SubmissionResult } from "@prisma/client";
+import { SubmissionResult, Prisma } from "@prisma/client";
 import redis from "@/lib/redis";
 
 export type LeaderboardEntry = {
@@ -42,7 +42,7 @@ export class LeaderboardService {
             console.error('Redis get error:', error);
         }
 
-        // Fetch top 100 users by totalScore directly from DB
+        // OPTIMIZATION: Fetch top 100 users with only required fields (avoid N+1 nested queries)
         const users = await prisma.user.findMany({
             where: {
                 role: 'STUDENT',
@@ -61,34 +61,39 @@ export class LeaderboardService {
                 codeChefHandle: true,
                 githubHandle: true,
                 totalScore: true,
-                problemsSolved: true,
-                submissions: {
-                    where: {
-                        status: SubmissionResult.ACCEPTED,
-                        mode: "SUBMIT" as const
-                    },
-                    select: {
-                        problem: {
-                            select: {
-                                difficulty: true
-                            }
-                        }
-                    },
-                    distinct: ['problemId']
-                }
+                problemsSolved: true
             }
         });
 
-        const leaderboard: LeaderboardEntry[] = users.map((user, index) => {
-            let easyCount = 0;
-            let mediumCount = 0;
-            let hardCount = 0;
+        // OPTIMIZATION: Use raw SQL aggregation to get difficulty counts instead of fetching all submissions
+        // This prevents fetching thousands of submission records into memory
+        const userIds = users.map(u => u.id);
+        const statsByUser = userIds.length > 0
+            ? await prisma.$queryRaw<Array<{ userId: string; difficulty: string; count: bigint }>>`
+                SELECT
+                    s."userId",
+                    p."difficulty",
+                    COUNT(DISTINCT s."problemId") as count
+                FROM "Submission" s
+                JOIN "Problem" p ON s."problemId" = p.id
+                WHERE s."userId" IN (${Prisma.join(userIds)})
+                    AND s.status = ${SubmissionResult.ACCEPTED}::"SubmissionResult"
+                    AND s.mode = ${'SUBMIT'}::"SubmissionMode"
+                GROUP BY s."userId", p."difficulty"
+            `
+            : [];
 
-            user.submissions.forEach(sub => {
-                if (sub.problem.difficulty === 'EASY') easyCount++;
-                else if (sub.problem.difficulty === 'MEDIUM') mediumCount++;
-                else if (sub.problem.difficulty === 'HARD') hardCount++;
-            });
+        // OPTIMIZATION: Build a map for O(1) difficulty count lookup instead of iterating for each user
+        const statsByUserMap = new Map<string, Map<string, number>>();
+        for (const stat of statsByUser) {
+            if (!statsByUserMap.has(stat.userId)) {
+                statsByUserMap.set(stat.userId, new Map());
+            }
+            statsByUserMap.get(stat.userId)!.set(stat.difficulty, Number(stat.count));
+        }
+
+        const leaderboard: LeaderboardEntry[] = users.map((user, index) => {
+            const userStats = statsByUserMap.get(user.id) || new Map();
 
             return {
                 rank: index + 1,
@@ -105,9 +110,9 @@ export class LeaderboardService {
                     linkedin: null
                 },
                 stats: {
-                    easy: easyCount,
-                    medium: mediumCount,
-                    hard: hardCount
+                    easy: userStats.get('EASY') || 0,
+                    medium: userStats.get('MEDIUM') || 0,
+                    hard: userStats.get('HARD') || 0
                 }
             };
         });

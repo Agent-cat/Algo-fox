@@ -14,67 +14,77 @@ interface SidebarProps {
 
 export function ClassroomSidebar({ activeTab, onTabChange, onDownload, showDownload, isTeacher, classroomName }: SidebarProps) {
     const menuItems = [
-        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
-        { id: 'assignments', label: 'Assignments', icon: LayoutDashboard }, // Using LayoutDashboard temporarily
-        ...(isTeacher ? [{ id: 'tracking', label: 'Live Tracking', icon: Activity }] : [])
+        { type: 'header', label: 'Classroom Hub' },
+        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, type: 'link' },
+        { id: 'assignments', label: 'Assignments', icon: LayoutDashboard, type: 'link' },
+        ...(isTeacher ? [
+            { type: 'header', label: 'Monitoring' },
+            { id: 'tracking', label: 'Live Tracking', icon: Activity, type: 'link' }
+        ] : []),
+        ...(showDownload ? [
+            { type: 'header', label: 'Data Management' },
+            { id: 'download', label: 'Sync Data Export', icon: Download, type: 'action' }
+        ] : [])
     ];
 
     return (
-        <aside className="w-72 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white/80 dark:bg-[#141414]/90 backdrop-blur-xl border-r border-gray-200/50 dark:border-[#262626] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
-            <div className="px-6 mb-6">
-                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-                    Classroom
-                </p>
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate" title={classroomName}>
+        <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#141414] border-r border-gray-200 dark:border-[#262626] font-mono overflow-y-auto scrollbar-hide">
+            <div className="px-6 mb-8">
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap mb-2 block">
+                    Active Classroom
+                </span>
+                <h3 className="text-sm font-black text-gray-950 dark:text-white truncate tracking-tight" title={classroomName}>
                     {classroomName}
                 </h3>
             </div>
 
-            <nav className="px-4 space-y-1">
-                {menuItems.map((item) => {
+            <nav className="px-5 space-y-1">
+                {menuItems.map((item, index) => {
+                    if (item.type === 'header') {
+                        return (
+                            <div key={`header-${index}`} className="flex items-center gap-3 mt-8 mb-4 px-2">
+                                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
+                                    {item.label}
+                                </span>
+                                <div className="h-px bg-gray-200 dark:bg-[#262626] flex-1"></div>
+                            </div>
+                        );
+                    }
+
                     const isActive = activeTab === item.id;
-                    const Icon = item.icon;
+                    const Icon = item.icon!;
+
+                    if (item.type === 'action') {
+                        return (
+                            <button
+                                key={`action-${index}`}
+                                onClick={onDownload}
+                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                            >
+                                <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                                <span className="tracking-tight">{item.label}</span>
+                            </button>
+                        );
+                    }
 
                     return (
                         <button
                             key={item.id}
                             onClick={() => onTabChange(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium mb-1 group transition-all ${
-                                isActive
-                                    ? "bg-orange-600 text-white shadow-lg shadow-orange-200 dark:shadow-none"
-                                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:text-gray-900 dark:hover:text-gray-200"
-                            }`}
+                            className={`
+                                w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
+                                ${isActive
+                                    ? "text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-500/10"
+                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+                                }
+                            `}
                         >
-                            <div
-                                className={`p-1.5 rounded-lg transition-colors ${
-                                    isActive
-                                        ? "bg-white/20 text-white"
-                                        : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 group-hover:bg-white dark:group-hover:bg-[#262626] group-hover:shadow-sm"
-                                }`}
-                            >
-                                <Icon className="w-4 h-4" />
-                            </div>
-                            <span>{item.label}</span>
-                            {isActive && <ChevronRight className="w-4 h-4 ml-auto text-white/50" />}
+                            <Icon className={`w-4 h-4 transition-colors ${isActive ? "text-orange-600 dark:text-orange-500" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`} />
+                            <span className="tracking-tight">{item.label}</span>
                         </button>
                     );
                 })}
             </nav>
-
-            <div className="absolute bottom-8 left-0 right-0 px-4 space-y-2">
-                {showDownload && (
-                     <button
-                        onClick={onDownload}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-xl text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#262626] hover:text-orange-600 dark:hover:text-orange-500 transition-colors"
-                    >
-                        <Download className="w-4 h-4" />
-                        Export Data
-                    </button>
-                )}
-            </div>
-
-            {/* Decorative bg element */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-[#141414] to-transparent pointer-events-none -z-10" />
         </aside>
     );
 }

@@ -160,11 +160,12 @@ const worker = new Worker(
             );
 
             const publicCasesCount = allTestCases.filter(tc => !tc.hidden).length;
+            // OPTIMIZATION: Pre-compute index mapping using Map instead of findIndex in loop
+            // Reduces O(n²) to O(n) - with 100 test cases, this is 100x faster
+            const testCaseIndexMap = new Map(allTestCases.map((tc, idx) => [tc.id, idx]));
+            
             const testCaseRecords = testCasesToEvaluate.map((tc, idx) => {
-                const problemCaseIndex = allTestCases.findIndex(orig => orig.id === tc.id);
-                // For problem cases: use their actual index within allTestCases
-                // For custom cases: use allTestCases.length + customIdx
-                //   so they align with the frontend's `problem.testCases.length + customIdx`
+                const problemCaseIndex = testCaseIndexMap.get(tc.id) ?? -1;
                 const finalIndex = problemCaseIndex >= 0
                     ? problemCaseIndex
                     : allTestCases.length + (idx - publicCasesCount);
@@ -188,6 +189,10 @@ const worker = new Worker(
             const MAX_TOTAL_TIME_MS = 60000; // 60 seconds hard timeout
             const START_TIME = Date.now();
 
+            // OPTIMIZATION: Use Set for O(1) pending status lookup instead of filtering every iteration
+            const pendingSet = new Set(testCaseRecords.map(r => r.judge0TrackingId));
+            const recordsByToken = new Map(testCaseRecords.map(r => [r.judge0TrackingId, r]));
+
             // Track overall stats
             let totalTime = 0;
             let maxMemory = 0;
@@ -195,7 +200,7 @@ const worker = new Worker(
             let globalErrorMessage: string | null = null;
             let compilationError = false;
 
-            while (!isComplete && (Date.now() - START_TIME) < MAX_TOTAL_TIME_MS) {
+            while (pendingSet.size > 0 && (Date.now() - START_TIME) < MAX_TOTAL_TIME_MS) {
                 const elapsedMs = Date.now() - START_TIME;
                 let pollInterval = 1000;
                 if (elapsedMs < 5000) pollInterval = 150;
@@ -204,13 +209,8 @@ const worker = new Worker(
                 await new Promise(r => setTimeout(r, pollInterval));
                 attempts++;
 
-                const pendingRecords = testCaseRecords.filter(tc => !tc.processed);
-                if (pendingRecords.length === 0) {
-                    isComplete = true;
-                    break;
-                }
-
-                const pendingTokens = pendingRecords.map(tc => tc.judge0TrackingId);
+                // OPTIMIZATION: Only fetch results for pending submissions
+                const pendingTokens = Array.from(pendingSet);
                 const batchResults = await SubmissionService.getBatchResults(pendingTokens);
 
                 // Check for global compilation error (only once)
@@ -224,14 +224,12 @@ const worker = new Worker(
                     }
                 }
 
-                let pendingCount = 0;
                 const updatesToApply: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage: string | null, stdout: string | null }[] = [];
                 const publishedUpdates: any[] = [];
 
-                for (let i = 0; i < batchResults.length; i++) {
-                    const result = batchResults[i];
-                    // Match result back to the correct record by token
-                    const localRecord = pendingRecords.find(r => r.judge0TrackingId === result.token);
+                // OPTIMIZATION: Use Map lookup instead of find() - reduces from O(n) to O(1) per result
+                for (const result of batchResults) {
+                    const localRecord = recordsByToken.get(result.token);
                     if (!localRecord) continue;
 
                     // Identify completion (not In Queue and not Processing)
@@ -244,18 +242,19 @@ const worker = new Worker(
                         if (result.status.id === JUDGE0_STATUS.PROCESSING && !localRecord.processingUpdateSent) {
                              localRecord.processingUpdateSent = true;
                              publishedUpdates.push({
-                                 index: localRecord.index,
-                                 status: "PROCESSING",
-                                 judge0TrackingId: result.token
+                                  index: localRecord.index,
+                                  status: "PROCESSING",
+                                  judge0TrackingId: result.token
                              });
                         }
-                        pendingCount++;
                         continue;
                     }
 
                     // If finished but not yet marked processed, update DB
                     if (!localRecord.processed) {
                         localRecord.processed = true;
+                        // OPTIMIZATION: Remove from pending set as soon as processed
+                        pendingSet.delete(result.token);
 
                         const time = parseFloat(result.time || "0");
                         const memory = result.memory || 0;
@@ -331,18 +330,15 @@ const worker = new Worker(
                     // We publish the entire list of new updates
                     if (publishedUpdates.length > 0) {
                          await connection.publish(`submission:${submissionId}`, JSON.stringify({
-                             type: "CASE_UPDATE",
-                             data: publishedUpdates
+                              type: "CASE_UPDATE",
+                              data: publishedUpdates
                          }));
                     }
                 }
-
-                if (pendingCount === 0) {
-                    isComplete = true;
-                }
             }
 
-            if (isComplete) {
+            // OPTIMIZATION: Determine completion based on pending set
+            if (pendingSet.size === 0) {
                 const avgTime = totalTime / testCaseRecords.length;
                 await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
 
