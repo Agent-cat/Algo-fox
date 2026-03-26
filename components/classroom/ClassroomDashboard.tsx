@@ -26,6 +26,12 @@ interface Student {
     branch: string | null;
     totalScore: number;
     image: string | null;
+    problemsSolved?: number;
+    year?: number | null;
+    _count?: {
+        submissions: number;
+        contestParticipations: number;
+    };
 }
 
 interface ClassroomDashboardProps {
@@ -57,14 +63,15 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
         setTimeout(() => setIsCopied(false), 2000);
     };
 
-    const handleDownload = () => {
-        const headers = ["Rank", "College Name", "College ID / Roll No", "Branch", "Name", "Total Score"];
-        const rows = classroom.students.map((s, i) => [
+        const handleDownload = () => {
+            const headers = ["Rank", "College Name", "College ID / Roll No", "Branch", "Name", "Year", "Total Score"];
+            const rows = classroom.students.map((s, i) => [
             i + 1,
             s.collegeName || "N/A",
             s.collegeId || "N/A",
             s.branch || "N/A",
             s.name || "Anonymous",
+            s.year ? `${s.year}${s.year === 1 ? 'st' : s.year === 2 ? 'nd' : s.year === 3 ? 'rd' : 'th'} Year` : "N/A",
             s.totalScore
         ]);
 

@@ -12,8 +12,12 @@ interface Student {
     id: string;
     name: string | null;
     collegeId: string | null;
+    collegeName?: string | null;
+    branch?: string | null;
     totalScore: number;
     image: string | null;
+    problemsSolved?: number;
+    year?: number | null;
     codeChefHandle?: string | null;
     leetCodeHandle?: string | null;
     codeforcesHandle?: string | null;
@@ -206,15 +210,13 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-black/20">
-                                <th className="sticky left-0 px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-24 bg-gray-50 dark:bg-black z-30">#</th>
-                                <th className="sticky left-24 px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-48 bg-gray-50 dark:bg-black z-30">Roll No</th>
-                                <th className="sticky left-[18rem] px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-80 bg-gray-50 dark:bg-black z-30">Student Profile</th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Solved</th>
-                                <th className="px-8 py-5 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Contests</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[150px]">CodeChef</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[150px]">LeetCode</th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[150px]">Codeforces</th>
-                                <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-40 bg-orange-50/20 dark:bg-orange-500/10 z-10">Agg. Score</th>
+                                <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-black z-30">#</th>
+                                <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-40 bg-gray-50 dark:bg-black z-30">College ID</th>
+                                <th className="sticky left-60 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-96 bg-gray-50 dark:bg-black z-30">Student Profile</th>
+                                <th className="px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Branch</th>
+                                <th className="px-8 py-3 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[140px]">Problems Solved</th>
+                                <th className="px-8 py-3 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Academic Year</th>
+                                <th className="px-8 py-3 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-40 bg-orange-50/20 dark:bg-orange-500/10 z-10">Total Points</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50/50 dark:divide-white/5 text-[12px]">
@@ -232,7 +234,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                                             key={student.id}
                                             className="group hover:bg-white/40 dark:hover:bg-white/5 transition-all"
                                         >
-                                            <td className="sticky left-0 px-8 py-4 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-0 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
                                                 <div className="flex items-center gap-3">
                                                     <span className={`font-black tabular-nums text-sm ${isTopThree ? 'text-orange-600' : 'text-gray-400'}`}>
                                                         {rank}
@@ -242,54 +244,56 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="sticky left-24 px-8 py-4 border-r border-gray-100/50 dark:border-white/5 font-mono text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-20 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 font-mono text-gray-900 dark:text-gray-200 font-bold bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
                                                 {student.collegeId || "N/A"}
                                             </td>
-                                            <td className="sticky left-[18rem] px-8 py-4 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-60 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-none bg-gray-100 dark:bg-black/20 border border-white/20 relative overflow-hidden flex-shrink-0">
+                                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-500/20 relative overflow-hidden flex-shrink-0 flex items-center justify-center">
                                                         {student.image ? (
                                                             <Image src={student.image} alt="" fill className="object-cover" />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-gray-400">
-                                                                {student.collegeId?.charAt(0)}
+                                                            <div className="text-sm font-black text-orange-600 dark:text-orange-400">
+                                                                {(student.name?.charAt(0) || student.collegeId?.charAt(0) || "?").toUpperCase()}
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-base font-black text-gray-900 dark:text-white tabular-nums">
-                                                                {student.totalScore.toLocaleString()}
-                                                            </span>
-                                                            <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest whitespace-nowrap">Global Pts</span>
-                                                        </div>
-                                                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">IDENTIFIED BY {student.collegeId || 'ID'}</span>
+                                                        <span className="text-sm font-black text-gray-900 dark:text-white truncate">
+                                                            {student.name || "Anonymous"}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                                                            {student.collegeName || "N/A"}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-4 border-r border-gray-100/50 dark:border-white/5 text-center font-black text-orange-600 text-sm">
-                                                {student._count?.submissions || 0}
+                                            <td className="px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                {student.branch || "N/A"}
                                             </td>
-                                            <td className="px-8 py-4 border-r border-gray-100/50 dark:border-white/5 text-center font-black text-blue-500 text-sm">
-                                                {student._count?.contestParticipations || 0}
+                                            <td className="px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-lg font-black text-orange-600 dark:text-orange-400">
+                                                        {student.problemsSolved || 0}
+                                                    </span>
+                                                    <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-bold">Problems</span>
+                                                </div>
                                             </td>
-                                            <td className="px-8 py-4 border-r border-gray-100/50 dark:border-white/5 font-black text-purple-600 dark:text-purple-400 tabular-nums">
-                                                {getCodeChefScore(student).toFixed(0)}
+                                            <td className="px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 text-center">
+                                                <div className="inline-flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-lg px-3 py-1">
+                                                    <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                                        {student.year ? `${student.year}${student.year === 1 ? 'st' : student.year === 2 ? 'nd' : student.year === 3 ? 'rd' : 'th'} Yr` : "N/A"}
+                                                    </span>
+                                                </div>
                                             </td>
-                                            <td className="px-8 py-4 border-r border-gray-100/50 dark:border-white/5 font-black text-yellow-600 dark:text-yellow-500 tabular-nums">
-                                                {getLeetCodeScore(student).toFixed(0)}
-                                            </td>
-                                            <td className="px-8 py-4 border-r border-gray-100/50 dark:border-white/5 font-black text-blue-500 dark:text-blue-400 tabular-nums">
-                                                {getCodeforcesScore(student).toFixed(0)}
-                                            </td>
-                                            <td className="px-8 py-4 text-right bg-orange-50/10 dark:bg-orange-500/5 border-l border-gray-100/50 dark:border-white/5 relative">
+                                            <td className="px-8 py-1.5 text-right bg-orange-50/10 dark:bg-orange-500/5 border-l border-gray-100/50 dark:border-white/5 relative">
                                                 <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-orange-500/40" />
                                                 <div className="flex items-center justify-end gap-3 px-2">
                                                     <div className="flex flex-col items-end">
-                                                        <span className="text-sm font-black text-gray-900 dark:text-white tabular-nums">
-                                                            {(student.totalScore + getCodeChefScore(student) + getLeetCodeScore(student) + getCodeforcesScore(student)).toFixed(0)}
+                                                        <span className="text-lg font-black text-gray-900 dark:text-white tabular-nums">
+                                                            {student.totalScore.toLocaleString()}
                                                         </span>
-                                                        <span className="text-[8px] font-black text-orange-500 uppercase tracking-tighter">Aggregated</span>
+                                                        <span className="text-[8px] font-black text-orange-500 uppercase tracking-tighter">Points</span>
                                                     </div>
                                                     {isTeacher && (
                                                         <button
