@@ -15,7 +15,8 @@ export async function getProblems(
     domain: ProblemDomain = "DSA",
     difficulty?: Difficulty,
     tags?: string[],
-    cursor?: string
+    cursor?: string,
+    sortBy: string = 'newest'
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
@@ -26,10 +27,10 @@ export async function getProblems(
     });
     const userId = session?.user?.id;
 
-    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}`;
+    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}-sort-${sortBy}`;
     cacheTag(tagKey, 'problems-list', `problems-${domain}-${type}`);
 
-    return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || [], cursor);
+    return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || [], cursor, sortBy);
 }
 
 // GETTING ADMIN PROBLEMS

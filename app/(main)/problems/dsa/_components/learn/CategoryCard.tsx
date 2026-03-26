@@ -157,8 +157,8 @@ export default function CategoryCard({
         className={cn(
           "w-full transition-all group flex",
           isSubCategory
-            ? "bg-transparent border-none py-1.5 hover:bg-gray-100/50 dark:hover:bg-white/[0.03] rounded-lg"
-            : "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/[0.02] shadow-sm hover:shadow-md"
+            ? "bg-transparent border-none py-1.5 hover:bg-gray-100/50 dark:hover:bg-white/3 rounded-lg"
+            : "bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/2 shadow-sm hover:shadow-md"
         )}
       >
         <motion.button
@@ -179,7 +179,7 @@ export default function CategoryCard({
                 animate={{ scale: 1 }}
                 className="ml-1"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
               </motion.div>
             )}
           </div>
@@ -198,7 +198,7 @@ export default function CategoryCard({
                 />
               </div>
             </div>
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {isExpanded ? (
                 <Minus className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
               ) : (
@@ -279,7 +279,7 @@ export default function CategoryCard({
                       >
                         <Link
                           href={`/problems/${problem.slug}`}
-                          className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all group/item border border-transparent hover:border-gray-200 dark:hover:border-white/5"
+                          className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/4 transition-all group/item border border-transparent hover:border-gray-200 dark:hover:border-white/5"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-6 flex justify-center">
@@ -297,14 +297,14 @@ export default function CategoryCard({
                           <div className="flex items-center gap-6">
                             <span
                               className={cn(
-                                "text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg",
+                                "text-[11px] font-black uppercase tracking-widest",
                                 getDifficultyColor(problem.difficulty)
                               )}
                             >
                               {problem.difficulty}
                             </span>
                             {problem.difficulty !== "CONCEPT" && (
-                              <span className="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums min-w-[4rem] text-right">
+                              <span className="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums min-w-16 text-right">
                                 {problem.acceptance.toFixed(1)}%
                               </span>
                             )}

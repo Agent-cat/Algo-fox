@@ -8,6 +8,7 @@ import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { PROBLEMS_PAGE_SIZE, INTERSECTION_THRESHOLD } from "../shared/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 type ProblemWithStats = {
     id: string;
@@ -38,16 +39,22 @@ export default function PracticeClient({
     domain = "DSA",
     searchTerm
 }: PracticeClientProps) {
+    const searchParams = useSearchParams();
     const [problems, setProblems] = useState<ProblemWithStats[]>(initialProblems);
+
+    // Filter state from URL
+    const difficulty = searchParams.get("difficulty") as Difficulty | undefined;
+    const tags = searchParams.getAll("tags");
+    const sortBy = searchParams.get("sortBy") || "newest";
 
     useEffect(() => {
         setProblems(initialProblems);
         setPage(1);
-        setHasMore(page < initialTotalPages);
+        setHasMore(1 < initialTotalPages);
     }, [initialProblems, initialTotalPages]);
 
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(page < initialTotalPages);
+    const [hasMore, setHasMore] = useState(1 < initialTotalPages);
     const [isLoading, setIsLoading] = useState(false);
 
     const [searchResults, setSearchResults] = useState<ProblemWithStats[]>([]);
@@ -87,7 +94,7 @@ export default function PracticeClient({
         try {
             const lastProblem = problems[problems.length - 1];
             const nextPage = page + 1;
-            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain, undefined, undefined, lastProblem.id);
+            const res = await getProblems(nextPage, PROBLEMS_PAGE_SIZE, type, domain, difficulty || undefined, tags, lastProblem.id, sortBy);
 
             if (res.problems.length > 0) {
                 setProblems((prev) => [...prev, ...res.problems]);
@@ -101,7 +108,7 @@ export default function PracticeClient({
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, hasMore, page, type, domain, searchTerm, problems]);
+    }, [isLoading, hasMore, page, type, domain, searchTerm, problems, difficulty, tags, sortBy]);
 
     useEffect(() => {
         if (searchTerm) return;
@@ -187,7 +194,7 @@ export default function PracticeClient({
                             </div>
                             <div className="text-gray-400 dark:text-gray-500 font-medium">No problems found</div>
                             <p className="text-sm text-gray-400 dark:text-gray-500 mt-1.5">
-                                {searchTerm ? "Try adjusting your search terms." : "No problems available."}
+                                {searchTerm ? "Try adjusting your search terms." : "No problems available matching your filters."}
                             </p>
                         </motion.div>
                     )}

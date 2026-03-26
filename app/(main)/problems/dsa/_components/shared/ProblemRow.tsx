@@ -46,15 +46,15 @@ function ProblemRowComponent({
             >
                 <div className="col-span-8 md:col-span-6 font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 flex items-center gap-2.5">
                     {isSolved && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     )}
                     {!isSolved && (
-                        <div className="w-4 h-4 rounded-full border-2 border-gray-200 dark:border-[#333] flex-shrink-0 group-hover:border-orange-300 dark:group-hover:border-orange-500/40 transition-colors duration-200" />
+                        <div className="w-4 h-4 rounded-full border-2 border-gray-200 dark:border-[#333] shrink-0 group-hover:border-orange-300 dark:group-hover:border-orange-500/40 transition-colors duration-200" />
                     )}
                     <span className="truncate">{title}</span>
                 </div>
                 <div className="col-span-2 md:col-span-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getDifficultyColor(difficulty)}`}>
+                    <span className={`inline-flex items-center text-xs font-black uppercase tracking-widest ${getDifficultyColor(difficulty)}`}>
                         {getDifficultyLabel(difficulty)}
                     </span>
                 </div>

@@ -7,8 +7,8 @@ const CACHE_TTL = 300; // 5 minutes
 const PROBLEM_CACHE_TTL = 3600; // 1 hour
 
 // CACHE KEY HELPERS
-const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = []) =>
-    `problems:list:${domain}:${type}:page:${page}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}`;
+const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = [], sortBy: string = 'newest') =>
+    `problems:list:${domain}:${type}:page:${page}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}:sort:${sortBy}`;
 const getAdminProblemsCacheKey = (domain: string | undefined, page: number) =>
     `admin:problems:${domain || 'all'}:page:${page}`;
 const getProblemCacheKey = (slug: string) => `problem:${slug}`;
@@ -16,11 +16,10 @@ const getProblemCacheKey = (slug: string) => `problem:${slug}`;
 export class ProblemService {
 
     // CACHED FETCHER FOR PUBLIC PROBLEM LIST
-    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = [], cursor?: string) {
-        // We use page for cache key primarily, but if cursor is used, it's for infinite scroll which often is bypass-cache or unique key
+    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = [], cursor?: string, sortBy: string = 'newest') {
         const cacheKey = cursor
-            ? `problems:list:${domain}:${type}:cursor:${cursor}:pageSize:${pageSize}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}`
-            : getProblemsCacheKey(type, domain, page, diff, tags);
+            ? `problems:list:${domain}:${type}:cursor:${cursor}:pageSize:${pageSize}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}:sort:${sortBy}`
+            : getProblemsCacheKey(type, domain, page, diff, tags, sortBy);
 
         try {
             const cached = await redis.get(cacheKey);
@@ -30,6 +29,16 @@ export class ProblemService {
             }
         } catch (error) {
             console.error("Redis get error:", error);
+        }
+
+        const orderBy: any = {};
+        switch (sortBy) {
+            case 'oldest': orderBy.createdAt = 'asc'; break;
+            case 'hardest': orderBy.difficulty = 'desc'; orderBy.createdAt = 'desc'; break;
+            case 'easiest': orderBy.difficulty = 'asc'; orderBy.createdAt = 'desc'; break;
+            case 'acceptance': orderBy.solved = 'desc'; break;
+            case 'newest':
+            default: orderBy.createdAt = 'desc'; break;
         }
 
         const query: any = {
@@ -45,7 +54,7 @@ export class ProblemService {
                 } : undefined
             },
             take: pageSize,
-            orderBy: { createdAt: 'desc' },
+            orderBy,
             select: {
                 id: true,
                 title: true,
@@ -109,10 +118,11 @@ export class ProblemService {
         userId?: string,
         diff?: Difficulty,
         tags: string[] = [],
-        cursor?: string
+        cursor?: string,
+        sortBy: string = 'newest'
     ) {
         // FETCHING PUBLIC DATA (CACHED)
-        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags, cursor);
+        const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags, cursor, sortBy);
 
         // IF USER IS LOGGED IN, FETCHING THEIR SOLVED STATUS FOR THESE SPECIFIC PROBLEMS
         let solvedSet = new Set<string>();

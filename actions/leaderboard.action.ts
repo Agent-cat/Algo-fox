@@ -7,19 +7,50 @@ import { headers } from "next/headers";
 
 export type { LeaderboardEntry } from "@/core/services/leaderboard.service";
 
-async function getCachedLeaderboardData(institutionId?: string, forceRefresh: boolean = false) {
+async function getCachedLeaderboardData(params: {
+    institutionId?: string;
+    page: number;
+    pageSize: number;
+    search: string;
+    forceRefresh: boolean;
+}) {
     "use cache";
-    if (forceRefresh) {
-        // Skip cache directive essentially
-    }
+    const { institutionId, page, pageSize, search, forceRefresh } = params;
+
     cacheLife({ stale: 300, revalidate: 300 });
 
-    cacheTag('leaderboard-global', 'leaderboard', institutionId ? `leaderboard-inst-${institutionId}` : 'leaderboard-none');
+    cacheTag(
+        'leaderboard-global',
+        'leaderboard',
+        institutionId ? `leaderboard-inst-${institutionId}` : 'leaderboard-none',
+        `leaderboard-p-${page}`,
+        `leaderboard-s-${search}`
+    );
 
-    return LeaderboardService.getGlobalLeaderboard(institutionId, forceRefresh);
+    return LeaderboardService.getGlobalLeaderboard({
+        institutionId,
+        page,
+        pageSize,
+        search,
+        forceRefresh
+    });
 }
 
-export async function getLeaderboardData(requestedInstitutionId?: string, refresh: boolean = false) {
+export async function getLeaderboardData(params: {
+    institutionId?: string;
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    refresh?: boolean;
+}) {
+    const {
+        institutionId: requestedInstitutionId,
+        page = 1,
+        pageSize = 50,
+        search = "",
+        refresh = false
+    } = params;
+
     // Get session outside of the "use cache" scope because headers() is dynamic
     const session = await auth.api.getSession({
         headers: await headers()
@@ -35,10 +66,11 @@ export async function getLeaderboardData(requestedInstitutionId?: string, refres
         targetInstitutionId = requestedInstitutionId === "all" ? undefined : requestedInstitutionId;
     }
 
-    if (refresh) {
-        revalidateTag(targetInstitutionId ? `leaderboard-inst-${targetInstitutionId}` : 'leaderboard-none','max');
-        revalidateTag('leaderboard-global','max');
-    }
-
-    return getCachedLeaderboardData(targetInstitutionId || undefined, refresh);
+    return getCachedLeaderboardData({
+        institutionId: targetInstitutionId || undefined,
+        page,
+        pageSize,
+        search,
+        forceRefresh: refresh
+    });
 }

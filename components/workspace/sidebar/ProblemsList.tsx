@@ -87,9 +87,9 @@ export function ProblemsList({
                             <div className="flex items-center justify-between gap-2 mt-0.5">
                                 <span className={cn(
                                     "text-[10px] font-semibold px-1.5 py-0.5 rounded border uppercase tracking-wider",
-                                    prob.difficulty === "EASY" && "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 border-emerald-100 dark:border-emerald-500/20",
-                                    prob.difficulty === "MEDIUM" && "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-100 dark:border-amber-500/20",
-                                    prob.difficulty === "HARD" && "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 border-rose-100 dark:border-rose-500/20"
+                                    prob.difficulty === "EASY" && "text-emerald-600 dark:text-emerald-500 border-emerald-100 dark:border-emerald-500/20",
+                                    prob.difficulty === "MEDIUM" && "text-amber-600 dark:text-amber-500 border-amber-100 dark:border-amber-500/20",
+                                    prob.difficulty === "HARD" && "text-rose-600 dark:text-rose-500 border-rose-100 dark:border-rose-500/20"
                                 )}>
                                     {prob.difficulty}
                                 </span>

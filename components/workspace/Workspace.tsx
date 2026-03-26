@@ -518,7 +518,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             {/* RIGHT SIDE: EDITOR + TESTCASES */}
             <div className="h-full overflow-hidden flex flex-col">
                 <Split
-                    key={verticalLayoutKey} // Force remount if we programmatically resize
                     className="split-vertical flex flex-col h-full"
                     direction="vertical"
                     sizes={verticalSizes}

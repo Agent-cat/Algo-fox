@@ -24,6 +24,21 @@ export async function searchTags(query: string) {
     }
 }
 
+export async function getAllTags() {
+    try {
+        const tags = await prisma.tag.findMany({
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        return { success: true, tags };
+    } catch (error) {
+        console.error("Failed to get all tags:", error);
+        return { success: false, error: "Failed to get all tags" };
+    }
+}
+
 export async function createTag(name: string) {
     try {
         const slug = name

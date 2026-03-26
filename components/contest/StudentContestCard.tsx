@@ -105,7 +105,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
       }`}
     >
       {/* Subtle Glass Highlight */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 dark:via-white/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/50 dark:via-white/10 to-transparent pointer-events-none" />
 
       {/* Main Content (Left Side) */}
       <div className="flex-1 min-w-0 flex flex-col justify-center pl-2 w-full">
@@ -195,7 +195,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
             href={`/contest/${contest.id}`}
             className="group/btn relative flex items-center justify-center gap-2 w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase text-[11px] tracking-wider rounded-xl transition-all shadow-md active:scale-[0.98] overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-r from-orange-600 to-orange-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
             <Play className="relative z-10 w-3.5 h-3.5 fill-current transition-transform group-hover/btn:translate-x-1" />
             <span className="relative z-10">
               {contest.isParticipating ? "Resume" : "Initiate"}

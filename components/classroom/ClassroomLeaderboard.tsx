@@ -173,8 +173,8 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
     }
 
     return (
-        <div ref={containerRef} className={`flex flex-col gap-0 w-full ${isFullscreen ? 'h-screen bg-[#fafafa] dark:bg-[#121212] overflow-auto' : 'min-h-[calc(100vh-200px)]'}`}>
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border-b border-white/20 dark:border-white/10 p-6 rounded-none flex items-center gap-4">
+        <div ref={containerRef} className={`flex flex-col gap-0 w-full ${isFullscreen ? 'h-screen bg-[#fafafa] dark:bg-[#121212] overflow-auto' : 'h-full bg-[#fafafa] dark:bg-[#121212]'}`}>
+            <div className="bg-[#fafafa] dark:bg-[#111]/40 border-b border-gray-100 dark:border-white/5 p-6 rounded-none flex items-center gap-4">
                 <div className="relative group flex-1">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
@@ -182,7 +182,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                         placeholder="Locate student by identifier or roll number..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-gray-100 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-bold focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                        className="w-full bg-white/50 dark:bg-[#111]/40 backdrop-blur-sm border border-gray-100 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-bold focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
                     />
                 </div>
 
@@ -205,14 +205,14 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                 </button>
             </div>
 
-            <div className="flex-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl border-x border-white/20 dark:border-white/10 rounded-none overflow-hidden flex flex-col">
+            <div className="flex-1 bg-transparent border-x border-transparent rounded-none overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-black/20">
-                                <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-black z-30">#</th>
-                                <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-40 bg-gray-50 dark:bg-black z-30">College ID</th>
-                                <th className="sticky left-60 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-96 bg-gray-50 dark:bg-black z-30">Student Profile</th>
+                            <tr className="border-b border-gray-100/50 dark:border-white/5 bg-gray-50/50 dark:bg-[#111]/90">
+                                <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-[#111] z-30">#</th>
+                                <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-40 bg-gray-50 dark:bg-[#111] z-30">College ID</th>
+                                <th className="sticky left-60 px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 w-96 bg-gray-50 dark:bg-[#111] z-30">Student Profile</th>
                                 <th className="px-8 py-3 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Branch</th>
                                 <th className="px-8 py-3 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[140px]">Problems Solved</th>
                                 <th className="px-8 py-3 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100/50 dark:border-white/5 min-w-[120px]">Academic Year</th>
@@ -234,7 +234,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                                             key={student.id}
                                             className="group hover:bg-white/40 dark:hover:bg-white/5 transition-all"
                                         >
-                                            <td className="sticky left-0 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-0 px-8 py-1.5 border-r border-gray-100 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] z-20">
                                                 <div className="flex items-center gap-3">
                                                     <span className={`font-black tabular-nums text-sm ${isTopThree ? 'text-orange-600' : 'text-gray-400'}`}>
                                                         {rank}
@@ -244,12 +244,12 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="sticky left-20 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 font-mono text-gray-900 dark:text-gray-200 font-bold bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-20 px-8 py-1.5 border-r border-gray-100 dark:border-white/5 font-mono text-gray-900 dark:text-gray-200 font-bold bg-[#fafafa] dark:bg-[#121212] z-20">
                                                 {student.collegeId || "N/A"}
                                             </td>
-                                            <td className="sticky left-60 px-8 py-1.5 border-r border-gray-100/50 dark:border-white/5 bg-white/80 dark:bg-[#121212]/90 backdrop-blur-md z-20">
+                                            <td className="sticky left-60 px-8 py-1.5 border-r border-gray-100 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] z-20">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-500/20 relative overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                    <div className="w-9 h-9 rounded-lg bg-linear-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-500/20 relative overflow-hidden shrink-0 flex items-center justify-center">
                                                         {student.image ? (
                                                             <Image src={student.image} alt="" fill className="object-cover" />
                                                         ) : (
@@ -315,7 +315,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                 </div>
 
                 {/* Compact Pagination */}
-                <div className="bg-gray-50/30 dark:bg-black/20 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
+                <div className="bg-gray-50/30 dark:bg-[#111]/80 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
                         Displaying <span className="text-gray-900 dark:text-white">{(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</span> of {filteredStudents.length}
                     </p>

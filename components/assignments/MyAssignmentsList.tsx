@@ -41,57 +41,84 @@ export function MyAssignmentsList({ assignments }: MyAssignmentsListProps) {
     const upcoming = assignments.filter(a => a.dueDate && !isToday(new Date(a.dueDate)) && !isPast(new Date(a.dueDate)));
     const noDue = assignments.filter(a => !a.dueDate);
 
-    const renderCard = (assignment: Assignment) => (
-        <Link
-            key={assignment.id}
-            href={`/my-assignments/${assignment.id}`}
-            className="block bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl p-4 hover:shadow-md hover:border-orange-200 dark:hover:border-orange-500/20 transition-all group"
-        >
-            <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-lg text-orange-600 dark:text-orange-500">
-                    <CheckCircle2 className="w-4 h-4" />
+    const renderCard = (assignment: Assignment) => {
+        const isOverdue = assignment.dueDate && isPast(new Date(assignment.dueDate));
+        const isDueToday = assignment.dueDate && isToday(new Date(assignment.dueDate));
+
+        return (
+            <Link
+                key={assignment.id}
+                href={`/my-assignments/${assignment.id}`}
+                className="group relative bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
+            >
+                <div className="flex items-start justify-between mb-6">
+                    <div className={`p-3 rounded-xl border transition-all duration-500 ${
+                        isOverdue
+                            ? 'bg-red-50 dark:bg-red-500/10 text-red-600 border-red-100 dark:border-red-500/20'
+                            : isDueToday
+                                ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 border-yellow-100 dark:border-yellow-500/20'
+                                : 'bg-gray-50 dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/10 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600'
+                    }`}>
+                        <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                    {assignment.dueDate && (
+                        <div className="flex flex-col items-end">
+                            <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Horizon</span>
+                            <div className={`px-2.5 py-1 rounded-lg border shadow-sm ${
+                                isOverdue
+                                    ? 'bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20'
+                                    : 'bg-white dark:bg-black/40 border-gray-100 dark:border-white/10'
+                            }`}>
+                                <span className={`text-[10px] font-black uppercase tabular-nums tracking-widest leading-none ${
+                                    isOverdue ? 'text-red-600' : 'text-gray-900 dark:text-gray-200'
+                                }`}>
+                                    {isOverdue ? "Lapsed" : format(new Date(assignment.dueDate), "MMM dd")}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
-                {assignment.dueDate && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                            isPast(new Date(assignment.dueDate))
-                                ? "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
-                                : isToday(new Date(assignment.dueDate))
-                                    ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400"
-                                    : "bg-gray-100 text-gray-600 dark:bg-[#262626] dark:text-gray-400"
-                        }`}>
-                        <Clock className="w-2.5 h-2.5 inline mr-0.5" />
-                        {isPast(new Date(assignment.dueDate)) ? "Overdue" : format(new Date(assignment.dueDate), "MMM d, h:mma")}
+
+                <div className="mb-1">
+                    <span className="text-[8px] font-black text-orange-600 uppercase tracking-[0.2em] mb-1 block">
+                        {assignment.classroom.name}
                     </span>
-                )}
-            </div>
+                    <h3 className="text-lg font-black text-gray-950 dark:text-white group-hover:text-orange-600 transition-colors tracking-tight line-clamp-1 uppercase">
+                        {assignment.title}
+                    </h3>
+                </div>
 
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1 group-hover:text-orange-600 transition-colors line-clamp-1">
-                {assignment.title}
-            </h3>
-            <p className="text-[11px] text-gray-400 mb-2">{assignment.classroom.name}</p>
+                <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-8 line-clamp-2 leading-relaxed min-h-[32px]">
+                    {assignment.description || "Operational parameters undefined."}
+                </p>
 
-            {assignment.description && (
-                <p className="text-xs text-gray-500 line-clamp-1 mb-3">{assignment.description}</p>
-            )}
+                <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-white/5">
+                    <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Complexity</span>
+                        <span className="text-[10px] font-black text-gray-950 dark:text-white tabular-nums uppercase">
+                            {assignment._count.problems} Nodes
+                        </span>
+                    </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-[#262626]">
-                <span className="text-[10px] font-bold text-gray-500">{assignment._count.problems} Problems</span>
-                <span className="flex items-center gap-0.5 text-[10px] font-bold text-gray-900 dark:text-white group-hover:translate-x-1 transition-transform">
-                    Start <ChevronRight className="w-3 h-3" />
-                </span>
-            </div>
-        </Link>
-    );
+                    <div className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 text-[9px] font-black uppercase tracking-widest group-hover:bg-orange-600 group-hover:text-white transition-all shadow-sm">
+                        Execute Link
+                        <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                </div>
+            </Link>
+        );
+    };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-12">
             {urgent.length > 0 && (
                 <div>
-                    <h2 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                        Due Soon / Overdue
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-3 mb-6 px-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                        <h2 className="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]">Priority Protocols</h2>
+                        <div className="h-px bg-red-100 dark:bg-red-900/20 flex-1" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {urgent.map(renderCard)}
                     </div>
                 </div>
@@ -99,8 +126,12 @@ export function MyAssignmentsList({ assignments }: MyAssignmentsListProps) {
 
             {upcoming.length > 0 && (
                 <div>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Upcoming</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                     <div className="flex items-center gap-3 mb-6 px-2">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                        <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Upcoming Missions</h2>
+                        <div className="h-px bg-gray-100 dark:bg-white/5 flex-1" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {upcoming.map(renderCard)}
                     </div>
                 </div>
@@ -108,8 +139,12 @@ export function MyAssignmentsList({ assignments }: MyAssignmentsListProps) {
 
             {noDue.length > 0 && (
                 <div>
-                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">No Due Date</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-3 mb-6 px-2">
+                        <div className="w-2 h-2 bg-gray-300 rounded-full" />
+                        <h2 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em]">Open Timeline</h2>
+                        <div className="h-px bg-gray-100 dark:bg-white/5 flex-1" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {noDue.map(renderCard)}
                     </div>
                 </div>

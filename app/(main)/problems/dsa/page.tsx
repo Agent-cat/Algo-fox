@@ -63,6 +63,7 @@ async function DsaProblemsContent({
     const params = await searchParams;
     const page = Number(params?.page) || 1;
     const difficulty = (params?.difficulty as any) || undefined;
+    const sortBy = (params?.sortBy as string) || "newest";
 
     // tags can be string or string[]
     let tags: string[] = [];
@@ -76,7 +77,7 @@ async function DsaProblemsContent({
 
     // FETCHING DATA BASED ON MODE
     const [{ problems, totalPages }, categoriesRes] = await Promise.all([
-        getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags),
+        getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags, undefined, sortBy),
         mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] })
     ]);
 

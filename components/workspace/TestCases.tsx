@@ -266,19 +266,12 @@ const TestCases = memo(({
                 </motion.div>
             </motion.div>
 
-            {/* Collapsible Content */}
-            <AnimatePresence initial={false}>
-                {!isCollapsed && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="flex-1 overflow-hidden flex flex-col"
-                    >
+            {/* Panel Content (Visible when NOT collapsed) */}
+            {!isCollapsed && (
+                <div className="flex-1 overflow-hidden flex flex-col">
                         {/* Tabs and Content */}
-                        <div className="px-4 py-3 flex-1 flex flex-col overflow-hidden">
-                            <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 custom-scrollbar">
+                        <div className="px-4 py-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar">
+                            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 shrink-0 custom-scrollbar">
                                 {/* Console Tab */}
                                 {hasError && (
                                     <motion.button
@@ -452,8 +445,8 @@ const TestCases = memo(({
                                 </motion.div>
                             )}
 
-                            {/* Content */}
-                            <div className="flex-1 overflow-hidden">
+                             {/* Content */}
+                            <div className="flex-1">
                                 <AnimatePresence mode="wait">
                                     {activeTab === "console" && hasError ? (
                                         errorDetails ? (
@@ -699,17 +692,20 @@ const TestCases = memo(({
                                                             initial={{ opacity: 0, y: 4 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: 0.05 }}
+                                                            className="space-y-2"
                                                         >
-                                                            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Input</div>
+                                                            <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                                                Input
+                                                            </div>
                                                             {isCustom ? (
                                                                 <textarea
                                                                     value={testCase.input}
                                                                     onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { input: e.target.value })}
                                                                     placeholder="Enter custom input..."
-                                                                    className="w-full bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500/50 min-h-[100px] resize-y"
+                                                                    className="w-full bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-orange-500/30 min-h-[120px] resize-y"
                                                                 />
                                                             ) : (
-                                                                <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
+                                                                <div className="bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
                                                                     {testCase.input}
                                                                 </div>
                                                             )}
@@ -720,35 +716,39 @@ const TestCases = memo(({
                                                             initial={{ opacity: 0, y: 4 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: 0.1 }}
-                                                            className="grid grid-cols-2 gap-3"
+                                                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
                                                         >
-                                                            <div>
-                                                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Expected Output</div>
+                                                            <div className="space-y-2">
+                                                                <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                                                    Expected
+                                                                </div>
                                                                 {isCustom ? (
                                                                     <textarea
                                                                         value={testCase.output}
                                                                         onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { output: e.target.value })}
-                                                                        placeholder="Enter expected output (optional)..."
-                                                                        className="w-full bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-orange-500/50 min-h-[100px] resize-y"
+                                                                        placeholder="Expected output..."
+                                                                        className="w-full bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-orange-500/30 min-h-[120px] resize-y"
                                                                     />
                                                                 ) : (
-                                                                    <div className="bg-gray-50 dark:bg-[#0d0d0d] border border-gray-200 dark:border-[#1e1e1e] rounded-xl p-3.5 font-mono text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap h-full">
+                                                                    <div className="bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap min-h-[120px]">
                                                                         {testCase.output}
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div>
-                                                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Your Output</div>
+                                                            <div className="space-y-2">
+                                                                <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                                                    Actual
+                                                                </div>
                                                                 <div className={`
-                                                                    border rounded-xl p-3.5 font-mono text-sm whitespace-pre-wrap h-full transition-colors duration-300 min-h-[100px]
+                                                                    border-2 border-dotted rounded-xl p-4 font-mono text-sm whitespace-pre-wrap transition-colors duration-300 min-h-[120px]
                                                                     ${result?.status === 'ACCEPTED'
-                                                                        ? 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-900 dark:text-emerald-300'
+                                                                        ? 'bg-emerald-500/3 dark:bg-emerald-500/3 border-emerald-500/30 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-300'
                                                                         : result?.status === 'WRONG_ANSWER'
-                                                                            ? 'bg-red-50/50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 text-red-900 dark:text-red-300'
-                                                                            : 'bg-gray-50 dark:bg-[#0d0d0d] border-gray-200 dark:border-[#1e1e1e] text-gray-800 dark:text-gray-300'
+                                                                            ? 'bg-red-500/3 dark:bg-red-500/3 border-red-500/30 dark:border-red-500/30 text-red-900 dark:text-red-300'
+                                                                            : 'bg-[#fafafa] dark:bg-[#121212] border-gray-200 dark:border-[#262626] text-gray-800 dark:text-gray-200'
                                                                     }
                                                                 `}>
-                                                                    {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : 'No output')}
+                                                                    {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
                                                                 </div>
                                                             </div>
                                                         </motion.div>
@@ -760,9 +760,8 @@ const TestCases = memo(({
                                 </AnimatePresence>
                             </div>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                </div>
+            )}
         </div>
     );
 });

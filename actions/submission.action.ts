@@ -94,3 +94,11 @@ export async function markConceptAsCompleted(problemId: string) {
         return { success: false, error: "Failed to mark as completed" };
     }
 }
+
+export async function getSubmissionDistributionAction(problemId: string) {
+    "use cache";
+    cacheLife({ stale: 3600, revalidate: 3600 }); // Distribution doesn't change too fast
+    cacheTag(`problem-${problemId}-distribution`);
+
+    return SubmissionService.getSubmissionDistribution(problemId);
+}

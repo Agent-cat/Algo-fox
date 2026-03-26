@@ -231,7 +231,7 @@ export class SubmissionService {
     static async incrementProblemSolved(problemId: string, userId: string) {
         // OPTIMIZATION: Separate cache operations from database transaction
         // This prevents Redis/external calls from blocking the transaction which can cause deadlocks
-        
+
         // Step 1: Check if first solve outside transaction (read-only)
         const acceptedCount = await prisma.submission.count({
             where: {
@@ -423,5 +423,29 @@ export class SubmissionService {
         );
         await this.updateSubmissionStatus(submission.id, "ACCEPTED", 0, 0);
         return submission;
+    }
+
+    static async getSubmissionDistribution(problemId: string) {
+        // Fetch all accepted submissions for this problem to calculate distribution
+        // In a real large-scale system, we would pre-calculate these or use a summary table
+        const distribution = await prisma.$queryRaw<Array<{ type: string; value: number; count: bigint }>>`
+            SELECT 'runtime' as type, ROUND(s.time::numeric, 0) as value, COUNT(*) as count
+            FROM "Submission" s
+            WHERE s."problemId" = ${problemId} AND s.status = ${SubmissionResult.ACCEPTED}::"SubmissionResult" AND s.time IS NOT NULL AND s.mode = 'SUBMIT'
+            GROUP BY ROUND(s.time::numeric, 0)
+            UNION ALL
+            SELECT 'memory' as type, ROUND(s.memory::numeric, -2) as value, COUNT(*) as count
+            FROM "Submission" s
+            WHERE s."problemId" = ${problemId} AND s.status = ${SubmissionResult.ACCEPTED}::"SubmissionResult" AND s.memory IS NOT NULL AND s.mode = 'SUBMIT'
+            GROUP BY ROUND(s.memory::numeric, -2)
+        `;
+
+        const runtimes = distribution.filter(d => d.type === 'runtime').map(d => ({ value: Number(d.value), count: Number(d.count) }));
+        const memories = distribution.filter(d => d.type === 'memory').map(d => ({ value: Number(d.value), count: Number(d.count) }));
+
+        return {
+            runtimes: runtimes.sort((a, b) => a.value - b.value),
+            memories: memories.sort((a, b) => a.value - b.value)
+        };
     }
 }

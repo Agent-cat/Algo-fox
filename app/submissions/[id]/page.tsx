@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, Database, CheckCircle2, XCircle, AlertCircle, Terminal } from "lucide-react";
 import CodeEditor from "@/components/workspace/CodeEditor";
 import { Suspense } from "react";
+import SubmissionDistribution from "@/components/workspace/SubmissionDistribution";
+
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -53,7 +55,7 @@ async function SubmissionContent({ params }: PageProps) {
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                             <span className="text-sm font-medium uppercase tracking-widest">Back</span>
                         </Link>
-                        <div className="h-6 w-[1px] bg-gray-200 dark:bg-[#1a1a1a]" />
+                        <div className="h-6 w-px bg-gray-200 dark:bg-[#1a1a1a]" />
                         <div>
                             <h1 className="text-2xl font-black text-gray-900 dark:text-white zf uppercase ">{problem.title}</h1>
                             <p className="text-[10px] text-gray-400 font-mono mt-0.5 tracking-tighter uppercase">Submission Reference: {id}</p>
@@ -64,7 +66,7 @@ async function SubmissionContent({ params }: PageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                     {/* LEFT SIDE: CODE VIEWER */}
                     <div className="lg:col-span-8 space-y-6">
-                        <div className="glass-container relative bg-white/5 dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-sm overflow-hidden flex flex-col shadow-2xl shadow-black/5">
+                        <div className="glass-container relative bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-sm overflow-hidden flex flex-col shadow-2xl shadow-black/5">
                             <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
                                 <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center gap-3">
                                     <Terminal className="w-3.5 h-3.5 text-orange-500" />
@@ -99,36 +101,44 @@ async function SubmissionContent({ params }: PageProps) {
                             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-[0.3em]">Status Result</p>
                         </div>
 
-                        <div className="h-[1px] bg-gradient-to-r from-transparent via-gray-100 dark:via-white/10 to-transparent w-full" />
+                        <div className="h-px bg-linear-to-r from-transparent via-gray-100 dark:via-white/10 to-transparent w-full" />
 
                         {/* PERFORMANCE STATS - GLASS STYLE */}
-                        <div className="bg-white/5 rounded-xl dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 p-8 rounded-none shadow-xl shadow-black/5">
-                            <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4">
-                                Metrics Detail
-                            </h3>
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-10">
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-gray-400">
-                                        <Clock className="w-3 h-3" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest">Runtime</span>
-                                    </div>
-                                    <p className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">
-                                        {time ? <>{time}<span className="text-xs ml-1 font-medium text-gray-400">ms</span></> : <span className="text-gray-200 dark:text-gray-800">--</span>}
-                                    </p>
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-gray-400">
-                                        <Database className="w-3 h-3" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest">Memory</span>
-                                    </div>
-                                    <p className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">
-                                        {memory ? <>{memory}<span className="text-xs ml-1 font-medium text-gray-400">KB</span></> : <span className="text-gray-200 dark:text-gray-800">--</span>}
-                                    </p>
-                                </div>
+                        <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 p-8 rounded-none shadow-xl shadow-black/5 space-y-12">
+                            <div>
+                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4 flex items-center justify-between">
+                                    <span>Runtime Performance</span>
+                                    <Clock className="w-3.5 h-3.5 opacity-50" />
+                                </h3>
+                                {time ? (
+                                    <SubmissionDistribution
+                                        problemId={problem.id}
+                                        currentValue={time}
+                                        type="runtime"
+                                    />
+                                ) : (
+                                    <div className="text-[10px] font-black italic text-gray-500 py-4 opacity-50 uppercase tracking-widest text-center border-2 border-dotted border-white/5 rounded-sm">Waiting for execution metrics...</div>
+                                )}
                             </div>
 
-                            <div className="mt-10 pt-6 border-t  border-gray-50 dark:border-white/5">
-                                <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4 flex items-center justify-between">
+                                    <span>Memory Footprint</span>
+                                    <Database className="w-3.5 h-3.5 opacity-50" />
+                                </h3>
+                                {memory ? (
+                                    <SubmissionDistribution
+                                        problemId={problem.id}
+                                        currentValue={memory}
+                                        type="memory"
+                                    />
+                                ) : (
+                                    <div className="text-[10px] font-black italic text-gray-500 py-4 opacity-50 uppercase tracking-widest text-center border-2 border-dotted border-white/5 rounded-sm">Waiting for execution metrics...</div>
+                                )}
+                            </div>
+
+                            <div className="mt-10 pt-6 border-t border-gray-50 dark:border-white/5">
+                                <div className="flex items-center justify-between overflow-hidden">
                                     <div className="space-y-1">
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Submitted</span>
                                         <p className="text-[11px] font-bold text-gray-900 dark:text-gray-300 uppercase tracking-tighter flex items-center gap-2">
@@ -138,13 +148,14 @@ async function SubmissionContent({ params }: PageProps) {
                                             })}
                                         </p>
                                     </div>
+                                    <div className="w-12 h-1 bg-orange-500/10 rounded-full" />
                                 </div>
                             </div>
                         </div>
 
                         {/* TEST CASES ACCORDION / LIST */}
                         {testCases.length > 0 && (
-                            <div className="bg-white/5 rounded-xl dark:bg-white/[0.02] backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-none shadow-xl shadow-black/5 overflow-hidden">
+                            <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-none shadow-xl shadow-black/5 overflow-hidden">
                                 <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
                                     <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Test Scenarios</h3>
                                     <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-1">
@@ -154,12 +165,12 @@ async function SubmissionContent({ params }: PageProps) {
                                 </div>
                                 <div className="divide-y divide-gray-100 dark:divide-white/5 max-h-[300px] overflow-y-auto custom-scrollbar">
                                     {testCases.map((tc) => (
-                                        <div key={tc.id} className="px-6 py-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/[0.02] transition-colors group">
+                                        <div key={tc.id} className="px-6 py-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/2 transition-colors group">
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-1 h-4 rounded-none ${tc.status === 'ACCEPTED' ? 'bg-green-500' : 'bg-red-500'}`} />
                                                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest">Case {tc.index + 1}</span>
                                             </div>
-                                            <span className={`text-[9px] font-black uppercase tracking-[0.1em] ${tc.status === 'ACCEPTED' ? 'text-green-500' : 'text-red-500'}`}>
+                                            <span className={`text-[9px] font-black uppercase tracking-widest ${tc.status === 'ACCEPTED' ? 'text-green-500' : 'text-red-500'}`}>
                                                 {tc.status === 'ACCEPTED' ? 'OK' : 'FAIL'}
                                             </span>
                                         </div>

@@ -69,25 +69,32 @@ export function ClassroomsPageContent({
     router.refresh();
   }, [router]);
 
+
   return (
-    <>
-      {/* Control Bar */}
-      <div className="bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl border border-gray-200 dark:border-[#262626] p-2 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-none mb-8 flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
-        <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
-          <input
-            type="text"
-            placeholder="Search classrooms or mentors..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-[#0a0a0a] border border-transparent focus:bg-white dark:focus:bg-[#1a1a1a] focus:border-orange-500/50 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none transition-all"
-          />
-        </div>
+    <div className="pb-20">
+      {/* Access Control Toolbar */}
+      <div className="flex flex-col md:flex-row gap-6 mb-12 items-center justify-between">
+         <div className="relative group flex-1 w-full md:max-w-md">
+           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+           <input
+             type="text"
+             placeholder="Locate logic nodes or mentors..."
+             value={searchQuery}
+             onChange={handleSearchChange}
+             className="w-full h-12 pl-12 pr-4 bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500/20 shadow-sm transition-all"
+           />
+         </div>
+
+         <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-gray-400">
+            <span>Grid view active</span>
+            <div className="h-4 w-px bg-gray-100 dark:bg-white/10" />
+            <span className="text-gray-950 dark:text-white">{filteredClassrooms.length} Active Nodes</span>
+         </div>
       </div>
 
-      {/* Grid */}
+      {/* Grid Matrix */}
       {filteredClassrooms.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {paginatedClassrooms.map((classroom, idx) => (
             <StudentClassroomCard
               key={classroom.id}
@@ -97,42 +104,41 @@ export function ClassroomsPageContent({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-[#141414] rounded-3xl border border-gray-100 dark:border-[#262626] border-dashed">
-          <div className="w-20 h-20 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mb-4">
-            <Layers className="w-8 h-8 text-gray-300 dark:text-gray-600" />
+        <div className="flex flex-col items-center justify-center py-32 text-center bg-[#fafafa] dark:bg-[#121212] rounded-3xl border border-dashed border-gray-200 dark:border-white/5">
+          <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 border border-gray-100 dark:border-white/5">
+            <Layers className="w-8 h-8 text-gray-300 dark:text-gray-700" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            No classrooms found
+          <h2 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tightest">
+            {searchQuery ? "Matrix Search Null" : "No Active Links"}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
+          <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest max-w-xs mx-auto">
             {searchQuery
-              ? "Try adjusting your search terms"
-              : "You haven't joined any classrooms yet. Use a join link provided by your teacher to start!"}
+              ? "Re-align search parameters to locate nodes"
+              : "Initiate classroom link to begin logic synchronization"}
           </p>
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Numerical Navigation */}
       {totalPages > 1 && (
-        <div className="mt-12 flex items-center justify-center gap-4">
+        <div className="mt-20 flex items-center justify-center gap-6">
           <button
             onClick={() => {
               setCurrentPage((prev) => Math.max(1, prev - 1));
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             disabled={currentPage === 1}
-            className="p-3 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
+            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
 
-          <span className="text-sm font-bold text-gray-600 dark:text-gray-400">
-            Page{" "}
-            <span className="text-gray-900 dark:text-white">
-              {currentPage}
-            </span>{" "}
-            of {totalPages}
-          </span>
+          <div className="flex flex-col items-center">
+             <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Index</span>
+             <span className="text-[10px] font-black text-gray-950 dark:text-white tabular-nums">
+               {currentPage} <span className="text-gray-400">/</span> {totalPages}
+             </span>
+          </div>
 
           <button
             onClick={() => {
@@ -140,12 +146,12 @@ export function ClassroomsPageContent({
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             disabled={currentPage === totalPages}
-            className="p-3 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
+            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
           >
-            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 }

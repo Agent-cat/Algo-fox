@@ -293,18 +293,8 @@ const CodeEditor = memo(({
     }
   }, [isDropdownOpen]);
 
-  // Handle full screen change
-  useEffect(() => {
-    const handleFullScreenChange = () => {
-      setIsFullScreen(
-        document.fullscreenElement === editorContainerRef.current
-      );
-    };
+  // Removed native fullscreen event persistence to allow internal state management
 
-    document.addEventListener("fullscreenchange", handleFullScreenChange);
-    return () =>
-      document.removeEventListener("fullscreenchange", handleFullScreenChange);
-  }, []);
 
   // ─── FILE-MANAGED MODE: Sync controlled value → internal state + Monaco ───
   // When the parent switches between files it updates `controlledValue`.
@@ -700,19 +690,7 @@ const CodeEditor = memo(({
   };
 
   const handleFullScreen = () => {
-    if (!editorContainerRef.current) return;
-
-    if (!document.fullscreenElement) {
-      editorContainerRef.current.requestFullscreen().catch((err) => {
-        console.error(
-          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
-        );
-      });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
+    setIsFullScreen(!isFullScreen);
   };
 
   return (

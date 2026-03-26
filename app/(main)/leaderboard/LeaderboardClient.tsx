@@ -1,405 +1,253 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { getLeaderboardData, LeaderboardEntry } from "@/actions/leaderboard.action";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Medal, User, Crown, ChevronLeft, ChevronRight, RotateCw, Filter, Building2, Globe, Flame, Zap } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Trophy, Search, Maximize, Minimize, ChevronRight } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { getInstitutions } from "@/actions/admin/institution";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 50;
-
-const getRankDisplay = (rank: number) => {
-    if (rank === 0) return { medal: "🥇", color: "from-yellow-300 to-yellow-600", text: "Champion" };
-    if (rank === 1) return { medal: "🥈", color: "from-gray-300 to-gray-500", text: "Apex" };
-    if (rank === 2) return { medal: "🥉", color: "from-orange-300 to-orange-600", text: "Elite" };
-    if (rank < 10) return { medal: null, color: null, text: "Legend" };
-    if (rank < 50) return { medal: null, color: null, text: "Master" };
-    return { medal: null, color: null, text: "Warrior" };
-};
 
 export default function LeaderboardPage() {
     const { data: session } = authClient.useSession();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [totalEntries, setTotalEntries] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedInstitution, setSelectedInstitution] = useState<string>("all");
-    const [availableInstitutions, setAvailableInstitutions] = useState<{id: string, name: string}[]>([]);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
+    // Debounce search query
     useEffect(() => {
-        if (session?.user?.role === "ADMIN") {
-            setIsAdmin(true);
-            const fetchInst = async () => {
-                const res = await getInstitutions();
-                if (res.success && res.institutions) {
-                    setAvailableInstitutions(res.institutions as any);
-                }
-            };
-            fetchInst();
-        }
-    }, [session?.user?.role]);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1); // Reset to page 1 on new search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const fetchData = async (force: boolean = false) => {
-        if (!force) setIsLoading(true);
-        else setIsRefreshing(true);
-
+        setIsLoading(true);
         try {
-            const data = await getLeaderboardData(selectedInstitution, force);
-            setLeaderboard(data);
+            const data = await getLeaderboardData({
+                institutionId: "all",
+                page: currentPage,
+                pageSize: PAGE_SIZE,
+                search: debouncedSearch,
+                refresh: force
+            });
+            setLeaderboard(data.entries);
+            setTotalEntries(data.total);
         } catch (error) {
             console.error("Failed to fetch leaderboard", error);
+            toast.error("Failed to fetch rankings");
         } finally {
             setIsLoading(false);
-            setIsRefreshing(false);
         }
     };
 
     useEffect(() => {
         fetchData();
-    }, [selectedInstitution]);
+    }, [currentPage, debouncedSearch]);
 
-    const totalPages = Math.ceil(leaderboard.length / PAGE_SIZE);
+    const toggleFullscreen = () => {
+        if (!containerRef.current) return;
 
-    const displayedStudents = useMemo(() => {
-        const start = (currentPage - 1) * PAGE_SIZE;
-        return leaderboard.slice(start, start + PAGE_SIZE);
-    }, [leaderboard, currentPage]);
+        if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen().catch(err => {
+                toast.error(`Error enabling full-screen: ${err.message}`);
+            });
+            setIsFullscreen(true);
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                setIsFullscreen(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handler = () => setIsFullscreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', handler);
+        return () => document.removeEventListener('fullscreenchange', handler);
+    }, []);
+
+    const totalPages = Math.ceil(totalEntries / PAGE_SIZE);
+
+    const displayedStudents = leaderboard;
+
+
 
     return (
-        <AnimatePresence mode="wait">
-        {isLoading ? (
-            <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="min-h-screen flex flex-col items-center justify-center pt-12 bg-gradient-to-br from-[#fafafa] to-gray-100 dark:from-[#0a0a0a] dark:to-[#1a1a1a]"
-            >
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative w-12 h-12">
-                        <div className="absolute inset-0 rounded-full border-2 border-orange-500/20" />
-                        <div className="absolute inset-0 rounded-full border-2 border-t-orange-500 border-r-orange-500/50 animate-spin" />
-                    </div>
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Fetching rankings...</p>
+        <div ref={containerRef} className="h-[calc(100vh-64px)] w-full flex flex-col bg-[#fafafa] dark:bg-[#121212] overflow-hidden">
+            {/* Search Bar - Full edge-to-edge */}
+            <div className="bg-white/40 dark:bg-[#111]/40 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 flex items-center z-40">
+                <div className="relative group flex-1">
+                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Locate student by name or identifier..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full bg-transparent pl-16 pr-6 py-6 rounded-none text-xs font-bold focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                    />
                 </div>
-            </motion.div>
-        ) : (
-        <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="min-h-screen bg-gradient-to-br from-[#fafafa] via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0d0d0d] dark:to-[#1a1a1a]"
-        >
-            {/* Animated background orb */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 -z-10 w-[600px] h-[600px] bg-orange-500 opacity-20 dark:opacity-30 blur-[120px] rounded-full animate-pulse pointer-events-none" />
-            
-            {/* Header Section */}
-            <div className="relative pt-8 pb-16 px-6">
-                <div className="max-w-7xl mx-auto text-center space-y-4">
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="inline-block"
-                    >
-                        <div className="flex items-center justify-center gap-2 mb-4">
-                            <Flame className="w-5 h-5 text-orange-500 animate-bounce" style={{ animationDelay: "0s" }} />
-                            <span className="text-xs font-black uppercase tracking-[0.2em] text-orange-500">Global Rankings</span>
-                            <Flame className="w-5 h-5 text-orange-500 animate-bounce" style={{ animationDelay: "0.2s" }} />
-                        </div>
-                    </motion.div>
-                    
-                    <motion.h1
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15 }}
-                        className="text-5xl md:text-6xl font-black tracking-tighter text-gray-900 dark:text-white uppercase"
-                    >
-                        Competitive Arena
-                    </motion.h1>
-                    
-                    <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-sm text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-widest"
-                    >
-                        {selectedInstitution === 'all' ? 'Global Network' : availableInstitutions.find(i => i.id === selectedInstitution)?.name || 'Campus'} • {leaderboard.length} Competitors
-                    </motion.p>
-                </div>
+
+                <button
+                    onClick={toggleFullscreen}
+                    className="h-full px-8 border-l border-gray-100 dark:border-white/5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-all group active:scale-95"
+                    title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                    {isFullscreen ? (
+                        <Minimize className="w-4 h-4 text-orange-600" />
+                    ) : (
+                        <Maximize className="w-4 h-4 text-orange-600" />
+                    )}
+                    <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-400 hidden md:block">
+                        {isFullscreen ? "Windowed" : "Fullscreen"}
+                    </span>
+                </button>
             </div>
 
-            {/* Controls */}
-            <div className="max-w-7xl mx-auto px-6 mb-8">
-                {isAdmin && (
-                    <div className="flex flex-col items-center gap-4">
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.25 }}
-                            className="flex gap-3"
-                        >
-                            <button
-                                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-lg text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-sm hover:shadow-md"
-                            >
-                                <Filter className="w-4 h-4" />
-                                Filter Campus
-                            </button>
-                            <button
-                                onClick={() => fetchData(true)}
-                                disabled={isRefreshing}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-lg text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 hover:border-orange-500/50 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
-                            >
-                                <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                Refresh
-                            </button>
-                        </motion.div>
-
-                        {isFilterOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -15, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: -15, scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                                className="flex flex-wrap justify-center gap-2 p-4 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-white/10 shadow-lg"
-                            >
-                                <button
-                                    onClick={() => setSelectedInstitution("all")}
-                                    className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                                        selectedInstitution === "all"
-                                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
-                                        : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10"
-                                    }`}
-                                >
-                                    <Globe className="w-4 h-4" />
-                                    All Networks
-                                </button>
-                                {availableInstitutions.map((inst) => (
-                                    <button
-                                        key={inst.id}
-                                        onClick={() => setSelectedInstitution(inst.id)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-                                            selectedInstitution === inst.id
-                                            ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
-                                            : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10"
-                                        }`}
-                                    >
-                                        <Building2 className="w-3.5 h-3.5" />
-                                        {inst.name}
-                                    </button>
-                                ))}
-                            </motion.div>
-                        )}
+            {/* Table Area - Full flex fill */}
+            <div className="flex-1 overflow-auto relative scrollbar-hide">
+                {/* Soft Loading Overlay */}
+                {isLoading && (
+                    <div className="absolute inset-0 bg-white/20 dark:bg-black/10 backdrop-blur-[1px] z-50 flex flex-col items-center justify-center gap-4 transition-all animate-in fade-in duration-500">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
+                            <p className="text-[9px] font-black uppercase tracking-widest text-orange-600">Syncing...</p>
+                        </div>
                     </div>
                 )}
-            </div>
+                <table className="w-full border-collapse">
+                    <thead className="sticky top-0 z-40">
+                        <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50/90 dark:bg-[#111]/90 backdrop-blur-md">
+                            <th className="sticky left-0 px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 w-20 bg-inherit z-50">#</th>
+                            <th className="sticky left-20 px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 w-40 bg-inherit z-50">College ID</th>
+                            <th className="sticky left-60 px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 w-96 bg-inherit z-50">Student Profile</th>
+                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 min-w-[150px] bg-inherit">Branch</th>
+                            <th className="px-8 py-4 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 min-w-[160px] bg-inherit">Problems Solved</th>
+                            <th className="px-8 py-4 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-100 dark:border-white/5 min-w-[140px] bg-inherit">Academic Year</th>
+                            <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-40 z-10 bg-orange-50/20 dark:bg-orange-500/10 border-l border-gray-100 dark:border-white/5">Total Points</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
+                        <AnimatePresence mode="wait">
+                            {displayedStudents.map((entry, index) => {
+                                const rank = (currentPage - 1) * PAGE_SIZE + index + 1;
+                                const isTopThree = rank <= 3;
+                                const isCurrentUser = entry.userId === session?.user?.id;
 
-            {/* Leaderboard Table */}
-            <div className="max-w-7xl mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-white/70 dark:bg-[#0d0d0d]/70 backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-2xl dark:shadow-orange-500/5 overflow-hidden"
-                >
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gradient-to-r from-gray-50/80 to-gray-100/80 dark:from-white/5 dark:to-white/2 border-b border-gray-100 dark:border-white/10">
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Rank
-                                    </th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        College ID
-                                    </th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Student Name
-                                    </th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Academic Year
-                                    </th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Branch
-                                    </th>
-                                    <th className="px-8 py-5 text-center text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Problems
-                                    </th>
-                                    <th className="px-8 py-5 text-right text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.3em]">
-                                        Total Points
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                <AnimatePresence mode="popLayout">
-                                    {displayedStudents.map((user, index) => {
-                                        const actualRank = (currentPage - 1) * PAGE_SIZE + index;
-                                        const isCurrentUser = user.userId === session?.user?.id;
-                                        const rankInfo = getRankDisplay(actualRank);
-
-                                        return (
-                                            <motion.tr
-                                                key={user.userId}
-                                                layout
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: 20 }}
-                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                className={`group transition-all duration-200 ${
-                                                    isCurrentUser
-                                                    ? "bg-orange-50/50 dark:bg-orange-500/10 hover:bg-orange-50 dark:hover:bg-orange-500/15"
-                                                    : "hover:bg-gray-50 dark:hover:bg-white/2"
-                                                }`}
-                                            >
-                                                {/* Rank Cell */}
-                                                <td className="px-8 py-5">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.1 }}
-                                                        transition={{ type: "spring", stiffness: 400 }}
-                                                        className="flex items-center gap-3"
-                                                    >
-                                                        {actualRank < 3 ? (
-                                                            <div className={`w-12 h-12 bg-gradient-to-br ${rankInfo.color} rounded-xl flex items-center justify-center shadow-lg shadow-${actualRank === 0 ? 'yellow' : actualRank === 1 ? 'gray' : 'orange'}-500/30`}>
-                                                                <span className="text-2xl">{rankInfo.medal}</span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-white/10 dark:to-white/5 flex items-center justify-center border border-gray-200 dark:border-white/10">
-                                                                <span className="text-sm font-black text-gray-600 dark:text-gray-400">
-                                                                    #{actualRank + 1}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        <div className="min-w-0">
-                                                            <div className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                                {rankInfo.text}
-                                                            </div>
+                                return (
+                                    <motion.tr
+                                        initial={{ opacity: 0 }}
+                                        whileInView={{ opacity: 1 }}
+                                        viewport={{ once: true }}
+                                        key={entry.userId}
+                                        className={`group hover:bg-gray-50/50 dark:hover:bg-white/2 transition-all ${isCurrentUser ? 'bg-orange-50/30 dark:bg-orange-500/5' : ''}`}
+                                    >
+                                        <td className="sticky left-0 px-8 py-2 border-r border-gray-100 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] z-20">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`font-black tabular-nums text-sm ${isTopThree ? 'text-orange-600' : 'text-gray-400'}`}>
+                                                    {rank}
+                                                </span>
+                                                {isTopThree && (
+                                                    <Trophy className={`w-4 h-4 ${rank === 1 ? 'text-yellow-400' : rank === 2 ? 'text-gray-300' : 'text-orange-300'}`} />
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="sticky left-20 px-8 py-2 border-r border-gray-100 dark:border-white/5 font-mono text-gray-900 dark:text-gray-200 font-bold bg-[#fafafa] dark:bg-[#121212] z-20">
+                                            {entry.collegeId || entry.userId.slice(0, 8).toUpperCase()}
+                                        </td>
+                                        <td className="sticky left-60 px-8 py-2 border-r border-gray-100 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] z-20">
+                                            <Link href={`/profile/${entry.userId}`} className="flex items-center gap-4 group/name">
+                                            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-800/20 border border-orange-200/50 dark:border-orange-500/20 relative overflow-hidden shrink-0 flex items-center justify-center">
+                                                    {entry.image ? (
+                                                        <Image src={entry.image} alt={entry.name} fill className="object-cover" />
+                                                    ) : (
+                                                        <div className="text-sm font-black text-orange-600 dark:text-orange-400">
+                                                            {entry.name?.charAt(0).toUpperCase()}
                                                         </div>
-                                                    </motion.div>
-                                                </td>
-
-                                                {/* College ID */}
-                                                <td className="px-8 py-5">
-                                                    <code className="text-sm font-black text-orange-600 dark:text-orange-400 bg-orange-50/50 dark:bg-orange-500/10 px-3 py-1.5 rounded-lg">
-                                                        {user.userId.slice(0, 8).toUpperCase()}
-                                                    </code>
-                                                </td>
-
-                                                {/* Student Name */}
-                                                <td className="px-8 py-5">
-                                                    <Link
-                                                        href={`/profile/${user.userId}`}
-                                                        className="flex items-center gap-3 group/name"
-                                                    >
-                                                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-orange-200 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/20 border border-orange-200 dark:border-orange-500/20 flex-shrink-0 shadow-sm">
-                                                            {user.image ? (
-                                                                <Image
-                                                                    src={user.image}
-                                                                    alt={user.name}
-                                                                    width={40}
-                                                                    height={40}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-orange-600 dark:text-orange-400">
-                                                                    <span className="text-xs font-black">{user.name?.charAt(0) || 'U'}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <span className="text-sm font-black text-gray-900 dark:text-white group-hover/name:text-orange-500 dark:group-hover/name:text-orange-400 transition-colors uppercase tracking-tight">
-                                                            {user.name}
-                                                        </span>
-                                                    </Link>
-                                                </td>
-
-                                                {/* Academic Year (Placeholder) */}
-                                                <td className="px-8 py-5">
-                                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg">
-                                                        <span className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">2024</span>
-                                                    </div>
-                                                </td>
-
-                                                {/* Branch (Placeholder) */}
-                                                <td className="px-8 py-5">
-                                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                                                        CS
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-sm font-black text-gray-900 dark:text-white truncate group-hover/name:text-orange-600 transition-colors">
+                                                        {entry.name || "Anonymous"}
                                                     </span>
-                                                </td>
-
-                                                {/* Problems Solved */}
-                                                <td className="px-8 py-5 text-center">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.05 }}
-                                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg"
-                                                    >
-                                                        <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                                                        <span className="text-sm font-black text-emerald-700 dark:text-emerald-400">
-                                                            {user.problemsSolved}
-                                                        </span>
-                                                    </motion.div>
-                                                </td>
-
-                                                {/* Total Points */}
-                                                <td className="px-8 py-5 text-right">
-                                                    <motion.div
-                                                        whileHover={{ scale: 1.05 }}
-                                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-black text-sm shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-shadow"
-                                                    >
-                                                        <Trophy className="w-4 h-4" />
-                                                        <span className="tabular-nums">{user.totalScore.toLocaleString()}</span>
-                                                    </motion.div>
-                                                </td>
-                                            </motion.tr>
-                                        );
-                                    })}
-                                </AnimatePresence>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="px-8 py-5 bg-gray-50/50 dark:bg-white/2 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
-                            <div className="text-xs font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-400">
-                                Showing <span className="text-gray-900 dark:text-white">{(currentPage - 1) * PAGE_SIZE + 1}</span> — <span className="text-gray-900 dark:text-white">{Math.min(currentPage * PAGE_SIZE, leaderboard.length)}</span> of <span className="text-gray-900 dark:text-white">{leaderboard.length}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    className="p-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-orange-500/50 disabled:opacity-30 transition-all"
-                                >
-                                    <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                                </motion.button>
-                                <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-400 px-3">
-                                    <span className="text-gray-900 dark:text-white">{currentPage}</span> / {totalPages}
-                                </span>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="p-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-orange-500/50 disabled:opacity-30 transition-all"
-                                >
-                                    <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                                </motion.button>
-                            </div>
-                        </div>
-                    )}
-                </motion.div>
+                                                    <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                                                        {entry.collegeName || "Global Student"}
+                                                    </span>
+                                                </div>
+                                            </Link>
+                                        </td>
+                                        <td className="px-8 py-2 border-r border-gray-100 dark:border-white/5 text-left text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                                            {entry.branch || "N/A"}
+                                        </td>
+                                        <td className="px-8 py-2 border-r border-gray-100 dark:border-white/5 text-center">
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-lg font-black text-orange-600 dark:text-orange-400">
+                                                    {entry.problemsSolved || 0}
+                                                </span>
+                                                <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-tighter">Solved</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-2 border-r border-gray-100 dark:border-white/5 text-center">
+                                            <div className="inline-flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 border border-blue-200/50 dark:border-blue-500/30 rounded-lg px-4 py-1.5">
+                                                <span className="text-[11px] font-black text-blue-700 dark:text-blue-400">
+                                                    {entry.year ? `${entry.year}${entry.year === 1 ? 'ST' : entry.year === 2 ? 'ND' : entry.year === 3 ? 'RD' : 'TH'} YEAR` : "N/A"}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-2 text-right bg-orange-50/5 dark:bg-orange-500/5 relative">
+                                            <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-orange-500/50" />
+                                            <div className="flex flex-col items-end px-2">
+                                                <span className="text-xl font-black text-gray-950 dark:text-white tabular-nums tracking-tighter">
+                                                    {entry.totalScore.toLocaleString()}
+                                                </span>
+                                                <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">Points</span>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </tbody>
+                </table>
             </div>
 
-            {/* Footer Spacing */}
-            <div className="h-16" />
-        </motion.div>
-        )}
-        </AnimatePresence>
+            {/* Navigation - Edge to edge bottom sticky */}
+            <div className="bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl px-8 py-4 flex items-center justify-between border-t border-gray-100 dark:border-white/10 sticky bottom-0 z-50">
+                <div className="flex items-center gap-4">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em]">
+                        Rankings <span className="text-gray-900 dark:text-white ml-2">{(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, totalEntries)}</span> <span className="mx-2 text-gray-300">/</span> {totalEntries} Total
+                    </p>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="h-10 px-6 flex items-center justify-center bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5 disabled:opacity-30 hover:border-orange-500 transition-all font-black text-[10px] uppercase tracking-widest"
+                    >
+                        Prev
+                    </button>
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="h-10 px-6 flex items-center justify-center bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5 disabled:opacity-30 hover:border-orange-500 transition-all font-black text-[10px] uppercase tracking-widest"
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -11,6 +11,10 @@ export type LeaderboardEntry = {
     tags: string[];
     problemsSolved: number;
     totalScore: number;
+    collegeId: string | null;
+    collegeName: string | null;
+    branch: string | null;
+    year: number | null;
     socials: {
         leetcode: string | null;
         codechef: string | null;
@@ -25,9 +29,25 @@ export type LeaderboardEntry = {
 };
 
 export class LeaderboardService {
-    static async getGlobalLeaderboard(institutionId?: string, forceRefresh: boolean = false) {
+    static async getGlobalLeaderboard(params: {
+        institutionId?: string;
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        forceRefresh?: boolean;
+    }) {
+        const {
+            institutionId,
+            page = 1,
+            pageSize = 50,
+            search = "",
+            forceRefresh = false
+        } = params;
+
         // Try to get cached leaderboard from Redis
-        const cacheKey = institutionId ? `lb:inst:${institutionId}` : 'lb:global';
+        const cacheKey = institutionId
+            ? `lb:inst:${institutionId}:p:${page}:s:${search}`
+            : `lb:global:p:${page}:s:${search}`;
         const CACHE_TTL = 10 * 60; // 10 minutes
 
         try {
@@ -42,21 +62,36 @@ export class LeaderboardService {
             console.error('Redis get error:', error);
         }
 
-        // OPTIMIZATION: Fetch top 100 users with only required fields (avoid N+1 nested queries)
+        // 1. Calculate skip
+        const skip = (page - 1) * pageSize;
+
+        // 2. Fetch users with pagination and search
         const users = await prisma.user.findMany({
             where: {
                 role: 'STUDENT',
-                ...(institutionId ? { institutionId } : {})
+                ...(institutionId ? { institutionId } : {}),
+                ...(search ? {
+                    OR: [
+                        { name: { contains: search, mode: 'insensitive' } },
+                        { collegeId: { contains: search, mode: 'insensitive' } },
+                        { collegeName: { contains: search, mode: 'insensitive' } }
+                    ]
+                } : {})
             },
             orderBy: {
                 totalScore: 'desc'
             },
-            take: 100,
+            skip: skip,
+            take: pageSize,
             select: {
                 id: true,
                 name: true,
                 image: true,
                 tags: true,
+                collegeId: true,
+                collegeName: true,
+                branch: true,
+                year: true,
                 leetCodeHandle: true,
                 codeChefHandle: true,
                 githubHandle: true,
@@ -103,6 +138,10 @@ export class LeaderboardService {
                 tags: user.tags,
                 problemsSolved: user.problemsSolved,
                 totalScore: user.totalScore,
+                collegeId: user.collegeId,
+                collegeName: user.collegeName,
+                branch: user.branch,
+                year: user.year,
                 socials: {
                     leetcode: user.leetCodeHandle,
                     codechef: user.codeChefHandle,
@@ -117,7 +156,25 @@ export class LeaderboardService {
             };
         });
 
-        const result = leaderboard;
+        // 3. Get total count for pagination
+        const totalCount = await prisma.user.count({
+            where: {
+                role: 'STUDENT',
+                ...(institutionId ? { institutionId } : {}),
+                ...(search ? {
+                    OR: [
+                        { name: { contains: search, mode: 'insensitive' } },
+                        { collegeId: { contains: search, mode: 'insensitive' } },
+                        { collegeName: { contains: search, mode: 'insensitive' } }
+                    ]
+                } : {})
+            }
+        });
+
+        const result = {
+            entries: leaderboard,
+            total: totalCount
+        };
 
         // Cache the leaderboard in Redis
         try {

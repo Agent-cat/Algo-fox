@@ -23,62 +23,68 @@ interface StudentClassroomCardProps {
 export function StudentClassroomCard({ classroom, index }: StudentClassroomCardProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            whileHover={{ y: -4 }}
+            transition={{ delay: index * 0.03 }}
             className="group h-full"
         >
             <Link
                 href={`/dashboard/classrooms/${classroom.id}`}
-                className="flex flex-col h-full bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-500/30 transition-all duration-300 relative overflow-hidden"
+                className="flex flex-col h-full bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none hover:border-orange-500/50 transition-all duration-500 group relative overflow-hidden"
             >
-                {/* Decorative Background */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-orange-500/10 transition-colors duration-500" />
-
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6 relative z-10">
-                    <div className="w-12 h-12 bg-orange-50 dark:bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-600 dark:text-orange-500 group-hover:scale-110 transition-transform duration-300">
-                        <BookOpen className="w-6 h-6" />
+                {/* Protocol Header */}
+                <div className="flex items-start justify-between mb-8 relative z-10">
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 flex items-center justify-center text-orange-600 dark:text-orange-500 group-hover:scale-110 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
+                        <BookOpen className="w-5 h-5" />
                     </div>
-                    <div className="px-3 py-1 bg-gray-50 dark:bg-[#1a1a1a] text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest rounded-full border border-gray-100 dark:border-[#262626]">
-                        Active
+                    <div className="flex flex-col items-end">
+                        <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Node Status</span>
+                        <div className="px-2.5 py-1 bg-white dark:bg-black/40 rounded-lg border border-gray-100 dark:border-white/10 shadow-sm">
+                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest leading-none">Established</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Content */}
+                {/* Content Matrix */}
                 <div className="flex-1 relative z-10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-orange-600 transition-colors">
-                        {classroom.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-6">
-                        {classroom.subject || "General"}
+                    <div className="mb-2">
+                         <span className="text-[8px] font-black text-orange-600 uppercase tracking-[0.2em] mb-1.5 block">
+                            {classroom.subject || "Logic Protocol"}
+                         </span>
+                         <h3 className="text-xl font-black text-gray-950 dark:text-white group-hover:text-orange-600 transition-colors tracking-tightest uppercase line-clamp-2 leading-none">
+                            {classroom.name}
+                        </h3>
+                    </div>
+
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mb-8 uppercase tracking-widest">
+                        ID: {classroom.id.slice(-8).toUpperCase()}
                     </p>
 
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#262626]">
-                        <div className="w-8 h-8 rounded-full bg-white dark:bg-[#262626] flex items-center justify-center text-xs font-bold text-orange-600 border border-gray-100 dark:border-[#333]">
+                    <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 group-hover:border-orange-500/20 transition-all">
+                        <div className="w-9 h-9 rounded-lg bg-white dark:bg-black/40 flex items-center justify-center text-xs font-black text-gray-950 dark:text-white border border-gray-100 dark:border-white/10 shadow-sm">
                             {classroom.teacher.name?.charAt(0).toUpperCase() || "T"}
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mentor</span>
-                            <span className="text-xs font-semibold text-gray-900 dark:text-gray-200 line-clamp-1">
-                                {classroom.teacher.name || "Unknown Teacher"}
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Authorizing Mentor</span>
+                            <span className="text-xs font-black text-gray-900 dark:text-gray-200 line-clamp-1 truncate uppercase tracking-tight">
+                                {classroom.teacher.name || "System Master"}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between relative z-10">
+                {/* Footer Analytics */}
+                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex items-center justify-between relative z-10 text-[9px] font-black uppercase tracking-widest">
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Students</span>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">
-                            {classroom._count?.students || 0} enrolled
+                        <span className="text-gray-400 mb-1">Density</span>
+                        <span className="text-gray-950 dark:text-white tabular-nums">
+                            {classroom._count?.students || 0} Entities
                         </span>
                     </div>
 
-                    <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center text-gray-400 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
-                        <ArrowRight className="w-4 h-4" />
+                    <div className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 group-hover:bg-orange-600 group-hover:text-white transition-all shadow-lg active:scale-95">
+                        Initialize
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>
                 </div>
             </Link>

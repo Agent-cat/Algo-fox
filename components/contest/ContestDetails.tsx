@@ -134,10 +134,10 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
 
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
-            case "EASY": return "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400";
-            case "MEDIUM": return "bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400";
-            case "HARD": return "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400";
-            default: return "bg-gray-100 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400";
+            case "EASY": return "text-emerald-700 dark:text-emerald-400";
+            case "MEDIUM": return "text-orange-700 dark:text-orange-400";
+            case "HARD": return "text-red-700 dark:text-red-400";
+            default: return "text-gray-700 dark:text-gray-400";
         }
     };
 
@@ -321,7 +321,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                                 )}
                                             </div>
                                             <div className="col-span-3 md:col-span-2">
-                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(cp.problem.difficulty)}`}>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${getDifficultyColor(cp.problem.difficulty)}`}>
                                                     {cp.problem.difficulty === "MEDIUM" ? "Med." : cp.problem.difficulty.charAt(0) + cp.problem.difficulty.slice(1).toLowerCase()}
                                                 </span>
                                             </div>
