@@ -351,6 +351,8 @@ export async function getClassroomWithStudents(
                                 id: true,
                                 name: true,
                                 collegeId: true,
+                                collegeName: true,
+                                branch: true,
                                 totalScore: true,
                                 image: true,
                                 codeChefHandle: true,

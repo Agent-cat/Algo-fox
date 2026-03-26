@@ -21,6 +21,9 @@ const AssignmentsTab = dynamic(() => import("./assignments/AssignmentsTab").then
 interface Student {
     id: string;
     name: string | null;
+    collegeId: string | null;
+    collegeName: string | null;
+    branch: string | null;
     totalScore: number;
     image: string | null;
 }
@@ -55,10 +58,12 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
     };
 
     const handleDownload = () => {
-        const headers = ["Rank", "Student ID", "Name", "Total Score"];
+        const headers = ["Rank", "College Name", "College ID / Roll No", "Branch", "Name", "Total Score"];
         const rows = classroom.students.map((s, i) => [
             i + 1,
-            s.id,
+            s.collegeName || "N/A",
+            s.collegeId || "N/A",
+            s.branch || "N/A",
             s.name || "Anonymous",
             s.totalScore
         ]);

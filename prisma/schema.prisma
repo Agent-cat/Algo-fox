@@ -10,8 +10,10 @@ datasource db {
 model User {
   id        String  @id
   name      String
-  collegeId String?
-  email     String  @unique
+  collegeId   String?
+  collegeName String?
+  branch      String?
+  email       String  @unique
 
   totalScore     Int @default(0)
   problemsSolved Int @default(0)

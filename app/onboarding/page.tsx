@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { completeOnboarding } from "@/actions/user.action";
+import { verifyPlatformHandle } from "@/actions/platform.action";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Suspense } from "react";
@@ -22,24 +23,63 @@ const Icons = {
         <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
+    ),
+    Github: (props: any) => (
+        <svg {...props} fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
     )
 };
+
+// Hook for debouncing
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    return debouncedValue;
+}
+
+const CheckIcon = (props: any) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+);
+
+const XIcon = (props: any) => (
+    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+);
+
+interface OnboardingFormData {
+    name: string;
+    bio: string;
+    collegeId: string;
+    collegeName: string;
+    branch: string;
+    year: string;
+    leetCodeHandle: string;
+    codeChefHandle: string;
+    codeforcesHandle: string;
+    githubHandle: string;
+}
 
 function OnboardingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<OnboardingFormData>({
         name: "",
         bio: "",
         collegeId: "",
+        collegeName: "",
+        branch: "",
         year: "",
         leetCodeHandle: "",
         codeChefHandle: "",
         codeforcesHandle: "",
         githubHandle: "",
     });
+    const [verifiedHandles, setVerifiedHandles] = useState<Record<string, boolean | 'verifying' | 'failed'>>({});
 
     useEffect(() => {
         if (searchParams.get("welcome") === "true") {
@@ -50,10 +90,31 @@ function OnboardingContent() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (verifiedHandles[e.target.name]) {
+            setVerifiedHandles(prev => ({ ...prev, [e.target.name]: false }));
+        }
+    };
+
+    const handleVerify = async (platform: string, handle: string) => {
+        if (!handle.trim()) return;
+        setVerifiedHandles(prev => ({ ...prev, [platform]: 'verifying' }));
+        try {
+            const result = await verifyPlatformHandle(platform, handle);
+            if (result.success) {
+                setVerifiedHandles(prev => ({ ...prev, [platform]: true }));
+                toast.success(`Verified ${handle} exists on ${platform.replace('Handle', '')}`);
+            } else {
+                setVerifiedHandles(prev => ({ ...prev, [platform]: 'failed' }));
+                toast.error(`Could not find profile for ${handle}`);
+            }
+        } catch (error) {
+            setVerifiedHandles(prev => ({ ...prev, [platform]: 'failed' }));
+            toast.error("Verification failed. Please try again.");
+        }
     };
 
     const handleNext = () => {
-        if (step === 1 && (!formData.name.trim() || !formData.collegeId.trim() || !formData.year)) {
+        if (step === 1 && (!formData.name.trim() || !formData.collegeName.trim() || !formData.collegeId.trim() || !formData.branch.trim() || !formData.year)) {
             return;
         }
         setStep(step + 1);
@@ -74,7 +135,7 @@ function OnboardingContent() {
         }
     };
 
-    const isStep1Valid = !!formData.name.trim() && !!formData.collegeId.trim() && !!formData.year;
+    const isStep1Valid = !!formData.name.trim() && !!formData.collegeName.trim() && !!formData.collegeId.trim() && !!formData.branch.trim() && !!formData.year;
 
     return (
         <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
@@ -135,14 +196,36 @@ function OnboardingContent() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College ID / Name *</label>
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College Name *</label>
+                                            <input
+                                                type="text"
+                                                name="collegeName"
+                                                value={formData.collegeName}
+                                                onChange={handleChange}
+                                                className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
+                                                placeholder="e.g. IIT Delhi"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">College ID / Roll No *</label>
                                             <input
                                                 type="text"
                                                 name="collegeId"
                                                 value={formData.collegeId}
                                                 onChange={handleChange}
                                                 className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
-                                                placeholder="e.g. IIT Delhi"
+                                                placeholder="e.g. 21CS045"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold uppercase tracking-wider text-gray-500 ml-1">Branch / Degree *</label>
+                                            <input
+                                                type="text"
+                                                name="branch"
+                                                value={formData.branch}
+                                                onChange={handleChange}
+                                                className="w-full bg-gray-50 border-b-2 border-gray-200 px-0 py-4 text-xl font-medium focus:outline-none focus:border-orange-500 focus:bg-transparent transition-all placeholder:text-gray-300 rounded-none"
+                                                placeholder="e.g. Computer Science"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -183,11 +266,13 @@ function OnboardingContent() {
                                         <p className="text-gray-500 text-lg">Showcase your ratings from other platforms.</p>
                                     </div>
                                     <div className="space-y-5">
-                                        {[
-                                            { label: "LeetCode", name: "leetCodeHandle", logo: "/handles_logos/leetcode.png" },
-                                            { label: "CodeChef", name: "codeChefHandle", logo: "/handles_logos/codechef.png" },
-                                            { label: "Codeforces", name: "codeforcesHandle", logo: "/handles_logos/codeforces.png" },
-                                        ].map((field) => (
+                                        {(
+                                            [
+                                                { label: "LeetCode", name: "leetCodeHandle", logo: "/handles_logos/leetcode.png" },
+                                                { label: "CodeChef", name: "codeChefHandle", logo: "/handles_logos/codechef.png" },
+                                                { label: "Codeforces", name: "codeforcesHandle", logo: "/handles_logos/codeforces.png" },
+                                            ] as { label: string; name: keyof OnboardingFormData; logo: string }[]
+                                        ).map((field) => (
                                             <div key={field.name} className="flex items-center gap-6 group">
                                                 <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300 p-2">
                                                      <img src={field.logo} alt={field.label} className="w-full h-full object-contain" />
@@ -197,12 +282,27 @@ function OnboardingContent() {
                                                     <input
                                                         type="text"
                                                         name={field.name}
-                                                        // @ts-ignore
                                                         value={formData[field.name]}
                                                         onChange={handleChange}
-                                                        className="w-full bg-transparent border-b-2 border-gray-200 px-0 py-2 text-lg font-medium focus:outline-none focus:border-orange-500 transition-all placeholder:text-gray-300"
+                                                        className="w-full bg-transparent border-b-2 border-gray-200 px-0 py-2 text-lg font-medium focus:outline-none focus:border-orange-500 transition-all placeholder:text-gray-300 pr-10"
                                                         placeholder="username"
                                                     />
+                                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                        {verifiedHandles[field.name] === 'verifying' ? (
+                                                            <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : verifiedHandles[field.name] === true ? (
+                                                            <CheckIcon className="w-4 h-4 text-green-500" />
+                                                        ) : (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleVerify(field.name, formData[field.name])}
+                                                                disabled={!formData[field.name].trim()}
+                                                                className="text-[10px] font-black uppercase tracking-widest text-orange-600 hover:text-orange-700 disabled:opacity-30 p-1"
+                                                            >
+                                                                {verifiedHandles[field.name] === 'failed' ? 'Retry' : 'Verify'}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -229,9 +329,25 @@ function OnboardingContent() {
                                                     name="githubHandle"
                                                     value={formData.githubHandle}
                                                     onChange={handleChange}
-                                                    className="w-full bg-transparent border-b-2 border-gray-200 px-0 py-4 pl-10 text-xl font-medium focus:outline-none focus:border-orange-500 transition-all placeholder:text-gray-300 rounded-none"
+                                                    className="w-full bg-transparent border-b-2 border-gray-200 px-0 py-4 pl-10 text-xl font-medium focus:outline-none focus:border-orange-500 transition-all placeholder:text-gray-300 rounded-none pr-16"
                                                     placeholder="github_username"
                                                 />
+                                                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                    {verifiedHandles.githubHandle === 'verifying' ? (
+                                                        <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : verifiedHandles.githubHandle === true ? (
+                                                        <CheckIcon className="w-5 h-5 text-green-500" />
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleVerify("githubHandle", formData.githubHandle)}
+                                                            disabled={!formData.githubHandle.trim()}
+                                                            className="text-[10px] font-black uppercase tracking-widest text-orange-600 hover:text-orange-700 disabled:opacity-30 p-1"
+                                                        >
+                                                            {verifiedHandles.githubHandle === 'failed' ? 'Retry' : 'Verify'}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -102,6 +102,8 @@ export class UserService {
         name?: string;
         bio?: string;
         collegeId: string;
+        collegeName: string;
+        branch: string;
         year?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
@@ -115,6 +117,8 @@ export class UserService {
                 data: {
                     name: data.name,
                     collegeId: data.collegeId || null,
+                    collegeName: data.collegeName || null,
+                    branch: data.branch || null,
                     year: data.year ? parseInt(data.year) : null,
                     bio: data.bio || null,
                     leetCodeHandle: data.leetCodeHandle || null,
@@ -145,6 +149,9 @@ export class UserService {
     static async updateUserInfo(userId: string, data: {
         name?: string;
         bio?: string;
+        collegeId?: string;
+        collegeName?: string;
+        branch?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string;
@@ -165,6 +172,9 @@ export class UserService {
             const updateData: any = {
                 name: data.name,
                 bio: data.bio,
+                collegeId: data.collegeId,
+                collegeName: data.collegeName,
+                branch: data.branch,
                 leetCodeHandle: data.leetCodeHandle,
                 codeChefHandle: data.codeChefHandle,
                 codeforcesHandle: data.codeforcesHandle,
@@ -222,6 +232,9 @@ export class UserService {
             email: user.email,
             image: user.image,
             bio: user.bio,
+            collegeId: user.collegeId,
+            collegeName: user.collegeName,
+            branch: user.branch,
             institutionName: user.institution?.name
         };
     }

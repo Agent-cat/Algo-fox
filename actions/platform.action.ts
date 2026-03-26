@@ -386,3 +386,46 @@ export async function verifyLeetCodeOwnership(handle: string, verificationCode: 
 
     return { success: false, error: "Failed to fetch LeetCode profile or name is empty" };
 }
+
+// Check GitHub User
+export async function checkGitHubUser(handle: string) {
+    try {
+        const res = await fetch(`https://api.github.com/users/${handle}`, {
+            headers: {
+                "Accept" : "application/vnd.github.v3+json",
+            },
+            next: { revalidate: 3600 }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            return {
+                success: true,
+                status: 200,
+                name: data.name || data.login,
+                avatar: data.avatar_url,
+                bio: data.bio
+            };
+        }
+        return { success: false, status: res.status };
+    } catch (e) {
+        return { success: false, status: 500 };
+    }
+}
+
+// Verify Platform Handle Existence
+export async function verifyPlatformHandle(platform: string, handle: string) {
+    if (!handle.trim()) return { success: false, error: "Handle cannot be empty" };
+
+    switch (platform) {
+        case "leetCodeHandle":
+            return await checkLeetCodeUser(handle);
+        case "codeChefHandle":
+            return await checkCodeChefUser(handle);
+        case "codeforcesHandle":
+            return await checkCodeforcesUser(handle);
+        case "githubHandle":
+            return await checkGitHubUser(handle);
+        default:
+            return { success: false, error: "Invalid platform" };
+    }
+}

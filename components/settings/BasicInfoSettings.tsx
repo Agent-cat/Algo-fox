@@ -14,6 +14,9 @@ interface BasicInfoSettingsProps {
         email: string;
         image?: string | null;
         bio?: string | null;
+        collegeName?: string | null;
+        collegeId?: string | null;
+        branch?: string | null;
         institutionName?: string | null;
     };
 }
@@ -22,8 +25,9 @@ interface FormData {
     firstName: string; // UI only -> maps to name
     lastName: string;  // UI only -> maps to name
     bio: string;
-    // country, school, degree - UI only for now or partial maps
-    school: string;
+    collegeName: string;
+    collegeId: string;
+    branch: string;
 }
 
 export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
@@ -39,7 +43,9 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
             firstName: initialFirstName,
             lastName: initialLastName,
             bio: user.bio || "",
-            school: user.institutionName || "", // Use institution name if available
+            collegeName: user.collegeName || user.institutionName || "",
+            collegeId: user.collegeId || "",
+            branch: user.branch || "",
         }
     });
 
@@ -51,8 +57,10 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
 
             const res = await updateUserInfo({
                 name: fullName,
-                bio: data.bio
-                // we aren't updating school/institution here yet as it might need defined structure
+                bio: data.bio,
+                collegeName: data.collegeName,
+                collegeId: data.collegeId,
+                branch: data.branch
             });
 
             if (res.success) {
@@ -149,6 +157,46 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                             className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm resize-none"
                             placeholder="Tell us about yourself..."
                         />
+                    </div>
+
+                    <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-[#1e1e1e]">
+                         <h2 className="text-lg font-medium font-mono text-gray-900 dark:text-gray-100">Academic Details</h2>
+
+                         <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
+                                    College Name
+                                </label>
+                                <input
+                                    {...register("collegeName")}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                    placeholder="College Name"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
+                                        College ID / Roll No
+                                    </label>
+                                    <input
+                                        {...register("collegeId")}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                        placeholder="College ID"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
+                                        Branch / Specialization
+                                    </label>
+                                    <input
+                                        {...register("branch")}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                        placeholder="Branch"
+                                    />
+                                </div>
+                            </div>
+                         </div>
                     </div>
 
 

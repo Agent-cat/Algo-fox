@@ -5,28 +5,28 @@ import { useState, useCallback, useEffect } from "react";
 import { Loader2, Trash2, Check, Github, AlertCircle, ExternalLink, X, ShieldCheck, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
-import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser } from "@/actions/platform.action";
+import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser, checkGitHubUser } from "@/actions/platform.action";
 import Image from "next/image";
 import { VerificationModal } from "@/components/settings/VerificationModal";
 import { useRouter } from "next/navigation";
-
-interface PlatformSettingsProps {
-    user: {
-        leetCodeHandle?: string | null;
-        leetCodeVerified?: boolean | null;
-        codeChefHandle?: string | null;
-        codeChefVerified?: boolean | null;
-        codeforcesHandle?: string | null;
-        codeforcesVerified?: boolean | null;
-        githubHandle?: string | null;
-    };
-}
 
 interface FormData {
     leetCodeHandle: string;
     codeChefHandle: string;
     codeforcesHandle: string;
     githubHandle: string;
+}
+
+interface PlatformSettingsProps {
+    user: {
+        leetCodeHandle?: string | null;
+        codeChefHandle?: string | null;
+        codeforcesHandle?: string | null;
+        githubHandle?: string | null;
+        leetCodeVerified?: boolean;
+        codeChefVerified?: boolean;
+        codeforcesVerified?: boolean;
+    };
 }
 
 interface PlatformRowProps {
@@ -42,20 +42,6 @@ interface PlatformRowProps {
     initialValue: string;
     onVerify?: (handle: string) => void;
     isVerified?: boolean;
-}
-
-// Debounce helper
-function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
-    return debouncedValue;
 }
 
 const PlatformRow = ({
@@ -74,48 +60,30 @@ const PlatformRow = ({
 }: PlatformRowProps) => {
     const { register, watch, formState: { errors } } = form;
     const value = watch(id);
-    const debouncedValue = useDebounce(value, 500);
     const [isValid, setIsValid] = useState<boolean | null>(null);
     const [isChecking, setIsChecking] = useState(false);
 
-    // Show connected state only if value is saved (matches initial) and not empty
     const isSaved = value === initialValue && !!value;
 
-    // Existence check effect
+    const handleManualVerify = async () => {
+        if (!value) return;
+        setIsChecking(true);
+        let res;
+        if (id === "codeChefHandle") res = await checkCodeChefUser(value);
+        else if (id === "codeforcesHandle") res = await checkCodeforcesUser(value);
+        else if (id === "leetCodeHandle") res = await checkLeetCodeUser(value);
+        else if (id === "githubHandle") res = await checkGitHubUser(value);
+
+        setIsChecking(false);
+        setIsValid(res?.success || false);
+        if (res?.success) toast.success(`${label} profile verified!`);
+        else toast.error(`${label} profile not found.`);
+    };
+
+    // Reset status on value change
     useEffect(() => {
-        const checkExistence = async () => {
-            if (!debouncedValue || debouncedValue === initialValue) {
-                setIsValid(null);
-                return;
-            }
-
-            // Check CodeChef
-            if (id === "codeChefHandle") {
-                setIsChecking(true);
-                const res = await checkCodeChefUser(debouncedValue);
-                setIsChecking(false);
-                setIsValid(res.success);
-            }
-
-            // Check Codeforces
-            if (id === "codeforcesHandle") {
-                setIsChecking(true);
-                const res = await checkCodeforcesUser(debouncedValue);
-                setIsChecking(false);
-                setIsValid(res.success);
-            }
-
-            // Check LeetCode
-            if (id === "leetCodeHandle") {
-                setIsChecking(true);
-                const res = await checkLeetCodeUser(debouncedValue);
-                setIsChecking(false);
-                setIsValid(res.success);
-            }
-        };
-
-        checkExistence();
-    }, [debouncedValue, id, initialValue]);
+        setIsValid(null);
+    }, [value]);
 
     return (
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a]/50 rounded-xl border border-gray-100 dark:border-[#262626]">
@@ -137,14 +105,21 @@ const PlatformRow = ({
                             placeholder={placeholder}
                         />
                         {/* Status Icon inside input */}
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {isChecking ? (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                             {isChecking ? (
                                 <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
                             ) : isValid === true ? (
                                 <Check className="w-4 h-4 text-green-500" />
-                            ) : isValid === false && debouncedValue ? (
-                                <X className="w-4 h-4 text-red-500" />
-                            ) : null}
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleManualVerify}
+                                    disabled={!value || isChecking}
+                                    className="text-[10px] font-black uppercase tracking-widest text-orange-600 hover:text-orange-700 disabled:opacity-30"
+                                >
+                                    Verify
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -273,10 +248,19 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                     </div>
                     {isGithubConnected ? (
                          <button className="px-4 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] text-sm font-medium rounded-lg">
-                            Connected as {watch("githubHandle")}
+                            Connected as {user.githubHandle || watch("githubHandle")}
                          </button>
                     ) : (
-                        <button className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity">
+                        <button
+                            onClick={async () => {
+                                const { authClient } = await import("@/lib/auth-client");
+                                await authClient.signIn.social({
+                                    provider: "github",
+                                    callbackURL: window.location.href
+                                });
+                            }}
+                            className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                        >
                             Connect
                         </button>
                     )}

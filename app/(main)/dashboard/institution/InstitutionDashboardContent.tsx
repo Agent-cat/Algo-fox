@@ -116,18 +116,17 @@ export function InstitutionDashboardContent({
   }, [managerEmail, institutionId, selectedRole, router]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] transition-colors duration-300 pt-24 pb-12 px-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="w-full max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="space-y-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-2">
-              <Building2 className="w-4 h-4" />
-              Institution Admin
-            </div>
-            <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-              Dashboard
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+              Institution Dashboard
             </h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium">
+              Manage your institution&apos;s staff, students, and classrooms
+            </p>
           </div>
           {institutionName && (
             <div className="flex items-center gap-3 px-5 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-full shadow-sm">
@@ -406,10 +405,10 @@ function StatCard({
   };
 
   return (
-    <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 shadow-sm hover:shadow-md dark:shadow-none transition-all duration-300 group">
+    <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
       <div className="flex justify-between items-start mb-4">
         <div
-          className={`w-12 h-12 rounded-2xl ${colorStyles[color]} flex items-center justify-center transition-colors border`}
+          className={`w-12 h-12 rounded-xl ${colorStyles[color]} flex items-center justify-center transition-colors border`}
         >
           <Icon className="w-6 h-6" />
         </div>
@@ -420,13 +419,13 @@ function StatCard({
         )}
       </div>
 
-      <div>
-        <div className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+      <div className="space-y-1">
+        <p className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+          {value.toLocaleString()}
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
           {title}
-        </div>
-        <div className="text-3xl font-black text-gray-900 dark:text-white tracking-tight group-hover:translate-x-1 transition-transform">
-          {value}
-        </div>
+        </p>
       </div>
     </div>
   );
