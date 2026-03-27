@@ -2,19 +2,52 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import redis from "@/lib/redis";
 import { auth } from "@/lib/auth";
+import { getClientIP, getCloudflareSecurityInfo } from '@/lib/ddos-protection';
 
 // RATE LIMITS
 const RATE_LIMITS = {
-  "/api": { requests: 200, window: 60 }, // 100 requests per minute
-  "/problems": { requests: 100, window: 60 }, // 200 requests per minute
+  "/api": { requests: 200, window: 60 },
+  "/problems": { requests: 100, window: 60 },
 } as const;
 
 export default async function proxy(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+  const clientIp = getClientIP(request);
+  const url = new URL(request.url);
+  const pathname = url.pathname;
 
-  const cacheType = redis.status === "ready" ? "Redis" : "Inbuilt";
-  console.log(`[Cache: ${cacheType}] ${request.method} ${pathname}`);
+  // 1. Cloudflare Security Information Extraction
+  const securityInfo = getCloudflareSecurityInfo(request);
 
+  // Security Logging
+  const isSuspicious = (securityInfo.threatScore && parseInt(securityInfo.threatScore) > 10) || securityInfo.isBot;
+  const shouldLog = process.env.DEBUG_SECURITY === 'true' || isSuspicious;
+
+  if (shouldLog) {
+     console.info(`[Security] ${request.method} ${pathname}`, {
+       ip: clientIp,
+       country: securityInfo.country || 'Unknown',
+       threatScore: securityInfo.threatScore || '0',
+       isBot: securityInfo.isBot,
+       ray: securityInfo.ray || 'local',
+     });
+  }
+
+  // 2. Security Blocking Rules
+  if (securityInfo.threatScore) {
+    const score = parseInt(securityInfo.threatScore);
+    if (score > 90) { // Block extremely high threats
+      console.error(`[DDoS] Extreme threat score (${score}) from ${clientIp}`);
+      return NextResponse.json({ error: 'Security block active' }, { status: 403 });
+    }
+  }
+
+  const blockedCountries = process.env.BLOCKED_COUNTRIES?.split(',') || [];
+  if (securityInfo.country && blockedCountries.includes(securityInfo.country)) {
+    console.warn(`[DDoS] Blocked access from region: ${securityInfo.country}`);
+    return NextResponse.json({ error: 'Service unavailable in your region' }, { status: 403 });
+  }
+
+  // 3. Authentication & Access Control
   const isAuthProtected =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/dashboard/institution") ||
@@ -33,106 +66,87 @@ export default async function proxy(request: NextRequest) {
 
       const userRole = (session.user as any).role;
 
-      // ADMIN PROTECTION
+      // Role Check
       if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
-      // INSTUTION MANAGER PROTECTION
-      if (
-        pathname.startsWith("/dashboard/institution") &&
-        userRole !== "INSTITUTION_MANAGER"
-      ) {
+      if (pathname.startsWith("/dashboard/institution") && userRole !== "INSTITUTION_MANAGER") {
         return NextResponse.redirect(new URL("/", request.url));
       }
 
-      // TEACHER & CONTESTMANAGER PROTECTION
-      if (
-        (pathname.startsWith("/dashboard/teacher") ||
-          pathname.startsWith("/dashboard/contests")) &&
-        ![
-          "TEACHER",
-          "ADMIN",
-          "INSTITUTION_MANAGER",
-          "CONTEST_MANAGER",
-        ].includes(userRole)
-      ) {
+      if ((pathname.startsWith("/dashboard/teacher") || pathname.startsWith("/dashboard/contests")) &&
+          !["TEACHER", "ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER"].includes(userRole)) {
         return NextResponse.redirect(new URL("/", request.url));
       }
     } catch (error) {
-      console.error("Auth middleware error:", error);
+      console.error("[Auth] Session validation failed:", error);
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   }
 
-  // RATE LIMITING
-  const ip =
-    request.headers.get("x-forwarded-for") ??
-    request.headers.get("x-real-ip") ??
-    "unknown";
+  // 4. Rate Limiting System
+  const limitEntry = Object.entries(RATE_LIMITS).find(([path]) => pathname.startsWith(path));
+  let response: NextResponse;
 
-  // FINDING MATCHING RATE LIMIT CONFIGURATION
-  const limitEntry = Object.entries(RATE_LIMITS).find(([path]) =>
-    pathname.startsWith(path)
-  );
+  if (limitEntry) {
+    const [, limit] = limitEntry;
+    const key = `rate-limit:${clientIp}:${pathname.split("/").slice(0, 3).join("/")}`;
 
-  if (!limitEntry) {
-    return NextResponse.next();
+    try {
+      const count = await redis.incr(key);
+      if (count === 1) await redis.expire(key, limit.window);
+
+      if (count > limit.requests) {
+        return NextResponse.json(
+          { error: "Too many requests", retryAfter: limit.window },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": limit.window.toString(),
+              "X-RateLimit-Limit": limit.requests.toString(),
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": (Date.now() + limit.window * 1000).toString(),
+            },
+          }
+        );
+      }
+
+      response = NextResponse.next();
+      response.headers.set("X-RateLimit-Limit", limit.requests.toString());
+      response.headers.set("X-RateLimit-Remaining", (limit.requests - count).toString());
+    } catch (error) {
+       // Fail-safe: continue on redis error
+       console.error("[RateLimit] Redis error:", error);
+       response = NextResponse.next();
+    }
+  } else {
+    response = NextResponse.next();
   }
 
-  const [, limit] = limitEntry;
-  const key = `rate-limit:${ip}:${pathname.split("/").slice(0, 3).join("/")}`;
+  // 5. Global Security Headers (Optimized for Cloudflare)
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN'); // Matches next.config.ts for consistency
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  try {
-    const count = await redis.incr(key);
+  // Custom Cloudflare pass-throughs
+  response.headers.set('X-Client-IP', clientIp);
+  response.headers.set('X-CF-Ray', securityInfo.ray || 'local');
 
-    // SETTING EXPIRY ON FIRST REQUEST
-    if (count === 1) {
-      await redis.expire(key, limit.window);
-    }
-
-    // CHECKING IF RATE LIMIT EXCEEDED
-    if (count > limit.requests) {
-      return NextResponse.json(
-        {
-          error: "Rate limit exceeded",
-          retryAfter: limit.window,
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": limit.window.toString(),
-            "X-RateLimit-Limit": limit.requests.toString(),
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": (Date.now() + limit.window * 1000).toString(),
-          },
-        }
-      );
-    }
-
-    // ADDING RATE LIMIT HEADERS TO RESPONSE
-    const response = NextResponse.next();
-    response.headers.set("X-RateLimit-Limit", limit.requests.toString());
-    response.headers.set(
-      "X-RateLimit-Remaining",
-      (limit.requests - count).toString()
-    );
-
-    return response;
-  } catch (error) {
-    console.error("Rate limiting error:", error);
-    return NextResponse.next();
+  // Enforce HSTS in production
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   }
+
+  return response;
 }
 
-// CONFIGURING WHICH ROUTES TO APPLY MIDDLEWARE TO
 export const config = {
   matcher: [
-    "/api/:path*",
-    "/problems/:path*",
-    "/admin/:path*",
-    "/dashboard/institution/:path*",
-    "/dashboard/teacher/:path*",
-    "/dashboard/contests/:path*",
+    /*
+     * Match all request paths except for the ones starting with local assets
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

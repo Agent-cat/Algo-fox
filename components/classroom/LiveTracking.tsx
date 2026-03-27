@@ -97,7 +97,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
     return (
         <div className="space-y-8 w-full pb-20">
             {/* Header Control Panel */}
-            <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-7 shadow-sm transition-all duration-300">
+            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-4xl p-6 shadow-xl transition-all duration-300">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                     <div>
                         <div className="flex items-center gap-2.5 mb-2.5">
@@ -162,7 +162,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
 
             {/* Filters Toolbar */}
             {data?.isTrackingActive && (
-                <div className="flex flex-col md:flex-row gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 bg-white/30 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-4 shadow-lg">
                     <div className="relative flex-1 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                         <input
@@ -303,7 +303,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-4xl bg-white dark:bg-[#0a0a0a] rounded-4x1 shadow-2xl overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[85vh]"
+                            className="relative w-full max-w-4xl bg-white dark:bg-[#0a0a0a] rounded-4xl shadow-2xl overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[85vh]"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">
