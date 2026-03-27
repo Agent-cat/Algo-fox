@@ -10,9 +10,15 @@ import { motion, AnimatePresence } from "framer-motion";
 interface ContestPageClientProps {
     internalContests: any[];
     externalContests: Contest[];
+    pagination?: {
+        page: number;
+        totalPages: number;
+        total: number;
+    };
+    initialTab?: "active" | "past";
 }
 
-export function ContestPageClient({ internalContests, externalContests }: ContestPageClientProps) {
+export function ContestPageClient({ internalContests, externalContests, pagination, initialTab }: ContestPageClientProps) {
     const [viewMode, setViewMode] = useState<"internal" | "calendar">("internal");
 
     return (
@@ -90,7 +96,12 @@ export function ContestPageClient({ internalContests, externalContests }: Contes
                             transition={{ duration: 0.3 }}
                             className="max-w-7xl mx-auto"
                         >
-                            <ContestsPageContent contests={internalContests} />
+                            <ContestsPageContent
+                                contests={internalContests}
+                                page={pagination?.page || 1}
+                                totalPages={pagination?.totalPages || 1}
+                                initialTab={initialTab}
+                            />
                         </motion.div>
                     ) : (
                         <motion.div

@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import connection from './redis';
 
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
@@ -16,15 +16,12 @@ export interface RateLimitResult {
 }
 
 class RateLimiter {
-  private redis: Redis | null = null;
+  private redis = connection;
   private memoryStore: Map<string, { count: number; resetTime: number }> = new Map();
   private useRedis: boolean;
 
   constructor() {
-    this.useRedis = !!process.env.REDIS_URL;
-    if (this.useRedis) {
-      this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-    }
+    this.useRedis = true; // Always try to use Redis since we have a singleton
   }
 
   async checkLimit(
@@ -119,13 +116,6 @@ class RateLimiter {
         }
       }
     }
-  }
-
-  cleanup(): void {
-    if (this.redis) {
-      this.redis.disconnect();
-    }
-    this.memoryStore.clear();
   }
 }
 

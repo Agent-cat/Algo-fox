@@ -4,10 +4,16 @@ import redis from "@/lib/redis";
 import { auth } from "@/lib/auth";
 import { getClientIP, getCloudflareSecurityInfo } from '@/lib/ddos-protection';
 
-// RATE LIMITS
-const RATE_LIMITS = {
-  "/api": { requests: 200, window: 60 },
-  "/problems": { requests: 100, window: 60 },
+import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
+
+// RATE LIMITS MAPPING
+const PATH_TO_CONFIG = {
+  "/api/auth/signin": RATE_LIMIT_CONFIGS.AUTH_LOGIN,
+  "/api/auth/signup": RATE_LIMIT_CONFIGS.AUTH_REGISTER,
+  "/api/auth/reset-password": RATE_LIMIT_CONFIGS.AUTH_PASSWORD_RESET,
+  "/api/submissions": RATE_LIMIT_CONFIGS.SUBMISSIONS,
+  "/problems": RATE_LIMIT_CONFIGS.API_GENERAL,
+  "/api": RATE_LIMIT_CONFIGS.API_GENERAL,
 } as const;
 
 export async function proxy(request: NextRequest) {
@@ -85,41 +91,41 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 4. Rate Limiting System
-  const limitEntry = Object.entries(RATE_LIMITS).find(([path]) => pathname.startsWith(path));
-  let response: NextResponse;
+  // 4. Rate Limiting System (Optimized via centralized RateLimiter)
+  const limitEntry = Object.entries(PATH_TO_CONFIG).find(([path]) => pathname.startsWith(path));
+  let response: NextResponse | null = null;
 
   if (limitEntry) {
-    const [, limit] = limitEntry;
-    const key = `rate-limit:${clientIp}:${pathname.split("/").slice(0, 3).join("/")}`;
+    const [, config] = limitEntry;
+    const limiter = getRateLimiter();
 
+    // User-aware rate limiting if authenticated
+    let identifier = clientIp;
     try {
-      const count = await redis.incr(key);
-      if (count === 1) await redis.expire(key, limit.window);
+        const session = await auth.api.getSession({ headers: request.headers });
+        if (session?.user?.id) identifier = session.user.id;
+    } catch (e) { /* ignore */ }
 
-      if (count > limit.requests) {
-        return NextResponse.json(
-          { error: "Too many requests", retryAfter: limit.window },
-          {
-            status: 429,
-            headers: {
-              "Retry-After": limit.window.toString(),
-              "X-RateLimit-Limit": limit.requests.toString(),
-              "X-RateLimit-Remaining": "0",
-              "X-RateLimit-Reset": (Date.now() + limit.window * 1000).toString(),
-            },
-          }
-        );
-      }
+    const result = await limiter.checkLimit(identifier, config);
 
-      response = NextResponse.next();
-      response.headers.set("X-RateLimit-Limit", limit.requests.toString());
-      response.headers.set("X-RateLimit-Remaining", (limit.requests - count).toString());
-    } catch (error) {
-       // Fail-safe: continue on redis error
-       console.error("[RateLimit] Redis error:", error);
-       response = NextResponse.next();
+    if (!result.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests", retryAfter: result.retryAfter },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": (result.retryAfter || 60).toString(),
+            "X-RateLimit-Limit": config.maxRequests.toString(),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": result.resetTime.toString(),
+          },
+        }
+      );
     }
+
+    response = NextResponse.next();
+    response.headers.set("X-RateLimit-Limit", config.maxRequests.toString());
+    response.headers.set("X-RateLimit-Remaining", result.remaining.toString());
   } else {
     response = NextResponse.next();
   }

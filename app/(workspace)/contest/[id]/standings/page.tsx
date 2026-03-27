@@ -11,9 +11,11 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-async function StandingsContent({ params }: { params: Promise<{ id: string }> }) {
+async function StandingsContent({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ page?: string }> }) {
     "use cache: private";
     const { id } = await params;
+    const { page } = await searchParams;
+    const pageNumber = parseInt(page || "1", 10);
 
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -40,7 +42,7 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
         );
     }
 
-    const res = await getContestLeaderboard(id) as any;
+    const res = await getContestLeaderboard(id, { page: pageNumber, pageSize: 50 }) as any;
 
     if (!res.success) {
         return (
@@ -72,13 +74,18 @@ async function StandingsContent({ params }: { params: Promise<{ id: string }> })
                     contestId={id}
                     isFinalized={isFinalized}
                     userRole={userRole || undefined}
+                    pagination={{
+                        page: res.page,
+                        totalPages: res.totalPages,
+                        total: res.total
+                    }}
                 />
             </div>
         </div>
     );
 }
 
-export default function ContestStandingsPage({ params }: PageProps) {
+export default function ContestStandingsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ page?: string }> }) {
     return (
         <Suspense fallback={
             <div className="container mx-auto py-20 px-4 flex flex-col items-center justify-center min-h-[50vh]">
@@ -86,7 +93,7 @@ export default function ContestStandingsPage({ params }: PageProps) {
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading standings...</p>
             </div>
         }>
-            <StandingsContent params={params} />
+            <StandingsContent params={params} searchParams={searchParams} />
         </Suspense>
     );
 }

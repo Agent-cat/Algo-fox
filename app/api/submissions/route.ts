@@ -36,10 +36,19 @@ export async function GET(req: NextRequest) {
     }
 }
 
+import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const { userId, problemId, languageId, code, mode = "SUBMIT", contestId, customTestCases } = body;
+
+        // RATE LIMIT CHECK (Defense-in-depth)
+        const limiter = getRateLimiter();
+        const { allowed } = await limiter.checkLimit(userId || "anonymous", RATE_LIMIT_CONFIGS.SUBMISSIONS);
+        if (!allowed) {
+            return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 });
+        }
 
         if (!userId || !problemId || !languageId || !code) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

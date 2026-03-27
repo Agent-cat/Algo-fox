@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Trophy, Medal, User, Crown, CheckCircle2, Clock, Hash, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { FinalizeContestButton } from "./FinalizeContestButton";
@@ -46,29 +47,22 @@ interface ContestProblem {
     maxScore: number;
 }
 
-interface ContestStandingsProps {
-    students: ContestStudent[];
-    currentUserId?: string;
-    contestId: string;
-    isFinalized?: boolean;
-    userRole?: string;
     problems?: ContestProblem[];
+    pagination?: {
+        page: number;
+        totalPages: number;
+        total: number;
+    };
 }
 
-const PAGE_SIZE = 50;
+export function ContestStandings({ students, currentUserId, contestId, isFinalized = false, userRole, problems = [], pagination }: ContestStandingsProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-export function ContestStandings({ students, currentUserId, contestId, isFinalized = false, userRole, problems = [] }: ContestStandingsProps) {
-    const [currentPage, setCurrentPage] = useState(1);
-
-    // Check for permissions
-    const canFinalize = ["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(userRole || "");
-
-    const totalPages = Math.ceil(students.length / PAGE_SIZE);
-
-    const displayedStudents = useMemo(() => {
-        const start = (currentPage - 1) * PAGE_SIZE;
-        return students.slice(start, start + PAGE_SIZE);
-    }, [students, currentPage]);
+    // Use server-side pagination values if available, fallback to local (though shouldn't happen now)
+    const currentPage = pagination?.page || 1;
+    const totalPages = pagination?.totalPages || 1;
+    const totalStudents = pagination?.total || students.length;
 
     const formatTime = (ms: number) => {
         const totalSeconds = Math.floor(ms / 1000);
@@ -142,7 +136,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                     <div className="px-4 py-1.5 bg-orange-500/5 dark:bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center gap-2 shadow-sm">
                         <User className="w-3.5 h-3.5 text-orange-500" />
                         <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
-                            {students.length} Total Warriors
+                            {totalStudents} Total Warriors
                         </span>
                     </div>
                 </div>
@@ -189,8 +183,8 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-[#1a1a1a]">
-                            {displayedStudents.map((student, index) => {
-                                const actualRank = (currentPage - 1) * PAGE_SIZE + index;
+                            {students.map((student, index) => {
+                                const actualRank = (currentPage - 1) * 50 + index;
                                 return (
                                     <tr
                                         key={student.id}
@@ -319,11 +313,15 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                 {totalPages > 1 && (
                     <div className="px-6 py-4 bg-gray-50/50 dark:bg-[#0d0d0d] border-t border-gray-200 dark:border-[#262626] flex items-center justify-between">
                         <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                            Showing <span className="text-gray-900 dark:text-white">{(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, students.length)}</span> of {students.length}
+                            Showing <span className="text-gray-900 dark:text-white">{(currentPage - 1) * 50 + 1} - {Math.min(currentPage * 50, totalStudents)}</span> of {totalStudents}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                onClick={() => {
+                                    const params = new URLSearchParams(searchParams.toString());
+                                    params.set("page", Math.max(1, currentPage - 1).toString());
+                                    router.push(`/contest/${contestId}/standings?${params.toString()}`);
+                                }}
                                 disabled={currentPage === 1}
                                 className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
                             >
@@ -332,7 +330,6 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
 
                             <div className="flex items-center gap-1">
                                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    // Logic to show a window of pages
                                     let pageNum = currentPage;
                                     if (currentPage <= 3) pageNum = i + 1;
                                     else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
@@ -343,7 +340,11 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                     return (
                                         <button
                                             key={pageNum}
-                                            onClick={() => setCurrentPage(pageNum)}
+                                            onClick={() => {
+                                                const params = new URLSearchParams(searchParams.toString());
+                                                params.set("page", pageNum.toString());
+                                                router.push(`/contest/${contestId}/standings?${params.toString()}`);
+                                            }}
                                             className={`w-8 h-8 rounded-lg text-xs font-black transition-all ${
                                                 currentPage === pageNum
                                                 ? "bg-gray-900 dark:bg-white text-white dark:text-black shadow-md"
@@ -357,7 +358,11 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                             </div>
 
                             <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                onClick={() => {
+                                    const params = new URLSearchParams(searchParams.toString());
+                                    params.set("page", Math.min(totalPages, currentPage + 1).toString());
+                                    router.push(`/contest/${contestId}/standings?${params.toString()}`);
+                                }}
                                 disabled={currentPage === totalPages}
                                 className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
                             >

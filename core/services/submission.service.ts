@@ -99,17 +99,15 @@ export class SubmissionService {
     }
 
     static async createTestCases(submissionId: string, testCases: { index: number; judge0TrackingId: string }[]) {
-        // Create DB records for tracking individual test case results
-        await prisma.$transaction(
-            testCases.map(tc => prisma.testCase.create({
-                data: {
-                    submissionId,
-                    index: tc.index,
-                    judge0TrackingId: tc.judge0TrackingId,
-                    status: "PENDING"
-                }
+        // OPTIMIZATION: Use createMany for bulk insertion. Much faster than individual creates in a transaction.
+        await prisma.testCase.createMany({
+            data: testCases.map(tc => ({
+                submissionId,
+                index: tc.index,
+                judge0TrackingId: tc.judge0TrackingId,
+                status: "PENDING" as TestCaseResult
             }))
-        );
+        });
     }
 
     static async updateTestCaseResult(judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage?: string | null, stdout?: string | null) {
@@ -229,45 +227,27 @@ export class SubmissionService {
     }
 
     static async incrementProblemSolved(problemId: string, userId: string) {
-        // OPTIMIZATION: Separate cache operations from database transaction
-        // This prevents Redis/external calls from blocking the transaction which can cause deadlocks
-
-        // Step 1: Check if first solve outside transaction (read-only)
-        const acceptedCount = await prisma.submission.count({
-            where: {
-                problemId,
-                userId,
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-            }
-        });
+        // OPTIMIZATION: Combine multiple read operations into a single query to reduce DB round-trips
+        const [acceptedCount, problem, latestSubmission] = await Promise.all([
+            prisma.submission.count({
+                where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" }
+            }),
+            prisma.problem.findUnique({
+                where: { id: problemId },
+                select: { difficulty: true, type: true, id: true }
+            }),
+            prisma.submission.findFirst({
+                where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" },
+                orderBy: { createdAt: 'desc' },
+                select: { contestId: true }
+            })
+        ]);
 
         // Only proceed if this is the first accepted solution
         if (acceptedCount !== 1) return;
+        if (!problem) throw new Error("Problem not found");
 
-        // Step 2: Get problem data before transaction
-        const problem = await prisma.problem.findUnique({
-            where: { id: problemId },
-            select: { difficulty: true, type: true }
-        });
-
-        if (!problem) {
-            throw new Error("Problem not found");
-        }
-
-        // Check if this solve should count towards global stats
-        // If it's a CONTEST problem and solved in practice mode (no contestId), don't increment stats
-        const latestSubmission = await prisma.submission.findFirst({
-            where: {
-                problemId,
-                userId,
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-            },
-            orderBy: { createdAt: 'desc' },
-            select: { contestId: true }
-        });
-
+        // Logic check: If it's a CONTEST problem and solved in practice mode, don't increment global stats
         if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
             return;
         }

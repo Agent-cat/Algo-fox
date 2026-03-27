@@ -92,103 +92,31 @@ export async function checkContestSlug(slug: string) {
 /**
  * Fetches contests visible to the current user.
  */
-/**
- * Cached fetch for public contests
- */
-async function getPublicContests() {
-    "use cache"
-    cacheTag("contests-public");
-    // @ts-ignore
-    cacheLife("contests");
-
-    return prisma.contest.findMany({
-        where: {
-            visibility: "PUBLIC",
-            hidden: false,
-        },
-        include: {
-            _count: { select: { problems: true } }
-        },
-        orderBy: { startTime: "desc" },
-    });
-}
+// Removed getPublicContests as it is handled by ContestService.getVisibleContests
 
 /**
- * Fetches contests visible to the current user.
+ * Fetches contests visible to the current user with pagination.
  */
-export async function getVisibleContests() {
+export async function getVisibleContests(params: { page?: number; pageSize?: number; status?: "active" | "past" } = {}) {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
 
+    const { page = 1, pageSize = 12, status } = params;
+
     try {
-        if (!session?.user) {
-            const contests = await getPublicContests();
-            return { success: true, contests };
-        }
+        const currentUser = session?.user as any;
 
-        const currentUser = session.user as any;
-
-        if (currentUser.role === "ADMIN") {
-            const contests = await prisma.contest.findMany({
-                include: {
-                    _count: { select: { problems: true } },
-                    participants: {
-                        where: { userId: currentUser.id },
-                        select: { isFinished: true, acceptedRules: true }
-                    }
-                },
-                orderBy: { startTime: "desc" },
-            });
-            const mappedContests = contests.map(c => ({
-                ...c,
-                isParticipating: c.participants.length > 0 && c.participants[0].acceptedRules,
-                isFinished: c.participants.length > 0 && c.participants[0].isFinished
-            }));
-            return { success: true, contests: mappedContests };
-        }
-
-        const contests = await prisma.contest.findMany({
-            where: {
-                OR: [
-                    { visibility: "PUBLIC" },
-                    {
-                        AND: [
-                            { visibility: "INSTITUTION" },
-                            { institutionId: currentUser.institutionId },
-                        ],
-                    },
-                    {
-                        AND: [
-                            { visibility: "CLASSROOM" },
-                            {
-                                OR: [
-                                    { classroom: { students: { some: { id: currentUser.id } } } },
-                                    { creatorId: currentUser.id },
-                                ],
-                            },
-                        ],
-                    },
-                    { creatorId: currentUser.id },
-                ],
-            },
-            include: {
-                _count: { select: { problems: true } },
-                participants: {
-                    where: { userId: currentUser.id },
-                    select: { isFinished: true, acceptedRules: true }
-                }
-            },
-            orderBy: { startTime: "desc" },
+        const result = await ContestService.getVisibleContests({
+            userId: currentUser?.id,
+            role: currentUser?.role,
+            institutionId: currentUser?.institutionId,
+            page,
+            pageSize,
+            status
         });
 
-        const mappedContests = contests.map(c => ({
-            ...c,
-            isParticipating: c.participants.length > 0 && c.participants[0].acceptedRules,
-            isFinished: c.participants.length > 0 && c.participants[0].isFinished
-        }));
-
-        return { success: true, contests: mappedContests };
+        return { success: true, ...result };
     } catch (error) {
         console.error("Failed to fetch contests:", error);
         return { success: false, error: "Failed to fetch contests" };
@@ -288,25 +216,14 @@ export async function getContestDetail(contestId: string) {
             return { success: false, error: "Unauthorized access to this contest." };
         }
 
-        // We no longer block users based on IP, we just record it.
-
         const canSeeProblems = (hasStarted || isAdmin || isCreator) && (participation?.acceptedRules || isCreator || isAdmin);
-
-        // Fix: If the contest is over, allowed roles should check participation properly,
-        // but typically allows viewing if public/authorized.
-        // But for "Live" contests, the current logic is correct.
-
         const requiresPassword = !!contest.contestPassword;
 
-        // Shuffle problems if randomizeQuestions is enabled
-        // OPTIMIZATION: Use proper seeded shuffle algorithm instead of Math.sin(seed++)
-        // which becomes unpredictable with large seed values
         let visibleProblems = canSeeProblems ? contest.problems : [];
 
         if (contest.randomizeQuestions && currentUser && visibleProblems.length > 0 && !isAdmin && !isCreator) {
-            // Use deterministic seeded shuffle with proper algorithm
-            const seed = hashString(`${currentUser.id}-${contestId}`);
-            visibleProblems = seededShuffle([...visibleProblems], seed, (item) => item.problem.id);
+            const seed = ContestService.hashString(`${currentUser.id}-${contestId}`);
+            visibleProblems = ContestService.seededShuffle([...visibleProblems], seed) as any;
         }
 
         // Fetch user's solved problems for this contest
@@ -319,12 +236,10 @@ export async function getContestDetail(contestId: string) {
                     contestId: contestId,
                     status: "ACCEPTED",
                     mode: "SUBMIT",
-                    problemId: {
-                        in: visibleProblemIds
-                    }
+                    problemId: { in: visibleProblemIds }
                 },
                 select: { problemId: true },
-                distinct: ['problemId']  // OPTIMIZATION: Add distinct to prevent duplicates
+                distinct: ['problemId']
             });
             solvedSubmissions.forEach(s => solvedProblemIds.add(s.problemId));
         }
@@ -343,45 +258,14 @@ export async function getContestDetail(contestId: string) {
                 hasAcceptedRules: participation?.acceptedRules || false,
                 isFinished: participation?.isFinished || false,
                 requiresPassword,
-                contestPassword: null, // Never return plain password
-                sessionId: participation?.sessionId // Return sessionId for protection
+                contestPassword: null,
+                sessionId: participation?.sessionId
             }
         };
     } catch (error) {
         console.error("Failed to fetch contest detail:", error);
         return { success: false, error: "Failed to fetch contest" };
     }
-}
-
-// OPTIMIZATION: Helper function for deterministic string hashing
-function hashString(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return Math.abs(hash);
-}
-
-// OPTIMIZATION: Fisher-Yates shuffle with seeded random
-function seededShuffle<T>(array: T[], seed: number, getId?: (item: T) => string): T[] {
-    const result = [...array];
-    let rng = seed;
-
-    // Seeded pseudo-random number generator (linear congruential)
-    const random = () => {
-        rng = (rng * 9301 + 49297) % 233280;
-        return rng / 233280;
-    };
-
-    // Fisher-Yates shuffle
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-
-    return result;
 }
 
 // ... existing code ...
@@ -459,9 +343,7 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
         headers: await headers(),
     });
 
-    if (!session?.user) {
-        return { success: false, error: "Unauthorized" };
-    }
+    if (!session?.user) return { success: false, error: "Unauthorized" };
 
     const currentUser = session.user as any;
 
@@ -471,75 +353,14 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
 
     try {
         const validatedData = contestWithProblemsSchema.parse(data);
-
-        const contest = await prisma.$transaction(async (tx) => {
-            const contest = await tx.contest.create({
-                data: {
-                    title: validatedData.title,
-                    slug: validatedData.slug,
-                    description: validatedData.description,
-                    startTime: validatedData.startTime,
-                    endTime: validatedData.endTime,
-                    visibility: validatedData.visibility as any,
-                    hidden: validatedData.hidden,
-                    backgroundImage: validatedData.backgroundImage,
-                    ogImage: validatedData.ogImage,
-                    useOgImage: validatedData.useOgImage,
-                    prizes: validatedData.prizes,
-                    rules: validatedData.rules,
-                    scoring: validatedData.scoring,
-                    isProtected: validatedData.isProtected,
-                    targetEmails: validatedData.targetEmails,
-                    institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
-                    classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
-                    creatorId: currentUser.id,
-                    contestPassword: validatedData.contestPassword || null,
-                    randomizeQuestions: validatedData.randomizeQuestions || false,
-                    isIPRestricted: validatedData.isIPRestricted,
-                    allowedIPs: validatedData.allowedIPs,
-                }
-            });
-
-            // OPTIMIZATION: Batch create problems instead of sequential loop
-            // Reduces from N database round-trips to 1 batch operation
-            const createdProblems = await Promise.all(
-                validatedData.problems.map((p, i) =>
-                    tx.problem.create({
-                        data: {
-                            title: p.title,
-                            description: p.description,
-                            difficulty: p.difficulty,
-                            slug: `${validatedData.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`,
-                            score: p.score || 10,
-                            domain: p.domain,
-                            type: "CONTEST",
-                            hidden: true,
-                            testCases: {
-                                create: p.testCases,
-                            },
-                            tags: {
-                                connect: p.tags?.map((t: string) => ({ name: t })) || [],
-                            }
-                        }
-                    })
-                )
-            );
-
-            // OPTIMIZATION: Batch create contest problems using createMany instead of sequential creates
-            await tx.contestProblem.createMany({
-                data: createdProblems.map((problem, i) => ({
-                    contestId: contest.id,
-                    problemId: problem.id,
-                    order: i,
-                }))
-            });
-
-            return contest;
+        const contest = await ContestService.createContest({
+            creatorId: session.user.id,
+            data: validatedData
         });
 
         revalidatePath("/dashboard/contests");
         revalidatePath("/contests");
-        revalidatePath("/contest");
+        revalidatePath(`/contest/${contest.id}`);
         revalidateTag("contests", "max");
         return { success: true, contestId: contest.id };
     } catch (error) {
@@ -609,106 +430,9 @@ export async function updateContestWithProblems(contestId: string, data: z.infer
         }
 
         const validatedData = contestWithProblemsSchema.parse(data);
-
-        await prisma.$transaction(async (tx) => {
-            // Update contest basic info
-            await tx.contest.update({
-                where: { id: contestId },
-                data: {
-                    title: validatedData.title,
-                    slug: validatedData.slug,
-                    description: validatedData.description,
-                    startTime: validatedData.startTime,
-                    endTime: validatedData.endTime,
-                    visibility: validatedData.visibility as any,
-                    hidden: validatedData.hidden,
-                    backgroundImage: validatedData.backgroundImage,
-                    ogImage: validatedData.ogImage,
-                    useOgImage: validatedData.useOgImage,
-                    prizes: validatedData.prizes,
-                    rules: validatedData.rules,
-                    scoring: validatedData.scoring,
-                    isProtected: validatedData.isProtected,
-                    targetEmails: validatedData.targetEmails,
-                    institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
-                    classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
-                    contestPassword: validatedData.contestPassword || null,
-                    randomizeQuestions: validatedData.randomizeQuestions || false,
-                    isIPRestricted: validatedData.isIPRestricted,
-                    allowedIPs: validatedData.allowedIPs,
-                }
-            });
-
-            // For simplicity in this implementation, we'll delete old contest problems and create new ones
-            // Note: In production, you might want to identify which ones to update/delete/create
-
-            // Delete existing contest problems
-            await tx.contestProblem.deleteMany({
-                where: { contestId }
-            });
-
-            // Create new problems/links
-            for (let i = 0; i < validatedData.problems.length; i++) {
-                const p = validatedData.problems[i];
-                let problemId = p.id;
-
-                // If it's a new problem (id is temporary or missing), create it
-                if (!p.id || p.id.startsWith("temp-")) {
-                    const uniqueSlug = `${validatedData.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`;
-                    const newProblem = await tx.problem.create({
-                        data: {
-                            title: p.title,
-                            description: p.description,
-                            difficulty: p.difficulty,
-                            slug: uniqueSlug,
-                            score: p.score || 10,
-                            domain: p.domain,
-                            type: "CONTEST",
-                            hidden: true,
-                            testCases: {
-                                create: p.testCases.map((tc: any) => ({
-                                    input: tc.input,
-                                    output: tc.output,
-                                    hidden: tc.hidden,
-                                })),
-                            },
-                        }
-                    });
-                    problemId = newProblem.id;
-                } else {
-                    // Update existing problem if it belongs to this contest
-                    // Note: This logic assumes contest problems are "owned" by the contest if they are type=CONTEST
-                    const existingProblem = await tx.problem.findUnique({ where: { id: p.id } });
-                    if (existingProblem && existingProblem.type === "CONTEST") {
-                        await tx.problem.update({
-                            where: { id: p.id },
-                            data: {
-                                title: p.title,
-                                description: p.description,
-                                difficulty: p.difficulty,
-                                score: p.score || 10,
-                                domain: p.domain,
-                                testCases: {
-                                    deleteMany: {},
-                                    create: p.testCases.map((tc: any) => ({
-                                        input: tc.input,
-                                        output: tc.output,
-                                        hidden: tc.hidden,
-                                    })),
-                                },
-                            }
-                        });
-                    }
-                }
-
-                await tx.contestProblem.create({
-                    data: {
-                        contestId,
-                        problemId,
-                        order: i,
-                    }
-                });
-            }
+        await ContestService.updateContest({
+            contestId,
+            data: validatedData
         });
 
         revalidatePath("/dashboard/contests");
@@ -770,12 +494,6 @@ export async function finishContestAction(contestId: string) {
     }
 }
 
-/**
- * Finalize Contest & Award Badges
- * - Calculates leaderboard
- * - Awards Gold, Silver, Bronze to Top 3
- * - Marks contest as finalized
- */
 export async function finalizeContest(contestId: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -783,77 +501,15 @@ export async function finalizeContest(contestId: string) {
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
-    // Only admins or contest managers can finalize
     const currentUser = session.user as any;
     if (!["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(currentUser.role)) {
         return { success: false, error: "Unauthorized" };
     }
 
     try {
-        const contest = await prisma.contest.findUnique({
-             where: { id: contestId },
-             select: { isFinalized: true, title: true }
-        });
-
-        if (!contest) return { success: false, error: "Contest not found" };
-        if (contest.isFinalized) return { success: false, error: "Contest is already finalized" };
-
-        // Reuse leaderboard logic to get rankings
-        const leaderboard = await getContestLeaderboard(contestId) as any;
-        if (!leaderboard || !leaderboard.success || !leaderboard.students) {
-            return { success: false, error: "Failed to fetch leaderboard" };
-        }
-
-        const students = leaderboard.students as any[];
-
-        // At least 1 student needed
-        if (students.length === 0) {
-             await prisma.contest.update({
-                 where: { id: contestId },
-                 data: { isFinalized: true }
-             });
-             return { success: true, message: "Contest finalized (no participants)" };
-        }
-
-        // Top 3 IDs
-        const goldUserId = students[0]?.id;
-        const silverUserId = students[1]?.id;
-        const bronzeUserId = students[2]?.id;
-
-        await prisma.$transaction(async (tx) => {
-            // Award Gold
-            if (goldUserId) {
-                await tx.user.update({
-                    where: { id: goldUserId },
-                    data: { goldBadges: { increment: 1 } }
-                });
-            }
-            // Award Silver
-            if (silverUserId) {
-                await tx.user.update({
-                    where: { id: silverUserId },
-                    data: { silverBadges: { increment: 1 } }
-                });
-            }
-            // Award Bronze
-            if (bronzeUserId) {
-                await tx.user.update({
-                    where: { id: bronzeUserId },
-                    data: { bronzeBadges: { increment: 1 } }
-                });
-            }
-
-            // Mark Finalized
-            await tx.contest.update({
-                where: { id: contestId },
-                data: { isFinalized: true }
-            });
-        });
+        await ContestService.finalize(contestId);
 
         revalidatePath(`/dashboard`);
-        revalidatePath(`/profile/${goldUserId}`);
-        if(silverUserId) revalidatePath(`/profile/${silverUserId}`);
-        if(bronzeUserId) revalidatePath(`/profile/${bronzeUserId}`);
         revalidatePath(`/contest/${contestId}`);
         revalidateTag(`contest-${contestId}`, "max");
         revalidateTag(`leaderboard-${contestId}`, "max");
@@ -906,9 +562,6 @@ export async function verifyContestPassword(contestId: string, password?: string
 }
 
 
-/**
- * Start a contest session - validates time bounds and creates session ID
- */
 export async function startContestSession(contestId: string, password?: string) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -917,100 +570,15 @@ export async function startContestSession(contestId: string, password?: string) 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     try {
-        const contest = await prisma.contest.findUnique({
-            where: { id: contestId },
-            select: {
-                startTime: true,
-                endTime: true,
-                contestPassword: true,
-                isIPRestricted: true,
-                allowedIPs: true,
-                creatorId: true
-            }
-        });
-
-        if (!contest) return { success: false, error: "Contest not found" };
-
-        const currentUser = session.user as any;
-        const isAdmin = currentUser.role === "ADMIN";
-        const isCreator = contest.creatorId === currentUser.id;
-
         const clientIP = await getClientIP();
-
-        // The IP recording happens below in upsert contestParticipation
-
-        if (contest.contestPassword && contest.contestPassword !== password) {
-            return { success: false, error: "Invalid contest password" };
-        }
-
-        const now = new Date();
-
-        // Time bounds check
-        if (now < contest.startTime) {
-            return { success: false, error: "Contest has not started yet" };
-        }
-        if (now > contest.endTime) {
-            return { success: false, error: "Contest has already ended" };
-        }
-
-        // Generate unique session ID
-        const sessionId = `${session.user.id}-${contestId}-${Date.now()}`;
-
-        // Check for existing active session (multi-tab detection)
-        const existingParticipation = await prisma.contestParticipation.findUnique({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            }
+        const result = await ContestService.startSession({
+            userId: session.user.id,
+            contestId,
+            password,
+            clientIP: clientIP ?? undefined
         });
 
-        if (existingParticipation?.isBlocked) {
-            return { success: false, error: "You have been blocked from this contest due to violations" };
-        }
-
-        if (existingParticipation?.isFinished) {
-            return { success: false, error: "You have already finished this contest" };
-        }
-
-        // Update IP History - append new IP if not already present
-        let ipHistory = existingParticipation?.ipAddress || clientIP;
-        if (existingParticipation?.ipAddress && clientIP && !existingParticipation.ipAddress.includes(clientIP)) {
-            ipHistory = `${existingParticipation.ipAddress}, ${clientIP}`;
-        }
-
-        // Update or create participation with new session and record the IP
-        const participation = await prisma.contestParticipation.upsert({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            },
-            update: {
-                sessionId,
-                sessionStartedAt: now,
-                acceptedRules: true,
-                ipAddress: ipHistory
-            },
-            create: {
-                userId: session.user.id,
-                contestId: contestId,
-                sessionId,
-                sessionStartedAt: now,
-                acceptedRules: true,
-                ipAddress: clientIP
-            }
-        });
-
-        return {
-            success: true,
-            sessionId,
-            participationId: participation.id,
-            totalViolations: participation.totalViolations,
-            isFlagged: participation.isFlagged
-        };
+        return result;
     } catch (error) {
         console.error("Failed to start contest session:", error);
         return { success: false, error: "Failed to start contest session" };
@@ -1033,97 +601,13 @@ export async function logContestViolation(
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     try {
-        const participation = await prisma.contestParticipation.findUnique({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            }
-        });
-
-        if (!participation) {
-            return { success: false, error: "No active participation found" };
-        }
-
-        // Determine which counter to increment
-        const counterField = {
-            TAB_SWITCH: "tabSwitchCount",
-            FULLSCREEN_EXIT: "fullscreenExitCount",
-            COPY_PASTE: "copyPasteCount",
-            DEVTOOLS_OPEN: "devToolsCount",
-            KEYBOARD_SHORTCUT: "keyboardCount",
-            NAVIGATION_ATTEMPT: "navigationCount",
-            MULTI_TAB: "tabSwitchCount",
-            SUSPICIOUS_INPUT: "copyPasteCount"
-        }[type] as string;
-
-        // Use transaction to ensure atomic update
-        const result = await prisma.$transaction(async (tx) => {
-            // Check last violation time to prevent rapid-fire duplicates (Server-side debounce)
-            const lastViolation = await tx.contestViolation.findFirst({
-                where: { participationId: participation.id },
-                orderBy: { createdAt: 'desc' }
-            });
-
-            if (lastViolation) {
-                const timeDiff = Date.now() - lastViolation.createdAt.getTime();
-                // If less than 2 seconds since last violation, ignore this one
-                if (timeDiff < 2000) {
-                    return {
-                        ...participation, // Return existing state
-                        isFlagged: participation.isFlagged,
-                        isBlocked: participation.isBlocked,
-                        totalViolations: participation.totalViolations,
-                        permanentlyBlocked: participation.permanentlyBlocked,
-                        tempBlockedUntil: participation.tempBlockedUntil
-                    };
-                }
-            }
-
-            // Create violation record
-            await tx.contestViolation.create({
-                data: {
-                    participationId: participation.id,
-                    type: type as any,
-                    message,
-                    metadata: metadata ?? undefined
-                }
-            });
-
-            // Calculate new total and determine blocking tier
-            const newTotalViolations = participation.totalViolations + 1;
-            const shouldFlag = newTotalViolations >= 3;
-
-            // Tiered blocking logic
-            let tempBlockedUntil: Date | null = null;
-            let permanentlyBlocked = false;
-            let isBlocked = false;
-
-            if (newTotalViolations >= 6) {
-                // 6+ violations = permanent block
-                permanentlyBlocked = true;
-                isBlocked = true;
-            } else if (newTotalViolations >= 4) {
-                // 4-5 violations = 5 minute temp block
-                tempBlockedUntil = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
-                isBlocked = true;
-            }
-
-            const updated = await tx.contestParticipation.update({
-                where: { id: participation.id },
-                data: {
-                    [counterField]: { increment: 1 },
-                    totalViolations: { increment: 1 },
-                    isFlagged: shouldFlag || participation.isFlagged,
-                    isBlocked,
-                    tempBlockedUntil,
-                    permanentlyBlocked
-                }
-            });
-
-            return updated;
-        });
+        const result = await ContestService.logViolation({
+            userId: session.user.id,
+            contestId,
+            type,
+            message,
+            metadata
+        }) as any;
 
         return {
             success: true,
@@ -1392,13 +876,14 @@ export async function getParticipantViolations(contestId: string, userId: string
  * - Fetches all relevant submissions
  * - Calculates scores
  */
-export async function getContestLeaderboard(contestId: string) {
+export async function getContestLeaderboard(contestId: string, params: { page?: number; pageSize?: number } = {}) {
+    const { page = 1, pageSize = 50 } = params;
     // Dynamic content - removed specialized cache to ensure IP checks are always live
     cacheTag(`leaderboard-${contestId}`)
     // @ts-ignore
     cacheLife("leaderboard")
     try {
-        const result = await ContestService.getLeaderboard(contestId);
+        const result = await ContestService.getLeaderboard(contestId, { page, pageSize });
 
         if (!result) {
             return { success: false, error: "Contest not found" };

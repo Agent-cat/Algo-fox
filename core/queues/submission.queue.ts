@@ -7,6 +7,15 @@ const QUEUE_NAME = "submission-queue";
 
 const submissionQueue = new Queue(QUEUE_NAME, {
     connection,
+    defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+            type: "exponential",
+            delay: 1000,
+        },
+        removeOnComplete: true,
+        removeOnFail: false, // Keep failed for manual investigation
+    }
 });
 
 export const addSubmissionJob = async (submissionId: string, customTestCases?: { input: string; output: string }[]) => {
@@ -163,7 +172,7 @@ const worker = new Worker(
             // OPTIMIZATION: Pre-compute index mapping using Map instead of findIndex in loop
             // Reduces O(n²) to O(n) - with 100 test cases, this is 100x faster
             const testCaseIndexMap = new Map(allTestCases.map((tc, idx) => [tc.id, idx]));
-            
+
             const testCaseRecords = testCasesToEvaluate.map((tc, idx) => {
                 const problemCaseIndex = testCaseIndexMap.get(tc.id) ?? -1;
                 const finalIndex = problemCaseIndex >= 0
