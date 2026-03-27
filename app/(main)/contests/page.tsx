@@ -34,9 +34,11 @@ export default async function StudentContestsPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <div className="w-8 h-8 rounded-full border-2 border-orange-500/20 border-t-orange-500 animate-spin" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading contests...</p>
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading contests...</p>
+          </div>
         </div>
       }
     >

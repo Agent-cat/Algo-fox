@@ -70,6 +70,7 @@ async function DashboardContent() {
                 solvedByDifficulty={user.solvedByDifficulty}
                 totalProblems={user.totalProblems}
                 problemsSolved={user.problemsSolved}
+                contestStats={user.contestStats}
                 leetCodeHandle={user.leetCodeHandle}
                 codeChefHandle={user.codeChefHandle}
                 codeforcesHandle={user.codeforcesHandle}

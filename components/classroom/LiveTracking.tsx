@@ -102,23 +102,23 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                     <div>
                         <div className="flex items-center gap-2.5 mb-2.5">
                              <div className={`flex items-center justify-center w-2 h-2 rounded-full ${data?.isTrackingActive ? 'bg-orange-600 animate-pulse' : 'bg-gray-300 dark:bg-gray-700'}`} />
-                             <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Neural Monitor Node</span>
+                             <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Live Status Monitor</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-950 dark:text-white uppercase tracking-tightest leading-none">Live Synchronization</h2>
+                        <h2 className="text-2xl font-black text-gray-950 dark:text-white uppercase tracking-tightest leading-none">Classroom Performance</h2>
                         <div className="flex items-center gap-3 mt-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">
                             {data?.isTrackingActive ? (
                                 <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/10">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span className="text-emerald-600 dark:text-emerald-500">Uplink Active • {new Date(data.trackingStartedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                     <span className="text-emerald-600 dark:text-emerald-500">Tracking Connected • {new Date(data.trackingStartedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-white/5">
                                     <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
-                                    <span>Standby Mode</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                                     <span>Ready to Track</span>
+                                 </div>
+                             )}
+                         </div>
+                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">
                         {data?.isTrackingActive && stats && (
@@ -133,10 +133,10 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                     <div className="text-sm font-black text-gray-950 dark:text-white leading-none">{stats.totalSubmissions}</div>
                                 </div>
                                 <div className="h-4 w-px bg-gray-200 dark:bg-white/5 my-auto" />
-                                <div className="px-4 py-2 hover:bg-white dark:hover:bg-white/5 rounded-lg transition-colors cursor-default">
-                                    <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Success</div>
-                                    <div className="text-sm font-black text-emerald-500 leading-none">{stats.acceptanceRate}%</div>
-                                </div>
+                                 <div className="px-4 py-2 hover:bg-white dark:hover:bg-white/5 rounded-lg transition-colors cursor-default">
+                                     <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Resolved</div>
+                                     <div className="text-sm font-black text-emerald-500 leading-none">{stats.acceptanceRate}%</div>
+                                 </div>
                             </div>
                         )}
 
@@ -154,7 +154,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             ) : (
                                 data?.isTrackingActive ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />
                             )}
-                            {data?.isTrackingActive ? "Kill Signal" : "Init Link"}
+                             {data?.isTrackingActive ? "Stop" : "Start"}
                         </button>
                     </div>
                 </div>
@@ -221,7 +221,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                             <h3 className="text-sm font-black text-gray-950 dark:text-white mb-0.5 line-clamp-1 group-hover:text-orange-600 transition-colors tracking-tight uppercase">{student.name}</h3>
                                             <div className="flex items-center gap-1.5">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${total > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-gray-300 dark:bg-gray-700'}`} />
-                                                <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{total > 0 ? 'Live Uplink' : 'Offline'}</span>
+                                         <span className="text-[7px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">ACTIVITY CONNECTED</span>
                                             </div>
                                         </div>
                                     </div>
@@ -229,7 +229,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                         <div className="text-xl font-black text-gray-950 dark:text-white tabular-nums leading-none">
                                             {total}
                                         </div>
-                                        <span className="text-[7px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Logs</span>
+                                         <span className="text-[7px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Entries</span>
                                     </div>
                                 </div>
 
@@ -267,9 +267,9 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                                 </button>
                                             ))
                                         ) : (
-                                            <div className="text-center py-6 bg-gray-50/50 dark:bg-white/5 rounded-xl border border-dashed border-gray-200 dark:border-white/5">
-                                                <span className="text-[7px] font-black text-gray-400 uppercase tracking-[0.2em]">Silence Detected</span>
-                                            </div>
+                                             <div className="text-center py-6 bg-gray-50/50 dark:bg-white/5 rounded-xl border border-dashed border-gray-200 dark:border-white/5">
+                                                 <span className="text-[7px] font-black text-gray-400 uppercase tracking-[0.2em]">No Recent Activity</span>
+                                             </div>
                                         )}
                                     </div>
                                     {total > 3 && (
@@ -282,8 +282,8 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                 ) : (
                     <div className="col-span-full py-24 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 border border-dashed border-gray-200 dark:border-white/5 rounded-3xl">
                         <Activity className="w-10 h-10 text-gray-200 dark:text-gray-800 mb-6" />
-                        <h3 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tight">Zero Activity Detected</h3>
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Neural Link Standby</p>
+                         <h3 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tight">Zero Activity Detected</h3>
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Awaiting live tracking data</p>
                     </div>
                 )}
             </div>
@@ -300,10 +300,11 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm"
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 100 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-4xl bg-white dark:bg-[#0a0a0a] rounded-4xl shadow-2xl overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[85vh]"
+                            exit={{ opacity: 0, scale: 0.9, y: 100 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative w-full max-w-5xl bg-white dark:bg-[#0a0a0a] rounded-4xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[90vh]"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">

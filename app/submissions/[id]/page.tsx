@@ -43,42 +43,100 @@ async function SubmissionContent({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#050505] py-8 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-[1400px] mx-auto space-y-8">
-                {/* HEADER / BREADCRUMBS */}
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-[#1a1a1a] pb-6">
-                    <div className="flex items-center gap-6">
-                        <Link
-                            href={`/problems/${problem.slug}`}
-                            className="group flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-sm font-medium uppercase tracking-widest">Back</span>
-                        </Link>
-                        <div className="h-6 w-px bg-gray-200 dark:bg-[#1a1a1a]" />
-                        <div>
-                            <h1 className="text-2xl font-black text-gray-900 dark:text-white zf uppercase ">{problem.title}</h1>
-                            <p className="text-[10px] text-gray-400 font-mono mt-0.5 tracking-tighter uppercase">Submission Reference: {id}</p>
+        <div className="min-h-screen bg-white dark:bg-[#050505] py-6 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-[1440px] mx-auto space-y-6">
+                {/* MODERN HEADER */}
+                <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-6 shadow-sm">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div className="flex flex-col gap-4">
+                            <Link
+                                href={`/problems/${problem.slug}`}
+                                className="group inline-flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform font-sans" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] font-sans">Return</span>
+                            </Link>
+                            <div>
+                                <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-sans">
+                                    {problem.title}
+                                </h1>
+                                <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest opacity-60">Submission Ref: {id}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-4 lg:gap-8">
+                            {/* Outcome Badge */}
+                            <div className="flex items-center gap-4 pr-8 lg:border-r border-gray-100 dark:border-[#1a1a1a]">
+                                <div className={`${getStatusColor(status)}`}>
+                                    {getStatusIcon(status)}
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h3 className={`text-2xl font-black uppercase tracking-tighter font-sans ${getStatusColor(status)}`}>
+                                        {status.replace(/_/g, " ")}
+                                    </h3>
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Final Outcome</span>
+                                </div>
+                            </div>
+
+                            {/* Detailed Stats */}
+                            <div className="flex items-center gap-8">
+                                <div className="space-y-2">
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Language</span>
+                                    <span className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-[10px] font-black rounded-md border border-gray-200 dark:border-white/10 uppercase font-mono">
+                                        {language.name}
+                                    </span>
+                                </div>
+
+                                {time && (
+                                    <div className="min-w-[140px] space-y-2">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Runtime</span>
+                                        <div className="font-mono">
+                                            <SubmissionDistribution
+                                                problemId={problem.id}
+                                                currentValue={time}
+                                                type="runtime"
+                                                showGraph={false}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {memory && (
+                                    <div className="min-w-[140px] space-y-2">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Memory</span>
+                                        <div className="font-mono">
+                                            <SubmissionDistribution
+                                                problemId={problem.id}
+                                                currentValue={memory}
+                                                type="memory"
+                                                showGraph={false}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2">
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Date</span>
+                                    <p className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase font-mono">
+                                        {new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     {/* LEFT SIDE: CODE VIEWER */}
-                    <div className="lg:col-span-8 space-y-6">
-                        <div className="glass-container relative bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-sm overflow-hidden flex flex-col shadow-2xl shadow-black/5">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
+                    <div className="lg:col-span-8">
+                        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col shadow-sm">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#1a1a1a] bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
                                 <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center gap-3">
                                     <Terminal className="w-3.5 h-3.5 text-orange-500" />
-                                    Source Code
+                                    Source Implementation
                                 </h2>
-                                <div className="flex items-center gap-4">
-                                    <span className="text-[10px] font-black text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-none border border-orange-500/20 uppercase tracking-widest">
-                                        {language.name}
-                                    </span>
-                                </div>
                             </div>
-                            <div className="h-[600px] lg:h-[calc(100vh-300px)] w-full antialiased font-mono">
+                            <div className="h-[600px] lg:h-[calc(100vh-320px)] w-full antialiased font-mono">
                                 <CodeEditor
                                     value={code}
                                     languageId={language.id}
@@ -88,96 +146,63 @@ async function SubmissionContent({ params }: PageProps) {
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE: METADATA & RESULTS */}
-                    <div className="lg:col-span-4 space-y-2 lg:sticky lg:top-8">
-                        {/* OUTCOME - TEXT ONLY VERSION */}
-                        <div className="flex flex-col items-center text-center py-6">
-                            <div className={`mb-4 ${getStatusColor(status).replace('text-', 'text- opacity-80 ')} animate-pulse`}>
-                                {getStatusIcon(status)}
-                            </div>
-                            <h3 className={`text-4xl font-black uppercase tracking-tighter italic ${getStatusColor(status)} line-height-1`}>
-                                {status.replace(/_/g, " ")}
-                            </h3>
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-[0.3em]">Status Result</p>
-                        </div>
-
-                        <div className="h-px bg-linear-to-r from-transparent via-gray-100 dark:via-white/10 to-transparent w-full" />
-
-                        {/* PERFORMANCE STATS - GLASS STYLE */}
-                        <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 p-8 rounded-none shadow-xl shadow-black/5 space-y-12">
-                            <div>
-                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4 flex items-center justify-between">
-                                    <span>Runtime Performance</span>
-                                    <Clock className="w-3.5 h-3.5 opacity-50" />
-                                </h3>
-                                {time ? (
-                                    <SubmissionDistribution
-                                        problemId={problem.id}
-                                        currentValue={time}
-                                        type="runtime"
-                                    />
-                                ) : (
-                                    <div className="text-[10px] font-black italic text-gray-500 py-4 opacity-50 uppercase tracking-widest text-center border-2 border-dotted border-white/5 rounded-sm">Waiting for execution metrics...</div>
-                                )}
-                            </div>
-
-                            <div>
-                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-8 border-b border-white/5 pb-4 flex items-center justify-between">
-                                    <span>Memory Footprint</span>
-                                    <Database className="w-3.5 h-3.5 opacity-50" />
-                                </h3>
-                                {memory ? (
-                                    <SubmissionDistribution
-                                        problemId={problem.id}
-                                        currentValue={memory}
-                                        type="memory"
-                                    />
-                                ) : (
-                                    <div className="text-[10px] font-black italic text-gray-500 py-4 opacity-50 uppercase tracking-widest text-center border-2 border-dotted border-white/5 rounded-sm">Waiting for execution metrics...</div>
-                                )}
-                            </div>
-
-                            <div className="mt-10 pt-6 border-t border-gray-50 dark:border-white/5">
-                                <div className="flex items-center justify-between overflow-hidden">
-                                    <div className="space-y-1">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Submitted</span>
-                                        <p className="text-[11px] font-bold text-gray-900 dark:text-gray-300 uppercase tracking-tighter flex items-center gap-2">
-                                            <Calendar className="w-3 h-3 text-orange-500" />
-                                            {new Date(createdAt).toLocaleString('en-US', {
-                                                month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div className="w-12 h-1 bg-orange-500/10 rounded-full" />
+                    {/* RIGHT SIDE: TEST CASES & LOGS */}
+                    <div className="lg:col-span-4 space-y-6">
+                        {/* TEST CASES */}
+                        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden flex flex-col max-h-[calc(100vh-320px)]">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#1a1a1a] bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
+                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Execution Report</h3>
+                                <div className="flex items-center gap-2 bg-green-500/10 px-2 py-1 rounded">
+                                    <span className="text-[10px] font-black text-green-500">
+                                        {testCases.filter(t => t.status === 'ACCEPTED').length}/{testCases.length}
+                                    </span>
+                                    <span className="text-[9px] font-black text-green-600/70 italic uppercase">Passed</span>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* TEST CASES ACCORDION / LIST */}
-                        {testCases.length > 0 && (
-                            <div className="bg-white/5 dark:bg-white/2 backdrop-blur-md border border-gray-100 dark:border-white/10 rounded-none shadow-xl shadow-black/5 overflow-hidden">
-                                <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-white/50 dark:bg-black/20 flex items-center justify-between">
-                                    <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Test Scenarios</h3>
-                                    <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 px-2 py-1">
-                                        <span className="text-[10px] font-black text-green-500">{testCases.filter(t => t.status === 'ACCEPTED').length}</span>
-                                        <span className="text-[10px] font-black text-gray-300 italic">PASS</span>
-                                    </div>
-                                </div>
-                                <div className="divide-y divide-gray-100 dark:divide-white/5 max-h-[300px] overflow-y-auto custom-scrollbar">
+                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                                <div className="grid grid-cols-1 gap-2">
                                     {testCases.map((tc) => (
-                                        <div key={tc.id} className="px-6 py-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/2 transition-colors group">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-1 h-4 rounded-none ${tc.status === 'ACCEPTED' ? 'bg-green-500' : 'bg-red-500'}`} />
-                                                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest">Case {tc.index + 1}</span>
+                                        <div
+                                            key={tc.id}
+                                            className={`
+                                                group p-4 rounded-xl border transition-all duration-200
+                                                ${tc.status === 'ACCEPTED'
+                                                    ? 'bg-emerald-50/30 dark:bg-emerald-500/[0.02] border-emerald-100/50 dark:border-emerald-500/10 hover:border-emerald-200 dark:hover:border-emerald-500/20'
+                                                    : 'bg-red-50/30 dark:bg-red-500/[0.02] border-red-100/50 dark:border-red-500/10 hover:border-red-200 dark:hover:border-red-500/20'}
+                                            `}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black
+                                                        ${tc.status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                                                        {tc.index + 1}
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest block">Test Case</span>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            {tc.time !== null && <span className="text-[9px] text-gray-400 font-medium">{tc.time}ms</span>}
+                                                            {tc.memory !== null && <span className="text-[9px] text-gray-400 font-medium px-2 border-l border-gray-100 dark:border-white/5">{tc.memory}KB</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${tc.status === 'ACCEPTED' ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                        {tc.status === 'ACCEPTED' ? 'Passed' : 'Failed'}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <span className={`text-[9px] font-black uppercase tracking-widest ${tc.status === 'ACCEPTED' ? 'text-green-500' : 'text-red-500'}`}>
-                                                {tc.status === 'ACCEPTED' ? 'OK' : 'FAIL'}
-                                            </span>
+
+                                            {tc.errorMessage && (
+                                                <div className="mt-3 p-3 bg-red-500/5 rounded-lg border border-red-500/10 font-mono text-[10px] text-red-400 overflow-x-auto">
+                                                    <p className="font-bold mb-1 opacity-50 uppercase tracking-tighter">Error Logs:</p>
+                                                    {tc.errorMessage}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>

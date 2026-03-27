@@ -318,6 +318,7 @@ export async function getContestDetail(contestId: string) {
                     userId: currentUser.id,
                     contestId: contestId,
                     status: "ACCEPTED",
+                    mode: "SUBMIT",
                     problemId: {
                         in: visibleProblemIds
                     }
@@ -367,19 +368,19 @@ function hashString(str: string): number {
 function seededShuffle<T>(array: T[], seed: number, getId?: (item: T) => string): T[] {
     const result = [...array];
     let rng = seed;
-    
+
     // Seeded pseudo-random number generator (linear congruential)
     const random = () => {
         rng = (rng * 9301 + 49297) % 233280;
         return rng / 233280;
     };
-    
+
     // Fisher-Yates shuffle
     for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(random() * (i + 1));
         [result[i], result[j]] = [result[j], result[i]];
     }
-    
+
     return result;
 }
 

@@ -134,7 +134,7 @@ export default function DsaProblemsClient({
                     {mode === "practice" ? (
                         <>
                             <div className="px-5 pt-4 pb-2">
-                                <FilterBar />
+                                <FilterBar domain="DSA" />
                             </div>
                             <PracticeClient
                                 initialProblems={initialProblems}

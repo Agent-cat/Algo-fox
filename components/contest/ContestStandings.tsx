@@ -59,7 +59,6 @@ const PAGE_SIZE = 50;
 
 export function ContestStandings({ students, currentUserId, contestId, isFinalized = false, userRole, problems = [] }: ContestStandingsProps) {
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedProblem, setSelectedProblem] = useState<ContestProblem | null>(null);
 
     // Check for permissions
     const canFinalize = ["ADMIN", "CONTEST_MANAGER", "INSTITUTION_MANAGER", "TEACHER"].includes(userRole || "");
@@ -171,13 +170,19 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                 {problems.map((p, idx) => (
                                     <th
                                         key={p.id}
-                                        onClick={() => setSelectedProblem(p)}
                                         className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0 transition-colors cursor-pointer hover:bg-orange-500/5 text-gray-400 group/th"
                                     >
-                                        <div className="flex flex-col items-center">
-                                            <span className="mb-1 text-gray-900 dark:text-white group-hover/th:text-orange-500 transition-colors">Q{idx + 1}</span>
-                                            <span className="text-[9px] lowercase font-medium opacity-50 truncate max-w-[100px]">{p.title}</span>
-                                            <span className="text-[8px] font-black opacity-0 group-hover/th:opacity-100 text-orange-500 mt-1 transition-opacity">View Details</span>
+                                        <div className="flex flex-col items-center h-full">
+                                            <Link
+                                                href={`/problems/${p.slug}`}
+                                                className="flex flex-col items-center flex-1 w-full"
+                                            >
+                                                <span className="mb-1 text-gray-900 dark:text-white group-hover/th:text-orange-500 transition-colors">Q{idx + 1}</span>
+                                                <span className="text-[9px] lowercase font-medium opacity-50 truncate max-w-[130px]">{p.title}</span>
+                                                <span className="mt-2 px-3 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[8px] font-black rounded border border-orange-500/20 opacity-0 group-hover/th:opacity-100 transition-all hover:bg-orange-500 hover:text-white uppercase tracking-tighter">
+                                                    Solve in Practice
+                                                </span>
+                                            </Link>
                                         </div>
                                     </th>
                                 ))}
@@ -364,74 +369,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
             </div>
 
             {/* Problem Details Modal */}
-            <AnimatePresence>
-                {selectedProblem && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedProblem(null)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-3xl bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
-                        >
-                            {/* Modal Header */}
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gray-50/50 dark:bg-[#141414]/50">
-                                <div className="flex flex-col">
-                                    <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">
-                                        Problem Statement
-                                    </h3>
-                                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
-                                        {selectedProblem.title}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(selectedProblem.description || "");
-                                            toast.success("Question description copied!");
-                                        }}
-                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-gray-500 dark:text-gray-400 transition-colors"
-                                        title="Copy description"
-                                    >
-                                        <Copy className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => setSelectedProblem(null)}
-                                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg text-gray-500 dark:text-gray-400 transition-colors"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Modal Content */}
-                            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                                <article className="prose prose-sm prose-orange dark:prose-invert max-w-none">
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {selectedProblem.description || "*No description available.*"}
-                                    </ReactMarkdown>
-                                </article>
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="px-6 py-3 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-[#141414]/50 flex justify-end">
-                                <button
-                                    onClick={() => setSelectedProblem(null)}
-                                    className="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-lg"
-                                >
-                                    Dismiss
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            {/* Modal removed as per request */}
         </div>
     );
 }

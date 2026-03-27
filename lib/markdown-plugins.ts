@@ -1,5 +1,5 @@
 import { visit } from 'unist-util-visit';
-import { Node } from 'unist';
+import type { Node } from 'unist';
 
 // Type definitions for the tree structure since we are working with unist
 interface ContentNode extends Node {

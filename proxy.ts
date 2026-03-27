@@ -10,7 +10,7 @@ const RATE_LIMITS = {
   "/problems": { requests: 100, window: 60 },
 } as const;
 
-export default async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const clientIp = getClientIP(request);
   const url = new URL(request.url);
   const pathname = url.pathname;

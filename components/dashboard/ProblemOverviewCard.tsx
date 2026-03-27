@@ -21,9 +21,9 @@ import {
 
 interface ProblemOverviewCardProps {
     solvedByDifficulty: {
-        EASY: number;
-        MEDIUM: number;
-        HARD: number;
+        EASY: { count: number; breakdown: Record<string, number> };
+        MEDIUM: { count: number; breakdown: Record<string, number> };
+        HARD: { count: number; breakdown: Record<string, number> };
     };
     totalProblems: {
         EASY: number;
@@ -35,6 +35,10 @@ interface ProblemOverviewCardProps {
     leetCodeHandle?: string | null;
     codeChefHandle?: string | null;
     codeforcesHandle?: string | null;
+    contestStats?: {
+        attended: number;
+        totalScore: number;
+    };
 }
 
 export function ProblemOverviewCard({
@@ -43,7 +47,8 @@ export function ProblemOverviewCard({
     problemsSolved,
     leetCodeHandle,
     codeChefHandle,
-    codeforcesHandle
+    codeforcesHandle,
+    contestStats
 }: ProblemOverviewCardProps) {
     const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces">("overview");
 
@@ -90,7 +95,11 @@ export function ProblemOverviewCard({
                             transition={{ duration: 0.2 }}
                             className="h-full"
                         >
-                            <OverviewView solvedByDifficulty={solvedByDifficulty} totalProblems={totalProblems} />
+                            <OverviewView
+                                solvedByDifficulty={solvedByDifficulty}
+                                totalProblems={totalProblems}
+                                contestStats={contestStats}
+                            />
                         </motion.div>
                     )}
 
@@ -170,50 +179,104 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     );
 }
 
+function BreakdownTooltip({ breakdown, mousePos }: { breakdown: Record<string, number>; mousePos: { x: number; y: number } }) {
+    const entries = Object.entries(breakdown).filter(([_, count]) => count > 0);
+    if (entries.length === 0) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            style={{
+                left: mousePos.x + 16,
+                top: mousePos.y - 12,
+                position: 'fixed'
+            }}
+            className="z-[200] pointer-events-none min-w-[160px]"
+        >
+            <div className="bg-white/95 dark:bg-[#1a1a1a]/95 text-gray-900 dark:text-white p-3 rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] backdrop-blur-md">
+                <div className="flex flex-col gap-2">
+                    {entries.map(([domain, count]) => (
+                        <div key={domain} className="flex justify-between items-center gap-6">
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">{domain}</span>
+                            <span className="text-xs font-bold tabular-nums">{count}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 // --- Views ---
 
-function OverviewView({ solvedByDifficulty, totalProblems }: any) {
-    const calculatedSolved = solvedByDifficulty.EASY + solvedByDifficulty.MEDIUM + solvedByDifficulty.HARD;
+function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) {
+    const easyCount = solvedByDifficulty.EASY.count || 0;
+    const medCount = solvedByDifficulty.MEDIUM.count || 0;
+    const hardCount = solvedByDifficulty.HARD.count || 0;
+
+    const calculatedSolved = easyCount + medCount + hardCount;
     const total = Math.max(totalProblems.TOTAL || 1, 1);
     const percentage = Math.round((calculatedSolved / total) * 100);
-    const easyPct = (solvedByDifficulty.EASY / total) * 100;
-    const medPct = (solvedByDifficulty.MEDIUM / total) * 100;
-    const hardPct = (solvedByDifficulty.HARD / total) * 100;
+
+    const easyPct = (easyCount / total) * 100;
+    const medPct = (medCount / total) * 100;
+    const hardPct = (hardCount / total) * 100;
+
     const radius = 100;
     const circumference = 2 * Math.PI * radius;
     const easyArc = (easyPct / 100) * circumference;
     const medArc = (medPct / 100) * circumference;
     const hardArc = (hardPct / 100) * circumference;
 
-     return (
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 h-full pb-4">
-             <div className="w-full md:w-1/3 space-y-4 self-center">
-                <StatRow color="bg-green-500" label="Easy" value={solvedByDifficulty.EASY} total={totalProblems.EASY} />
-                <StatRow color="bg-orange-500" label="Medium" value={solvedByDifficulty.MEDIUM} total={totalProblems.MEDIUM} />
-                <StatRow color="bg-red-500" label="Hard" value={solvedByDifficulty.HARD} total={totalProblems.HARD} />
+    const [hoveredBreakdown, setHoveredBreakdown] = useState<Record<string, number> | null>(null);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-                <div className="pt-4 border-t border-gray-100 dark:border-[#262626] mt-4">
-                     <div className="flex justify-between items-center">
-                         <span className="text-xs font-medium text-gray-500">Total Solved</span>
-                         <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{calculatedSolved}</span>
+    const handleMouseMove = (e: React.MouseEvent) => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+     return (
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 h-full pb-4" onMouseMove={handleMouseMove}>
+             <div className="w-full md:w-1/3 flex flex-col justify-center h-full">
+                <div className="space-y-4">
+                    <StatRow color="bg-green-500" label="Easy" value={easyCount} total={totalProblems.EASY} onHoverChange={(h) => setHoveredBreakdown(h ? solvedByDifficulty.EASY.breakdown : null)} />
+                    <StatRow color="bg-orange-500" label="Medium" value={medCount} total={totalProblems.MEDIUM} onHoverChange={(h) => setHoveredBreakdown(h ? solvedByDifficulty.MEDIUM.breakdown : null)} />
+                    <StatRow color="bg-red-500" label="Hard" value={hardCount} total={totalProblems.HARD} onHoverChange={(h) => setHoveredBreakdown(h ? solvedByDifficulty.HARD.breakdown : null)} />
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-gray-100 dark:border-[#262626] flex items-center justify-around text-center">
+                     <div className="flex flex-col items-center">
+                         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-1">Contests</span>
+                         <span className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tracking-tighter">{contestStats?.attended || 0}</span>
+                     </div>
+                     <div className="w-px h-8 bg-gray-100 dark:bg-[#262626]" />
+                     <div className="flex flex-col items-center">
+                         <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-1">Contest Score</span>
+                         <span className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tracking-tighter">{contestStats?.totalScore || 0}</span>
                      </div>
                 </div>
             </div>
 
-            <div className="relative flex-1 flex items-center justify-center h-full">
+            <div className="relative flex-1 flex items-center justify-center h-full" onMouseMove={handleMouseMove}>
                 <div className="relative w-56 h-56 md:w-64 md:h-64">
-                    <svg className="w-full h-full transform -rotate-90 drop-shadow-lg">
+                    <svg className="w-full h-full transform -rotate-90 drop-shadow-sm">
                         <circle cx="50%" cy="50%" r={radius} fill="none" className="stroke-gray-100 dark:stroke-[#262626]" strokeWidth="16" />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#22c55e" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - easyArc} strokeLinecap="round" />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#f97316" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - medArc} strokeLinecap="round" style={{ transform: `rotate(${(easyPct / 100) * 360}deg)`, transformOrigin: "50% 50%" }} />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#ef4444" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - hardArc} strokeLinecap="round" style={{ transform: `rotate(${((easyPct + medPct) / 100) * 360}deg)`, transformOrigin: "50% 50%" }} />
+                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#22c55e" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - easyArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.EASY.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
+                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#f97316" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - medArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" style={{ transform: `rotate(${(easyPct / 100) * 360}deg)`, transformOrigin: "50% 50%" }} onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.MEDIUM.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
+                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#ef4444" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - hardArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" style={{ transform: `rotate(${((easyPct + medPct) / 100) * 360}deg)`, transformOrigin: "50% 50%" }} onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.HARD.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span className="text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tighter">{percentage}%</span>
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Platform</span>
+                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Practice</span>
                     </div>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {hoveredBreakdown && <BreakdownTooltip breakdown={hoveredBreakdown} mousePos={mousePos} />}
+            </AnimatePresence>
         </div>
     );
 }
@@ -450,16 +513,31 @@ function CodeForcesView({ handle, cachedData, onDataFetched }: { handle?: string
 
 // --- Shared Components ---
 
-function StatRow({ color, label, value, total }: { color: string; label: string; value: number; total?: number }) {
+function StatRow({ color, label, value, total, onHoverChange }: { color: string; label: string; value: number; total?: number; onHoverChange: (h: boolean) => void }) {
+    const handleMouseMove = (e: React.MouseEvent) => {
+        // If we want the rows to also support mouse follow, they need to pass it up.
+        // But for now, since they are static, just trigger hover.
+    };
+
     return (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626]">
-            <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${color}`} />
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{label}</span>
-            </div>
-            <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{value}</span>
-                {total !== undefined && <span className="text-xs text-gray-400">/ {total}</span>}
+        <div
+            className="group relative"
+            onMouseEnter={() => onHoverChange(true)}
+            onMouseLeave={() => onHoverChange(false)}
+            onMouseMove={(e) => {
+                // Trigger mouse pos update in parent if possible
+                // But row tracking might be tricky without a ref-based mouse track.
+            }}
+        >
+            <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] transition-all group-hover:border-gray-300 dark:group-hover:border-[#444] group-hover:shadow-sm">
+                <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${color}`} />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{label}</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{value}</span>
+                    {total !== undefined && <span className="text-xs text-gray-400">/ {total}</span>}
+                </div>
             </div>
         </div>
     );

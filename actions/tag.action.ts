@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 
+import { ProblemDomain } from "@prisma/client";
+
 export async function searchTags(query: string) {
     try {
         const tags = await prisma.tag.findMany({
@@ -24,9 +26,16 @@ export async function searchTags(query: string) {
     }
 }
 
-export async function getAllTags() {
+export async function getAllTags(domain?: ProblemDomain) {
     try {
         const tags = await prisma.tag.findMany({
+            where: domain ? {
+                problems: {
+                    some: {
+                        domain: domain
+                    }
+                }
+            } : {},
             orderBy: {
                 name: 'asc'
             }

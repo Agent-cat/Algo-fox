@@ -248,11 +248,28 @@ export class SubmissionService {
         // Step 2: Get problem data before transaction
         const problem = await prisma.problem.findUnique({
             where: { id: problemId },
-            select: { difficulty: true }
+            select: { difficulty: true, type: true }
         });
 
         if (!problem) {
             throw new Error("Problem not found");
+        }
+
+        // Check if this solve should count towards global stats
+        // If it's a CONTEST problem and solved in practice mode (no contestId), don't increment stats
+        const latestSubmission = await prisma.submission.findFirst({
+            where: {
+                problemId,
+                userId,
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            },
+            orderBy: { createdAt: 'desc' },
+            select: { contestId: true }
+        });
+
+        if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
+            return;
         }
 
         const points = getPointsForDifficulty(problem.difficulty);

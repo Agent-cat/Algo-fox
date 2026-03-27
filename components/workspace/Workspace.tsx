@@ -132,7 +132,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
     const codeFiles = useCodeFiles({
         userId: session?.user?.id ?? '',
-        problemId: problem.id,
+        // Isolate contest code from practice code by appending contestId to the problemId
+        problemId: contestId ? `${problem.id}_${contestId}` : problem.id,
         languageId,
         defaultCode: getBoilerplateForLanguage(languageId),
         onActiveCodeChange: handleActiveCodeChange,
@@ -162,7 +163,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     // Memoize the CodeFileTabs element — only rebuilds when files list or active tab changes,
     // NOT on every keypress / submission status change
     const fileTabsNode = useMemo(() => {
-        if (!codeFiles.isLoaded) return null;
+        if (!codeFiles.isLoaded || contestId) return null; // Added contestId check
         return (
             <CodeFileTabs
                 files={codeFiles.files}

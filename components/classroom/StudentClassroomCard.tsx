@@ -83,7 +83,7 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
                     </div>
 
                     <div className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 group-hover:bg-orange-600 group-hover:text-white transition-all shadow-lg active:scale-95">
-                        Initialize
+                        Open
                         <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>
                 </div>

@@ -77,21 +77,48 @@ export class DashboardService {
 
         // --- OPTIMIZED RAW QUERIES ---
 
-        // 1. SOLVED BY DIFFICULTY
+        // 1. SOLVED BY DIFFICULTY & DOMAIN (EXCLUDE CONTESTS)
         const difficultyStatsPromise = prisma.$queryRaw<any[]>`
             SELECT
                 p."difficulty",
+                p."domain",
                 CAST(COUNT(DISTINCT s."problemId") AS INTEGER) as "count"
             FROM "Submission" s
             JOIN "Problem" p ON s."problemId" = p."id"
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
               AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND s."contestId" IS NULL
+              AND p."type" != 'CONTEST'::"ProblemType"
+              AND p."hidden" = false
               AND p."difficulty" != 'CONCEPT'::"Difficulty"
-            GROUP BY p."difficulty"
+            GROUP BY p."difficulty", p."domain"
         `;
 
-        // 2. LANGUAGE COUNTS
+        // 2. CONTEST STATS
+        const attendedContestsPromise = prisma.contestParticipation.count({
+            where: {
+                userId,
+                acceptedRules: true
+            }
+        });
+
+        const contestScorePromise = prisma.$queryRaw<any[]>`
+            WITH SolvedProblems AS (
+                SELECT DISTINCT s."problemId", s."contestId", p."score"
+                FROM "Submission" s
+                JOIN "Problem" p ON s."problemId" = p."id"
+                WHERE s."userId" = ${userId}
+                  AND s."status" = 'ACCEPTED'::"SubmissionResult"
+                  AND s."mode" = 'SUBMIT'::"SubmissionMode"
+                  AND s."contestId" IS NOT NULL
+            )
+            SELECT
+                CAST(COALESCE(SUM("score"), 0) AS INTEGER) as "totalContestScore"
+            FROM SolvedProblems
+        `;
+
+        // 3. LANGUAGE COUNTS (EXCLUDE CONTESTS)
         const languageStatsPromise = prisma.$queryRaw<any[]>`
             SELECT
                 l."name",
@@ -102,12 +129,14 @@ export class DashboardService {
             WHERE s."userId" = ${userId}
               AND s."status" = 'ACCEPTED'::"SubmissionResult"
               AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND s."contestId" IS NULL
+              AND p."type" != 'CONTEST'::"ProblemType"
+              AND p."hidden" = false
               AND p."difficulty" != 'CONCEPT'::"Difficulty"
             GROUP BY l."name"
         `;
 
-        // 3. ACTIVITY DATES (For Streaks)
-        // We only need the dates, sorted.
+        // 4. ACTIVITY DATES (For Streaks)
         const activityDatesPromise = prisma.$queryRaw<{ date: Date }[]>`
             SELECT DISTINCT
                 DATE(s."createdAt") as "date"
@@ -120,7 +149,7 @@ export class DashboardService {
             ORDER BY "date" ASC
         `;
 
-        // 4. TOTAL PROBLEMS COUNT (METADATA)
+        // 5. TOTAL PROBLEMS COUNT (METADATA)
         const totalByDifficultyPromise = prisma.problem.groupBy({
             by: ['difficulty'],
             where: {
@@ -130,12 +159,30 @@ export class DashboardService {
             _count: { id: true }
         });
 
-        const [user, difficultyStats, languageStats, activityDates, totalByDifficulty] = await Promise.all([
+        // 6. TOTAL SOLVED COUNT (PRACTICE ONLY)
+        const practiceSolvedCountPromise = prisma.submission.count({
+            where: {
+                userId,
+                status: 'ACCEPTED',
+                mode: 'SUBMIT',
+                contestId: null,
+                problem: {
+                    difficulty: { not: 'CONCEPT' },
+                    type: { not: 'CONTEST' },
+                    hidden: false
+                }
+            }
+        });
+
+        const [user, difficultyStats, contestScoreResult, languageStats, activityDates, totalByDifficulty, attendedContests, practiceSolvedCount] = await Promise.all([
             userPromise,
             difficultyStatsPromise,
+            contestScorePromise,
             languageStatsPromise,
             activityDatesPromise,
-            totalByDifficultyPromise
+            totalByDifficultyPromise,
+            attendedContestsPromise,
+            practiceSolvedCountPromise
         ]);
 
         if (!user) {
@@ -144,13 +191,22 @@ export class DashboardService {
 
         // --- PROCESS DATA ---
 
-        // SOLVED BY DIFFICULTY
-        const solvedByDifficulty = { EASY: 0, MEDIUM: 0, HARD: 0 };
+        // SOLVED BY DIFFICULTY & DOMAIN breakdown
+        const solvedByDifficulty: any = {
+            EASY: { count: 0, breakdown: {} },
+            MEDIUM: { count: 0, breakdown: {} },
+            HARD: { count: 0, breakdown: {} }
+        };
+
         difficultyStats.forEach((row: any) => {
             if (row.difficulty in solvedByDifficulty) {
-                solvedByDifficulty[row.difficulty as keyof typeof solvedByDifficulty] = row.count;
+                solvedByDifficulty[row.difficulty].count += row.count;
+                solvedByDifficulty[row.difficulty].breakdown[row.domain] = row.count;
             }
         });
+
+        // CONTEST STATS
+        const totalContestScore = contestScoreResult[0]?.totalContestScore || 0;
 
         // TOTAL PROBLEMS
         const totalProblems = { EASY: 0, MEDIUM: 0, HARD: 0, TOTAL: 0 };
@@ -179,21 +235,14 @@ export class DashboardService {
         let currentStreak = 0;
         let bestStreak = 0;
 
-        // activityDates is array of { date: Date }
         if (activityDates.length > 0) {
             const sortedDates = activityDates.map(d => new Date(d.date));
 
-            // BEST STREAK
             let streak = 1;
             bestStreak = 1;
             for (let i = 1; i < sortedDates.length; i++) {
-                // Check diff in days
                 const diffTime = Math.abs(sortedDates[i].getTime() - sortedDates[i - 1].getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                // Note: With DATE() cast, time is 00:00:00. consecutive days have diffDays = 1.
-                // However, timezone issues might make 'date' string parsing tricky.
-                // Prisma returns Date object.
 
                 if (diffDays === 1) {
                     streak++;
@@ -201,11 +250,8 @@ export class DashboardService {
                 } else if (diffDays > 1) {
                     streak = 1;
                 }
-                // if diffDays == 0 (same day), ignore
             }
 
-            // CURRENT STREAK
-            // Check if last activity was today or yesterday
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -216,14 +262,12 @@ export class DashboardService {
             const diffToLast = (today.getTime() - lastActivityTime.getTime()) / (1000 * 60 * 60 * 24);
 
             if (diffToLast <= 1) {
-                // Users is active today or yesterday -> streak is alive.
-                // Re-calculate strictly from end
                 currentStreak = 1;
                 for (let i = sortedDates.length - 1; i > 0; i--) {
                     const curr = sortedDates[i];
                     const prev = sortedDates[i - 1];
                     const diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 1) { // 1 day or 0 (same day, though distinct query handles that)
+                    if (diff <= 1) {
                         if (diff === 1) currentStreak++;
                     } else {
                         break;
@@ -236,11 +280,16 @@ export class DashboardService {
 
         const result = {
             ...user,
+            problemsSolved: practiceSolvedCount, // Override with practice-only count
             solvedByDifficulty,
             totalProblems,
             languageCounts,
             currentStreak,
-            bestStreak: Math.max(bestStreak, currentStreak) // simple fallback
+            bestStreak: Math.max(bestStreak, currentStreak),
+            contestStats: {
+                attended: attendedContests,
+                totalScore: totalContestScore
+            }
         };
 
         // CACHING THE RESULT IN REDIS
@@ -250,7 +299,6 @@ export class DashboardService {
             console.error('Redis set error:', error);
         }
 
-        // RETURNING THE RESULT
         return result;
     }
 }

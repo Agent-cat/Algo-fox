@@ -5,6 +5,7 @@ import { X, Check, ChevronDown, RotateCcw, ArrowUpDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { getAllTags } from "@/actions/tag.action";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { ProblemDomain } from "@prisma/client";
 
 const dropdownVariants: Variants = {
 
@@ -27,7 +28,7 @@ const dropdownVariants: Variants = {
     }
 };
 
-export function FilterBar() {
+export function FilterBar({ domain }: { domain?: ProblemDomain }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
@@ -42,13 +43,13 @@ export function FilterBar() {
 
     useEffect(() => {
         const fetchTags = async () => {
-            const res = await getAllTags();
+            const res = await getAllTags(domain);
             if (res.success && res.tags) {
                 setAllTags(res.tags);
             }
         };
         fetchTags();
-    }, []);
+    }, [domain]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
