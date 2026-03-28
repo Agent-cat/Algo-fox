@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import UserPoints from "./UserPoints";
+import { StreakBadge } from "./shared/StreakBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChevronDown } from "lucide-react";
 
@@ -169,6 +170,7 @@ export default function Navbar() {
                                             )}
                                         </div>
                                         <ThemeToggle />
+                                        <StreakBadge />
                                         <UserPoints />
                                     </div>
                                 </div>

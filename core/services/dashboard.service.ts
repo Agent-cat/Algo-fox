@@ -52,6 +52,8 @@ export class DashboardService {
                 codeforcesHandle: true,
                 codeforcesVerified: true,
                 githubHandle: true,
+                currentStreak: true,
+                longestStreak: true,
                 submissions: {
                     where: { mode: "SUBMIT" },
                     select: {
@@ -231,52 +233,9 @@ export class DashboardService {
             languageCounts[normalizedName] += row.count;
         });
 
-        // STREAKS CALCULATION
-        let currentStreak = 0;
-        let bestStreak = 0;
-
-        if (activityDates.length > 0) {
-            const sortedDates = activityDates.map(d => new Date(d.date));
-
-            let streak = 1;
-            bestStreak = 1;
-            for (let i = 1; i < sortedDates.length; i++) {
-                const diffTime = Math.abs(sortedDates[i].getTime() - sortedDates[i - 1].getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays === 1) {
-                    streak++;
-                    bestStreak = Math.max(bestStreak, streak);
-                } else if (diffDays > 1) {
-                    streak = 1;
-                }
-            }
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const lastActivity = sortedDates[sortedDates.length - 1];
-            const lastActivityTime = new Date(lastActivity);
-            lastActivityTime.setHours(0, 0, 0, 0);
-
-            const diffToLast = (today.getTime() - lastActivityTime.getTime()) / (1000 * 60 * 60 * 24);
-
-            if (diffToLast <= 1) {
-                currentStreak = 1;
-                for (let i = sortedDates.length - 1; i > 0; i--) {
-                    const curr = sortedDates[i];
-                    const prev = sortedDates[i - 1];
-                    const diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
-                    if (diff <= 1) {
-                        if (diff === 1) currentStreak++;
-                    } else {
-                        break;
-                    }
-                }
-            } else {
-                currentStreak = 0;
-            }
-        }
+        // STREAKS (Using persistent fields)
+        const currentStreak = user?.currentStreak || 0;
+        const bestStreak = user?.longestStreak || 0;
 
         const result = {
             ...user,

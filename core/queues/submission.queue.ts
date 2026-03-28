@@ -1,3 +1,4 @@
+// Triggering worker reload for updated services
 import { Queue, Worker, Job } from "bullmq";
 import connection from "@/lib/redis";
 import { SubmissionService } from "@/core/services/submission.service";
@@ -355,8 +356,17 @@ const worker = new Worker(
 
             // OPTIMIZATION: Determine completion based on pending set
             if (pendingSet.size === 0) {
-                const avgTime = totalTime / testCaseRecords.length;
+                const avgTime = testCaseRecords.length > 0 ? totalTime / testCaseRecords.length : 0;
                 await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
+
+                let streakResult = { streakUpdated: false, currentStreak: 0 };
+                if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
+                    await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
+                    streakResult = await SubmissionService.updateUserStreak(submission.userId);
+                }
+
+                // Invalidate Live Tracking Cache
+                await SubmissionService.invalidateClassroomTracking(submission.userId);
 
                 // Publish Completion Event
                 await connection.publish(`submission:${submissionId}`, JSON.stringify({
@@ -364,16 +374,11 @@ const worker = new Worker(
                     data: {
                         status: finalStatus,
                         time: avgTime,
-                        memory: maxMemory
+                        memory: maxMemory,
+                        streakUpdated: streakResult.streakUpdated,
+                        currentStreak: streakResult.currentStreak
                     }
                 }));
-
-                if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
-                    await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
-                }
-
-                // Invalidate Live Tracking Cache
-                await SubmissionService.invalidateClassroomTracking(submission.userId);
             } else {
                 await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
                  await connection.publish(`submission:${submissionId}`, JSON.stringify({

@@ -40,6 +40,12 @@ export const auth = betterAuth({
         defaultValue: false,
         input: false,
       },
+      currentStreak: {
+        type: "number",
+        required: false,
+        defaultValue: 0,
+        input: false,
+      },
     },
   },
 

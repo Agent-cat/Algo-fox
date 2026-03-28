@@ -60,6 +60,10 @@ model User {
   sessions              Session[]
   institution           Institution?           @relation(fields: [institutionId], references: [id])
   enrolledClassrooms    Classroom[]            @relation("StudentClassrooms")
+  dailyStreaks          DailyStreak[]
+  currentStreak         Int                    @default(0)
+  longestStreak         Int                    @default(0)
+  lastStreakDate        DateTime?
 
   @@index([collegeId])
   @@index([collegeId, totalScore])
@@ -617,4 +621,14 @@ enum ViolationType {
 enum VoteType {
   UP
   DOWN
+}
+
+model DailyStreak {
+  id     String   @id @default(cuid())
+  userId String
+  date   DateTime @default(now())
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
 }

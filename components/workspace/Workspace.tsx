@@ -13,6 +13,7 @@ import ContestSidebar from './ContestSidebar';
 
 import dynamic from 'next/dynamic';
 import ProblemTour from '../tour/ProblemTour';
+import { StreakCelebrationModal } from '../shared/StreakCelebrationModal';
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null, // Optional: rendering nothing while loading
@@ -274,6 +275,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [submissionResults, setSubmissionResults] = useState<any[] | undefined>(undefined);
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
+    const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
+    const [streakCount, setStreakCount] = useState(0);
 
 
     // Custom Test Cases state
@@ -468,6 +471,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                          } else {
                              toast.success("Run Accepted!", { description: desc, descriptionClassName: "!text-white/90" });
                          }
+
+                         // TRIGGER STREAK CELEBRATION
+                         if (payload.data.streakUpdated) {
+                             setStreakCount(payload.data.currentStreak);
+                             setIsStreakModalOpen(true);
+                         }
                      } else {
                           toast.error(`Result: ${payload.data.status}`);
                      }
@@ -604,6 +613,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 onClose={() => setIsSettingsOpen(false)}
                 settings={editorSettings}
                 onSettingsChange={handleSettingsChange}
+            />
+
+            <StreakCelebrationModal
+                isOpen={isStreakModalOpen}
+                onClose={() => setIsStreakModalOpen(false)}
+                currentStreak={streakCount}
             />
 
             {/* Contest Protection (only active after entry) */}

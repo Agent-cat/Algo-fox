@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import UserPoints from "@/components/UserPoints";
+import { StreakBadge } from "@/components/shared/StreakBadge";
 import { useTheme } from "next-themes";
 
 // Theme toggle button component
@@ -411,6 +412,7 @@ const WorkspaceHeader = memo(({
                     )}
                   </AnimatePresence>
                 </div>
+                <StreakBadge />
                 <UserPoints className="hidden md:flex" />
               </div>
             ) : (

@@ -452,4 +452,103 @@ export class SubmissionService {
             memories: memories.sort((a, b) => a.value - b.value)
         };
     }
+
+    static async updateUserStreak(userId: string) {
+        console.log(`[STREAK] Starting updateUserStreak for user: ${userId}`);
+        // Use a transaction for atomicity and race-safety
+        return await prisma.$transaction(async (tx) => {
+            const now = new Date();
+            // Normalize to start of day (UTC)
+            const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+            const yesterday = new Date(today);
+            yesterday.setUTCDate(today.getUTCDate() - 1);
+
+            try {
+                // 1. Check if a record already exists for today to avoid transaction abortion
+                const existingStreak = await (tx as any).dailyStreak.findUnique({
+                    where: {
+                        userId_date: {
+                            userId,
+                            date: today
+                        }
+                    }
+                });
+
+                if (existingStreak) {
+                    console.log(`[STREAK] Daily streak record already exists for ${today.toISOString()}`);
+                    const user = await tx.user.findUnique({
+                        where: { id: userId },
+                        select: { currentStreak: true }
+                    });
+                    return { streakUpdated: false, currentStreak: user?.currentStreak || 0 };
+                }
+
+                // 2. Attempt to create a daily streak record for today
+                // This is the atomic marker for 'first submission of the day'
+                await (tx as any).dailyStreak.create({
+                    data: {
+                        userId,
+                        date: today
+                    }
+                });
+                console.log(`[STREAK] Created daily streak record for ${today.toISOString()}`);
+
+                // If we're here, it's the first valid submission of the day
+                const user = await tx.user.findUnique({
+                    where: { id: userId },
+                    select: {
+                        currentStreak: true,
+                        longestStreak: true,
+                        lastStreakDate: true
+                    }
+                });
+
+                if (!user) throw new Error("User not found");
+
+                let newStreak = 1;
+                const lastDate = user.lastStreakDate ? new Date(user.lastStreakDate) : null;
+
+                if (lastDate) {
+                    // Normalize lastDate to UTC start of day for accurate comparison
+                    const lastDateUtc = new Date(Date.UTC(lastDate.getUTCFullYear(), lastDate.getUTCMonth(), lastDate.getUTCDate()));
+
+                    if (lastDateUtc.getTime() === yesterday.getTime()) {
+                        // Increment streak
+                        newStreak = user.currentStreak + 1;
+                    } else if (lastDateUtc.getTime() === today.getTime()) {
+                        // Already handled by the unique constraint and check above, but for safety:
+                        return { streakUpdated: false, currentStreak: user.currentStreak };
+                    }
+                }
+
+                // Update user's streak stats
+                const newLongestStreak = Math.max(user.longestStreak, newStreak);
+                await tx.user.update({
+                    where: { id: userId },
+                    data: {
+                        currentStreak: newStreak,
+                        longestStreak: newLongestStreak,
+                        lastStreakDate: today
+                    }
+                });
+
+                console.log(`[STREAK] Updated user ${userId} streak to ${newStreak}`);
+                return { streakUpdated: true, currentStreak: newStreak };
+
+            } catch (error: any) {
+                console.log(`[STREAK] Error/Duplicate caught: ${error.code || error.message}`);
+                // If it's a unique constraint violation (P2002), it's not the first submission of the day
+                if (error.code === 'P2002') {
+                    // IMPORTANT: The transaction 'tx' is aborted if 'create' failed due to unique constraint.
+                    // We must use the global 'prisma' client for any further queries.
+                    const user = await prisma.user.findUnique({
+                        where: { id: userId },
+                        select: { currentStreak: true }
+                    });
+                    return { streakUpdated: false, currentStreak: user?.currentStreak || 0 };
+                }
+                throw error;
+            }
+        });
+    }
 }
