@@ -562,7 +562,7 @@ export class ProblemService {
     // UPDATING A PROBLEM
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, tags, functionTemplates, options, ...problemData } = data;
+            const { testCases, tags, functionTemplates, options, categoryId, ...problemData } = data;
 
             const updateData: any = { ...problemData };
             if (options) {

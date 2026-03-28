@@ -4,7 +4,7 @@ import { UserService } from "@/core/services/user.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
+import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
 
 /**
  * Get user's total score (cached for 5 minutes)
@@ -86,9 +86,9 @@ export async function completeOnboarding(data: {
         }
 
         revalidatePath("/dashboard");
-        updateTag(`user-${userId}`);
-        updateTag(`dashboard-${userId}`);
-        updateTag('dashboard-stats');
+        revalidateTag(`user-${userId}`,'max');
+        revalidateTag(`dashboard-${userId}`,'max');
+        revalidateTag('dashboard-stats','max');
     }
 
     return res;
@@ -124,10 +124,10 @@ export async function updateUserInfo(data: {
     if (res.success) {
         revalidatePath("/dashboard");
         revalidatePath("/dashboard/settings");
-        updateTag(`user-${userId}`);
-        updateTag(`user-score-${userId}`);
-        updateTag(`dashboard-${userId}`);
-        updateTag('dashboard-stats');
+        revalidateTag(`user-${userId}`,'max');
+        revalidateTag(`user-score-${userId}`,'max');
+        revalidateTag(`dashboard-${userId}`,'max');
+        revalidateTag('dashboard-stats','max');
     }
 
     return res;
@@ -160,9 +160,9 @@ export async function syncUserProfile(): Promise<{ success: boolean; error?: str
 
         // Revalidate Next.js cache
         revalidatePath("/dashboard");
-        updateTag(`user-${userId}`);
-        updateTag(`user-score-${userId}`);
-        updateTag('dashboard-stats');
+        revalidateTag(`user-${userId}`,'max');
+        revalidateTag(`user-score-${userId}`,'max');
+        revalidateTag('dashboard-stats','max');
 
         return { success: true };
     } catch (error) {

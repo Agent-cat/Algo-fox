@@ -94,11 +94,11 @@ export default function ProblemsList({ allocatedDomains }: { allocatedDomains: P
   return (
     <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
       {displayedCourses.map((course) => (
-        <Link key={course.id} href={course.href} className="w-full">
+        <Link key={course.id} href={course.href} className="w-full group">
           <motion.div
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.99 }}
-            className={`relative overflow-hidden rounded-xl h-80 w-full cursor-pointer group shadow-lg ${
+            className={`relative overflow-hidden rounded-xl h-80 w-full cursor-pointer shadow-lg scroll-m-20 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               course.id === "dsa"
                 ? "border border-orange-200 dark:border-orange-900/30 bg-white dark:bg-[#141414]"
                 : "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414]"
@@ -106,7 +106,7 @@ export default function ProblemsList({ allocatedDomains }: { allocatedDomains: P
           >
             {course.id === "dsa" && (
               <>
-                <div className={`absolute inset-0 bg-linear-to-br ${course.bgFrom} ${course.bgTo} opacity-90 group-hover:opacity-100 transition-opacity duration-300`} />
+                <div className={`absolute inset-0 bg-linear-to-br ${course.bgFrom} ${course.bgTo} opacity-90 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300`} />
                 <div className="absolute inset-0 opacity-10"
                   style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
                 </div>
@@ -126,10 +126,10 @@ export default function ProblemsList({ allocatedDomains }: { allocatedDomains: P
                   course.id === "dsa"
                     ? "bg-white/20 backdrop-blur-md border border-white/30 dark:bg-orange-500/10 dark:border-orange-500/20"
                     : "bg-gray-100 dark:bg-[#202020] border-gray-200 dark:border-[#333]"
-                } rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300`}>
+                } rounded-lg flex items-center justify-center transform group-hover:rotate-12 group-focus-visible:rotate-12 transition-transform duration-300`}>
                   {course.icon}
                 </div>
-                <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                <div className={`opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity ${
                   course.id === "dsa"
                     ? "bg-white/20 text-white backdrop-blur-md dark:bg-orange-500/10 dark:text-orange-500"
                     : "bg-gray-100 text-gray-600 dark:bg-[#202020] dark:text-gray-400"

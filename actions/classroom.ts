@@ -652,3 +652,143 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
         return { success: false, error: "Failed to remove student" };
     }
 }
+
+/**
+ * Fetches detailed contest performance for all students in a classroom.
+ * Aggregates scores across all classroom-linked contests.
+ */
+export async function getClassroomContestPerformance(classroomId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    try {
+        // 1. Fetch classroom students and contests
+        const [classroom, contests] = await Promise.all([
+            prisma.classroom.findUnique({
+                where: { id: classroomId },
+                include: {
+                    students: {
+                        select: {
+                            id: true,
+                            name: true,
+                            collegeId: true,
+                            branch: true,
+                            image: true,
+                        }
+                    }
+                }
+            }),
+            prisma.contest.findMany({
+                where: { classroomId },
+                include: {
+                    problems: {
+                        include: {
+                            problem: { select: { id: true, score: true } }
+                        }
+                    }
+                }
+            })
+        ]);
+
+        if (!classroom) return { success: false, error: "Classroom not found" };
+        if (contests.length === 0) return { success: true, data: [] };
+
+        const contestIds = contests.map(c => c.id);
+        const studentIds = classroom.students.map(s => s.id);
+
+        // 2. Fetch all successful submissions for these contests
+        const allSubmissions = await prisma.submission.findMany({
+            where: {
+                contestId: { in: contestIds },
+                userId: { in: studentIds },
+                status: "ACCEPTED",
+                mode: "SUBMIT"
+            },
+            select: {
+                userId: true,
+                contestId: true,
+                problemId: true,
+                createdAt: true
+            }
+        });
+
+        // 3. Aggregate scores
+        // Map: contestId -> userId -> problemId -> points
+        const scoreTracker = new Map<string, Map<string, Map<string, number>>>();
+
+        // Initialize maps for all contests and problems
+        contests.forEach(contest => {
+            const userMap = new Map<string, Map<string, number>>();
+            scoreTracker.set(contest.id, userMap);
+        });
+
+        // Process submissions
+        allSubmissions.forEach(sub => {
+            if (!sub.contestId || !sub.userId || !sub.problemId) return;
+
+            const contest = contests.find(c => c.id === sub.contestId);
+            if (!contest) return;
+
+            // check if submission is within contest time
+            if (sub.createdAt < contest.startTime || sub.createdAt > contest.endTime) return;
+
+            const userMap = scoreTracker.get(sub.contestId)!;
+            const probMap = userMap.get(sub.userId) || new Map<string, number>();
+
+            if (!userMap.has(sub.userId)) userMap.set(sub.userId, probMap);
+
+            const problemDetail = contest.problems.find(p => p.problemId === sub.problemId);
+            const points = problemDetail?.problem.score || 0;
+
+            // Only track max points per problem (though status is already ACCEPTED)
+            if (!probMap.has(sub.problemId)) {
+                probMap.set(sub.problemId, points);
+            }
+        });
+
+        // 4. Flatten into rows
+        const performanceData: any[] = [];
+        const studentTotals = new Map<string, number>();
+
+        classroom.students.forEach(student => {
+            let studentTotal = 0;
+
+            contests.forEach(contest => {
+                const userMap = scoreTracker.get(contest.id)!;
+                const probMap = userMap.get(student.id);
+
+                const contestPoints = probMap
+                    ? Array.from(probMap.values()).reduce((a, b) => a + b, 0)
+                    : 0;
+
+                studentTotal += contestPoints;
+
+                performanceData.push({
+                    studentName: student.name || "Anonymous",
+                    collegeId: student.collegeId || "N/A",
+                    branch: student.branch || "N/A",
+                    image: student.image,
+                    studentId: student.id,
+                    contestName: contest.title,
+                    contestPoints: contestPoints,
+                });
+            });
+
+            studentTotals.set(student.id, studentTotal);
+        });
+
+        // 5. Add final totals to each row
+        const finalData = performanceData.map(row => ({
+            ...row,
+            totalPoints: studentTotals.get(row.studentId) || 0
+        }));
+
+        return { success: true, data: finalData };
+    } catch (error) {
+        console.error("Failed to generate classroom performance report:", error);
+        return { success: false, error: "Internal server error" };
+    }
+}

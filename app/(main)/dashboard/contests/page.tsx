@@ -26,7 +26,7 @@ async function ContestsContent() {
     }
 
     const contestsRes = await getVisibleContests();
-    const contests = contestsRes.success ? contestsRes.contests || [] : [];
+    const contests = contestsRes.success && 'contests' in contestsRes ? (contestsRes as any).contests : [];
 
     return (
         <ContestList

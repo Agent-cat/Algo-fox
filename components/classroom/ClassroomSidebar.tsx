@@ -3,8 +3,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
-    activeTab: 'leaderboard' | 'tracking' | 'assignments';
-    onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments') => void;
+    activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance';
+    onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments' | 'performance') => void;
     onDownload: () => void;
     showDownload: boolean;
     isTeacher: boolean;
@@ -38,7 +38,8 @@ export function ClassroomSidebar({
         { id: 'assignments', label: 'Assignments', icon: LayoutDashboard, type: 'link' },
         ...(isTeacher ? [
             { type: 'header', label: 'Monitoring' },
-            { id: 'tracking', label: 'Live Tracking', icon: Activity, type: 'link' }
+            { id: 'tracking', label: 'Live Tracking', icon: Activity, type: 'link' },
+            { id: 'performance', label: 'Performance Reports', icon: LayoutDashboard, type: 'link' }
         ] : []),
         ...(showDownload ? [
             { type: 'header', label: 'Data Management' },

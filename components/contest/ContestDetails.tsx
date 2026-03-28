@@ -23,7 +23,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showRulesPopup, setShowRulesPopup] = useState(false);
-    const [hasAcceptedRules, setHasAcceptedRules] = useState(false);
+    const [hasAcceptedRules, setHasAcceptedRules] = useState(contest.hasAcceptedRules || false);
     const [isSubmittingContest, setIsSubmittingContest] = useState(false);
     const isFinished = contest.isFinished || false;
 
@@ -40,7 +40,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         });
     }, [hasAcceptedRules, sessionId, isFinished, contest.canManage]);
 
-    const now = new Date();
+    const [now, setNow] = useState(new Date());
     const startTime = new Date(contest.startTime);
     const endTime = new Date(contest.endTime);
     const hasStarted = now >= startTime;
@@ -87,13 +87,18 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            const now = new Date();
-            const target = hasStarted ? endTime : startTime;
-            const diff = target.getTime() - now.getTime();
+            const currentNow = new Date();
+            setNow(currentNow);
+
+            const target = currentNow < startTime ? startTime : endTime;
+            const diff = target.getTime() - currentNow.getTime();
 
             if (diff <= 0) {
-                setTimeLeft(hasStarted ? "Contest Ended" : "Starting Now");
-                clearInterval(timer);
+                if (currentNow < startTime) {
+                    setTimeLeft("Starting Now");
+                } else {
+                    setTimeLeft("Contest Ended");
+                }
                 return;
             }
 
@@ -106,12 +111,13 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [hasStarted, startTime, endTime]);
+    }, [startTime, endTime]);
 
     const handleContestStart = (newSessionId: string) => {
         setHasAcceptedRules(true);
         setShowRulesPopup(false);
         setSessionId(newSessionId);
+        router.refresh();
     };
 
     const totalPages = Math.ceil(contest.problems.length / PROBLEMS_PER_PAGE);

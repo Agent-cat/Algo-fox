@@ -18,6 +18,10 @@ const AssignmentsTab = dynamic(() => import("./assignments/AssignmentsTab").then
     loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>
 });
 
+const ContestPerformance = dynamic(() => import("./ContestPerformance").then(mod => mod.ContestPerformance), {
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>
+});
+
 interface Student {
     id: string;
     name: string | null;
@@ -51,7 +55,7 @@ interface ClassroomDashboardProps {
 }
 
 export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments'>('leaderboard');
+    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments' | 'performance'>('leaderboard');
     const [isCopied, setIsCopied] = useState(false);
     const isTeacher = classroom.teacher.id === currentUserId;
 
@@ -139,6 +143,18 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                 transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                             >
                                 <AssignmentsTab classroomId={classroom.id} isTeacher={isTeacher} />
+                            </motion.div>
+                        )}
+                        {activeTab === 'performance' && (
+                            <motion.div
+                                key="performance"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                                className="w-full h-full"
+                            >
+                                <ContestPerformance classroomId={classroom.id} />
                             </motion.div>
                         )}
                         {activeTab === 'tracking' && (

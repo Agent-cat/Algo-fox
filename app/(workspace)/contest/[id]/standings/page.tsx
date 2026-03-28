@@ -15,7 +15,10 @@ async function StandingsContent({ params, searchParams }: { params: Promise<{ id
     "use cache: private";
     const { id } = await params;
     const { page } = await searchParams;
-    const pageNumber = parseInt(page || "1", 10);
+    let pageNumber = parseInt(page || "1", 10);
+    if (Number.isNaN(pageNumber) || pageNumber < 1) {
+        pageNumber = 1;
+    }
 
     const session = await auth.api.getSession({
         headers: await headers(),

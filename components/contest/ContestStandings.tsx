@@ -27,7 +27,7 @@ interface ProblemStat {
     languageId: number | null;
 }
 
-interface ContestStudent {
+interface Student {
     id: string;
     name: string | null;
     score: number;
@@ -46,7 +46,12 @@ interface ContestProblem {
     slug: string;
     maxScore: number;
 }
-
+interface ContestStandingsProps {
+    students: Student[];
+    currentUserId?: string | null;
+    contestId: string;
+    isFinalized?: boolean;
+    userRole?: string; // Using string to avoid @prisma/client import issues in client component if they arise
     problems?: ContestProblem[];
     pagination?: {
         page: number;
@@ -86,8 +91,14 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
         );
     }
 
+    const canFinalize = userRole === "ADMIN" || userRole === "INSTITUTION_MANAGER" || userRole === "CONTEST_MANAGER" || userRole === "TEACHER";
+
     return (
         <div className="space-y-6 w-full max-w-full overflow-hidden">
+            <AnimatePresence>
+                {/* Header ... */}
+            </AnimatePresence>
+
             <div className="relative flex flex-col items-center justify-center gap-4 px-2 py-4">
                 <div className="text-center">
                     <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Arena Leaderboard</h2>
@@ -102,7 +113,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                             <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
                             <button
                                 onClick={() => {
-                                    const rows = students.map((s, idx) => {
+                                    const rows = students.map((s: Student, idx: number) => {
                                             const row: any = {
                                                 "Rank": idx + 1,
                                                 "Name": s.name || "Anonymous",
@@ -112,8 +123,8 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                                 "IP Address History": s.ipAddress || ""
                                             };
 
-                                            problems.forEach((p, i) => {
-                                                const stat = s.problemStats?.find(ps => ps.problemId === p.id);
+                                            problems.forEach((p: ContestProblem, i: number) => {
+                                                const stat = s.problemStats?.find((ps: ProblemStat) => ps.problemId === p.id);
                                                 const score = stat?.solved ? stat.score : 0;
                                                 const wrong = stat?.wrongAttempts || 0;
                                                 row[`Q${i+1} (${p.title})`] = `${score} (${wrong})`;
@@ -161,7 +172,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                 <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center w-[120px] border-r border-gray-200 dark:border-gray-800">
                                     Time
                                 </th>
-                                {problems.map((p, idx) => (
+                                {problems.map((p: ContestProblem, idx: number) => (
                                     <th
                                         key={p.id}
                                         className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-center min-w-[140px] border-r border-gray-200 dark:border-gray-800 last:border-r-0 transition-colors cursor-pointer hover:bg-orange-500/5 text-gray-400 group/th"
@@ -183,7 +194,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-[#1a1a1a]">
-                            {students.map((student, index) => {
+                            {students.map((student: Student, index: number) => {
                                 const actualRank = (currentPage - 1) * 50 + index;
                                 return (
                                     <tr
@@ -262,8 +273,8 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                                 {formatTime(student.timeTaken)}
                                             </div>
                                         </td>
-                                        {problems.map(p => {
-                                            const stat = student.problemStats?.find(s => s.problemId === p.id);
+                                        {problems.map((p: ContestProblem) => {
+                                            const stat = student.problemStats?.find((s: ProblemStat) => s.problemId === p.id);
                                             return (
                                                 <td key={p.id} className="px-4 py-4 border-r border-gray-100 dark:border-gray-800/50 last:border-r-0">
                                                     <div className="flex flex-col items-center gap-1">

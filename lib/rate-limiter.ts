@@ -22,6 +22,18 @@ class RateLimiter {
 
   constructor() {
     this.useRedis = true; // Always try to use Redis since we have a singleton
+
+    // Cleanup interval to prevent memory leaks in memoryStore
+    if (typeof setInterval !== 'undefined') {
+      setInterval(() => {
+        const now = Date.now();
+        for (const [key, record] of this.memoryStore.entries()) {
+          if (now > record.resetTime) {
+            this.memoryStore.delete(key);
+          }
+        }
+      }, 5 * 60 * 1000); // Clean up every 5 minutes
+    }
   }
 
   async checkLimit(

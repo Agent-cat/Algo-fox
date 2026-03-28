@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getClientIP, isIPAllowed } from "@/lib/ip";
 
@@ -307,7 +308,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
                 institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
                 classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
                 creatorId: currentUser.id,
-                contestPassword: validatedData.contestPassword || null,
+                contestPassword: validatedData.contestPassword ? await bcrypt.hash(validatedData.contestPassword, 10) : null,
                 randomizeQuestions: validatedData.randomizeQuestions || false,
                 problems: {
                     create: validatedData.problems.map((problemId, index) => ({
@@ -514,10 +515,10 @@ export async function finalizeContest(contestId: string) {
         revalidateTag(`contest-${contestId}`, "max");
         revalidateTag(`leaderboard-${contestId}`, "max");
 
-        return { success: true };
+        return { success: true as const, message: "Contest finalized and badges awarded!" };
     } catch (error) {
         console.error("Failed to finalize contest:", error);
-        return { success: false, error: "Failed to finalize contest" };
+        return { success: false as const, error: "Failed to finalize contest" };
     }
 }
 
@@ -550,8 +551,11 @@ export async function verifyContestPassword(contestId: string, password?: string
 
         // IP Restriction was removed to allow users but track IP instead.
 
-        if (contest.contestPassword && contest.contestPassword !== password) {
-            return { success: false, error: "Invalid contest password" };
+        if (contest.contestPassword) {
+            const isMatch = await bcrypt.compare(password || "", contest.contestPassword);
+            if (!isMatch) {
+                return { success: false, error: "Invalid contest password" };
+            }
         }
 
         return { success: true };
@@ -578,6 +582,7 @@ export async function startContestSession(contestId: string, password?: string) 
             clientIP: clientIP ?? undefined
         });
 
+        revalidatePath(`/contest/${contestId}`);
         return result;
     } catch (error) {
         console.error("Failed to start contest session:", error);

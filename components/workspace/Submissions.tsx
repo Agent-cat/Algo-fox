@@ -2,7 +2,7 @@
 
 import { authClient } from '@/lib/auth-client';
 import { SubmissionResult } from '@prisma/client';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, SquareArrowOutUpRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -14,14 +14,16 @@ interface Submission {
     createdAt: string;
     language: {
         name: string;
+        judge0Id: number;
     };
 }
 
 interface SubmissionsProps {
     problemId: string;
+    onRestoreCode?: (code: string, languageId: number) => void;
 }
 
-export default function Submissions({ problemId }: SubmissionsProps) {
+export default function Submissions({ problemId, onRestoreCode }: SubmissionsProps) {
     const { data: session } = authClient.useSession();
     // Use a separate state to handle the list locally if needed, but optimally this should be a client component that receives initial data or fetches via action.
     // Given the requirement to be "nice and optimized", using the server action in useEffect is good,
@@ -81,8 +83,8 @@ export default function Submissions({ problemId }: SubmissionsProps) {
     }
 
     return (
-        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212]">
-            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-[#121212]">
+        <div className="bg-[#fafafa] dark:bg-[#121212]">
+            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-[#121212] sticky top-0 z-10 backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                     <span className="w-1 h-3 bg-orange-500 rounded-full" />
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-widest">My Submissions</h3>
@@ -94,17 +96,18 @@ export default function Submissions({ problemId }: SubmissionsProps) {
                     <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
             </div>
-            <div className="overflow-y-auto flex-1 custom-scrollbar">
+            <div className="">
                 {submissions.length === 0 ? (
                     <div className="p-12 text-center text-gray-500 dark:text-gray-400 text-sm">No submissions recorded yet.</div>
                 ) : (
                     <div className="w-full text-sm text-left">
                         {/* HEADER */}
-                        <div className="grid grid-cols-5 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-gray-100/50 dark:bg-[#141414] border-b border-gray-100 dark:border-[#262626] font-black tracking-widest">
+                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-gray-100/50 dark:bg-[#141414] border-b border-gray-100 dark:border-[#262626] font-black tracking-widest">
                             <div>Status</div>
                             <div>Language</div>
                             <div>Time</div>
                             <div>Memory</div>
+                            <div className="text-center">Action</div>
                             <div className="text-right">Date</div>
                         </div>
                         {/* ROWS */}
@@ -113,7 +116,7 @@ export default function Submissions({ problemId }: SubmissionsProps) {
                                 <Link
                                     key={sub.id}
                                     href={`/submissions/${sub.id}`}
-                                    className="grid grid-cols-5 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group items-center"
+                                    className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group items-center"
                                 >
                                     <div className="font-medium">
                                         <span className={`
@@ -128,6 +131,19 @@ export default function Submissions({ problemId }: SubmissionsProps) {
                                     <div className="text-gray-600 dark:text-gray-300 font-medium">{sub.language.name}</div>
                                     <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.time ? `${Number(sub.time).toFixed(3)}ms` : '-'}</div>
                                     <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.memory ? `${sub.memory}KB` : '-'}</div>
+                                    <div className="flex justify-center">
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                onRestoreCode?.(sub.code, sub.language.judge0Id);
+                                            }}
+                                            className="p-2 text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-all"
+                                            title="Restore to editor"
+                                        >
+                                            <SquareArrowOutUpRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                     <div className="text-gray-400 dark:text-gray-500 text-[10px] font-bold text-right uppercase tracking-tighter">
                                         {new Date(sub.createdAt).toLocaleDateString()}
                                         <div className="opacity-60">{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>

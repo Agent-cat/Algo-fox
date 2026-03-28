@@ -43,54 +43,80 @@ async function SubmissionContent({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#050505] py-6 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-[1440px] mx-auto space-y-6">
-                {/* MODERN HEADER */}
-                <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-6 shadow-sm">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                        <div className="flex flex-col gap-4">
-                            <Link
-                                href={`/problems/${problem.slug}`}
-                                className="group inline-flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors"
-                            >
-                                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform font-sans" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] font-sans">Return</span>
-                            </Link>
-                            <div>
-                                <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-sans">
-                                    {problem.title}
-                                </h1>
-                                <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest opacity-60">Submission Ref: {id}</p>
-                            </div>
-                        </div>
+        <div className="min-h-screen bg-white dark:bg-[#050505] antialiased text-gray-900 dark:text-gray-100">
+            <div className="max-w-[1440px] mx-auto p-4 md:p-8">
+                {/* TOP BREADCRUMB / NAV */}
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-[#1a1a1a]">
+                    <Link
+                        href={`/problems/${problem.slug}`}
+                        className="group flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-all font-medium"
+                    >
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm">Back to Workspace</span>
+                    </Link>
 
-                        <div className="flex flex-wrap items-center gap-4 lg:gap-8">
-                            {/* Outcome Badge */}
-                            <div className="flex items-center gap-4 pr-8 lg:border-r border-gray-100 dark:border-[#1a1a1a]">
-                                <div className={`${getStatusColor(status)}`}>
+                    <div className="text-right">
+                        <h1 className="text-lg font-bold">
+                            {problem.title}
+                        </h1>
+                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest leading-none mt-1">Ref: {id.slice(0, 8)}</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-12 items-start">
+                    {/* LEFT SIDEBAR: METRICS & STATUS */}
+                    <aside className="w-full lg:w-[280px] lg:sticky lg:top-8 shrink-0">
+                        {/* Status Area (Minimal) */}
+                        <div className="mb-10">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className={`${status === 'ACCEPTED' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                     {getStatusIcon(status)}
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h3 className={`text-2xl font-black uppercase tracking-tighter font-sans ${getStatusColor(status)}`}>
-                                        {status.replace(/_/g, " ")}
-                                    </h3>
-                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Final Outcome</span>
+                                <h3 className={`text-2xl font-bold tracking-tight ${status === 'ACCEPTED' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                    {status.replace(/_/g, " ")}
+                                </h3>
+                            </div>
+                            <p className="text-xs text-gray-400 font-medium">Final Execution Result</p>
+                        </div>
+
+                        {/* Performance Details (Plain List) */}
+                        <div className="space-y-8">
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-[#1a1a1a] pb-2">Status Metrics</h4>
+
+                                {time && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500">Runtime</span>
+                                        <span className="text-sm font-mono font-semibold">{time}ms</span>
+                                    </div>
+                                )}
+
+                                {memory && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500">Memory</span>
+                                        <span className="text-sm font-mono font-semibold">{memory}KB</span>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Language</span>
+                                    <span className="text-sm font-semibold">{language.name}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Date</span>
+                                    <span className="text-sm font-semibold">
+                                        {new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Detailed Stats */}
-                            <div className="flex items-center gap-8">
-                                <div className="space-y-2">
-                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Language</span>
-                                    <span className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-[10px] font-black rounded-md border border-gray-200 dark:border-white/10 uppercase font-mono">
-                                        {language.name}
-                                    </span>
-                                </div>
-
-                                {time && (
-                                    <div className="min-w-[140px] space-y-2">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Runtime</span>
-                                        <div className="font-mono">
+                            {/* Simple Graphs (if needed, but minimal) */}
+                            {(time || memory) && (
+                                <div className="space-y-6 pt-4">
+                                    {time && (
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Time Distribution</p>
                                             <SubmissionDistribution
                                                 problemId={problem.id}
                                                 currentValue={time}
@@ -98,13 +124,10 @@ async function SubmissionContent({ params }: PageProps) {
                                                 showGraph={false}
                                             />
                                         </div>
-                                    </div>
-                                )}
-
-                                {memory && (
-                                    <div className="min-w-[140px] space-y-2">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Memory</span>
-                                        <div className="font-mono">
+                                    )}
+                                    {memory && (
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Memory Distribution</p>
                                             <SubmissionDistribution
                                                 problemId={problem.id}
                                                 currentValue={memory}
@@ -112,97 +135,91 @@ async function SubmissionContent({ params }: PageProps) {
                                                 showGraph={false}
                                             />
                                         </div>
-                                    </div>
-                                )}
-
-                                <div className="space-y-2">
-                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] block leading-none font-sans">Date</span>
-                                    <p className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase font-mono">
-                                        {new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </p>
+                                    )}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    {/* LEFT SIDE: CODE VIEWER */}
-                    <div className="lg:col-span-8">
-                        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl overflow-hidden flex flex-col shadow-sm">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#1a1a1a] bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
-                                <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center gap-3">
-                                    <Terminal className="w-3.5 h-3.5 text-orange-500" />
+                            <Link
+                                href={`/problems/${problem.slug}`}
+                                className="inline-flex items-center text-xs font-bold text-orange-500 hover:text-orange-600 gap-2 mt-4"
+                            >
+                                <ArrowLeft className="w-3 h-3" />
+                                RETURN TO WORKSPACE
+                            </Link>
+                        </div>
+                    </aside>
+
+                    {/* MAIN CONTENT AREA */}
+                    <div className="flex-1 space-y-12 w-full">
+                        {/* SOURCE CODE SECTION */}
+                        <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-lg overflow-hidden shadow-sm">
+                            <div className="px-6 py-3 border-b border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between bg-gray-50/30 dark:bg-white/1">
+                                <h2 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                    <Terminal className="w-3.5 h-3.5" />
                                     Source Implementation
                                 </h2>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase">Read Only</span>
                             </div>
-                            <div className="h-[600px] lg:h-[calc(100vh-320px)] w-full antialiased font-mono">
+                            <div className="h-[600px] lg:h-[65vh] w-full">
                                 <CodeEditor
                                     value={code}
                                     languageId={language.id}
                                     readOnly={true}
                                 />
                             </div>
-                        </div>
-                    </div>
+                        </section>
 
-                    {/* RIGHT SIDE: TEST CASES & LOGS */}
-                    <div className="lg:col-span-4 space-y-6">
-                        {/* TEST CASES */}
-                        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden flex flex-col max-h-[calc(100vh-320px)]">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#1a1a1a] bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
-                                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Execution Report</h3>
-                                <div className="flex items-center gap-2 bg-green-500/10 px-2 py-1 rounded">
-                                    <span className="text-[10px] font-black text-green-500">
-                                        {testCases.filter(t => t.status === 'ACCEPTED').length}/{testCases.length}
-                                    </span>
-                                    <span className="text-[9px] font-black text-green-600/70 italic uppercase">Passed</span>
+                        {/* EXECUTION REPORT SECTION */}
+                        <section className="space-y-8 pb-32">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-[11px] font-bold text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                    Test Case Report
+                                </h3>
+                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    Passed: <span className="text-emerald-500">{testCases.filter(t => t.status === 'ACCEPTED').length}/{testCases.length}</span>
                                 </div>
                             </div>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                                <div className="grid grid-cols-1 gap-2">
-                                    {testCases.map((tc) => (
-                                        <div
-                                            key={tc.id}
-                                            className={`
-                                                group p-4 rounded-xl border transition-all duration-200
-                                                ${tc.status === 'ACCEPTED'
-                                                    ? 'bg-emerald-50/30 dark:bg-emerald-500/[0.02] border-emerald-100/50 dark:border-emerald-500/10 hover:border-emerald-200 dark:hover:border-emerald-500/20'
-                                                    : 'bg-red-50/30 dark:bg-red-500/[0.02] border-red-100/50 dark:border-red-500/10 hover:border-red-200 dark:hover:border-red-500/20'}
-                                            `}
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black
-                                                        ${tc.status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                                                        {tc.index + 1}
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest block">Test Case</span>
-                                                        <div className="flex items-center gap-2 mt-0.5">
-                                                            {tc.time !== null && <span className="text-[9px] text-gray-400 font-medium">{tc.time}ms</span>}
-                                                            {tc.memory !== null && <span className="text-[9px] text-gray-400 font-medium px-2 border-l border-gray-100 dark:border-white/5">{tc.memory}KB</span>}
-                                                        </div>
-                                                    </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {testCases.map((tc) => (
+                                    <div
+                                        key={tc.id}
+                                        className={`
+                                            group p-5 rounded-lg border transition-all duration-200
+                                            ${tc.status === 'ACCEPTED'
+                                                ? 'bg-transparent border-gray-100 dark:border-[#1a1a1a] hover:border-emerald-500/30'
+                                                : 'bg-rose-50/30 dark:bg-rose-500/2 border-rose-100 dark:border-rose-500/20 hover:border-rose-500/40'}
+                                        `}
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-md flex items-center justify-center text-[10px] font-bold
+                                                    ${tc.status === 'ACCEPTED'
+                                                        ? 'bg-emerald-500/10 text-emerald-500'
+                                                        : 'bg-rose-500/10 text-rose-500'}`}>
+                                                    {tc.index + 1}
                                                 </div>
-                                                <div className="text-right">
-                                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${tc.status === 'ACCEPTED' ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                        {tc.status === 'ACCEPTED' ? 'Passed' : 'Failed'}
-                                                    </span>
-                                                </div>
+                                                <span className={`text-xs font-bold uppercase tracking-tight ${tc.status === 'ACCEPTED' ? 'text-gray-400' : 'text-rose-500'}`}>
+                                                    {tc.status === 'ACCEPTED' ? 'Pass' : 'Fail'}
+                                                </span>
                                             </div>
-
-                                            {tc.errorMessage && (
-                                                <div className="mt-3 p-3 bg-red-500/5 rounded-lg border border-red-500/10 font-mono text-[10px] text-red-400 overflow-x-auto">
-                                                    <p className="font-bold mb-1 opacity-50 uppercase tracking-tighter">Error Logs:</p>
-                                                    {tc.errorMessage}
-                                                </div>
-                                            )}
+                                            <div className="text-right">
+                                                <p className="text-[9px] text-gray-400 font-mono">
+                                                    {tc.time}ms / {tc.memory ? Math.round(tc.memory / 10.24)/100 : 0}MB
+                                                </p>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
+
+                                        {tc.errorMessage && (
+                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-black/20 rounded border border-gray-100 dark:border-[#1a1a1a] font-mono text-[10px] text-rose-400 overflow-x-auto whitespace-pre-wrap leading-relaxed opacity-90">
+                                                {tc.errorMessage}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        </div>
+                        </section>
                     </div>
                 </div>
             </div>

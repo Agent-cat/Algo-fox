@@ -32,7 +32,7 @@ export function FinalizeContestButton({ contestId, isFinalized }: FinalizeContes
         try {
             const result = await finalizeContest(contestId);
             if (result.success) {
-                toast.success(result.message || "Contest finalized and badges awarded!");
+                toast.success((result as any).message || "Contest finalized and badges awarded!");
                 router.refresh();
             } else {
                 toast.error(result.error || "Failed to finalize contest");

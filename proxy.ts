@@ -20,6 +20,19 @@ export async function proxy(request: NextRequest) {
   const clientIp = getClientIP(request);
   const url = new URL(request.url);
   const pathname = url.pathname;
+  let session: any = null;
+  let sessionFetched = false;
+
+  const getSession = async () => {
+    if (sessionFetched) return session;
+    try {
+      session = await auth.api.getSession({ headers: request.headers });
+    } catch (e) {
+      console.error("[Auth] Session fetch failed:", e);
+    }
+    sessionFetched = true;
+    return session;
+  };
 
   // 1. Cloudflare Security Information Extraction
   const securityInfo = getCloudflareSecurityInfo(request);
@@ -62,11 +75,8 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthProtected) {
     try {
-      const session = await auth.api.getSession({
-        headers: request.headers,
-      });
-
-      if (!session) {
+      const currentSession = await getSession();
+      if (!currentSession) {
         return NextResponse.redirect(new URL("/signin", request.url));
       }
 
@@ -101,32 +111,35 @@ export async function proxy(request: NextRequest) {
 
     // User-aware rate limiting if authenticated
     let identifier = clientIp;
+    const currentSession = await getSession();
+    if (currentSession?.user?.id) identifier = currentSession.user.id;
+
     try {
-        const session = await auth.api.getSession({ headers: request.headers });
-        if (session?.user?.id) identifier = session.user.id;
-    } catch (e) { /* ignore */ }
+        const result = await limiter.checkLimit(identifier, config);
 
-    const result = await limiter.checkLimit(identifier, config);
-
-    if (!result.allowed) {
-      return NextResponse.json(
-        { error: "Too many requests", retryAfter: result.retryAfter },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": (result.retryAfter || 60).toString(),
-            "X-RateLimit-Limit": config.maxRequests.toString(),
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": result.resetTime.toString(),
-          },
+        if (!result.allowed) {
+          return NextResponse.json(
+            { error: "Too many requests", retryAfter: result.retryAfter },
+            {
+              status: 429,
+              headers: {
+                "Retry-After": (result.retryAfter || 60).toString(),
+                "X-RateLimit-Limit": config.maxRequests.toString(),
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": result.resetTime.toString(),
+              },
+            }
+          );
         }
-      );
-    }
 
-    response = NextResponse.next();
-    response.headers.set("X-RateLimit-Limit", config.maxRequests.toString());
-    response.headers.set("X-RateLimit-Remaining", result.remaining.toString());
-  } else {
+        response = NextResponse.next();
+        response.headers.set("X-RateLimit-Limit", config.maxRequests.toString());
+        response.headers.set("X-RateLimit-Remaining", result.remaining.toString());
+    } catch (error) {
+        console.error("[RateLimit] Check failed (fail-open):", error);
+        response = NextResponse.next();
+    }
+} else {
     response = NextResponse.next();
   }
 

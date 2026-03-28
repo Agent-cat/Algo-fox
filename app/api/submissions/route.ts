@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SubmissionService } from "@/core/services/submission.service";
 import { addSubmissionJob } from "@/core/queues/submission.queue";
-import { authClient } from "@/lib/auth-client"; // Assuming auth helper exists or we use prisma session
-import { prisma } from "@/lib/prisma"; // Direct access for session check if needed
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -35,8 +37,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
-
-import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
 
 export async function POST(req: NextRequest) {
     try {

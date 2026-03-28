@@ -351,7 +351,7 @@ export class CategoryService {
         try {
             const category = await prisma.category.findUnique({
                 where: { id },
-                select: { slug: true }
+                select: { slug: true, domain: true }
             });
 
             await prisma.category.delete({
@@ -366,7 +366,7 @@ export class CategoryService {
                 await redis.del(getCategoryCacheKey(category.slug));
             }
 
-            return { success: true, slug: category?.slug };
+            return { success: true, slug: category?.slug, category };
         } catch (error) {
             console.error("Failed to delete category:", error);
             return { success: false, error: "Failed to delete category" };

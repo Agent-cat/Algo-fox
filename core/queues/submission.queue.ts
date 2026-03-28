@@ -82,7 +82,14 @@ const worker = new Worker(
             });
 
             if (!submission) throw new Error("Submission not found");
+            if (submission.status !== "PENDING" && submission.status !== "PROCESSING") {
+                console.info(`Submission ${submissionId} already processed with status ${submission.status}. Skipping.`);
+                return;
+            }
             if (!submission.problem) throw new Error("Problem not found");
+
+            // Mark as PROCESSING immediately for idempotency
+            await SubmissionService.updateSubmissionStatus(submissionId, "PROCESSING");
 
             const { code, language, problem, mode } = submission;
             const allTestCases = problem.testCases;

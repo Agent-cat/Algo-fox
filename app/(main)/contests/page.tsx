@@ -7,8 +7,13 @@ import { ContestPageClient } from "@/components/contest/ContestPageClient";
 import { Suspense } from "react";
 import { Trophy } from "lucide-react";
 
-async function ContestsDataWrapper({ page, status }: { page: number; status: "active" | "past" }) {
-  "use cache: private";
+async function ContestsDataWrapper({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
+  const { page, type } = await searchParams;
+  let pageNumber = parseInt(page || "1", 10);
+  if (Number.isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+  const status = (type === "past" ? "past" : "active") as "active" | "past";
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -20,13 +25,13 @@ async function ContestsDataWrapper({ page, status }: { page: number; status: "ac
 
   // Fetch both internal and external contests in parallel
   const [internalRes, externalRes] = await Promise.all([
-    getVisibleContests({ page, status }),
+    getVisibleContests({ page: pageNumber, status }),
     getUpcomingContests()
   ]);
 
-  const internalContests = internalRes.success ? internalRes.contests || [] : [];
-  const externalContests = externalRes.success ? externalRes.contests || [] : [];
-  const pagination = internalRes.success ? {
+  const internalContests = (internalRes.success && "contests" in internalRes) ? internalRes.contests || [] : [];
+  const externalContests = (externalRes.success && "contests" in externalRes) ? externalRes.contests || [] : [];
+  const pagination = (internalRes.success && "page" in internalRes) ? {
     page: internalRes.page,
     totalPages: internalRes.totalPages,
     total: internalRes.total
@@ -42,14 +47,9 @@ async function ContestsDataWrapper({ page, status }: { page: number; status: "ac
   );
 }
 
-export default async function StudentContestsPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
-  const { page, type } = await searchParams;
-  const pageNumber = parseInt(page || "1", 10);
-  const status = (type === "past" ? "past" : "active") as "active" | "past";
-
+export default function StudentContestsPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
   return (
     <Suspense
-      key={`${pageNumber}-${status}`} // Force re-suspense on page or type change
       fallback={
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
           <div className="text-center">
@@ -59,7 +59,7 @@ export default async function StudentContestsPage({ searchParams }: { searchPara
         </div>
       }
     >
-      <ContestsDataWrapper page={pageNumber} status={status} />
+      <ContestsDataWrapper searchParams={searchParams} />
     </Suspense>
   );
 }

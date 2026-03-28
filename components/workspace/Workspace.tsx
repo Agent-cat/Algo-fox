@@ -491,6 +491,18 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         }
     };
 
+    const [pendingRestore, setPendingRestore] = useState<{ code: string; langId: number } | null>(null);
+
+    // Apply pending code restore once the logic for that language is loaded
+    useEffect(() => {
+        if (pendingRestore && codeFiles.isLoaded && languageId === pendingRestore.langId) {
+            setCode(pendingRestore.code);
+            codeFiles.updateCode(pendingRestore.code);
+            setPendingRestore(null);
+            toast.success("Code restored to editor");
+        }
+    }, [pendingRestore, codeFiles.isLoaded, languageId]);
+
     if (!mainHydrated || !verticalHydrated || !sidebarHydrated) {
         return null; // or a loading skeleton
     }
@@ -513,6 +525,21 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     isSolved={isSolvedState}
                     contestId={contestId}
                     domain={problem.domain}
+                    onRestoreCode={(restoredCode: string, restoredLangId: number) => {
+                        // Use Number() to ensure type consistency during comparison
+                        if (Number(restoredLangId) === Number(languageId)) {
+                            // Immediate restoration if language matches
+                            setCode(restoredCode);
+                            codeFiles.updateCode(restoredCode);
+                            toast.success("Code restored to editor");
+                        } else {
+                            // Queue restoration and switch language
+                            setPendingRestore({ code: restoredCode, langId: restoredLangId });
+                            setLanguageId(restoredLangId);
+                            localStorage.setItem(LANGUAGE_STORAGE_KEY, restoredLangId.toString());
+                            toast.info("Switching language and restoring code...");
+                        }
+                    }}
                 />
             </div>
 

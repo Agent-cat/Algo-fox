@@ -10,9 +10,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import DashboardLoading from "./loading";
 
-async function ProfileSection() {
-  const stats = await getDashboardStats();
-  if (!stats) return null;
+function ProfileSection({ stats }: { stats: any }) {
   return (
     <aside className="lg:col-span-3 space-y-6">
       <UserProfileCard
@@ -40,9 +38,7 @@ async function ProfileSection() {
   );
 }
 
-async function MainStatsSection() {
-  const stats = await getDashboardStats();
-  if (!stats) return null;
+function MainStatsSection({ stats }: { stats: any }) {
   return (
     <div className="space-y-8">
       <ProblemOverviewCard
@@ -58,9 +54,7 @@ async function MainStatsSection() {
   );
 }
 
-async function ActivitySection() {
-  const stats = await getDashboardStats();
-  if (!stats) return null;
+function ActivitySection({ stats }: { stats: any }) {
   const submissions = stats.submissions;
   return (
     <div className="space-y-8">
@@ -83,22 +77,20 @@ async function ActivitySection() {
 }
 
 export default async function Dashboard() {
+  const stats = await getDashboardStats();
+
+  if (!stats) {
+    redirect("/signin");
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <Suspense fallback={<div className="lg:col-span-3 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-2xl h-[600px]" />}>
-            <ProfileSection />
-          </Suspense>
-
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <ProfileSection stats={stats} />
           <main className="lg:col-span-9 space-y-8">
-            <Suspense fallback={<div className="animate-pulse bg-gray-100 dark:bg-gray-800 rounded-2xl h-48" />}>
-              <MainStatsSection />
-            </Suspense>
-
-            <Suspense fallback={<div className="animate-pulse bg-gray-100 dark:bg-gray-800 rounded-2xl h-96" />}>
-              <ActivitySection />
-            </Suspense>
+            <MainStatsSection stats={stats} />
+            <ActivitySection stats={stats} />
           </main>
         </div>
       </div>

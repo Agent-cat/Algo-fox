@@ -32,6 +32,7 @@ interface ProblemDescriptionProps {
     contestId?: string;
     domain?: string;
     nextProblemSlug?: string | null;
+    onRestoreCode?: (code: string, languageId: number) => void;
 }
 
 const tabVariants = {
@@ -74,7 +75,7 @@ const staggerItem: Variants = {
     }
 };
 
-const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug }: ProblemDescriptionProps) => {
+const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug, onRestoreCode }: ProblemDescriptionProps) => {
     const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
     const router = useRouter();
 
@@ -281,7 +282,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                             animate="visible"
                             exit="exit"
                         >
-                            <Submissions problemId={problem.id} />
+                            <Submissions problemId={problem.id} onRestoreCode={onRestoreCode} />
                         </motion.div>
                     )}
 

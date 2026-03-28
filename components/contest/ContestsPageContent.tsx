@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Clock, Calendar, Search, Trophy } from "lucide-react";
@@ -103,8 +104,8 @@ export function ContestsPageContent({ contests, page, totalPages, initialTab = "
                             <StudentContestCard key={contest.id} contest={contest} />
                         ))}
 
-                        {/* Pagination UI */}
-                        {totalPages > 1 && (
+                        {/* Pagination UI - Hidden during active search */}
+                        {totalPages > 1 && searchQuery.trim() === '' && (
                             <div className="flex justify-center items-center gap-2 mt-8 py-4">
                                 <button
                                     onClick={() => handlePageChange(page - 1)}

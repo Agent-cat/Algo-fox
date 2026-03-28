@@ -21,7 +21,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
     const hasBadges = earnedBadges.length > 0;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-lg transition-shadow duration-300 overflow-hidden h-full flex flex-col">
+        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-dashed border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a] flex items-center justify-between">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Achievements</h3>
                 {hasBadges && (
@@ -31,7 +31,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
                 )}
             </div>
 
-            <div className="p-6 flex-1 flex flex-col justify-center">
+            <div className="p-6">
                 {hasBadges ? (
                     <div className="flex flex-wrap gap-4 justify-center">
                         {earnedBadges.map((badge, index) => (
@@ -44,7 +44,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
                                 className="relative flex flex-col items-center group cursor-default"
                             >
                                 {/* Main Badge Circle */}
-                                <div className={`w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br ${badge.color} text-white shadow-md ${badge.shadow} border-2 border-white dark:border-[#262626] ring-1 ring-gray-100 dark:ring-[#333]`}>
+                                <div className={`w-16 h-16 flex items-center justify-center rounded-full bg-linear-to-br ${badge.color} text-white shadow-md ${badge.shadow} border-2 border-white dark:border-[#262626] ring-1 ring-gray-100 dark:ring-[#333]`}>
                                     <badge.icon className="w-8 h-8 drop-shadow-sm" strokeWidth={2} />
                                 </div>
 

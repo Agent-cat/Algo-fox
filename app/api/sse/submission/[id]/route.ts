@@ -66,6 +66,9 @@ export async function GET(
                  }
             });
 
+            // Define terminal states that should close the connection
+            const terminalStates = ["ACCEPTED", "WRONG_ANSWER", "TIME_LIMIT_EXCEEDED", "MEMORY_LIMIT_EXCEEDED", "RUNTIME_ERROR", "COMPILE_ERROR"];
+
             if (latest) {
                  if (latest.testCases.length > 0) {
                      const data = JSON.stringify({
@@ -75,7 +78,7 @@ export async function GET(
                      controller.enqueue(`data: ${data}\n\n`);
                  }
 
-                 if (latest.status !== "PENDING") {
+                 if (terminalStates.includes(latest.status)) {
                      const data = JSON.stringify({
                          type: "COMPLETE",
                          data: {

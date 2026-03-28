@@ -4,7 +4,7 @@ import { CategoryService } from "@/core/services/category.service";
 import { ProblemDomain, Difficulty } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
+import { revalidatePath, updateTag, cacheTag, cacheLife, revalidateTag } from "next/cache";
 
 // GETTING ALL CATEGORIES
 
@@ -144,9 +144,12 @@ export async function deleteCategory(id: string) {
     revalidatePath("/problems/dsa");
     revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
-    updateTag('categories-list');
+    revalidateTag('categories-list','max');
+    if (result.category?.domain) {
+      revalidateTag(`categories-${result.category.domain}`,'max');
+    }
     if (result.slug) {
-      updateTag(`category-${result.slug}`);
+      revalidateTag(`category-${result.slug}`,'max');
     }
   }
 

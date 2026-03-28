@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { cacheTag, cacheLife } from "next/cache";
+import bcrypt from "bcryptjs";
 
 export class ContestService {
     /**
@@ -233,7 +234,7 @@ export class ContestService {
             ],
         };
 
-        const finalWhere: any = role === "ADMIN" ? { hidden: false } : { ...baseWhere, hidden: false };
+        const finalWhere: any = role === "ADMIN" ? baseWhere : { ...baseWhere, hidden: false };
 
         if (status === "active") {
             finalWhere.endTime = { gte: now };
@@ -303,7 +304,7 @@ export class ContestService {
                     institutionId: data.visibility !== "PUBLIC" ? (data.institutionId || null) : null,
                     classroomId: data.visibility === "CLASSROOM" ? (data.classroomId || null) : null,
                     creatorId,
-                    contestPassword: data.contestPassword || null,
+                    contestPassword: data.contestPassword ? await bcrypt.hash(data.contestPassword, 10) : null,
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted || false,
                     allowedIPs: data.allowedIPs || [],
@@ -335,10 +336,17 @@ export class ContestService {
                                     type: "CONTEST",
                                     hidden: true,
                                     testCases: {
-                                        create: p.testCases,
+                                        create: (p.testCases || []).map((tc: any) => ({
+                                            input: tc.input,
+                                            output: tc.output,
+                                            hidden: tc.hidden || false
+                                        }))
                                     },
                                     tags: {
-                                        connect: p.tags?.map((t: string) => ({ name: t })) || [],
+                                        connectOrCreate: (p.tags || []).map((t: string) => ({
+                                            where: { name: t },
+                                            create: { name: t, slug: t.toLowerCase().replace(/\s+/g, '-') }
+                                        }))
                                     }
                                 }
                             })
@@ -389,7 +397,7 @@ export class ContestService {
                     targetEmails: data.targetEmails,
                     institutionId: data.visibility !== "PUBLIC" ? (data.institutionId || null) : null,
                     classroomId: data.visibility === "CLASSROOM" ? (data.classroomId || null) : null,
-                    contestPassword: data.contestPassword || null,
+                    contestPassword: data.contestPassword ? await bcrypt.hash(data.contestPassword, 10) : undefined,
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted,
                     allowedIPs: data.allowedIPs,
@@ -420,10 +428,10 @@ export class ContestService {
                                 type: "CONTEST",
                                 hidden: true,
                                 testCases: {
-                                    create: p.testCases.map((tc: any) => ({
+                                    create: (p.testCases || []).map((tc: any) => ({
                                         input: tc.input,
                                         output: tc.output,
-                                        hidden: tc.hidden,
+                                        hidden: tc.hidden || false,
                                     })),
                                 },
                             }
@@ -442,10 +450,10 @@ export class ContestService {
                                     domain: p.domain,
                                     testCases: {
                                         deleteMany: {},
-                                        create: p.testCases.map((tc: any) => ({
+                                        create: (p.testCases || []).map((tc: any) => ({
                                             input: tc.input,
                                             output: tc.output,
-                                            hidden: tc.hidden,
+                                            hidden: tc.hidden || false,
                                         })),
                                     },
                                 }
@@ -517,8 +525,9 @@ export class ContestService {
         });
 
         if (!contest) return { success: false, error: "Contest not found" };
-        if (contest.contestPassword && contest.contestPassword !== password) {
-            return { success: false, error: "Invalid contest password" };
+        if (contest.contestPassword) {
+            const isMatch = await bcrypt.compare(password || "", contest.contestPassword);
+            if (!isMatch) return { success: false, error: "Invalid contest password" };
         }
 
         const now = new Date();
@@ -619,6 +628,15 @@ export class ContestService {
     }
 
     /**
+     * Get the top 50 participants for a contest
+     */
+    static async getTopParticipants(contestId: string) {
+        const leaderboard = await this.getLeaderboard(contestId);
+        if (!leaderboard) return [];
+        return leaderboard.students.slice(0, 50);
+    }
+
+    /**
      * Finalize contest and award badges
      */
     static async finalize(contestId: string) {
@@ -629,11 +647,8 @@ export class ContestService {
 
         if (!contest || contest.isFinalized) return { success: false, error: "Invalid state" };
 
-        const leaderboard = await this.getLeaderboard(contestId);
-        if (!leaderboard) return { success: false, error: "No leaderboard" };
-
-        const students = leaderboard.students;
-        if (students.length === 0) {
+        const topStudents = await this.getTopParticipants(contestId);
+        if (topStudents.length === 0) {
             await prisma.contest.update({
                 where: { id: contestId },
                 data: { isFinalized: true }
@@ -642,11 +657,11 @@ export class ContestService {
         }
 
         return prisma.$transaction(async (tx) => {
-            if (students[0]) await tx.user.update({ where: { id: students[0].id }, data: { goldBadges: { increment: 1 } } });
-            if (students[1]) await tx.user.update({ where: { id: students[1].id }, data: { silverBadges: { increment: 1 } } });
-            if (students[2]) await tx.user.update({ where: { id: students[2].id }, data: { bronzeBadges: { increment: 1 } } });
+            if (topStudents[0]) await tx.user.update({ where: { id: topStudents[0].id }, data: { goldBadges: { increment: 1 } } });
+            if (topStudents[1]) await tx.user.update({ where: { id: topStudents[1].id }, data: { silverBadges: { increment: 1 } } });
+            if (topStudents[2]) await tx.user.update({ where: { id: topStudents[2].id }, data: { bronzeBadges: { increment: 1 } } });
 
-            await tx.contest.update({
+            return tx.contest.update({
                 where: { id: contestId },
                 data: { isFinalized: true }
             });

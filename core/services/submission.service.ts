@@ -227,62 +227,66 @@ export class SubmissionService {
     }
 
     static async incrementProblemSolved(problemId: string, userId: string) {
-        // OPTIMIZATION: Combine multiple read operations into a single query to reduce DB round-trips
-        const [acceptedCount, problem, latestSubmission] = await Promise.all([
-            prisma.submission.count({
-                where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" }
-            }),
-            prisma.problem.findUnique({
-                where: { id: problemId },
-                select: { difficulty: true, type: true, id: true }
-            }),
-            prisma.submission.findFirst({
-                where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" },
-                orderBy: { createdAt: 'desc' },
-                select: { contestId: true }
-            })
-        ]);
-
-        // Only proceed if this is the first accepted solution
-        if (acceptedCount !== 1) return;
-        if (!problem) throw new Error("Problem not found");
-
-        // Logic check: If it's a CONTEST problem and solved in practice mode, don't increment global stats
-        if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
-            return;
-        }
-
-        const points = getPointsForDifficulty(problem.difficulty);
-
-        // Step 3: Short transaction for database-only operations
-        // This keeps the transaction as brief as possible
         try {
-            await prisma.$transaction([
-                // Increment problem's solved count
-                prisma.problem.update({
+            // Step 1: Atomic check and marker creation
+            // We use a separate model 'UserProblemSolved' with a unique constraint on [userId, problemId]
+            // This ensures that only one concurrent request can successfully create the marker.
+            await prisma.$transaction(async (tx) => {
+                // 1. Check if already solved (Marker existence)
+                const existingMarker = await (tx as any).userProblemSolved.findUnique({
+                    where: { userId_problemId: { userId, problemId } }
+                });
+
+                if (existingMarker) return; // Already solved and counted
+
+                // 2. Fetch problem and latest submission details within transaction
+                const [problem, latestSubmission] = await Promise.all([
+                    tx.problem.findUnique({
+                        where: { id: problemId },
+                        select: { difficulty: true, type: true, id: true }
+                    }),
+                    tx.submission.findFirst({
+                        where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" },
+                        orderBy: { createdAt: 'desc' },
+                        select: { contestId: true }
+                    })
+                ]);
+
+                if (!problem) throw new Error("Problem not found");
+
+                // 3. Logic check: If it's a CONTEST problem and solved in practice mode, don't increment global stats
+                if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
+                    return;
+                }
+
+                // 4. Create the unique marker - if this fails due to a race, the transaction will rollback
+                // providing the atomicity we need.
+                await (tx as any).userProblemSolved.create({
+                    data: { userId, problemId }
+                });
+
+                // 5. Perform the increments
+                const points = getPointsForDifficulty(problem.difficulty);
+
+                await tx.problem.update({
                     where: { id: problemId },
-                    data: {
-                        solved: {
-                            increment: 1
-                        }
-                    }
-                }),
-                // Increment user's stats only if not a concept problem
-                ...(problem.difficulty !== "CONCEPT" ? [
-                    prisma.user.update({
+                    data: { solved: { increment: 1 } }
+                });
+
+                if (problem.difficulty !== "CONCEPT") {
+                    await tx.user.update({
                         where: { id: userId },
                         data: {
-                            problemsSolved: {
-                                increment: 1
-                            },
-                            totalScore: {
-                                increment: points
-                            }
+                            problemsSolved: { increment: 1 },
+                            totalScore: { increment: points }
                         }
-                    })
-                ] : [])
-            ]);
-        } catch (error) {
+                    });
+                }
+            });
+        } catch (error: any) {
+            // P2002 is Prisma's code for unique constraint violation (handled by the findUnique check mostly, but safe to catch)
+            if (error.code === 'P2002') return;
+
             console.error("Failed to update problem stats:", error);
             throw error;
         }
@@ -304,21 +308,23 @@ export class SubmissionService {
         }
 
         // Step 5: Invalidate Next.js cache tags
-        try {
-            // Use Promise.allSettled to prevent one failure from blocking others
-            const tagOperations = [
-                updateTag('categories-list'),
-                updateTag(`categories-DSA-user-${userId}`),
-                updateTag(`categories-SQL-user-${userId}`),
-                updateTag(`user-submissions-${userId}`),
-                updateTag('problems-list'),
-                updateTag('problems-search')
-            ];
-            await Promise.allSettled(tagOperations);
-        } catch (error) {
-            // Tag invalidation failure is non-critical
-            if (process.env.NODE_ENV !== "production") {
-                console.warn("Failed to update cache tags:", error);
+        const tagsToRevalidate = [
+            'categories-list',
+            `categories-DSA-user-${userId}`,
+            `categories-SQL-user-${userId}`,
+            `user-submissions-${userId}`,
+            'problems-list',
+            'problems-search'
+        ];
+
+        for (const tag of tagsToRevalidate) {
+            try {
+                revalidateTag(tag, 'max');
+            } catch (error) {
+                // Tag invalidation failure is non-critical (e.g. in worker context)
+                if (process.env.NODE_ENV !== "production") {
+                    console.debug(`Note: Could not revalidate tag "${tag}" (likely outside request context)`);
+                }
             }
         }
     }
@@ -357,7 +363,8 @@ export class SubmissionService {
             include: {
                 language: {
                     select: {
-                        name: true
+                        name: true,
+                        judge0Id: true
                     }
                 }
             },

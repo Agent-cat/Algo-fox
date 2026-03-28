@@ -4,7 +4,7 @@ import { ProblemService } from "@/core/services/problem.service";
 import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { revalidatePath, updateTag, cacheTag, cacheLife } from "next/cache";
+import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
 
 // GETTING PUBLIC PROBLEMS
 
@@ -127,10 +127,10 @@ export async function createProblem(data: {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        updateTag('admin-problems-list');
-        updateTag('problems-list');
-        updateTag('problems-SQL-PRACTICE');
-        updateTag('problems-DSA-PRACTICE');
+        revalidateTag('admin-problems-list','max');
+        revalidateTag('problems-list','max');
+        revalidateTag('problems-SQL-PRACTICE','max');
+        revalidateTag('problems-DSA-PRACTICE','max');
     }
 
     return result;
@@ -189,10 +189,10 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        updateTag('admin-problems-list');
-        updateTag('problems-list');
-        updateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`);
-        updateTag(`problem-${result.data?.slug}`);
+        revalidateTag('admin-problems-list','max');
+        revalidateTag('problems-list','max');
+        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`,'max');
+        revalidateTag(`problem-${result.data?.slug}`,'max');
     }
 
     return result;
@@ -221,8 +221,8 @@ export async function deleteProblem(id: string) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        updateTag('admin-problems-list');
-        updateTag('problems-list');
+        revalidateTag('admin-problems-list','max');
+        revalidateTag('problems-list','max');
     }
 
     return result;
