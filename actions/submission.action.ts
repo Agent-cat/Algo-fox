@@ -69,14 +69,9 @@ export async function markConceptAsCompleted(problemId: string) {
 
     try {
         await SubmissionService.markConceptAsSolved(userId, problemId);
+        const result = await SubmissionService.incrementProblemSolved(problemId, userId);
 
-        // Move heavy stats updates to background
         after(async () => {
-             await SubmissionService.incrementProblemSolved(problemId, userId);
-             // Revalidating paths/tags inside after() ensures the next request is fresh,
-             // but current UI might need revalidatePath synchronous if it relies on server reload.
-             // However, separating side-effects is key.
-             // Using revalidateTag inside after works for ISR.
              revalidateTag(`problem-${problemId}`,"max");
              revalidateTag(`user-submissions-${userId}`,"max");
              revalidateTag(`problem-submissions-${userId}-${problemId}`,"max");
@@ -85,10 +80,8 @@ export async function markConceptAsCompleted(problemId: string) {
         revalidatePath("/problems");
         revalidatePath("/problems/dsa");
         revalidatePath("/problems/sql");
-        // These might fail in standard runtime if cache tags aren't updated synchronously?
-        // Actually, revalidating path is enough for UI. Tags are for cached data.
 
-        return { success: true };
+        return { success: true, ...result };
     } catch (error) {
         console.error("Failed to mark concept as completed:", error);
         return { success: false, error: "Failed to mark as completed" };

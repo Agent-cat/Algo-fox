@@ -15,6 +15,7 @@ import BackButton from "@/components/BackButton";
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import { remarkSolutionDirective } from "@/lib/markdown-plugins";
 import { preprocessMarkdown } from "@/lib/markdown-utils";
+import { PointsCelebration } from "../shared/PointsCelebration";
 // Removed static highlight.js import to allow custom adaptive styling
 
 interface ConceptViewerProps {
@@ -25,6 +26,8 @@ interface ConceptViewerProps {
 export default function ConceptViewer({ problem, isSolved: initialIsSolved }: ConceptViewerProps) {
     const [isSolved, setIsSolved] = useState(initialIsSolved);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
+    const [pointsGained, setPointsGained] = useState(0);
     const router = useRouter();
 
     const handleMarkCompleted = async () => {
@@ -35,6 +38,10 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
             if (res.success) {
                 setIsSolved(true);
                 toast.success("Marked as completed!");
+                if ('firstSolved' in res && res.firstSolved) {
+                    setPointsGained(res.points);
+                    setIsPointsModalOpen(true);
+                }
                 router.refresh();
             } else {
                 toast.error(res.error || "Failed to mark as completed");
@@ -49,6 +56,11 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
 
     return (
         <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#121212] pt-6 pb-20">
+            <PointsCelebration
+                isOpen={isPointsModalOpen}
+                onClose={() => setIsPointsModalOpen(false)}
+                points={pointsGained}
+            />
             <div className="w-full max-w-none px-4 md:px-8">
                 {/* Back Button */}
                 <div className="mb-4">

@@ -360,9 +360,15 @@ const worker = new Worker(
                 await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
 
                 let streakResult = { streakUpdated: false, currentStreak: 0 };
+                let pointsResult = { firstSolved: false, points: 0 };
                 if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
-                    await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
-                    streakResult = await SubmissionService.updateUserStreak(submission.userId);
+                    try {
+                        pointsResult = await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
+                        streakResult = await SubmissionService.updateUserStreak(submission.userId);
+                    } catch (sideEffectError) {
+                        console.error(`Side effect error (streak/solved) for submission ${submissionId}:`, sideEffectError);
+                        // Do not rethrow - we want to finish processing the submission
+                    }
                 }
 
                 // Invalidate Live Tracking Cache
@@ -376,7 +382,9 @@ const worker = new Worker(
                         time: avgTime,
                         memory: maxMemory,
                         streakUpdated: streakResult.streakUpdated,
-                        currentStreak: streakResult.currentStreak
+                        currentStreak: streakResult.currentStreak,
+                        firstSolved: pointsResult.firstSolved,
+                        pointsGained: pointsResult.points
                     }
                 }));
             } else {

@@ -626,7 +626,7 @@ enum VoteType {
 model DailyStreak {
   id     String   @id @default(cuid())
   userId String
-  date   DateTime @default(now())
+  date   DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])

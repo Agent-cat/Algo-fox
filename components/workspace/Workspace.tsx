@@ -14,6 +14,7 @@ import ContestSidebar from './ContestSidebar';
 import dynamic from 'next/dynamic';
 import ProblemTour from '../tour/ProblemTour';
 import { StreakCelebrationModal } from '../shared/StreakCelebrationModal';
+import { PointsCelebration } from '../shared/PointsCelebration';
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null, // Optional: rendering nothing while loading
@@ -86,7 +87,29 @@ function getStoredLanguageId(domain?: string): number {
 export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
     const router = useRouter();
-    const [code, setCode] = useState<string>("// Write your code here");
+
+    // Initialize languageId directly from localStorage if possible (safe because Workspace is rendered with ssr: false)
+    const [languageId, setLanguageId] = useState<number>(() => {
+        return getStoredLanguageId(problem.domain as string);
+    });
+
+    const [code, setCode] = useState<string>(() => {
+        if (typeof window === 'undefined') return '// Write your code here';
+        // Find correct initial code if we don't have it loaded yet
+        const isSql = (problem.domain as string) === 'SQL';
+        if (isSql) return '';
+        const initialLangId = getStoredLanguageId(problem.domain as string);
+
+        // If we have templates, try to find the matching one
+        if (problem.useFunctionTemplate && problem.functionTemplates) {
+            const tmpl = problem.functionTemplates.find(t => t.languageId === initialLangId);
+            if (tmpl?.functionTemplate) return tmpl.functionTemplate;
+        }
+
+        // Fall back to per-language boilerplate from languages.ts
+        return getLanguageById(initialLangId)?.boilerplate ?? '// Write your code here';
+    });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSolvedState, setIsSolvedState] = useState(isSolved);
 
@@ -98,19 +121,16 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     // Sidebar state
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Start with default language to avoid hydration mismatch, then update from localStorage
-    const [languageId, setLanguageId] = useState(
-        problem.domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID
-    );
-
-    // Load language from localStorage after hydration (client-side only)
+    // Synchronize language and code when problem domain changes (e.g. navigating across problem types)
     useEffect(() => {
-        const storedLanguageId = getStoredLanguageId(problem.domain);
+        const domain = problem.domain as string;
+        const storedLanguageId = getStoredLanguageId(domain);
         // For SQL problems, always use SQL language
-        const finalLanguageId = problem.domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
+        const finalLanguageId = domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
+
         if (finalLanguageId !== languageId) {
             setLanguageId(finalLanguageId);
-            // Clear default boilerplate if we are switching languages on load
+            // Clear default code to avoid flash of wrong boilerplate
             setCode("");
         }
     }, [problem.domain]);
@@ -223,7 +243,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     // Handle language change and persist to localStorage
     const handleLanguageChange = (newLanguageId: number) => {
         // For SQL problems, always use SQL language - don't allow changes
-        if (problem.domain === "SQL") {
+        if ((problem.domain as string) === "SQL") {
             return; // Prevent language changes for SQL problems
         }
 
@@ -277,6 +297,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
     const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
     const [streakCount, setStreakCount] = useState(0);
+    const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
+    const [pointsGained, setPointsGained] = useState(0);
 
 
     // Custom Test Cases state
@@ -477,6 +499,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                              setStreakCount(payload.data.currentStreak);
                              setIsStreakModalOpen(true);
                          }
+
+                         // TRIGGER POINTS CELEBRATION
+                         if (payload.data.firstSolved) {
+                             setPointsGained(payload.data.pointsGained);
+                             setIsPointsModalOpen(true);
+                         }
                      } else {
                           toast.error(`Result: ${payload.data.status}`);
                      }
@@ -619,6 +647,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 isOpen={isStreakModalOpen}
                 onClose={() => setIsStreakModalOpen(false)}
                 currentStreak={streakCount}
+            />
+
+            <PointsCelebration
+                isOpen={isPointsModalOpen}
+                onClose={() => setIsPointsModalOpen(false)}
+                points={pointsGained}
             />
 
             {/* Contest Protection (only active after entry) */}

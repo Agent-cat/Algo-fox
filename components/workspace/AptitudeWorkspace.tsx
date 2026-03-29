@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { usePersistentSplit } from '@/hooks/use-layout';
 import AptitudeMCQPanel from './AptitudeMCQPanel';
 import ProblemTour from '../tour/ProblemTour';
+import { PointsCelebration } from '../shared/PointsCelebration';
 import dynamic from 'next/dynamic';
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
@@ -40,6 +41,8 @@ export default function AptitudeWorkspace({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"description" | "solutions" | "submissions">("description");
     const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
+    const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
+    const [pointsGained, setPointsGained] = useState(0);
 
     // Sync state when problem changes
     useEffect(() => {
@@ -53,10 +56,14 @@ export default function AptitudeWorkspace({
         isHydrated: mainHydrated
     } = usePersistentSplit('algofox_aptitude_workspace_main_split', [50, 50]);
 
-    const handleSolved = useCallback(() => {
+    const handleSolved = useCallback((firstSolved?: boolean, points?: number) => {
         setIsSolved(true);
         if (!solvedIds.includes(problem.id)) {
             setSolvedIds(prev => [...prev, problem.id]);
+        }
+        if (firstSolved && points) {
+            setPointsGained(points);
+            setIsPointsModalOpen(true);
         }
     }, [problem.id, solvedIds]);
 
@@ -102,6 +109,12 @@ export default function AptitudeWorkspace({
                 domain={problem.domain}
                 type={problem.type}
                 onToggleSidebar={() => setIsSidebarOpen(true)}
+            />
+
+            <PointsCelebration
+                isOpen={isPointsModalOpen}
+                onClose={() => setIsPointsModalOpen(false)}
+                points={pointsGained}
             />
 
             <div className="flex-1 overflow-hidden min-w-0">

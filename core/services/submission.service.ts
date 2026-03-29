@@ -226,18 +226,18 @@ export class SubmissionService {
         }
     }
 
-    static async incrementProblemSolved(problemId: string, userId: string) {
+    static async incrementProblemSolved(problemId: string, userId: string): Promise<{ firstSolved: boolean; points: number }> {
         try {
             // Step 1: Atomic check and marker creation
             // We use a separate model 'UserProblemSolved' with a unique constraint on [userId, problemId]
             // This ensures that only one concurrent request can successfully create the marker.
-            await prisma.$transaction(async (tx) => {
+            return await prisma.$transaction(async (tx) => {
                 // 1. Check if already solved (Marker existence)
                 const existingMarker = await (tx as any).userProblemSolved.findUnique({
                     where: { userId_problemId: { userId, problemId } }
                 });
 
-                if (existingMarker) return; // Already solved and counted
+                if (existingMarker) return { firstSolved: false, points: 0 }; // Already solved and counted
 
                 // 2. Fetch problem and latest submission details within transaction
                 const [problem, latestSubmission] = await Promise.all([
@@ -256,7 +256,7 @@ export class SubmissionService {
 
                 // 3. Logic check: If it's a CONTEST problem and solved in practice mode, don't increment global stats
                 if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
-                    return;
+                    return { firstSolved: false, points: 0 };
                 }
 
                 // 4. Create the unique marker - if this fails due to a race, the transaction will rollback
@@ -282,10 +282,11 @@ export class SubmissionService {
                         }
                     });
                 }
+                return { firstSolved: true, points };
             });
         } catch (error: any) {
             // P2002 is Prisma's code for unique constraint violation (handled by the findUnique check mostly, but safe to catch)
-            if (error.code === 'P2002') return;
+            if (error.code === 'P2002') return { firstSolved: false, points: 0 };
 
             console.error("Failed to update problem stats:", error);
             throw error;
@@ -455,15 +456,17 @@ export class SubmissionService {
 
     static async updateUserStreak(userId: string) {
         console.log(`[STREAK] Starting updateUserStreak for user: ${userId}`);
-        // Use a transaction for atomicity and race-safety
-        return await prisma.$transaction(async (tx) => {
-            const now = new Date();
-            // Normalize to start of day (UTC)
-            const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-            const yesterday = new Date(today);
-            yesterday.setUTCDate(today.getUTCDate() - 1);
 
-            try {
+        const now = new Date();
+        // Normalize to start of day (UTC)
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        const yesterday = new Date(today);
+        yesterday.setUTCDate(today.getUTCDate() - 1);
+
+        try {
+            // Use a transaction for atomicity and race-safety
+            return await prisma.$transaction(async (tx) => {
+
                 // 1. Check if a record already exists for today to avoid transaction abortion
                 const existingStreak = await (tx as any).dailyStreak.findUnique({
                     where: {
@@ -535,20 +538,19 @@ export class SubmissionService {
                 console.log(`[STREAK] Updated user ${userId} streak to ${newStreak}`);
                 return { streakUpdated: true, currentStreak: newStreak };
 
-            } catch (error: any) {
-                console.log(`[STREAK] Error/Duplicate caught: ${error.code || error.message}`);
-                // If it's a unique constraint violation (P2002), it's not the first submission of the day
-                if (error.code === 'P2002') {
-                    // IMPORTANT: The transaction 'tx' is aborted if 'create' failed due to unique constraint.
-                    // We must use the global 'prisma' client for any further queries.
-                    const user = await prisma.user.findUnique({
-                        where: { id: userId },
-                        select: { currentStreak: true }
-                    });
-                    return { streakUpdated: false, currentStreak: user?.currentStreak || 0 };
-                }
-                throw error;
+            });
+        } catch (error: any) {
+            console.log(`[STREAK] Error/Duplicate caught: ${error.code || error.message}`);
+            // If it's a unique constraint violation (P2002), it's not the first submission of the day
+            if (error.code === 'P2002') {
+                // We must use the global 'prisma' client for any further queries.
+                const user = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { currentStreak: true }
+                });
+                return { streakUpdated: false, currentStreak: user?.currentStreak || 0 };
             }
-        });
+            throw error;
+        }
     }
 }

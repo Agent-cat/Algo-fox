@@ -39,13 +39,23 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
     setIsFlying(true);
   }, []);
 
+  const pulseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const onFlightComplete = useCallback(() => {
     setStreak(pendingValue);
     setIsFlying(false);
     setIsPulsing(true);
+
+    if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
     // Stop pulsing after a short delay
-    setTimeout(() => setIsPulsing(false), 2000);
+    pulseTimeoutRef.current = setTimeout(() => setIsPulsing(false), 2000);
   }, [pendingValue]);
+
+  useEffect(() => {
+    return () => {
+      if (pulseTimeoutRef.current) clearTimeout(pulseTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <StreakContext.Provider value={{ streak, setStreak, triggerFlight, badgeRef, isPulsing, isFlying }}>
@@ -78,6 +88,7 @@ function FlyingFire({
   endRef: React.RefObject<HTMLDivElement | null>;
   onComplete: () => void;
 }) {
+  const [isEndPosReady, setIsEndPosReady] = useState(false);
   const [endPos, setEndPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -88,6 +99,7 @@ function FlyingFire({
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
         });
+        setIsEndPosReady(true);
       }
     };
 
@@ -96,7 +108,7 @@ function FlyingFire({
     return () => window.removeEventListener('resize', updatePosition);
   }, [endRef]);
 
-  if (endPos.x === 0) return null;
+  if (!isEndPosReady) return null;
 
   return (
     <motion.div
@@ -108,19 +120,19 @@ function FlyingFire({
         filter: "blur(0px)"
       }}
       animate={{
-        left: [start.x, start.x, endPos.x],
-        top: [start.y, start.y - 150, endPos.y], // Slight arc
-        scale: [1, 1.2, 0.4],
+        left: [start.x, start.x, endPos.x, endPos.x],
+        top: [start.y, start.y - 150, endPos.y, endPos.y], // Slight arc
+        scale: [1, 1.2, 0.4, 0.4],
         opacity: [0, 1, 1, 0],
-        filter: ["blur(0px)", "blur(0px)", "blur(2px)"]
+        filter: ["blur(0px)", "blur(0px)", "blur(2px)", "blur(2px)"]
       }}
       transition={{
         duration: 1.5,
         ease: [0.6, 0.05, 0.1, 0.9],
-        times: [0, 0.2, 1]
+        times: [0, 0.2, 0.8, 1]
       }}
       onAnimationComplete={onComplete}
-      className="fixed z-[11000] pointer-events-none -translate-x-1/2 -translate-y-1/2"
+      className="fixed z-11000 pointer-events-none -translate-x-1/2 -translate-y-1/2"
     >
       <div className="relative w-32 h-32">
         <DotLottieReact

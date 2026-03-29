@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import confetti from 'canvas-confetti';
-import { X } from 'lucide-react';
 
 import { useStreak } from '@/context/StreakContext';
 
@@ -20,7 +19,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
   const { triggerFlight } = useStreak();
   const fireRef = React.useRef<HTMLDivElement>(null);
 
-  const handleCollect = () => {
+  const handleCollect = useCallback(() => {
     if (fireRef.current) {
       const rect = fireRef.current.getBoundingClientRect();
       const pos = {
@@ -28,9 +27,24 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
         y: rect.top + rect.height / 2
       };
       triggerFlight(pos, currentStreak);
-      onClose();
     }
-  };
+    // Call onClose unconditionally
+    onClose();
+  }, [onClose, currentStreak, triggerFlight]);
+
+  // Accessibility: Listen for Escape key and focus management
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCollect();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleCollect]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -77,12 +91,18 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
     } else {
         setShowContent(false);
     }
-  }, [isOpen]);
+  }, [isOpen, handleCollect]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 overflow-hidden">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="streak-celebration-title"
+          aria-describedby="streak-celebration-desc"
+          className="fixed inset-0 z-9999 flex items-center justify-center p-4 overflow-hidden"
+        >
           {/* Blurred Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -99,6 +119,8 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
             exit={{ scale: 0.9, opacity: 0, y: 10 }}
             className="relative w-full max-w-sm bg-neutral-950 border border-white/5 rounded-[3rem] p-12 shadow-2xl overflow-hidden text-center"
           >
+            <span id="streak-celebration-title" className="sr-only">Streak Celebration</span>
+            <p id="streak-celebration-desc" className="sr-only">Congratulations on your {currentStreak} day streak!</p>
 
             <div className="flex flex-col items-center gap-4 relative z-10">
               {/* Top: Fire Icon with Duolingo-style Background Flare */}

@@ -11,7 +11,7 @@ import { markConceptAsCompleted } from "@/actions/submission.action";
 interface AptitudeMCQPanelProps {
     problem: Problem;
     isSolved: boolean;
-    onSolved: () => void;
+    onSolved: (firstSolved?: boolean, points?: number) => void;
     onRevealSolution: () => void;
     nextProblemSlug?: string | null;
 }
@@ -43,14 +43,14 @@ export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onReveal
 
         if (selectedOption === problem.answer) {
             setStatus("correct");
-            toast.success("Correct Answer! 🎉");
+            toast.success("Correct Answer!");
 
             if (!isSolved) {
                 setIsLoading(true);
                 try {
                     const res = await markConceptAsCompleted(problem.id);
                     if (res.success) {
-                        onSolved();
+                        onSolved('firstSolved' in res ? res.firstSolved : false, 'points' in res ? res.points : 0);
                         // Smoothly switch to solutions tab after a brief delay
                         setTimeout(() => {
                             onRevealSolution();
@@ -128,7 +128,7 @@ export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onReveal
                                     {option}
                                 </span>
 
-                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 ${
                                     isCorrect ? "border-emerald-500 bg-emerald-500 text-white" :
                                     isIncorrect ? "border-rose-500 bg-rose-500 text-white" :
                                     isSelected ? "border-orange-500 bg-orange-500 text-white" : "border-gray-300 dark:border-white/20"
@@ -160,7 +160,7 @@ export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onReveal
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex items-center gap-3 bg-rose-500/10 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-full border border-rose-500/20"
                             >
-                                <span className="text-sm font-bold tracking-tight uppercase tracking-wider">Incorrect, try again</span>
+                                <span className="text-sm font-bold  uppercase tracking-wider">Incorrect, try again</span>
                             </motion.div>
                         ) : null}
                     </AnimatePresence>
