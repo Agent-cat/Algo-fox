@@ -652,10 +652,10 @@ export default function CreateContestWizard({
                                     <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-[#333]">
                                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-[#333] rounded-xl">
                                             <div className="space-y-0.5">
-                                                <p className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                                <div className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                                     IP Restriction
-                                                    <div className="px-2 py-0.5 bg-red-100 dark:bg-red-500/10 text-[10px] text-red-600 rounded uppercase font-bold">Advanced</div>
-                                                </p>
+                                                    <span className="px-2 py-0.5 bg-red-100 dark:bg-red-500/10 text-[10px] text-red-600 rounded uppercase font-bold">Advanced</span>
+                                                </div>
                                                 <p className="text-xs text-gray-500">Allow access only from specific IP addresses.</p>
                                             </div>
                                             <input

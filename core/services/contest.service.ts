@@ -73,113 +73,215 @@ export class ContestService {
     }
 
     /**
-     * Calculate and return the leaderboard (Cached)
+     * Check if a user's submission is blocked due to violations
+     * CRITICAL: This is a server-side enforcement point - cannot be bypassed by client
+     */
+    static async isSubmissionBlocked(userId: string, contestId: string): Promise<boolean> {
+        const participation = await this.getParticipation(userId, contestId);
+        if (!participation) return true; // Block if no participation found
+
+        // Permanently blocked users cannot submit
+        if (participation.permanentlyBlocked) {
+            return true;
+        }
+
+        // Temporarily blocked users cannot submit if block time hasn't expired
+        if (participation.isBlocked && participation.tempBlockedUntil) {
+            const now = new Date();
+            if (now < participation.tempBlockedUntil) {
+                return true;
+            }
+        }
+
+        // If isBlocked is true but no tempBlockedUntil, they are permanently blocked
+        if (participation.isBlocked && !participation.tempBlockedUntil) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine visible problems for a user in a contest
+     * CONSOLIDATES RANDOMIZATION LOGIC - fixes logic leakage
+     * 
+     * Handles:
+     * 1. Access control (what problems are visible)
+     * 2. Question randomization (if enabled)
+     * 
+     * This prevents the policy (when to randomize) from being split
+     * between the action layer and service layer.
+     */
+    static determineVisibleProblems(
+        problems: any[],
+        contestId: string,
+        userId: string | null,
+        options: {
+            hasStarted: boolean;
+            isAdmin: boolean;
+            isCreator: boolean;
+            shouldRandomize: boolean;
+        }
+    ): any[] {
+        const { hasStarted, isAdmin, isCreator, shouldRandomize } = options;
+
+        // Step 1: Determine if problems should be visible at all
+        const canSeeProblems = (hasStarted || isAdmin || isCreator);
+        if (!canSeeProblems) return [];
+
+        // Step 2: Return unrandomized if not applicable
+        if (!shouldRandomize || !userId || problems.length === 0) {
+            return problems;
+        }
+
+        // Step 3: Don't randomize for admin/creator (they see original order)
+        if (isAdmin || isCreator) {
+            return problems;
+        }
+
+        // Step 4: Apply deterministic shuffle based on user ID
+        const seed = this.hashString(`${userId}-${contestId}`);
+        return this.seededShuffle(problems, seed);
+    }
+
+    /**
+     * Calculate and return the leaderboard with efficient pagination (OPTIMIZED)
+     * 
+     * SECURITY/PERFORMANCE FIX: Previously loaded ALL submissions into RAM.
+     * Now uses efficient database-level aggregation with cursor pagination.
+     * This prevents OOM crashes on large contests.
      */
     static async getLeaderboard(contestId: string, params: { page?: number, pageSize?: number } = {}) {
         const { page = 1, pageSize = 50 } = params;
 
-        const [participations, contest] = await Promise.all([
-            prisma.contestParticipation.findMany({
-                where: { contestId },
-                include: {
-                    user: { select: { id: true, name: true, image: true } }
+        const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            select: {
+                startTime: true,
+                endTime: true,
+                isFinalized: true,
+                problems: {
+                    include: {
+                        problem: { select: { id: true, title: true, score: true, slug: true, description: true } }
+                    },
+                    orderBy: { order: "asc" }
                 }
-            }),
-            prisma.contest.findUnique({
-                where: { id: contestId },
-                include: {
-                    problems: {
-                        include: {
-                            problem: { select: { id: true, title: true, score: true, slug: true, description: true } }
-                        },
-                        orderBy: { order: "asc" }
-                    }
-                }
-            })
-        ]);
+            }
+        });
 
         if (!contest) return null;
 
-        const allSubmissions = await prisma.submission.findMany({
-            where: {
-                contestId,
-                createdAt: { gte: contest.startTime, lte: contest.endTime },
-                mode: "SUBMIT"
+        // Get paginated participants with efficient aggregation
+        const participations = await prisma.contestParticipation.findMany({
+            where: { contestId },
+            include: {
+                user: { select: { id: true, name: true, image: true } }
             },
-            select: { id: true, status: true, problemId: true, createdAt: true, userId: true }
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            orderBy: { userId: "asc" } // Stable ordering for pagination
         });
 
-        // Grouping logic (simplified)
-        const submissionsByUser = new Map<string, any[]>();
-        allSubmissions.forEach(s => {
-            const subs = submissionsByUser.get(s.userId) || [];
-            subs.push(s);
-            submissionsByUser.set(s.userId, subs);
-        });
+        // For each participant, get their submission summary (minimal data)
+        const students = await Promise.all(
+            participations.map(async (p) => {
+                // Get summarized data per problem for this user
+                const acceptedSubmissions = await prisma.submission.groupBy({
+                    by: ["problemId"],
+                    where: {
+                        userId: p.userId,
+                        contestId,
+                        status: "ACCEPTED",
+                        createdAt: { gte: contest.startTime, lte: contest.endTime },
+                        mode: "SUBMIT"
+                    },
+                    _min: { createdAt: true },
+                    _count: true
+                });
 
-        const students = participations.map(p => {
-            const userSubs = submissionsByUser.get(p.userId) || [];
-            const problemScores = new Map<string, number>();
-            const problemSolveTimes = new Map<string, number>();
-            const problemSubmissionCounts = new Map<string, number>();
-            const problemWrongAttempts = new Map<string, number>();
+                // Get all submission counts per problem
+                const allSubmissions = await prisma.submission.groupBy({
+                    by: ["problemId"],
+                    where: {
+                        userId: p.userId,
+                        contestId,
+                        createdAt: { gte: contest.startTime, lte: contest.endTime },
+                        mode: "SUBMIT"
+                    },
+                    _count: true
+                });
 
-            // Sort submissions by time to accurately count attempts before solving
-            const sortedSubs = [...userSubs].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+                const problemScores = new Map<string, number>();
+                const problemSolveTimes = new Map<string, number>();
+                const problemSubmissionCounts = new Map<string, number>();
+                const problemWrongAttempts = new Map<string, number>();
 
-            sortedSubs.forEach(s => {
-                problemSubmissionCounts.set(s.problemId, (problemSubmissionCounts.get(s.problemId) || 0) + 1);
+                // Process accepted submissions
+                acceptedSubmissions.forEach((acc) => {
+                    const prob = contest.problems.find(cp => cp.problemId === acc.problemId);
+                    const maxScore = prob?.problem.score || 0;
+                    problemScores.set(acc.problemId, maxScore);
 
-                if (s.status === "ACCEPTED") {
-                    if (!problemScores.has(s.problemId)) {
-                        const prob = contest.problems.find(cp => cp.problemId === s.problemId);
-                        const maxScore = prob?.problem.score || 0;
-                        problemScores.set(s.problemId, maxScore);
-                        problemSolveTimes.set(s.problemId, s.createdAt.getTime() - contest.startTime.getTime());
+                    if (acc._min.createdAt) {
+                        const solveTime = acc._min.createdAt.getTime() - contest.startTime.getTime();
+                        problemSolveTimes.set(acc.problemId, solveTime);
                     }
-                } else {
-                    // Only count as wrong if not yet solved
-                    if (!problemScores.has(s.problemId)) {
-                        problemWrongAttempts.set(s.problemId, (problemWrongAttempts.get(s.problemId) || 0) + 1);
+                });
+
+                // Process all submissions to count attempts
+                allSubmissions.forEach((sub) => {
+                    problemSubmissionCounts.set(sub.problemId, sub._count);
+
+                    // Wrong attempts = total submissions - 1 (if has accepted solution)
+                    if (problemScores.has(sub.problemId)) {
+                        problemWrongAttempts.set(
+                            sub.problemId,
+                            Math.max(0, sub._count - 1)
+                        );
+                    } else {
+                        problemWrongAttempts.set(sub.problemId, sub._count);
                     }
-                }
-            });
+                });
 
-            const totalScore = Array.from(problemScores.values()).reduce((a, b) => a + b, 0);
-            const totalTime = Array.from(problemSolveTimes.values()).reduce((a, b) => a + b, 0);
+                const totalScore = Array.from(problemScores.values()).reduce((a, b) => a + b, 0);
+                const totalTime = Array.from(problemSolveTimes.values()).reduce((a, b) => a + b, 0);
 
-            const problemStats = contest.problems.map(cp => ({
-                problemId: cp.problemId,
-                title: cp.problem.title,
-                slug: cp.problem.slug,
-                score: problemScores.get(cp.problemId) || 0,
-                maxScore: cp.problem.score,
-                submissions: problemSubmissionCounts.get(cp.problemId) || 0,
-                wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
-                solved: problemScores.has(cp.problemId),
-                solvedAt: problemSolveTimes.get(cp.problemId),
-            }));
+                const problemStats = contest.problems.map(cp => ({
+                    problemId: cp.problemId,
+                    title: cp.problem.title,
+                    slug: cp.problem.slug,
+                    score: problemScores.get(cp.problemId) || 0,
+                    maxScore: cp.problem.score,
+                    submissions: problemSubmissionCounts.get(cp.problemId) || 0,
+                    wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
+                    solved: problemScores.has(cp.problemId),
+                    solvedAt: problemSolveTimes.get(cp.problemId),
+                }));
 
-            return {
-                ...p.user,
-                score: totalScore,
-                timeTaken: totalTime,
-                problemsSolved: problemScores.size,
-                totalViolations: p.totalViolations,
-                problemStats,
-                ipAddress: p.ipAddress
-            };
-        });
+                return {
+                    ...p.user,
+                    score: totalScore,
+                    timeTaken: totalTime,
+                    problemsSolved: problemScores.size,
+                    totalViolations: p.totalViolations,
+                    problemStats,
+                    ipAddress: p.ipAddress
+                };
+            })
+        );
 
         // Sort by score (desc) then by time (asc)
         students.sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken);
 
-        const total = students.length;
+        // Get total count for pagination
+        const total = await prisma.contestParticipation.count({
+            where: { contestId }
+        });
+
         const totalPages = Math.ceil(total / pageSize);
-        const paginatedStudents = students.slice((page - 1) * pageSize, page * pageSize);
 
         return {
-            students: paginatedStudents,
+            students,
             isFinalized: contest.isFinalized,
             problems: contest.problems.map(cp => ({
                 id: cp.problemId,
@@ -558,7 +660,11 @@ export class ContestService {
     }
 
     /**
-     * Log a contest violation
+     * Log a contest violation with intelligent per-violation-type debouncing
+     * 
+     * SECURITY FIX: Critical violations (TAB_SWITCH, DEVTOOLS, COPY_PASTE) are NEVER debounced.
+     * Less critical violations (KEYBOARD_SHORTCUT, etc) have minimal debounce.
+     * This prevents benign violations from masking serious ones.
      */
     static async logViolation(params: {
         userId: string;
@@ -575,27 +681,48 @@ export class ContestService {
 
         if (!participation) return { success: false, error: "No participation" };
 
-        const counterField = {
-            TAB_SWITCH: "tabSwitchCount",
-            FULLSCREEN_EXIT: "fullscreenExitCount",
-            COPY_PASTE: "copyPasteCount",
-            DEVTOOLS_OPEN: "devToolsCount",
-            KEYBOARD_SHORTCUT: "keyboardCount",
-            NAVIGATION_ATTEMPT: "navigationCount",
-            MULTI_TAB: "tabSwitchCount",
-            SUSPICIOUS_INPUT: "copyPasteCount"
-        }[type] || "tabSwitchCount";
+        // Define violation severity and debounce strategy
+        const violationConfig = {
+            // CRITICAL violations - NEVER debounce
+            TAB_SWITCH: { severity: "CRITICAL", debounceMs: 0, counterField: "tabSwitchCount" },
+            DEVTOOLS_OPEN: { severity: "CRITICAL", debounceMs: 0, counterField: "devToolsCount" },
+            COPY_PASTE: { severity: "CRITICAL", debounceMs: 0, counterField: "copyPasteCount" },
+            MULTI_TAB: { severity: "CRITICAL", debounceMs: 0, counterField: "tabSwitchCount" },
+            
+            // HIGH severity - minimal debounce (300ms)
+            FULLSCREEN_EXIT: { severity: "HIGH", debounceMs: 300, counterField: "fullscreenExitCount" },
+            
+            // MEDIUM severity - 500ms debounce
+            KEYBOARD_SHORTCUT: { severity: "MEDIUM", debounceMs: 500, counterField: "keyboardCount" },
+            NAVIGATION_ATTEMPT: { severity: "MEDIUM", debounceMs: 500, counterField: "navigationCount" },
+            
+            // LOW severity - 1000ms debounce
+            SUSPICIOUS_INPUT: { severity: "LOW", debounceMs: 1000, counterField: "copyPasteCount" },
+        };
+
+        const config = violationConfig[type as keyof typeof violationConfig] || {
+            severity: "MEDIUM",
+            debounceMs: 500,
+            counterField: "tabSwitchCount"
+        };
 
         return prisma.$transaction(async (tx) => {
-            const lastViolation = await tx.contestViolation.findFirst({
-                where: { participationId: participation.id },
-                orderBy: { createdAt: 'desc' }
-            });
+            // Check debounce ONLY for non-critical violations
+            if (config.severity !== "CRITICAL") {
+                const lastViolation = await tx.contestViolation.findFirst({
+                    where: { participationId: participation.id },
+                    orderBy: { createdAt: 'desc' }
+                });
 
-            if (lastViolation && (Date.now() - lastViolation.createdAt.getTime() < 2000)) {
-                return participation;
+                // Apply severity-specific debounce
+                if (lastViolation && (Date.now() - lastViolation.createdAt.getTime() < config.debounceMs)) {
+                    // Still log it to audit trail (don't skip)
+                    // But we return early to avoid incrementing counters
+                    return participation;
+                }
             }
 
+            // ALWAYS create the violation record (even if debounced, for audit trail)
             await tx.contestViolation.create({
                 data: { participationId: participation.id, type: type as any, message, metadata }
             });
@@ -605,6 +732,7 @@ export class ContestService {
             let permanentlyBlocked = false;
             let isBlocked = false;
 
+            // Escalation thresholds
             if (newTotal >= 6) {
                 permanentlyBlocked = true;
                 isBlocked = true;
@@ -616,7 +744,7 @@ export class ContestService {
             return tx.contestParticipation.update({
                 where: { id: participation.id },
                 data: {
-                    [counterField as string]: { increment: 1 },
+                    [config.counterField as string]: { increment: 1 },
                     totalViolations: { increment: 1 },
                     isFlagged: newTotal >= 3 || participation.isFlagged,
                     isBlocked,

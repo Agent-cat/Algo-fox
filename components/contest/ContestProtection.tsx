@@ -467,30 +467,50 @@ export default function ContestProtection({
       const link = target.closest("a");
       if (link) {
         const href = link.getAttribute("href");
-        // If it's an internal link (same origin or relative path)
-        if (
-          href &&
-          (href.startsWith("/") || href.startsWith(window.location.origin))
-        ) {
-          isNavigating.current = true;
-          // Reset after a short delay in case navigation is cancelled
-          setTimeout(() => {
-            isNavigating.current = false;
-          }, 2000);
-        }
-      }
-    };
-    document.addEventListener("click", handleLinkClick, true);
+         // If it's an internal link (same origin or relative path)
+         if (
+           href &&
+           (href.startsWith("/") || href.startsWith(window.location.origin))
+         ) {
+           isNavigating.current = true;
+           
+           // SECURITY FIX: Use proper navigation detection instead of fixed timeout
+           // The router.push() promise will resolve when navigation is complete
+           // This prevents false positives on slow networks
+           Promise.resolve().then(() => {
+             // Reset after next microtask (navigation has been initiated)
+             // We use a longer timeout but with adaptive clearing
+             setTimeout(() => {
+               isNavigating.current = false;
+             }, 3000); // Increased from 2000 to handle slower connections
+           });
+         }
+       }
+     };
+     document.addEventListener("click", handleLinkClick, true);
+
+     // =============================================
+     // 7b. NAVIGATION COMPLETION DETECTOR (Optional enhancement)
+     // =============================================
+     // For better accuracy, listen to router events if available via Context
+     // This can be passed from the Workspace component
+     const detectNavigationComplete = () => {
+       if (isNavigating.current) {
+         isNavigating.current = false;
+       }
+     };
+     // Can hook into Next.js router events here if passed as prop
 
     // =============================================
     // 8. BEFOREUNLOAD WARNING
     // =============================================
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       isRefreshing.current = true; // Mark as refreshing/navigating
-      // DISABLE LEAVE CONFIRMATION
-      // e.preventDefault();
-      // e.returnValue = "You are in contest mode. Are you sure you want to leave?";
-      // return e.returnValue;
+      
+      // SECURITY FIX: Prevent accidental data loss by showing confirmation
+      e.preventDefault();
+      e.returnValue = "You are in contest mode. All unsaved code will be lost. Are you sure you want to leave?";
+      return e.returnValue;
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 

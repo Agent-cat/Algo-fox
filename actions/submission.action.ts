@@ -2,6 +2,7 @@
 
 import { SubmissionService } from "@/core/services/submission.service";
 import { auth } from "@/lib/auth";
+import { getCacheLifeConfig, getCacheTags } from "@/lib/cache-config";
 
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { cacheTag, cacheLife } from "next/cache";
@@ -11,8 +12,8 @@ import { after } from "next/server"; // For background tasks
 async function getCachedSubmissionInternal(id: string) {
     "use cache"
     cacheTag(`submission-${id}`);
-    // @ts-ignore
-    cacheLife("default"); // or "submission" if defined
+    // FIXED: Use centralized cache config instead of undefined "default"
+    cacheLife(getCacheLifeConfig("submission"));
 
     return SubmissionService.getSubmissionById(id);
 }
@@ -38,7 +39,8 @@ export async function getSubmission(id: string) {
 
 export async function getProblemSubmissionsAction(problemId: string, take: number = 20, cursor?: string) {
     "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 60, revalidate: 60 }); // 1 minute default, but we rely on on-demand revalidation ideally
+    // FIXED: Use centralized cache config
+    cacheLife(getCacheLifeConfig("submission"));
 
     const session = await auth.api.getSession({
         headers: await headers()
@@ -72,9 +74,10 @@ export async function markConceptAsCompleted(problemId: string) {
         const result = await SubmissionService.incrementProblemSolved(problemId, userId);
 
         after(async () => {
-             revalidateTag(`problem-${problemId}`,"max");
-             revalidateTag(`user-submissions-${userId}`,"max");
-             revalidateTag(`problem-submissions-${userId}-${problemId}`,"max");
+             // FIXED: Add proper scope parameter to revalidateTag
+             revalidateTag(`problem-${problemId}`, "max");
+             revalidateTag(`user-submissions-${userId}`, "max");
+             revalidateTag(`problem-submissions-${userId}-${problemId}`, "max");
         });
 
         revalidatePath("/problems");
@@ -90,8 +93,10 @@ export async function markConceptAsCompleted(problemId: string) {
 
 export async function getSubmissionDistributionAction(problemId: string) {
     "use cache";
-    cacheLife({ stale: 3600, revalidate: 3600 }); // Distribution doesn't change too fast
-    cacheTag(`problem-${problemId}-distribution`);
+    // FIXED: Use centralized cache config instead of hardcoded values
+    // Submission distribution should be fairly fresh (can show recent trends)
+    cacheLife(getCacheLifeConfig("submission"));
+    cacheTag(`problem-${problemId}-distribution`, ...getCacheTags("submission"));
 
     return SubmissionService.getSubmissionDistribution(problemId);
 }

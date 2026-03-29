@@ -409,6 +409,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     code: code,
                     mode: mode,
                     contestId: contestId,
+                    sessionId: contestSessionId, // SECURITY: Include session ID for contest validation
                     customTestCases: mode === "RUN" ? customTestCases : undefined
                 })
             });

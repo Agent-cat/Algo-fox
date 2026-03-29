@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
+import { getVerifiedClientIP } from "@/lib/ip";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -54,13 +55,44 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Get and verify client IP for contest submissions (security)
+        const clientIP = await getVerifiedClientIP();
+
         // CONTEST SECURITY CHECKS
         if (contestId) {
             const { ContestService } = await import("@/core/services/contest.service");
-            const validation = await ContestService.validateSession(userId, contestId);
-
+            const { sessionId } = body;
+            
+            // CRITICAL: sessionId MUST be provided for contest submissions
+            if (!sessionId) {
+                return NextResponse.json(
+                    { error: "Session ID required for contest submissions" },
+                    { status: 400 }
+                );
+            }
+            
+            // Validate session
+            const validation = await ContestService.validateSession(userId, contestId, sessionId);
             if (!validation.success) {
                 return NextResponse.json({ error: validation.error }, { status: 403 });
+            }
+
+            // SERVER-SIDE PROCTORING CHECK: Verify user is not blocked due to violations
+            const isSubmissionBlocked = await ContestService.isSubmissionBlocked(userId, contestId);
+            if (isSubmissionBlocked) {
+                return NextResponse.json(
+                    { error: "Your submission has been blocked due to integrity violations. Contact administrators." },
+                    { status: 403 }
+                );
+            }
+
+            // IP VALIDATION: Detect multi-device/spoofing attempts
+            if (validation.participation?.ipAddress && 
+                clientIP && 
+                validation.participation.ipAddress !== clientIP) {
+                // Log suspicious activity for audit trail
+                console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);
+                // Note: We allow submission but log it - admins can review suspicious activity
             }
         }
 
@@ -68,6 +100,14 @@ export async function POST(req: NextRequest) {
 
         // 1. Create Submission in DB (SUBMIT MODE)
         const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode, contestId);
+
+        // Store IP address for contest submissions (for multi-device detection)
+        if (contestId && clientIP) {
+            await prisma.contestParticipation.updateMany({
+                where: { userId, contestId },
+                data: { ipAddress: clientIP }
+            });
+        }
 
         // Invalidate Tracking Cache so teachers see "Pending" immediately
         await SubmissionService.invalidateClassroomTracking(userId);

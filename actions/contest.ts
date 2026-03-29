@@ -220,12 +220,19 @@ export async function getContestDetail(contestId: string) {
         const canSeeProblems = (hasStarted || isAdmin || isCreator) && (participation?.acceptedRules || isCreator || isAdmin);
         const requiresPassword = !!contest.contestPassword;
 
-        let visibleProblems = canSeeProblems ? contest.problems : [];
-
-        if (contest.randomizeQuestions && currentUser && visibleProblems.length > 0 && !isAdmin && !isCreator) {
-            const seed = ContestService.hashString(`${currentUser.id}-${contestId}`);
-            visibleProblems = ContestService.seededShuffle([...visibleProblems], seed) as any;
-        }
+        // REFACTORED: Use consolidated method from ContestService
+        // This ensures randomization logic is in one place, not split between action and service
+        const visibleProblems = ContestService.determineVisibleProblems(
+            canSeeProblems ? contest.problems : [],
+            contestId,
+            currentUser?.id || null,
+            {
+                hasStarted,
+                isAdmin,
+                isCreator,
+                shouldRandomize: contest.randomizeQuestions
+            }
+        );
 
         // Fetch user's solved problems for this contest
         const visibleProblemIds = visibleProblems.map(p => p.problem.id);
