@@ -61,7 +61,7 @@ export default function AptitudeWorkspace({
         if (!solvedIds.includes(problem.id)) {
             setSolvedIds(prev => [...prev, problem.id]);
         }
-        if (firstSolved && points) {
+        if (firstSolved && points != null) {
             setPointsGained(points);
             setIsPointsModalOpen(true);
         }

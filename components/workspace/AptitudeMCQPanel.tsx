@@ -160,7 +160,7 @@ export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onReveal
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex items-center gap-3 bg-rose-500/10 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-full border border-rose-500/20"
                             >
-                                <span className="text-sm font-bold  uppercase tracking-wider">Incorrect, try again</span>
+                                <span className="text-sm font-bold uppercase tracking-wider">Incorrect, try again</span>
                             </motion.div>
                         ) : null}
                     </AnimatePresence>

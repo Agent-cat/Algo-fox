@@ -88,7 +88,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const { data: session } = authClient.useSession();
     const router = useRouter();
 
-    // Initialize languageId directly from localStorage if possible (safe because Workspace is rendered with ssr: false)
+    // Initialize languageId from localStorage (getStoredLanguageId handles SSR safety internally)
     const [languageId, setLanguageId] = useState<number>(() => {
         return getStoredLanguageId(problem.domain as string);
     });
@@ -502,7 +502,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
                          // TRIGGER POINTS CELEBRATION
                          if (payload.data.firstSolved) {
-                             setPointsGained(payload.data.pointsGained);
+                             setPointsGained(payload.data.pointsGained ?? 0);
                              setIsPointsModalOpen(true);
                          }
                      } else {

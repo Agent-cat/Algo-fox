@@ -27,7 +27,8 @@ export const PointsCelebration: React.FC<PointsCelebrationProps> = ({ points, is
            initial={{ opacity: 0, scale: 0.9, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -10, transition: { duration: 0.15 } }}
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-10000 pointer-events-none"
+          style={{ zIndex: 10000 }}
+          className="fixed top-20 left-1/2 -translate-x-1/2 pointer-events-none"
         >
           <div className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-white/10 rounded-2xl px-6 py-2.5 flex items-center gap-4 shadow-2xl ring-1 ring-black/5 dark:ring-white/5">
             <div className="flex items-center gap-2">
