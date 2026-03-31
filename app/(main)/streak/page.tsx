@@ -11,21 +11,21 @@ export default function StreakTestPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-black text-white">Streak UI Testing</h1>
-        <p className="text-gray-400">Click the button below to trigger the celebration modal</p>
+        <h1 className="text-4xl font-black text-gray-900 dark:text-white">Streak UI Testing</h1>
+        <p className="text-gray-500 dark:text-gray-400">Click the button below to trigger the celebration modal</p>
       </div>
 
       <div className="flex items-center space-x-4">
         <button
           onClick={() => setStreak(prev => Math.max(1, prev - 1))}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-white"
+          className="px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white"
         >
           -
         </button>
-        <span className="text-3xl font-bold text-white w-12 text-center">{streak}</span>
+        <span className="text-3xl font-bold text-gray-900 dark:text-white w-12 text-center">{streak}</span>
         <button
           onClick={() => setStreak(prev => prev + 1)}
-          className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-white"
+          className="px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white"
         >
           +
         </button>

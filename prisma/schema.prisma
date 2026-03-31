@@ -391,6 +391,8 @@ model Contest {
   @@index([classroomId])
   @@index([creatorId])
   @@index([slug])
+  @@index([startTime])
+  @@index([endTime])
   @@map("contest")
 }
 

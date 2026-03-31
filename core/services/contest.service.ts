@@ -104,11 +104,11 @@ export class ContestService {
     /**
      * Determine visible problems for a user in a contest
      * CONSOLIDATES RANDOMIZATION LOGIC - fixes logic leakage
-     * 
+     *
      * Handles:
      * 1. Access control (what problems are visible)
      * 2. Question randomization (if enabled)
-     * 
+     *
      * This prevents the policy (when to randomize) from being split
      * between the action layer and service layer.
      */
@@ -146,7 +146,7 @@ export class ContestService {
 
     /**
      * Calculate and return the leaderboard with efficient pagination (OPTIMIZED)
-     * 
+     *
      * SECURITY/PERFORMANCE FIX: Previously loaded ALL submissions into RAM.
      * Now uses efficient database-level aggregation with cursor pagination.
      * This prevents OOM crashes on large contests.
@@ -302,41 +302,62 @@ export class ContestService {
      */
     static async getVisibleContests(params: {
         userId?: string;
+        email?: string;
         role?: string;
         institutionId?: string | null;
         page?: number;
         pageSize?: number;
         status?: "active" | "past";
     }) {
-        const { userId, role, institutionId, page = 1, pageSize = 12, status } = params;
+        const { userId, email, role, institutionId, page = 1, pageSize = 12, status } = params;
         const skip = (page - 1) * pageSize;
         const now = new Date();
 
-        const baseWhere: any = {
+        // Visibility logic:
+        // 1. Creator and ADMIN see everything
+        // 2. Others see contests matching visibility criteria AND (no target emails OR their email is in target emails)
+        const visibilityCriteria = [
+            { visibility: "PUBLIC" as any },
+            {
+                AND: [
+                    { visibility: "INSTITUTION" as any },
+                    { institutionId: institutionId || undefined },
+                ],
+            },
+            {
+                AND: [
+                    { visibility: "CLASSROOM" as any },
+                    {
+                        OR: [
+                            { classroom: { students: { some: { id: userId || "" } } } },
+                            { creatorId: userId },
+                        ],
+                    },
+                ],
+            },
+        ];
+
+        const finalWhere: any = {
             OR: [
-                { visibility: "PUBLIC" },
+                { creatorId: userId },
                 {
                     AND: [
-                        { visibility: "INSTITUTION" },
-                        { institutionId: institutionId || undefined },
-                    ],
-                },
-                {
-                    AND: [
-                        { visibility: "CLASSROOM" },
+                        { OR: visibilityCriteria },
                         {
                             OR: [
-                                { classroom: { students: { some: { id: userId } } } },
-                                { creatorId: userId },
-                            ],
-                        },
-                    ],
-                },
-                { creatorId: userId },
+                                { targetEmails: { equals: [] } },
+                                { targetEmails: { has: email || "" } }
+                            ]
+                        }
+                    ]
+                }
             ],
+            hidden: role === "ADMIN" ? undefined : false,
         };
 
-        const finalWhere: any = role === "ADMIN" ? baseWhere : { ...baseWhere, hidden: false };
+        if (role === "ADMIN") {
+            delete finalWhere.OR; // Admin sees all
+        }
 
         if (status === "active") {
             finalWhere.endTime = { gte: now };
@@ -406,7 +427,7 @@ export class ContestService {
                     institutionId: data.visibility !== "PUBLIC" ? (data.institutionId || null) : null,
                     classroomId: data.visibility === "CLASSROOM" ? (data.classroomId || null) : null,
                     creatorId,
-                    contestPassword: data.contestPassword ? await bcrypt.hash(data.contestPassword, 10) : null,
+                    contestPassword: data.contestPassword?.trim() ? await bcrypt.hash(data.contestPassword.trim(), 10) : null,
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted || false,
                     allowedIPs: data.allowedIPs || [],
@@ -499,7 +520,7 @@ export class ContestService {
                     targetEmails: data.targetEmails,
                     institutionId: data.visibility !== "PUBLIC" ? (data.institutionId || null) : null,
                     classroomId: data.visibility === "CLASSROOM" ? (data.classroomId || null) : null,
-                    contestPassword: data.contestPassword ? await bcrypt.hash(data.contestPassword, 10) : undefined,
+                    contestPassword: data.contestPassword?.trim() ? await bcrypt.hash(data.contestPassword.trim(), 10) : undefined,
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted,
                     allowedIPs: data.allowedIPs,
@@ -628,7 +649,7 @@ export class ContestService {
 
         if (!contest) return { success: false, error: "Contest not found" };
         if (contest.contestPassword) {
-            const isMatch = await bcrypt.compare(password || "", contest.contestPassword);
+            const isMatch = await bcrypt.compare(password?.trim() || "", contest.contestPassword);
             if (!isMatch) return { success: false, error: "Invalid contest password" };
         }
 
@@ -661,7 +682,7 @@ export class ContestService {
 
     /**
      * Log a contest violation with intelligent per-violation-type debouncing
-     * 
+     *
      * SECURITY FIX: Critical violations (TAB_SWITCH, DEVTOOLS, COPY_PASTE) are NEVER debounced.
      * Less critical violations (KEYBOARD_SHORTCUT, etc) have minimal debounce.
      * This prevents benign violations from masking serious ones.
@@ -688,14 +709,14 @@ export class ContestService {
             DEVTOOLS_OPEN: { severity: "CRITICAL", debounceMs: 0, counterField: "devToolsCount" },
             COPY_PASTE: { severity: "CRITICAL", debounceMs: 0, counterField: "copyPasteCount" },
             MULTI_TAB: { severity: "CRITICAL", debounceMs: 0, counterField: "tabSwitchCount" },
-            
+
             // HIGH severity - minimal debounce (300ms)
             FULLSCREEN_EXIT: { severity: "HIGH", debounceMs: 300, counterField: "fullscreenExitCount" },
-            
+
             // MEDIUM severity - 500ms debounce
             KEYBOARD_SHORTCUT: { severity: "MEDIUM", debounceMs: 500, counterField: "keyboardCount" },
             NAVIGATION_ATTEMPT: { severity: "MEDIUM", debounceMs: 500, counterField: "navigationCount" },
-            
+
             // LOW severity - 1000ms debounce
             SUSPICIOUS_INPUT: { severity: "LOW", debounceMs: 1000, counterField: "copyPasteCount" },
         };

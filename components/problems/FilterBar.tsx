@@ -213,8 +213,6 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                             {[
                                 { id: "newest", label: "Newest" },
                                 { id: "oldest", label: "Oldest" },
-                                { id: "hardest", label: "Hardest" },
-                                { id: "easiest", label: "Easiest" },
                                 { id: "acceptance", label: "Acceptance" }
                             ].map(item => (
                                 <button

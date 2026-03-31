@@ -6,6 +6,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import confetti from 'canvas-confetti';
 
 import { useStreak } from '@/context/StreakContext';
+import { useTheme } from 'next-themes';
 
 interface StreakCelebrationModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
   const [showContent, setShowContent] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { triggerFlight } = useStreak();
+  const { theme, resolvedTheme } = useTheme();
+  const currentTheme = resolvedTheme || theme;
   const fireRef = React.useRef<HTMLDivElement>(null);
 
   const handleCollect = useCallback(() => {
@@ -69,13 +72,17 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-          colors: ['#f97316', '#fb923c', '#fbbf24', '#ffffff']
+          colors: currentTheme === 'dark'
+            ? ['#f97316', '#fb923c', '#fbbf24', '#ffffff']
+            : ['#f97316', '#ea580c', '#fbbf24', '#3b82f6']
         });
         confetti({
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-          colors: ['#f97316', '#fb923c', '#fbbf24', '#ffffff']
+          colors: currentTheme === 'dark'
+            ? ['#f97316', '#fb923c', '#fbbf24', '#ffffff']
+            : ['#f97316', '#ea580c', '#fbbf24', '#3b82f6']
         });
       }, 250);
 
@@ -109,7 +116,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleCollect}
-            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 bg-slate-200/60 dark:bg-black/80 backdrop-blur-md"
           />
 
           {/* Modal Container: Slightly Wider */}
@@ -117,7 +124,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 10 }}
-            className="relative w-full max-w-sm bg-neutral-950 border border-white/5 rounded-[3rem] p-12 shadow-2xl overflow-hidden text-center"
+            className="relative w-full max-w-sm bg-white dark:bg-neutral-950 border border-slate-200 dark:border-white/5 rounded-[3rem] p-12 shadow-2xl overflow-hidden text-center"
           >
             <span id="streak-celebration-title" className="sr-only">Streak Celebration</span>
             <p id="streak-celebration-desc" className="sr-only">Congratulations on your {currentStreak} day streak!</p>
@@ -154,7 +161,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, type: "spring", damping: 15 }}
-                  className="text-8xl font-black text-white leading-none tracking-[-0.05em] select-none"
+                  className="text-8xl font-black text-neutral-900 dark:text-white leading-none tracking-[-0.05em] select-none"
                 >
                   {currentStreak}
                 </motion.span>
@@ -163,7 +170,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({ 
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-orange-500 text-2xl font-bold tracking-tight mt-0.5"
+                  className="text-orange-600 dark:text-orange-500 text-2xl font-bold tracking-tight mt-0.5"
                 >
                   Days streak
                 </motion.span>

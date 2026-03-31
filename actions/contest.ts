@@ -24,6 +24,7 @@ const contestSchema = z.object({
     randomizeQuestions: z.boolean().default(false),
     isIPRestricted: z.boolean().default(false),
     allowedIPs: z.array(z.string()).default([]),
+    targetEmails: z.array(z.string()).default([]),
 });
 
 import { ContestService } from "@/core/services/contest.service";
@@ -110,6 +111,7 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
 
         const result = await ContestService.getVisibleContests({
             userId: currentUser?.id,
+            email: currentUser?.email,
             role: currentUser?.role,
             institutionId: currentUser?.institutionId,
             page,
@@ -192,15 +194,21 @@ export async function getContestDetail(contestId: string) {
 
         // Visibility Check
         let isAuthorized = false;
-        if (contest.visibility === "PUBLIC") {
-            isAuthorized = true;
-        } else if (isAdmin) {
+        if (isAdmin) {
             isAuthorized = true;
         } else if (currentUser) {
+            const isCreator = currentUser.id === contest.creatorId;
+            const isEmailTargeted = contest.targetEmails.length > 0;
+            const isUserInTarget = contest.targetEmails.includes(currentUser.email);
+
             if (isCreator) {
                 isAuthorized = true;
+            } else if (isEmailTargeted) {
+                // If targeted emails exist, users MUST be in the list regardless of visibility
+                isAuthorized = isUserInTarget;
+            } else if (contest.visibility === "PUBLIC") {
+                isAuthorized = true;
             } else if (contest.visibility === "INSTITUTION") {
-                // Use == for null/undefined loose equality check
                 isAuthorized = currentUser.institutionId == contest.institutionId;
             } else if (contest.visibility === "CLASSROOM") {
                 const enrollment = await prisma.classroom.findFirst({
@@ -211,6 +219,9 @@ export async function getContestDetail(contestId: string) {
                 });
                 isAuthorized = !!enrollment;
             }
+        } else {
+            // Unauthenticated user
+            isAuthorized = contest.visibility === "PUBLIC" && contest.targetEmails.length === 0;
         }
 
         if (!isAuthorized) {
@@ -315,7 +326,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
                 institutionId: validatedData.visibility !== "PUBLIC" ? (validatedData.institutionId || null) : null,
                 classroomId: validatedData.visibility === "CLASSROOM" ? (validatedData.classroomId || null) : null,
                 creatorId: currentUser.id,
-                contestPassword: validatedData.contestPassword ? await bcrypt.hash(validatedData.contestPassword, 10) : null,
+                contestPassword: validatedData.contestPassword?.trim() ? await bcrypt.hash(validatedData.contestPassword.trim(), 10) : null,
                 randomizeQuestions: validatedData.randomizeQuestions || false,
                 problems: {
                     create: validatedData.problems.map((problemId, index) => ({
@@ -325,6 +336,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
                 },
                 isIPRestricted: validatedData.isIPRestricted,
                 allowedIPs: validatedData.allowedIPs,
+                targetEmails: validatedData.targetEmails,
             },
         });
 
@@ -559,7 +571,7 @@ export async function verifyContestPassword(contestId: string, password?: string
         // IP Restriction was removed to allow users but track IP instead.
 
         if (contest.contestPassword) {
-            const isMatch = await bcrypt.compare(password || "", contest.contestPassword);
+            const isMatch = await bcrypt.compare(password?.trim() || "", contest.contestPassword);
             if (!isMatch) {
                 return { success: false, error: "Invalid contest password" };
             }
@@ -585,7 +597,7 @@ export async function startContestSession(contestId: string, password?: string) 
         const result = await ContestService.startSession({
             userId: session.user.id,
             contestId,
-            password,
+            password: password?.trim(),
             clientIP: clientIP ?? undefined
         });
 

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, memo } from 'react';
 import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { ProblemTestCase, TestCase } from '@prisma/client';
-import PeerComparisonCard from '@/components/analytics/PeerComparisonCard';
+import SubmissionPerformance from './SubmissionPerformance';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
 interface TestCasesProps {
@@ -437,7 +437,7 @@ const TestCases = memo(({
                                     transition={{ delay: 0.1 }}
                                     className="mb-3"
                                 >
-                                    <PeerComparisonCard
+                                    <SubmissionPerformance
                                         problemId={problemId}
                                         runtime={submissionRuntime}
                                         memory={submissionMemory}

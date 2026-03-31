@@ -203,6 +203,19 @@ const WorkspaceHeader = memo(({
           )}
         </Link>
 
+        {onToggleSidebar && (
+          <motion.button
+            id="problem-list-toggle"
+            onClick={onToggleSidebar}
+            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors"
+            title="Toggle Sidebar"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.92 }}
+          >
+            <Menu className="w-4 h-4" />
+          </motion.button>
+        )}
+
         {!contestId && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -210,18 +223,7 @@ const WorkspaceHeader = memo(({
             transition={{ delay: 0.1 }}
             className="hidden md:flex items-center gap-1.5"
           >
-            {onToggleSidebar && (
-              <motion.button
-                id="problem-list-toggle"
-                onClick={onToggleSidebar}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors"
-                title="Toggle Problem List"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.92 }}
-              >
-                <Menu className="w-4 h-4" />
-              </motion.button>
-            )}
+            {/* NAVIGATION_BUTTON_ALREADY_MOVED_UP */}
             <Link
               href={
                 domain === "SQL" ? "/problems/sql" :

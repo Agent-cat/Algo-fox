@@ -473,7 +473,7 @@ export default function ContestProtection({
            (href.startsWith("/") || href.startsWith(window.location.origin))
          ) {
            isNavigating.current = true;
-           
+
            // SECURITY FIX: Use proper navigation detection instead of fixed timeout
            // The router.push() promise will resolve when navigation is complete
            // This prevents false positives on slow networks
@@ -506,7 +506,7 @@ export default function ContestProtection({
     // =============================================
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       isRefreshing.current = true; // Mark as refreshing/navigating
-      
+
       // SECURITY FIX: Prevent accidental data loss by showing confirmation
       e.preventDefault();
       e.returnValue = "You are in contest mode. All unsaved code will be lost. Are you sure you want to leave?";
@@ -613,7 +613,7 @@ export default function ContestProtection({
       {/* ============================================= */}
       {(isEditorLocked || showWarningPopup) && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 z-9999 flex items-center justify-center p-4"
           style={{
             background: 'rgba(0, 0, 0, 0.65)',
             backdropFilter: 'blur(20px)',
@@ -720,7 +720,7 @@ export default function ContestProtection({
       {/* ============================================= */}
       {needsFullscreen && !isEditorLocked && !showWarningPopup && (
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center px-4"
+          className="fixed inset-0 z-10000 flex items-center justify-center px-4"
           style={{
             background: 'rgba(0, 0, 0, 0.7)',
             backdropFilter: 'blur(24px)',
@@ -783,7 +783,7 @@ export default function ContestProtection({
       {/* ============================================= */}
       {/* PROCTORING INDICATOR BADGE                    */}
       {/* ============================================= */}
-      <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/90 dark:bg-[#1c1c1f]/90 border border-gray-200/60 dark:border-[#2a2a2e] backdrop-blur-xl shadow-sm dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+      <div className="fixed top-4 right-4 z-100 flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/90 dark:bg-[#1c1c1f]/90 border border-gray-200/60 dark:border-[#2a2a2e] backdrop-blur-xl shadow-sm dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
         <div className="relative">
           <div className="w-[6px] h-[6px] bg-emerald-500 rounded-full" />
           <div

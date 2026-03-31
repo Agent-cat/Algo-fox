@@ -1,14 +1,16 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Type, LayoutTemplate, Keyboard, Sun, Moon } from "lucide-react";
+import { X, Type, LayoutTemplate, Keyboard, Sun, Moon, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-interface EditorSettings {
+export interface EditorSettings {
     fontSize: number;
     tabSize: number;
     theme?: "vs-light" | "vs-dark";
     keybinding: "standard" | "vim";
+    enableCorrectSound?: boolean;
+    enableWrongSound?: boolean;
 }
 
 interface EditorSettingsModalProps {
@@ -158,23 +160,51 @@ export default function EditorSettingsModal({
                                 </div>
                             </div>
 
-                             {/* Key Binding (Visual only for now if complex) */}
-                             {/* <hr className="border-gray-100" />
-                             <div className="space-y-3 opacity-50 pointer-events-none" title="Coming soon">
-                                 <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                     <Keyboard className="w-4 h-4 text-orange-500" />
-                                     <span>Key Binding</span>
-                                     <span className="ml-auto text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded uppercase">Coming Soon</span>
-                                 </div>
-                                 <div className="grid grid-cols-2 gap-3">
-                                     <button className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-50 border border-orange-200 text-orange-700 shadow-sm">
-                                         Standard
-                                     </button>
-                                     <button className="px-4 py-2 text-sm font-medium rounded-lg bg-white border border-gray-200 text-gray-600">
-                                         Vim
-                                     </button>
-                                 </div>
-                             </div> */}
+                            <hr className="border-gray-100 dark:border-[#262626]" />
+
+                            {/* Audio Feedback */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <Volume2 className="w-4 h-4 text-orange-500" />
+                                    <span>Audio Feedback</span>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => onSettingsChange({ ...settings, enableCorrectSound: !settings.enableCorrectSound })}
+                                        className={`w-full px-4 py-3 text-sm font-medium rounded-lg border transition-all flex items-center justify-between ${
+                                            settings.enableCorrectSound
+                                                ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 shadow-sm"
+                                                : "bg-white dark:bg-[#1e1e1e] border-gray-200 dark:border-[#333] text-gray-500"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {settings.enableCorrectSound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                                            <span>Correct Answer SFX</span>
+                                        </div>
+                                        <div className={`w-8 h-4 rounded-full relative transition-colors ${settings.enableCorrectSound ? 'bg-orange-500' : 'bg-gray-300 dark:bg-gray-700'}`}>
+                                            <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${settings.enableCorrectSound ? 'left-4.5' : 'left-0.5'}`} />
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => onSettingsChange({ ...settings, enableWrongSound: !settings.enableWrongSound })}
+                                        className={`w-full px-4 py-3 text-sm font-medium rounded-lg border transition-all flex items-center justify-between ${
+                                            settings.enableWrongSound
+                                                ? "bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 shadow-sm"
+                                                : "bg-white dark:bg-[#1e1e1e] border-gray-200 dark:border-[#333] text-gray-500"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {settings.enableWrongSound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                                            <span>Wrong Answer SFX</span>
+                                        </div>
+                                        <div className={`w-8 h-4 rounded-full relative transition-colors ${settings.enableWrongSound ? 'bg-orange-500' : 'bg-gray-300 dark:bg-gray-700'}`}>
+                                            <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${settings.enableWrongSound ? 'left-4.5' : 'left-0.5'}`} />
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
 
                         </div>
 

@@ -4,6 +4,7 @@ import ProblemDescription from './ProblemDescription';
 import CodeEditor from './CodeEditor';
 import TestCases from './TestCases';
 import { Problem, ProblemTestCase } from '@prisma/client';
+import { LayoutGrid } from 'lucide-react';
 
 import WorkspaceHeader from './WorkspaceHeader';
 import ContestProtection from '../contest/ContestProtection';
@@ -24,7 +25,7 @@ const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { getParticipationStatus } from '@/actions/contest';
-import EditorSettingsModal from './EditorSettingsModal';
+import EditorSettingsModal, { EditorSettings } from './EditorSettingsModal';
 import { useRouter } from 'next/navigation';
 import { useCodeFiles } from '@/hooks/use-code-files';
 import CodeFileTabs from './CodeFileTabs';
@@ -262,7 +263,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         fontSize: 14,
         tabSize: 4,
         theme: "vs-light" as "vs-light" | "vs-dark",
-        keybinding: "standard" as "standard" | "vim"
+        keybinding: "standard" as "standard" | "vim",
+        enableCorrectSound: false,
+        enableWrongSound: false
     });
 
     // Load settings from localStorage
@@ -278,13 +281,19 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     }, []);
 
     // Save settings to localStorage
-    const handleSettingsChange = (newSettings: Omit<typeof editorSettings, "theme"> & { theme?: "vs-light" | "vs-dark" }) => {
-        setEditorSettings({
+    const handleSettingsChange = (newSettings: EditorSettings) => {
+        setEditorSettings((prev) => ({
+            ...prev,
             ...newSettings,
-            theme: newSettings.theme || "vs-light"
-        });
+            theme: newSettings.theme || "vs-light",
+            enableCorrectSound: newSettings.enableCorrectSound ?? prev.enableCorrectSound ?? false,
+            enableWrongSound: newSettings.enableWrongSound ?? prev.enableWrongSound ?? false
+        }));
         try {
-            localStorage.setItem('algofox_editor_settings', JSON.stringify(newSettings));
+            localStorage.setItem('algofox_editor_settings', JSON.stringify({
+                ...editorSettings,
+                ...newSettings
+            }));
         } catch (e) {
             console.error('Failed to save editor settings', e);
         }
@@ -371,9 +380,35 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const {
         sizes: sidebarSizes,
         setSizes: setSidebarSizes,
+        setSizesProgrammatically: setSidebarSizesProgrammatically, // Added this
         layoutKey: sidebarLayoutKey,
         isHydrated: sidebarHydrated
     } = usePersistentSplit('algofox_workspace_sidebar_split', [20, 80]);
+
+    const [isContestSidebarCollapsed, setIsContestSidebarCollapsed] = useState(false);
+    const [sidebarLastSize, setSidebarLastSize] = useState(20);
+
+    // Track collapsed state based on sizes
+    useEffect(() => {
+        if (sidebarHydrated) {
+            const collapsed = sidebarSizes[0] < 5;
+            setIsContestSidebarCollapsed(collapsed);
+            if (!collapsed && sidebarSizes[0] > 5) {
+                setSidebarLastSize(sidebarSizes[0]);
+            }
+        }
+    }, [sidebarSizes, sidebarHydrated]);
+
+    const toggleContestSidebar = useCallback(() => {
+        if (!isContestSidebarCollapsed) {
+            // Store current size before collapsing if it's not already near zero
+            if (sidebarSizes[0] > 5) setSidebarLastSize(sidebarSizes[0]);
+            setSidebarSizesProgrammatically([0, 100]);
+        } else {
+            // Expand to last known size
+            setSidebarSizesProgrammatically([sidebarLastSize, 100 - sidebarLastSize]);
+        }
+    }, [isContestSidebarCollapsed, sidebarSizes, sidebarLastSize, setSidebarSizesProgrammatically]);
 
     const handleSubmission = async (mode: "RUN" | "SUBMIT") => {
         if (!code) {
@@ -468,6 +503,12 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                      else setIsSubmitting(false);
 
                      if (payload.data.status === "ACCEPTED") {
+                         // Play success sound only for submission
+                         if (mode === "SUBMIT" && editorSettings.enableCorrectSound) {
+                             const audio = new Audio('/submission.mp3');
+                             audio.play().catch(e => console.error("Failed to play audio:", e));
+                         }
+
                          const desc = `Time: ${payload.data.time?.toFixed(3) || 0}s | Memory: ${payload.data.memory || 0}KB`;
                          if (mode === "SUBMIT") {
                              toast.success("Submitted Successfully!", { description: desc, descriptionClassName: "!text-white/90" });
@@ -507,8 +548,13 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                              setIsPointsModalOpen(true);
                          }
                      } else {
-                          toast.error(`Result: ${payload.data.status}`);
-                     }
+                           // Play failure sound only for submission
+                           if (mode === "SUBMIT" && editorSettings.enableWrongSound) {
+                               const audio = new Audio('/faaah.mp3');
+                               audio.play().catch(e => console.error("Failed to play audio:", e));
+                           }
+                           toast.error(`Result: ${payload.data.status}`);
+                      }
                 }
             };
 
@@ -696,12 +742,22 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 prevProblemSlug={prevProblemSlug}
                 domain={problem.domain}
                 type={problem.type}
-                onToggleSidebar={() => setIsSidebarOpen(true)}
+                onToggleSidebar={!contestId ? () => setIsSidebarOpen(true) : undefined}
             />
             <div className="flex-1 overflow-hidden flex flex-row min-h-0">
+                {isContestSidebarCollapsed && (
+                    <div className="w-9 h-full bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626] flex flex-col items-center pt-4 shrink-0 animate-in slide-in-from-left duration-200">
+                        <button
+                            onClick={toggleContestSidebar}
+                            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors shadow-sm"
+                            title="Expand Navigator"
+                        >
+                            <LayoutGrid className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
                 {contest ? (
                     <Split
-                        key={sidebarLayoutKey}
                         className="split flex h-full w-full"
                         sizes={sidebarSizes}
                         minSize={[0, 400]}
@@ -713,6 +769,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                 contest={contest}
                                 currentProblemId={problem.id}
                                 solvedProblemIds={solvedProblemIds}
+                                onToggle={toggleContestSidebar}
                             />
                         </div>
                         <div className="h-full overflow-hidden min-w-0 flex-1">

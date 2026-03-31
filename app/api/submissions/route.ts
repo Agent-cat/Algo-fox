@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         if (contestId) {
             const { ContestService } = await import("@/core/services/contest.service");
             const { sessionId } = body;
-            
+
             // CRITICAL: sessionId MUST be provided for contest submissions
             if (!sessionId) {
                 return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
                     { status: 400 }
                 );
             }
-            
+
             // Validate session
             const validation = await ContestService.validateSession(userId, contestId, sessionId);
             if (!validation.success) {
@@ -87,8 +87,8 @@ export async function POST(req: NextRequest) {
             }
 
             // IP VALIDATION: Detect multi-device/spoofing attempts
-            if (validation.participation?.ipAddress && 
-                clientIP && 
+            if (validation.participation?.ipAddress &&
+                clientIP &&
                 validation.participation.ipAddress !== clientIP) {
                 // Log suspicious activity for audit trail
                 console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);

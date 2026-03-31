@@ -79,14 +79,14 @@ function MarkdownEditor({ label, name, register, watch, setValue, placeholder }:
                     <div className="flex items-center gap-1 text-gray-400">
                         <button type="button" onClick={() => setValue(name, value + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
                         <button type="button" onClick={() => setValue(name, value + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
-                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                         <button type="button" onClick={() => setValue(name, value + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                             <Layers className="w-4 h-4" />
                         </button>
                         <button type="button" onClick={() => setValue(name, value + "\n1. list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                             <span className="font-mono text-[10px] font-bold leading-none py-0.5 px-0.5 border border-current rounded-sm whitespace-nowrap">1 2</span>
                         </button>
-                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                        <div className="w-1px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                         <button type="button" onClick={() => setValue(name, value + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                             <Image className="w-4 h-4" />
                         </button>
@@ -174,6 +174,7 @@ export default function CreateContestWizard({
             isProtected: initialData?.isProtected !== undefined ? initialData.isProtected : true,
             targetEmails: initialData?.targetEmails?.join(", ") || "",
             problems: [], // We'll set this via useEffect
+            contestPassword: "", // Start empty in edit mode to avoid showing hashes
             randomizeQuestions: initialData?.randomizeQuestions || false,
             isIPRestricted: initialData?.isIPRestricted || false,
             allowedIPs: initialData?.allowedIPs?.join(", ") || "",
@@ -612,16 +613,18 @@ export default function CreateContestWizard({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
-                                        Password (Optional)
+                                    <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
+                                        Password {isEditing && initialData?.contestPassword ? "(Is Set)" : "(Optional)"}
                                         <div className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 rounded uppercase font-bold">Security</div>
                                     </label>
-                                    <input
-                                        {...register("contestPassword")}
-                                        type="text"
-                                        className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono"
-                                        placeholder="Enter access code..."
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            {...register("contestPassword")}
+                                            type="text"
+                                            className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono"
+                                            placeholder={isEditing && initialData?.contestPassword ? "•••••••• (Leave blank to keep current)" : "Enter access code..."}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -738,7 +741,7 @@ export default function CreateContestWizard({
         <div className="max-w-6xl mx-auto px-4 py-8">
             {/* Problem Form Modal via full page override */}
             {showProblemForm && (
-                <div className="fixed inset-0 bg-white dark:bg-[#121212] z-[200] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 bg-white dark:bg-[#121212] z-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between shadow-sm bg-white dark:bg-[#121212] sticky top-0 z-10 w-full">
                         <div className="flex items-center gap-4">
                             <button type="button" onClick={() => setShowProblemForm(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors flex items-center gap-2">

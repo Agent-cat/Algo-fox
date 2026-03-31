@@ -153,7 +153,7 @@ export class SubmissionService {
         }));
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 30s timeout
 
         try {
             const response = await fetch(`${JUDGE0_URL}/submissions/batch?base64_encoded=true`, {
@@ -188,7 +188,7 @@ export class SubmissionService {
         const tokensStr = tokens.join(",");
         // Include compile_output, stderr for error messages, and stdout for user output
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         try {
             const response = await fetch(`${JUDGE0_URL}/submissions/batch?tokens=${tokensStr}&base64_encoded=true&fields=token,status,time,memory,compile_output,stderr,stdout`, {

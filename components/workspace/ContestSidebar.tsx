@@ -12,9 +12,10 @@ interface ContestSidebarProps {
     contest: any;
     currentProblemId: string;
     solvedProblemIds: string[];
+    onToggle?: () => void;
 }
 
-const ContestSidebar = memo(({ contest, currentProblemId, solvedProblemIds }: ContestSidebarProps) => {
+const ContestSidebar = memo(({ contest, currentProblemId, solvedProblemIds, onToggle }: ContestSidebarProps) => {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(true);
     const [visitedProblemIds, setVisitedProblemIds] = useState<string[]>([]);
@@ -94,10 +95,19 @@ const ContestSidebar = memo(({ contest, currentProblemId, solvedProblemIds }: Co
                     <LayoutGrid className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                     <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-gray-100">Navigator</span>
                 </div>
+                {onToggle && (
+                    <button
+                        onClick={onToggle}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded text-gray-500 transition-colors"
+                        title="Collapse Sidebar"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+                )}
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(56px,1fr))] gap-3 justify-items-center">
                     {contest.problems.map((cp: any, index: number) => {
                         const isCurrent = cp.problem.id === currentProblemId;
                         const isSolved = solvedProblemIds.includes(cp.problem.id);
@@ -113,7 +123,7 @@ const ContestSidebar = memo(({ contest, currentProblemId, solvedProblemIds }: Co
                                     }
                                 }}
                                 className={`
-                                    aspect-square flex flex-col items-center justify-center rounded-xl border-2 text-sm font-black transition-all transform active:scale-90 relative
+                                    w-full max-w-[64px] aspect-square flex flex-col items-center justify-center rounded-xl border-2 text-xs font-black transition-all transform active:scale-90 relative mx-auto
                                     ${isCurrent ? 'ring-2 ring-gray-900 dark:ring-gray-100 ring-offset-2 dark:ring-offset-[#121212] scale-105 z-10' : ''}
                                     ${getStatusColor(cp.problem.id)}
                                     ${isSolved ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'}

@@ -2,12 +2,12 @@ import { headers } from "next/headers";
 
 /**
  * SECURITY FIX: Properly validate and extract client IP from headers
- * 
+ *
  * The x-forwarded-for header format is: client, proxy1, proxy2, ...
  * When behind a trusted proxy (Cloudflare, Vercel, etc):
  * - Use the LAST IP in the chain (most recent proxy, which is our trusted proxy)
  * - OR use Cloudflare-specific headers if available
- * 
+ *
  * NEVER trust the first IP - it can be spoofed by attackers
  */
 export async function getClientIP(): Promise<string | null> {
@@ -23,7 +23,7 @@ export async function getClientIP(): Promise<string | null> {
     const xForwardedFor = headersList.get("x-forwarded-for");
     if (xForwardedFor) {
         const ips = xForwardedFor.split(",").map(ip => ip.trim()).filter(ip => ip);
-        
+
         if (ips.length === 0) return null;
 
         // SECURITY: Use the last IP (from the trusted proxy), not the first
@@ -31,8 +31,7 @@ export async function getClientIP(): Promise<string | null> {
         // We want the real client IP, which is the first in the actual array
         // But if behind ONE trusted proxy, the format is: client_ip, trusted_proxy_ip
         // So we take the first IP (leftmost), which is the actual client
-        const clientIP = ips[0];
-        return normalizeIP(clientIP);
+        return normalizeIP(ips[0]);
     }
 
     // PRIORITY 3: Direct connection headers
@@ -44,7 +43,7 @@ export async function getClientIP(): Promise<string | null> {
 
 /**
  * Extract client IP with strict validation for high-security contexts (contests)
- * 
+ *
  * Implements defense-in-depth:
  * 1. Requires explicit trusted proxy configuration
  * 2. Validates against spoofing attempts
@@ -52,7 +51,7 @@ export async function getClientIP(): Promise<string | null> {
  */
 export async function getVerifiedClientIP(): Promise<string | null> {
     const headersList = await headers();
-    
+
     // If using Cloudflare, this is the most reliable
     if (process.env.CLOUDFLARE_ENABLED === "true") {
         const cfConnectionIP = headersList.get("cf-connecting-ip");
@@ -65,19 +64,19 @@ export async function getVerifiedClientIP(): Promise<string | null> {
     const xForwardedFor = headersList.get("x-forwarded-for");
     if (xForwardedFor) {
         const ips = xForwardedFor.split(",").map(ip => ip.trim()).filter(ip => ip);
-        
+
         if (ips.length === 0) return null;
-        
+
         // Take the first IP (client) from a trusted proxy
-        const clientIP = ips[0];
-        
+        const clientIP = normalizeIP(ips[0]);
+
         // Basic validation: ensure it looks like an IP
         if (!isValidIP(clientIP)) {
             console.warn(`[Security] Invalid IP format detected: ${clientIP}`);
             return null;
         }
-        
-        return normalizeIP(clientIP);
+
+        return clientIP;
     }
 
     // If we can't verify the IP through a trusted source, return null
