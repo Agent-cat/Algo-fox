@@ -380,13 +380,45 @@ if (!globalThis.__submissionWorker) {
     // Graceful shutdown handlers
     const shutdown = async () => {
         console.log("[SubmissionWorker] Shutting down...");
-        if (globalThis.__submissionWorker) {
-            await globalThis.__submissionWorker.close();
+        const SHUTDOWN_TIMEOUT = 10000; // 10s
+        let exitCode = 0;
+
+        const performShutdown = async () => {
+            if (globalThis.__submissionWorker) {
+                try {
+                    await globalThis.__submissionWorker.close();
+                } catch (err) {
+                    console.error("[SubmissionWorker] Error closing worker:", err);
+                    exitCode = 1;
+                }
+            }
+            try {
+                await workerConnection.quit();
+            } catch (err) {
+                console.error("[SubmissionWorker] Error worker connection quit:", err);
+                exitCode = 1;
+            }
+            try {
+                await queueConnection.quit();
+            } catch (err) {
+                console.error("[SubmissionWorker] Error queue connection quit:", err);
+                exitCode = 1;
+            }
+        };
+
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Shutdown Timeout")), SHUTDOWN_TIMEOUT)
+        );
+
+        try {
+            await Promise.race([performShutdown(), timeout]);
+            console.log("[SubmissionWorker] Shutdown complete");
+        } catch (err: any) {
+            console.error(`[SubmissionWorker] Shutdown failed or timed out: ${err.message}`);
+            exitCode = 1;
+        } finally {
+            process.exit(exitCode);
         }
-        await workerConnection.quit();
-        await queueConnection.quit();
-        console.log("[SubmissionWorker] Shutdown complete");
-        process.exit(0);
     };
 
     process.on("SIGINT", shutdown);

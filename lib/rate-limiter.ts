@@ -40,8 +40,13 @@ class RateLimiter {
     key: string,
     config: Readonly<RateLimitConfig> | RateLimitConfig
   ): Promise<RateLimitResult> {
-    // SECURITY: Bypass rate limiting in development to prevent lockouts during testing
-    if (process.env.NODE_ENV === 'development' && process.env.ENABLE_LIMIT_IN_DEV !== 'true') {
+    // DEV ONLY: Bypass rate limiting in development to prevent lockouts during testing
+    // WARNING: Ensure NODE_ENV is never 'development' in production
+    if (
+      process.env.NODE_ENV === 'development' &&
+      process.env.ENABLE_LIMIT_IN_DEV !== 'true' &&
+      !process.env.VERCEL_ENV // Additional guard: Vercel sets this in deployments
+    ) {
         return { allowed: true, remaining: 999, resetTime: Date.now() + 60000 };
     }
 
