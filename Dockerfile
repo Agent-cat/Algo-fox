@@ -31,11 +31,12 @@ COPY . .
 RUN bunx prisma generate
 
 # Build-time environment variables
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV SKIP_CACHE_HANDLER=1
-ENV BETTER_AUTH_SECRET=zpN6vAuvJwJ79IkeWIOPlwUoA5M1F2HG
+ARG BETTER_AUTH_SECRET
+ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
 ENV BETTER_AUTH_URL=http://localhost:3000
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_CACHE_HANDLER=1
 
 # Note: server.js is created by next build when output: 'standalone' is enabled
 # Using dynamic build-time DATABASE_URL (passed via build args) to allow static generation

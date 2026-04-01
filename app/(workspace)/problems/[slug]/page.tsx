@@ -226,8 +226,6 @@ export default function ProblemPage({ params, searchParams }: PageProps) {
 // Note: Contest-specific problems (hidden: true) are not included here but will be handled dynamically
 
 export async function generateStaticParams() {
-  "use cache";
-  cacheLife("contests"); // Using the config-defined 'contests' profile
   try {
     const problems = await prisma.problem.findMany({
       where: { hidden: false },
@@ -237,7 +235,7 @@ export async function generateStaticParams() {
     });
 
     if (problems.length === 0) {
-       return [{ slug: 'placeholder' }];
+       return [];
     }
 
     return problems.map((p) => ({
@@ -245,7 +243,6 @@ export async function generateStaticParams() {
     }));
   } catch (error) {
     console.error("Error generating static params for problems:", error);
-    // Return at least one fallback to satisfy Next.js 16 requirements during build
-    return [{ slug: 'placeholder' }];
+    return [];
   }
 }

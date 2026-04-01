@@ -202,13 +202,13 @@ export function getCacheTags(key: keyof typeof CACHE_CONFIG): string[] {
 /**
  * Example usage in Server Actions:
  *
- * import { getCacheDuration, getCacheTags } from "@/lib/cache-config";
+ * import { getCacheLifeConfig, getCacheTags } from "@/lib/cache-config";
  *
  * export async function getLeaderboard(contestId: string) {
  *   "use cache";
  *
  *   const config = getCacheProfile("leaderboard");
- *   cacheLife(getCacheDuration("leaderboard"));
+ *   cacheLife(getCacheLifeConfig("leaderboard"));
  *   cacheTag(...getCacheTags("leaderboard"));
  *
  *   return fetchLeaderboardData(contestId);

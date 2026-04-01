@@ -259,7 +259,7 @@ export async function verifyCodeforcesOwnership(handle: string, verificationCode
                     }
                 });
                 revalidatePath("/dashboard/settings"); // Revalidate settings pages
-                revalidateTag(`user-${session.user.id}`,"max"); // Invalidate user cache tag
+                revalidateTag(`user-${session.user.id}`, "max"); // Invalidate user cache tag
                 return { success: true };
             } catch (error) {
                 console.error("Database update error:", error);

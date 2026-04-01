@@ -260,8 +260,6 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
                         if (description.includes("SIGFPE")) errorMessage += "\n\nPossible causes:\n- Division by zero";
                     } else if (status === "TIME_LIMIT_EXCEEDED") {
                         errorMessage = "Time Limit Exceeded";
-                    } else if (status === "MEMORY_LIMIT_EXCEEDED") {
-                        errorMessage = "Memory Limit Exceeded";
                     } else if (result.stderr && status !== "ACCEPTED") {
                         errorMessage = result.stderr;
                     }
@@ -378,4 +376,19 @@ if (!globalThis.__submissionWorker) {
         }
     );
     console.log("[SubmissionWorker] Initialized worker singleton");
+
+    // Graceful shutdown handlers
+    const shutdown = async () => {
+        console.log("[SubmissionWorker] Shutting down...");
+        if (globalThis.__submissionWorker) {
+            await globalThis.__submissionWorker.close();
+        }
+        await workerConnection.quit();
+        await queueConnection.quit();
+        console.log("[SubmissionWorker] Shutdown complete");
+        process.exit(0);
+    };
+
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
 }

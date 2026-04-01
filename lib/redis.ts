@@ -14,9 +14,8 @@ export function createRedisConnection(overrides: Record<string, any> = {}): IORe
     });
 
     conn.on("error", (error) => {
-        if (process.env.NODE_ENV !== "production") {
-            console.warn("[Redis] Connection error:", error);
-        }
+        // Log errors in all environments (essential for production debugging)
+        console.warn("[Redis] Connection error:", error);
     });
 
     return conn;

@@ -62,8 +62,6 @@ services:
     restart: always
 
 volumes:
-  # This tells Docker to use the existing 66MB volume instead of creating a new one
+  # Standard volume creation for persistence
   postgres_data:
-    external: true
-    name: algo-fox_postgres_data
   redis_data:

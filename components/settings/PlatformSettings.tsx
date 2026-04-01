@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, UseFormReturn } from "react-hook-form";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Loader2, Trash2, Check, Github, AlertCircle, ExternalLink, X, ShieldCheck, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
@@ -67,25 +67,40 @@ const PlatformRow = ({
     const isSaved = (value === initialValue && !!value);
     const debouncedValue = useDebounce(value, 500);
 
-    const checkHandle = useCallback(async (currentValue: string) => {
+    const requestCounter = useRef(0);
+
+    const checkHandle = useCallback(async (currentValue: string, requestId: number) => {
         if (!currentValue) {
             setIsValid(null);
             return;
         }
         setIsChecking(true);
-        let res;
-        if (id === "codeChefHandle") res = await checkCodeChefUser(currentValue);
-        else if (id === "codeforcesHandle") res = await checkCodeforcesUser(currentValue);
-        else if (id === "leetCodeHandle") res = await checkLeetCodeUser(currentValue);
-        else if (id === "githubHandle") res = await checkGitHubUser(currentValue);
+        try {
+            let res;
+            if (id === "codeChefHandle") res = await checkCodeChefUser(currentValue);
+            else if (id === "codeforcesHandle") res = await checkCodeforcesUser(currentValue);
+            else if (id === "leetCodeHandle") res = await checkLeetCodeUser(currentValue);
+            else if (id === "githubHandle") res = await checkGitHubUser(currentValue);
 
-        setIsValid(res?.success || false);
-        setIsChecking(false);
+            // Only update if this is still the latest request
+            if (requestId === requestCounter.current) {
+                setIsValid(res?.success || false);
+            }
+        } catch (error) {
+            if (requestId === requestCounter.current) {
+                setIsValid(false);
+            }
+        } finally {
+            if (requestId === requestCounter.current) {
+                setIsChecking(false);
+            }
+        }
     }, [id]);
 
     useEffect(() => {
         if (debouncedValue && debouncedValue !== initialValue) {
-            checkHandle(debouncedValue);
+            const requestId = ++requestCounter.current;
+            checkHandle(debouncedValue, requestId);
         } else if (debouncedValue === initialValue) {
             setIsValid(true);
         } else {

@@ -65,7 +65,13 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
                 });
                 break; // success
             } catch (e: any) {
-                if (e.code === 'P2002' && retries < 4) {
+                // Only retry if it's a unique constraint violation specifically on the joinCode field
+                const isJoinCodeConflict = e.code === 'P2002' && (
+                    (Array.isArray(e.meta?.target) && e.meta?.target.includes('joinCode')) ||
+                    e.meta?.target === 'joinCode'
+                );
+
+                if (isJoinCodeConflict && retries < 4) {
                     retries++; // join code collision, regenerate
                 } else {
                     throw e;

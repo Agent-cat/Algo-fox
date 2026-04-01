@@ -173,7 +173,7 @@ export class ContestService {
 
         // FIX: Replaced N+1 pattern (2 queries per participant) with 4 bulk queries total.
         // For 200 participants this reduces ~400 DB round-trips to 4.
-        const [participations, total, allAcceptedGrouped, allAttemptsGrouped] = await Promise.all([
+        const [participations, total] = await Promise.all([
             // Paginated participants
             prisma.contestParticipation.findMany({
                 where: { contestId },
@@ -184,11 +184,17 @@ export class ContestService {
             }),
             // Total count for pagination
             prisma.contestParticipation.count({ where: { contestId } }),
-            // All ACCEPTED submissions for the entire contest (single bulk query)
+        ]);
+
+        const paginatedUserIds = participations.map(p => p.userId);
+
+        const [allAcceptedGrouped, allAttemptsGrouped] = await Promise.all([
+            // All ACCEPTED submissions for ONLY the paginated users (single bulk query)
             prisma.submission.groupBy({
                 by: ["userId", "problemId"],
                 where: {
                     contestId,
+                    userId: { in: paginatedUserIds },
                     status: "ACCEPTED",
                     mode: "SUBMIT",
                     createdAt: { gte: contest.startTime, lte: contest.endTime }
@@ -196,11 +202,12 @@ export class ContestService {
                 _min: { createdAt: true },
                 _count: true
             }),
-            // All submission attempts for the entire contest (single bulk query)
+            // All submission attempts for ONLY the paginated users (single bulk query)
             prisma.submission.groupBy({
                 by: ["userId", "problemId"],
                 where: {
                     contestId,
+                    userId: { in: paginatedUserIds },
                     mode: "SUBMIT",
                     createdAt: { gte: contest.startTime, lte: contest.endTime }
                 },
@@ -251,9 +258,10 @@ export class ContestService {
             // Process all submission counts
             for (const [probId, count] of userAttempts.entries()) {
                 problemSubmissionCounts.set(probId, count);
+                const acceptedCount = userAccepted.get(probId)?.count || 0;
                 problemWrongAttempts.set(
                     probId,
-                    problemScores.has(probId) ? Math.max(0, count - 1) : count
+                    Math.max(0, count - acceptedCount)
                 );
             }
 

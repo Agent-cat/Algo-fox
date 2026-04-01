@@ -308,20 +308,24 @@ export class SubmissionService {
         try {
             const keysToDelete: string[] = [
                 `user-score-${userId}`,
-                `lb:global:p:1:s:`,
             ];
 
-            // FIX: Use SCAN cursor loop instead of redis.del('pattern:*')
-            // redis.del does NOT accept glob wildcards — they silently fail.
-            let cursor = '0';
-            do {
-                const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'lb:inst:*:p:1:s:', 'COUNT', '100');
-                cursor = nextCursor;
-                keysToDelete.push(...keys);
-            } while (cursor !== '0');
+            // Use SCAN cursor loop to find all leaderboard keys (global and instance)
+            // This prevents blocking Redis with KEYS '*' and ensures all matched keys are cleared.
+            const patterns = ['lb:global:*', 'lb:inst:*'];
+            for (const pattern of patterns) {
+                let cursor = '0';
+                do {
+                    const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', '100');
+                    cursor = nextCursor;
+                    keysToDelete.push(...keys);
+                } while (cursor !== '0');
+            }
 
             if (keysToDelete.length > 0) {
-                await redis.del(...keysToDelete);
+                // Deduplicate keys just in case
+                const uniqueKeys = [...new Set(keysToDelete)];
+                await redis.del(...uniqueKeys);
             }
         } catch (error) {
             if (process.env.NODE_ENV !== "production") {
