@@ -9,6 +9,7 @@ import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser, checkGitHubU
 import Image from "next/image";
 import { VerificationModal } from "@/components/settings/VerificationModal";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface FormData {
     leetCodeHandle: string;
@@ -63,27 +64,34 @@ const PlatformRow = ({
     const [isValid, setIsValid] = useState<boolean | null>(null);
     const [isChecking, setIsChecking] = useState(false);
 
-    const isSaved = value === initialValue && !!value;
+    const isSaved = (value === initialValue && !!value);
+    const debouncedValue = useDebounce(value, 500);
 
-    const handleManualVerify = async () => {
-        if (!value) return;
+    const checkHandle = useCallback(async (currentValue: string) => {
+        if (!currentValue) {
+            setIsValid(null);
+            return;
+        }
         setIsChecking(true);
         let res;
-        if (id === "codeChefHandle") res = await checkCodeChefUser(value);
-        else if (id === "codeforcesHandle") res = await checkCodeforcesUser(value);
-        else if (id === "leetCodeHandle") res = await checkLeetCodeUser(value);
-        else if (id === "githubHandle") res = await checkGitHubUser(value);
+        if (id === "codeChefHandle") res = await checkCodeChefUser(currentValue);
+        else if (id === "codeforcesHandle") res = await checkCodeforcesUser(currentValue);
+        else if (id === "leetCodeHandle") res = await checkLeetCodeUser(currentValue);
+        else if (id === "githubHandle") res = await checkGitHubUser(currentValue);
 
-        setIsChecking(false);
         setIsValid(res?.success || false);
-        if (res?.success) toast.success(`${label} profile verified!`);
-        else toast.error(`${label} profile not found.`);
-    };
+        setIsChecking(false);
+    }, [id]);
 
-    // Reset status on value change
     useEffect(() => {
-        setIsValid(null);
-    }, [value]);
+        if (debouncedValue && debouncedValue !== initialValue) {
+            checkHandle(debouncedValue);
+        } else if (debouncedValue === initialValue) {
+            setIsValid(true);
+        } else {
+            setIsValid(null);
+        }
+    }, [debouncedValue, initialValue, checkHandle]);
 
     return (
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a]/50 rounded-xl border border-gray-100 dark:border-[#262626]">
@@ -108,18 +116,13 @@ const PlatformRow = ({
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                              {isChecking ? (
                                 <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                            ) : isValid === true ? (
-                                <Check className="w-4 h-4 text-green-500" />
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleManualVerify}
-                                    disabled={!value || isChecking}
-                                    className="text-[10px] font-black uppercase tracking-widest text-orange-600 hover:text-orange-700 disabled:opacity-30"
-                                >
-                                    Verify
-                                </button>
-                            )}
+                            ) : value ? (
+                                isValid === true ? (
+                                    <Check className="w-4 h-4 text-green-500" />
+                                ) : isValid === false ? (
+                                    <X className="w-4 h-4 text-red-500" />
+                                ) : null
+                            ) : null}
                         </div>
                     </div>
 

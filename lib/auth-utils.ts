@@ -1,7 +1,11 @@
+import { cache } from 'react';
 import { auth } from './auth';
 import { headers } from 'next/headers';
 
-export type UserRole = 'STUDENT' | 'ADMIN' | 'MODERATOR';
+// FIX: Matches the Role enum in prisma/schema.prisma exactly.
+// Previously had 'MODERATOR' which doesn't exist, and was missing TEACHER, INSTITUTION_MANAGER, CONTEST_MANAGER.
+export type UserRole = 'STUDENT' | 'ADMIN' | 'TEACHER' | 'INSTITUTION_MANAGER' | 'CONTEST_MANAGER';
+
 
 export interface AuthUser {
   id: string;
@@ -11,13 +15,21 @@ export interface AuthUser {
 }
 
 /**
- * Get the current authenticated user from the session
+ * Memoized session getter — cached per request via React.cache().
+ * Subsequent calls within the same request return the same Promise,
+ * eliminating repeated decoding and DB hits when multiple server actions
+ * call getSession() within one request lifecycle.
+ */
+export const getSession = cache(async () => {
+    return auth.api.getSession({ headers: await headers() });
+});
+
+/**
+ * Get the current authenticated user from the (memoized) session
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session || !session.user) {
       return null;
@@ -78,7 +90,7 @@ export async function requireAuth() {
 export async function requireRole(requiredRole: UserRole | UserRole[]) {
   const user = await requireAuth();
   const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-  
+
   if (!roles.includes(user.role)) {
     throw new ForbiddenError(
       `This action requires one of the following roles: ${roles.join(', ')}`

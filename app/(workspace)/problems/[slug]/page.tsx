@@ -10,6 +10,8 @@ import { headers } from "next/headers";
 import ConceptViewer from "@/components/problems/ConceptViewer";
 import AptitudeWorkspaceClientWrapper from "@/components/workspace/AptitudeWorkspaceClientWrapper";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 
 // MIGRATED: Removed export const revalidate = 3600 (incompatible with Cache Components)
 // Caching is now handled via "use cache" in the getProblem action with cacheLife
@@ -20,7 +22,7 @@ interface PageProps {
 }
 
 // GENERATING METADATA FOR THE PROBLEM PAGE (SEO)
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const problem = await getProblem(slug);
 
@@ -224,6 +226,8 @@ export default function ProblemPage({ params, searchParams }: PageProps) {
 // Note: Contest-specific problems (hidden: true) are not included here but will be handled dynamically
 
 export async function generateStaticParams() {
+  "use cache";
+  cacheLife("contests"); // Using the config-defined 'contests' profile
   try {
     const problems = await prisma.problem.findMany({
       where: { hidden: false },
@@ -232,18 +236,16 @@ export async function generateStaticParams() {
       take: 50, // PRE-RENDER TOP 50 PROBLEMS
     });
 
-    // Next.js 16 requires at least one result for Cache Components
-    // If no problems exist, return a placeholder that will be handled by the dynamic route
     if (problems.length === 0) {
-      return [{ slug: 'placeholder' }];
+       return [{ slug: 'placeholder' }];
     }
 
     return problems.map((p) => ({
       slug: p.slug,
     }));
   } catch (error) {
-    // Fallback to ensure we always return at least one result
     console.error("Error generating static params for problems:", error);
+    // Return at least one fallback to satisfy Next.js 16 requirements during build
     return [{ slug: 'placeholder' }];
   }
 }

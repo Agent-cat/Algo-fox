@@ -1,16 +1,27 @@
 import IORedis from "ioredis";
 
-const connection = new IORedis({
-  host: process.env.REDIS_HOST || "127.0.0.1",
-  port: parseInt(process.env.REDIS_PORT || "6379"),
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-});
+// FIX: Export a factory function so BullMQ Queue, Worker, and QueueEvents each get their own
+// dedicated connection. Sharing a single connection causes head-of-line blocking because
+// BullMQ's SUBSCRIBE/BRPOP commands block the connection for other commands.
+export function createRedisConnection(overrides: Record<string, any> = {}): IORedis {
+    const conn = new IORedis({
+        host: process.env.REDIS_HOST || "127.0.0.1",
+        port: parseInt(process.env.REDIS_PORT || "6379"),
+        maxRetriesPerRequest: null,  // Required for BullMQ; safe for general use
+        enableReadyCheck: false,
+        lazyConnect: true,
+        ...overrides,
+    });
 
-connection.on("error", (error) => {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("[Redis] Connection error:", error);
-  }
-});
+    conn.on("error", (error) => {
+        if (process.env.NODE_ENV !== "production") {
+            console.warn("[Redis] Connection error:", error);
+        }
+    });
 
-export default connection;
+    return conn;
+}
+
+// Default singleton for non-BullMQ usage (rate limiter, cache utils, leaderboard, etc.)
+const redis = createRedisConnection();
+export default redis;

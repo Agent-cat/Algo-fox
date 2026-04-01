@@ -127,35 +127,41 @@ export async function verifyCodeChefOwnership(handle: string, verificationCode: 
         return { success: false, error: "Unauthorized" };
     }
 
-    // Bypass cache for verification
-    const result = await checkCodeChefUser(handle, true);
+    try {
+        // Fetch fresh profile page, bypassing all caches
+        const resdata = await fetch(
+            `https://www.codechef.com/users/${handle}`,
+            { cache: 'no-store' }
+        );
 
-    if (result.success && result.name) {
-        // Check if the verification code is present in the name
-        // The user edits their "Name" field to include the code
-        if (result.name.includes(verificationCode)) {
-             try {
-                await prisma.user.update({
-                    where: { id: session.user.id },
-                    data: {
-                        codeChefVerified: true,
-                        // Ensure the verified handle is the one stored
-                        codeChefHandle: handle
-                    }
-                });
-                revalidatePath("/dashboard/settings"); // Revalidate settings pages
-                revalidateTag(`user-${session.user.id}`,"max"); // Invalidate user cache tag
-                return { success: true };
-            } catch (error) {
-                console.error("Database update error:", error);
-                return { success: false, error: "Failed to update verification status" };
-            }
-        } else {
-             return { success: false, error: "Verification code not found in CodeChef name. Please ensure you have updated your profile name." };
+        if (resdata.status !== 200) {
+            return { success: false, error: "Failed to fetch CodeChef profile. Please ensure the handle is correct." };
         }
-    }
 
-    return { success: false, error: "Failed to fetch CodeChef profile" };
+        const html = await resdata.text();
+
+        // The verification code is 8 random base-36 characters – it cannot
+        // appear in the page by coincidence.  If it's there, the user pasted
+        // it into an editable field (name / bio / etc.).
+        // This approach is robust against CodeChef HTML-structure changes.
+        if (!html.includes(verificationCode)) {
+            return { success: false, error: "Verification code not found in CodeChef profile. Please ensure you have saved the code in your Name field." };
+        }
+
+        await prisma.user.update({
+            where: { id: session.user.id },
+            data: {
+                codeChefVerified: true,
+                codeChefHandle: handle
+            }
+        });
+        revalidatePath("/dashboard/settings");
+        revalidateTag(`user-${session.user.id}`, "max");
+        return { success: true };
+    } catch (error) {
+        console.error("CodeChef verification error:", error);
+        return { success: false, error: "Failed to verify CodeChef profile" };
+    }
 }
 // ... (existing imports and functions)
 
@@ -355,36 +361,66 @@ export async function verifyLeetCodeOwnership(handle: string, verificationCode: 
     }
 
     try {
-        // Bypass cache
-        const result = await checkLeetCodeUser(handle, true);
-
-        if (result.success && result.name) {
-            // Check if verification code is in the name
-            if (result.name.includes(verificationCode)) {
-                try {
-                    await prisma.user.update({
-                        where: { id: session.user.id },
-                        data: {
-                            leetCodeVerified: true,
-                            leetCodeHandle: handle
-                        }
-                    });
-                    revalidatePath("/dashboard/settings");
-                    revalidateTag(`user-${session.user.id}`,"max");
-                    return { success: true };
-                } catch (error) {
-                    console.error("Database update error:", error);
-                    return { success: false, error: "Failed to update verification status" };
+        // Bypass the leetcode-query library (which has internal caching) and
+        // hit the GraphQL API directly with cache:'no-store' so we always get
+        // the user's current realName, not a stale cached value.
+        const query = `
+            query getUserProfile($username: String!) {
+                matchedUser(username: $username) {
+                    profile {
+                        realName
+                    }
                 }
-            } else {
-                return { success: false, error: "Verification code not found in LeetCode Name. Please ensure you have updated it in your profile." };
             }
-        }
-    } catch (error) {
-         return { success: false, error: "Failed to verify LeetCode profile" };
-    }
+        `;
 
-    return { success: false, error: "Failed to fetch LeetCode profile or name is empty" };
+        const res = await fetch('https://leetcode.com/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Referer': 'https://leetcode.com'
+            },
+            body: JSON.stringify({ query, variables: { username: handle } }),
+            cache: 'no-store'
+        });
+
+        if (!res.ok) {
+            return { success: false, error: "Failed to fetch LeetCode profile" };
+        }
+
+        const data = await res.json();
+        const matchedUser = data?.data?.matchedUser;
+
+        if (!matchedUser) {
+            return { success: false, error: "LeetCode profile not found. Please check the handle." };
+        }
+
+        const realName: string | null = matchedUser.profile?.realName ?? null;
+
+        if (!realName || !realName.includes(verificationCode)) {
+            return {
+                success: false,
+                error: realName
+                    ? "Verification code not found in LeetCode Name. Please ensure you have saved the code in your profile."
+                    : "Your LeetCode profile has no Name set. Please add the verification code as your Name on LeetCode."
+            };
+        }
+
+        // Code confirmed – save verification
+        await prisma.user.update({
+            where: { id: session.user.id },
+            data: {
+                leetCodeVerified: true,
+                leetCodeHandle: handle
+            }
+        });
+        revalidatePath("/dashboard/settings");
+        revalidateTag(`user-${session.user.id}`, "max");
+        return { success: true };
+    } catch (error) {
+        console.error("LeetCode verification error:", error);
+        return { success: false, error: "Failed to verify LeetCode profile" };
+    }
 }
 
 // Check GitHub User

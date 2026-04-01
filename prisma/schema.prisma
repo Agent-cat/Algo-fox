@@ -242,7 +242,9 @@ model Submission {
   @@index([userId, status, mode, problemId])
   @@index([userId, status, createdAt])
   @@index([contestId, createdAt])
+  @@index([contestId, userId, status]) // For leaderboard groupBy queries
 }
+
 
 model TestCase {
   id               String         @id @default(cuid())

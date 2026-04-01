@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
-import { cacheKey, cachedFetch, CACHE_CONFIG } from "@/lib/cache-utils";
+import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG } from "@/lib/cache-utils";
 
 const staffSchema = z.object({
   email: z.email(),

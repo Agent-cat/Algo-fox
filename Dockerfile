@@ -1,91 +1,63 @@
-# syntax=docker/dockerfile:1
+# Stage 1: Dependencies
+FROM oven/bun:1-alpine AS deps
 
-# ============================================
-# Stage 1: Base image with shared OS deps
-# ============================================
-FROM oven/bun:1.2-alpine AS base
-
-# Install OS dependencies required for Prisma and native modules
+# Add libc6-compat and openssl for Prisma
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-# ============================================
-# Stage 2: Dependencies
-# ============================================
-FROM base AS deps
-
-# Copy lockfile and package.json
+# Copy package files first for better caching
 COPY package.json bun.lock ./
+# Copy prisma directory because postinstall needs the schema
+COPY prisma ./prisma/
 
-# Install all dependencies (including devDependencies for build)
+# Install dependencies (use --frozen-lockfile for consistency)
 RUN bun install --frozen-lockfile
 
-# ============================================
-# Stage 3: Builder
-# ============================================
-FROM base AS builder
-
+# Stage 2: Builder
+FROM oven/bun:1-alpine AS builder
+# Add openssl for prisma generate
+RUN apk add --no-cache openssl
 WORKDIR /app
 
-# Copy dependencies
+# Accept DATABASE_URL for build-time static generation, with a dummy fallback
+ARG DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+ENV DATABASE_URL=${DATABASE_URL}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma Client
-RUN bun prisma generate
+# Generate Prisma client
+RUN bunx prisma generate
 
-# Build arguments for environment variables needed during build
-ARG DATABASE_URL
-ARG BETTER_AUTH_SECRET
-ARG REDIS_HOST=127.0.0.1
-ARG REDIS_PORT=6379
-
-# Set environment variables for build
+# Build-time environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
-ENV DATABASE_URL=${DATABASE_URL}
-ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-ENV REDIS_HOST=${REDIS_HOST}
-ENV REDIS_PORT=${REDIS_PORT}
 ENV SKIP_CACHE_HANDLER=1
+ENV BETTER_AUTH_SECRET=zpN6vAuvJwJ79IkeWIOPlwUoA5M1F2HG
+ENV BETTER_AUTH_URL=http://localhost:3000
+ENV NODE_ENV=production
 
-# Build the application
+# Note: server.js is created by next build when output: 'standalone' is enabled
+# Using dynamic build-time DATABASE_URL (passed via build args) to allow static generation
 RUN bun run build
 
-# ============================================
-# Stage 4: Runner
-# ============================================
-FROM base AS runner
-
+# Stage 3: Runner
+FROM oven/bun:1-alpine AS runner
+# Add openssl to the runner image because Prisma needs it at runtime
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Security: Create non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Security: add system user for better security
+RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
-# Copy public assets
+# Copy standalone build and static assets
 COPY --from=builder /app/public ./public
-
-# Set correct permissions for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Copy standalone output from builder
-# Next.js standalone mode moves everything into .next/standalone
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma files for runtime (sometimes needed for binary discovery)
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-
-# Copy the cache handler for Redis caching if it exists
-COPY --from=builder --chown=nextjs:nodejs /app/lib/cache-handler-redis.js ./lib/cache-handler-redis.js
 
 USER nextjs
 
@@ -94,5 +66,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run the Next.js server with Bun
+# server.js is created by next build when output: 'standalone' is enabled
 CMD ["bun", "server.js"]

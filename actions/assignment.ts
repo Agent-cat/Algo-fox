@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidateTag, unstable_cache } from "next/cache";
-import { cacheKey, cachedFetch, CACHE_CONFIG } from "@/lib/cache-utils";
+import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG } from "@/lib/cache-utils";
 
 /**
  * Get all assignments for a specific classroom (CACHED with pagination)

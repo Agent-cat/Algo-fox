@@ -1,13 +1,18 @@
-// Triggering worker reload for updated services
 import { Queue, Worker, Job } from "bullmq";
-import connection from "@/lib/redis";
+import { createRedisConnection } from "@/lib/redis";
 import { SubmissionService } from "@/core/services/submission.service";
 import { SubmissionResult, TestCaseResult } from "@prisma/client";
 
 const QUEUE_NAME = "submission-queue";
 
+// FIX: Use separate Redis connections for Queue and Worker.
+// BullMQ requires separate connections because Worker uses SUBSCRIBE/BRPOP commands
+// which block the connection and prevent other commands from executing (head-of-line blocking).
+const queueConnection = createRedisConnection({ maxRetriesPerRequest: null });
+const workerConnection = createRedisConnection({ maxRetriesPerRequest: null });
+
 const submissionQueue = new Queue(QUEUE_NAME, {
-    connection,
+    connection: queueConnection,
     defaultJobOptions: {
         attempts: 3,
         backoff: {
@@ -25,9 +30,7 @@ export const addSubmissionJob = async (submissionId: string, customTestCases?: {
 
 // Worker Implementation
 // Note: In Next.js (serverless), workers are tricky. Ideally, this runs in a separate process.
-// For this 'demo' / 'integrated' setup, we might initialize it differently, but here we define it.
-// If this file is imported in the API route, the worker might start multiple times in dev.
-// We'll use a global check or just simple instantiation for now, assuming a long-running server or dedicated worker process.
+// For this 'integrated' setup, we use a globalThis singleton so HMR doesn't spawn duplicates.
 
 const workerName = "submission-worker";
 
@@ -57,370 +60,322 @@ const mapJudge0StatusToDb = (statusId: number): TestCaseResult | null => {
     return null; // Pending or Processing
 };
 
-const worker = new Worker(
-    QUEUE_NAME,
-    async (job: Job<{ submissionId: string, customTestCases?: { input: string, output: string, id?: string, hidden?: boolean }[] }>) => {
-        const { submissionId, customTestCases = [] } = job.data;
+// Extracted processor function so it can be referenced cleanly in the Worker constructor
+async function workerProcessor(job: Job<{ submissionId: string, customTestCases?: { input: string, output: string, id?: string, hidden?: boolean }[] }>) {
+    const { submissionId, customTestCases = [] } = job.data;
 
-        try {
-            // 1. Fetch Submission Data
-            // To avoid circular dep if we construct full object here, we might need a getter in service
-            // For now, let's use the service to get it conceptually or direct prisma if needed.
-            // But we have SubmissionService.
-            const { prisma } = await import("@/lib/prisma"); // Lazy import to avoid init issues
+    try {
+        // 1. Fetch Submission Data
+        const { prisma } = await import("@/lib/prisma");
 
-            const submission = await prisma.submission.findUnique({
-                where: { id: submissionId },
-                include: {
-                    problem: {
-                        include: {
-                            testCases: true,
-                            functionTemplates: true // Include function templates for DSA
-                        }
-                    },
-                    language: true
-                }
-            });
-
-            if (!submission) throw new Error("Submission not found");
-            if (submission.status !== "PENDING" && submission.status !== "PROCESSING") {
-                console.info(`Submission ${submissionId} already processed with status ${submission.status}. Skipping.`);
-                return;
-            }
-            if (!submission.problem) throw new Error("Problem not found");
-
-            // Mark as PROCESSING immediately for idempotency
-            await SubmissionService.updateSubmissionStatus(submissionId, "PROCESSING");
-
-            const { code, language, problem, mode } = submission;
-            const allTestCases = problem.testCases;
-
-            // Filter test cases based on mode:
-            // RUN mode: only public (non-hidden) test cases
-            // SUBMIT mode: all test cases (public + hidden)
-            let testCasesToEvaluate: typeof allTestCases;
-            if (mode === "RUN") {
-                testCasesToEvaluate = [
-                    ...allTestCases.filter(tc => !tc.hidden),
-                    ...customTestCases.map((ctc, idx) => ({
-                        ...ctc,
-                        id: `custom-${idx}`,
-                        hidden: false,
-                        problemId: problem.id,
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    })) as any
-                ];
-            } else {
-                testCasesToEvaluate = allTestCases;
-            }
-
-            if (testCasesToEvaluate.length === 0) {
-                await SubmissionService.updateSubmissionStatus(submissionId, "ACCEPTED", 0, 0);
-                return;
-            }
-
-            // Build the code to execute
-            let codeToExecute = code;
-
-            // For SQL problems, prepend hiddenQuery and convert to SQLite
-            if (problem.domain === "SQL") {
-                // Prepend hiddenQuery if exists
-                if (problem.hiddenQuery) {
-                    codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
-                }
-
-                // Convert SQL to SQLite-compatible syntax
-                const { convertBatchToSQLite } = await import("@/lib/sql-converter");
-                codeToExecute = convertBatchToSQLite(codeToExecute);
-            }
-            // For DSA problems with function templates, combine driver code + user's function
-            else if (problem.domain === "DSA" && problem.useFunctionTemplate && problem.functionTemplates?.length) {
-                const template = problem.functionTemplates.find(
-                    t => t.languageId === language.judge0Id
-                );
-
-                if (template?.driverCode) {
-                    const langId = language.judge0Id;
-
-                    // Check if driver code uses placeholder for user code insertion
-                    if (template.driverCode.includes("{{USER_CODE}}")) {
-                        // Replace placeholder with user's code
-                        codeToExecute = template.driverCode.replace("{{USER_CODE}}", code);
+        const submission = await prisma.submission.findUnique({
+            where: { id: submissionId },
+            include: {
+                problem: {
+                    include: {
+                        testCases: true,
+                        functionTemplates: true // Include function templates for DSA
                     }
-                    // Go (60), Rust (73): Driver first (package/imports/fn main), then user function
-                    else if (langId === 60 || langId === 73) {
-                        codeToExecute = template.driverCode + "\n\n" + code;
-                    }
-                    // JavaScript (63), Python (71): User code first, then driver
-                    else if (langId === 63 || langId === 71) {
-                        codeToExecute = code + "\n\n" + template.driverCode;
-                    }
-                    // Java (62), C (50), C++ (54): Need placeholder - warn if missing
-                    else if (langId === 62 || langId === 50 || langId === 54) {
-                        // For structured languages, assume user code goes inside class/before main
-                        // If no placeholder, try driver first (for cases where main is at end)
-                        codeToExecute = template.driverCode.replace(/}\s*$/, code + "\n}");
-                    }
-                    // Default: user code first, then driver
-                    else {
-                        codeToExecute = code + "\n\n" + template.driverCode;
-                    }
-                }
+                },
+                language: true
             }
+        });
 
-            // 2. Send Batch to Judge0
-            const judge0Tokens = await SubmissionService.sendToJudge0(
-                language.judge0Id,
-                codeToExecute,
-                testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
+        if (!submission) throw new Error("Submission not found");
+        if (submission.status !== "PENDING" && submission.status !== "PROCESSING") {
+            console.info(`Submission ${submissionId} already processed with status ${submission.status}. Skipping.`);
+            return;
+        }
+        if (!submission.problem) throw new Error("Problem not found");
+
+        // Mark as PROCESSING immediately for idempotency
+        await SubmissionService.updateSubmissionStatus(submissionId, "PROCESSING");
+
+        const { code, language, problem, mode } = submission;
+        const allTestCases = problem.testCases;
+
+        // Filter test cases based on mode:
+        // RUN mode: only public (non-hidden) test cases
+        // SUBMIT mode: all test cases (public + hidden)
+        let testCasesToEvaluate: typeof allTestCases;
+        if (mode === "RUN") {
+            testCasesToEvaluate = [
+                ...allTestCases.filter(tc => !tc.hidden),
+                ...customTestCases.map((ctc, idx) => ({
+                    ...ctc,
+                    id: `custom-${idx}`,
+                    hidden: false,
+                    problemId: problem.id,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                })) as any
+            ];
+        } else {
+            testCasesToEvaluate = allTestCases;
+        }
+
+        if (testCasesToEvaluate.length === 0) {
+            await SubmissionService.updateSubmissionStatus(submissionId, "ACCEPTED", 0, 0);
+            return;
+        }
+
+        // Build the code to execute
+        let codeToExecute = code;
+
+        // For SQL problems, prepend hiddenQuery and convert to SQLite
+        if (problem.domain === "SQL") {
+            if (problem.hiddenQuery) {
+                codeToExecute = problem.hiddenQuery.trim() + "\n" + code;
+            }
+            const { convertBatchToSQLite } = await import("@/lib/sql-converter");
+            codeToExecute = convertBatchToSQLite(codeToExecute);
+        }
+        // For DSA problems with function templates, combine driver code + user's function
+        else if (problem.domain === "DSA" && problem.useFunctionTemplate && problem.functionTemplates?.length) {
+            const template = problem.functionTemplates.find(
+                t => t.languageId === language.judge0Id
             );
 
-            const publicCasesCount = allTestCases.filter(tc => !tc.hidden).length;
-            // OPTIMIZATION: Pre-compute index mapping using Map instead of findIndex in loop
-            // Reduces O(n²) to O(n) - with 100 test cases, this is 100x faster
-            const testCaseIndexMap = new Map(allTestCases.map((tc, idx) => [tc.id, idx]));
+            if (template?.driverCode) {
+                const langId = language.judge0Id;
 
-            const testCaseRecords = testCasesToEvaluate.map((tc, idx) => {
-                const problemCaseIndex = testCaseIndexMap.get(tc.id) ?? -1;
-                const finalIndex = problemCaseIndex >= 0
-                    ? problemCaseIndex
-                    : allTestCases.length + (idx - publicCasesCount);
-
-                return {
-                    index: finalIndex,
-                    judge0TrackingId: judge0Tokens[idx].token,
-                    processed: false,
-                    processingUpdateSent: false
-                };
-            });
-            await SubmissionService.createTestCases(submissionId, testCaseRecords);
-
-            // 4. Poll and Incremental Update
-            let isComplete = false;
-            let attempts = 0;
-            // Adaptive Polling:
-            // First 5 seconds: Poll every 100ms (fast feedback)
-            // Next 25 seconds: Poll every 500ms
-            // Remaining time: Poll every 1000ms
-            const MAX_TOTAL_TIME_MS = 60000; // 60 seconds hard timeout
-            const START_TIME = Date.now();
-
-            // OPTIMIZATION: Use Set for O(1) pending status lookup instead of filtering every iteration
-            const pendingSet = new Set(testCaseRecords.map(r => r.judge0TrackingId));
-            const recordsByToken = new Map(testCaseRecords.map(r => [r.judge0TrackingId, r]));
-
-            // Track overall stats
-            let totalTime = 0;
-            let maxMemory = 0;
-            let finalStatus: SubmissionResult = "ACCEPTED";
-            let globalErrorMessage: string | null = null;
-            let compilationError = false;
-
-            while (pendingSet.size > 0 && (Date.now() - START_TIME) < MAX_TOTAL_TIME_MS) {
-                const elapsedMs = Date.now() - START_TIME;
-                let pollInterval = 1000;
-                if (elapsedMs < 5000) pollInterval = 150;
-                else if (elapsedMs < 30000) pollInterval = 500;
-
-                await new Promise(r => setTimeout(r, pollInterval));
-                attempts++;
-
-                // OPTIMIZATION: Only fetch results for pending submissions
-                const pendingTokens = Array.from(pendingSet);
-                const batchResults = await SubmissionService.getBatchResults(pendingTokens);
-
-                // Check for global compilation error (only once)
-                if (!compilationError && batchResults.length > 0) {
-                    const firstResult = batchResults[0];
-                    const firstStatus = mapJudge0StatusToDb(firstResult.status.id);
-                    if (firstStatus === "COMPILE_ERROR") {
-                        compilationError = true;
-                        finalStatus = "COMPILE_ERROR";
-                        globalErrorMessage = firstResult.compile_output || firstResult.stderr || "Compilation Error";
-                    }
+                if (template.driverCode.includes("{{USER_CODE}}")) {
+                    codeToExecute = template.driverCode.replace("{{USER_CODE}}", code);
                 }
+                else if (langId === 60 || langId === 73) {
+                    codeToExecute = template.driverCode + "\n\n" + code;
+                }
+                else if (langId === 63 || langId === 71) {
+                    codeToExecute = code + "\n\n" + template.driverCode;
+                }
+                else if (langId === 62 || langId === 50 || langId === 54) {
+                    codeToExecute = template.driverCode.replace(/}\s*$/, code + "\n}");
+                }
+                else {
+                    codeToExecute = code + "\n\n" + template.driverCode;
+                }
+            }
+        }
 
-                const updatesToApply: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage: string | null, stdout: string | null }[] = [];
-                const publishedUpdates: any[] = [];
+        // 2. Send Batch to Judge0
+        const judge0Tokens = await SubmissionService.sendToJudge0(
+            language.judge0Id,
+            codeToExecute,
+            testCasesToEvaluate.map(tc => ({ input: tc.input, output: tc.output }))
+        );
 
-                // OPTIMIZATION: Use Map lookup instead of find() - reduces from O(n) to O(1) per result
-                for (const result of batchResults) {
-                    const localRecord = recordsByToken.get(result.token);
-                    if (!localRecord) continue;
+        const publicCasesCount = allTestCases.filter(tc => !tc.hidden).length;
+        const testCaseIndexMap = new Map(allTestCases.map((tc, idx) => [tc.id, idx]));
 
-                    // Identify completion (not In Queue and not Processing)
-                    const isFinished =
-                        result.status.id !== JUDGE0_STATUS.IN_QUEUE &&
-                        result.status.id !== JUDGE0_STATUS.PROCESSING;
+        const testCaseRecords = testCasesToEvaluate.map((tc, idx) => {
+            const problemCaseIndex = testCaseIndexMap.get(tc.id) ?? -1;
+            const finalIndex = problemCaseIndex >= 0
+                ? problemCaseIndex
+                : allTestCases.length + (idx - publicCasesCount);
 
-                    if (!isFinished) {
-                        // If it's processing, broadcast this to the user (once)
-                        if (result.status.id === JUDGE0_STATUS.PROCESSING && !localRecord.processingUpdateSent) {
-                             localRecord.processingUpdateSent = true;
-                             publishedUpdates.push({
-                                  index: localRecord.index,
-                                  status: "PROCESSING",
-                                  judge0TrackingId: result.token
-                             });
-                        }
-                        continue;
-                    }
+            return {
+                index: finalIndex,
+                judge0TrackingId: judge0Tokens[idx].token,
+                processed: false,
+                processingUpdateSent: false
+            };
+        });
+        await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
-                    // If finished but not yet marked processed, update DB
-                    if (!localRecord.processed) {
-                        localRecord.processed = true;
-                        // OPTIMIZATION: Remove from pending set as soon as processed
-                        pendingSet.delete(result.token);
+        // 4. Poll and Incremental Update
+        const MAX_TOTAL_TIME_MS = 60000; // 60 seconds hard timeout
+        const START_TIME = Date.now();
 
-                        const time = parseFloat(result.time || "0");
-                        const memory = result.memory || 0;
-                        const status = mapJudge0StatusToDb(result.status.id);
+        const pendingSet = new Set(testCaseRecords.map(r => r.judge0TrackingId));
+        const recordsByToken = new Map(testCaseRecords.map(r => [r.judge0TrackingId, r]));
 
+        let totalTime = 0;
+        let maxMemory = 0;
+        let finalStatus: SubmissionResult = "ACCEPTED";
+        let globalErrorMessage: string | null = null;
+        let compilationError = false;
 
-                        let errorMessage: string | null = null;
-                        if (compilationError) {
-                            errorMessage = globalErrorMessage;
-                        } else if (status === "COMPILE_ERROR") {
-                            errorMessage = result.compile_output || result.stderr || "Compilation Error";
-                        } else if (status === "RUNTIME_ERROR") {
-                            const description = result.status.description || "Runtime Error";
-                            const stderr = result.stderr?.trim();
-                            errorMessage = stderr ? `${description}\n\n${stderr}` : description;
-                            if (description.includes("SIGSEGV")) errorMessage += "\n\nPossible causes:\n- Accessing array out of bounds\n- Null pointer";
-                            if (description.includes("SIGFPE")) errorMessage += "\n\nPossible causes:\n- Division by zero";
-                        } else if (status === "TIME_LIMIT_EXCEEDED") {
-                            errorMessage = "Time Limit Exceeded";
-                        } else if (status === "MEMORY_LIMIT_EXCEEDED") {
-                            errorMessage = "Memory Limit Exceeded";
-                        } else if (result.stderr && status !== "ACCEPTED") {
-                            errorMessage = result.stderr;
-                        }
+        while (pendingSet.size > 0 && (Date.now() - START_TIME) < MAX_TOTAL_TIME_MS) {
+            const elapsedMs = Date.now() - START_TIME;
+            let pollInterval = 1000;
+            if (elapsedMs < 5000) pollInterval = 150;
+            else if (elapsedMs < 30000) pollInterval = 500;
 
-                         if (!errorMessage && result.compile_output && status !== "ACCEPTED") {
-                            errorMessage = result.compile_output;
-                        }
+            await new Promise(r => setTimeout(r, pollInterval));
 
-                        if ((status === "RUNTIME_ERROR" || status === "COMPILE_ERROR") && !errorMessage) {
-                            errorMessage = "Unknown Error Occurred";
-                        }
+            const pendingTokens = Array.from(pendingSet);
+            const batchResults = await SubmissionService.getBatchResults(pendingTokens);
 
-                        const statusToUse = compilationError ? "COMPILE_ERROR" : (status || "RUNTIME_ERROR");
+            if (!compilationError && batchResults.length > 0) {
+                const firstResult = batchResults[0];
+                const firstStatus = mapJudge0StatusToDb(firstResult.status.id);
+                if (firstStatus === "COMPILE_ERROR") {
+                    compilationError = true;
+                    finalStatus = "COMPILE_ERROR";
+                    globalErrorMessage = firstResult.compile_output || firstResult.stderr || "Compilation Error";
+                }
+            }
 
-                        // Add to batch
-                        const updateData = {
-                            judge0TrackingId: result.token,
-                            status: statusToUse,
-                            time,
-                            memory,
-                            errorMessage,
-                            stdout: result.stdout
-                        };
-                        updatesToApply.push(updateData);
+            const updatesToApply: { judge0TrackingId: string, status: TestCaseResult, time: number, memory: number, errorMessage: string | null, stdout: string | null }[] = [];
+            const publishedUpdates: any[] = [];
 
-                        // Prepare for Redis Publish
-                         publishedUpdates.push({
-                            ...updateData,
-                            index: localRecord.index
+            for (const result of batchResults) {
+                const localRecord = recordsByToken.get(result.token);
+                if (!localRecord) continue;
+
+                const isFinished =
+                    result.status.id !== JUDGE0_STATUS.IN_QUEUE &&
+                    result.status.id !== JUDGE0_STATUS.PROCESSING;
+
+                if (!isFinished) {
+                    if (result.status.id === JUDGE0_STATUS.PROCESSING && !localRecord.processingUpdateSent) {
+                        localRecord.processingUpdateSent = true;
+                        publishedUpdates.push({
+                            index: localRecord.index,
+                            status: "PROCESSING",
+                            judge0TrackingId: result.token
                         });
+                    }
+                    continue;
+                }
 
-                        // Accumulate stats
-                        totalTime += time;
-                        maxMemory = Math.max(maxMemory, memory);
+                if (!localRecord.processed) {
+                    localRecord.processed = true;
+                    pendingSet.delete(result.token);
 
-                        // Determine Submission Status
-                        if (!compilationError && status !== "ACCEPTED") {
-                            if (finalStatus === "ACCEPTED") {
-                                if (status === "WRONG_ANSWER") finalStatus = "WRONG_ANSWER";
-                                else if (status === "TIME_LIMIT_EXCEEDED") finalStatus = "TIME_LIMIT_EXCEEDED";
-                                else finalStatus = "RUNTIME_ERROR";
-                            }
+                    const time = parseFloat(result.time || "0");
+                    const memory = result.memory || 0;
+                    const status = mapJudge0StatusToDb(result.status.id);
+
+                    let errorMessage: string | null = null;
+                    if (compilationError) {
+                        errorMessage = globalErrorMessage;
+                    } else if (status === "COMPILE_ERROR") {
+                        errorMessage = result.compile_output || result.stderr || "Compilation Error";
+                    } else if (status === "RUNTIME_ERROR") {
+                        const description = result.status.description || "Runtime Error";
+                        const stderr = result.stderr?.trim();
+                        errorMessage = stderr ? `${description}\n\n${stderr}` : description;
+                        if (description.includes("SIGSEGV")) errorMessage += "\n\nPossible causes:\n- Accessing array out of bounds\n- Null pointer";
+                        if (description.includes("SIGFPE")) errorMessage += "\n\nPossible causes:\n- Division by zero";
+                    } else if (status === "TIME_LIMIT_EXCEEDED") {
+                        errorMessage = "Time Limit Exceeded";
+                    } else if (status === "MEMORY_LIMIT_EXCEEDED") {
+                        errorMessage = "Memory Limit Exceeded";
+                    } else if (result.stderr && status !== "ACCEPTED") {
+                        errorMessage = result.stderr;
+                    }
+
+                    if (!errorMessage && result.compile_output && status !== "ACCEPTED") {
+                        errorMessage = result.compile_output;
+                    }
+                    if ((status === "RUNTIME_ERROR" || status === "COMPILE_ERROR") && !errorMessage) {
+                        errorMessage = "Unknown Error Occurred";
+                    }
+
+                    const statusToUse = compilationError ? "COMPILE_ERROR" : (status || "RUNTIME_ERROR");
+
+                    const updateData = {
+                        judge0TrackingId: result.token,
+                        status: statusToUse,
+                        time,
+                        memory,
+                        errorMessage,
+                        stdout: result.stdout
+                    };
+                    updatesToApply.push(updateData);
+                    publishedUpdates.push({ ...updateData, index: localRecord.index });
+
+                    totalTime += time;
+                    maxMemory = Math.max(maxMemory, memory);
+
+                    if (!compilationError && status !== "ACCEPTED") {
+                        if (finalStatus === "ACCEPTED") {
+                            if (status === "WRONG_ANSWER") finalStatus = "WRONG_ANSWER";
+                            else if (status === "TIME_LIMIT_EXCEEDED") finalStatus = "TIME_LIMIT_EXCEEDED";
+                            else finalStatus = "RUNTIME_ERROR";
                         }
                     }
                 }
+            }
 
-                if (updatesToApply.length > 0) {
-                    await SubmissionService.updateTestCasesBatch(updatesToApply);
+            if (updatesToApply.length > 0) {
+                await SubmissionService.updateTestCasesBatch(updatesToApply);
 
-                    // Publish incremental updates to Redis
-                    // Using connection (ioredis) from imports
-                    // We publish the entire list of new updates
-                    if (publishedUpdates.length > 0) {
-                         await connection.publish(`submission:${submissionId}`, JSON.stringify({
-                              type: "CASE_UPDATE",
-                              data: publishedUpdates
-                         }));
-                    }
+                if (publishedUpdates.length > 0) {
+                    await queueConnection.publish(`submission:${submissionId}`, JSON.stringify({
+                        type: "CASE_UPDATE",
+                        data: publishedUpdates
+                    }));
+                }
+            }
+        }
+
+        if (pendingSet.size === 0) {
+            const avgTime = testCaseRecords.length > 0 ? totalTime / testCaseRecords.length : 0;
+            await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
+
+            let streakResult = { streakUpdated: false, currentStreak: 0 };
+            let pointsResult = { firstSolved: false, points: 0 };
+            if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
+                try {
+                    pointsResult = await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
+                    streakResult = await SubmissionService.updateUserStreak(submission.userId);
+                } catch (sideEffectError) {
+                    console.error(`Side effect error (streak/solved) for submission ${submissionId}:`, sideEffectError);
                 }
             }
 
-            // OPTIMIZATION: Determine completion based on pending set
-            if (pendingSet.size === 0) {
-                const avgTime = testCaseRecords.length > 0 ? totalTime / testCaseRecords.length : 0;
-                await SubmissionService.updateSubmissionStatus(submissionId, finalStatus, avgTime, maxMemory);
+            await SubmissionService.invalidateClassroomTracking(submission.userId);
 
-                let streakResult = { streakUpdated: false, currentStreak: 0 };
-                let pointsResult = { firstSolved: false, points: 0 };
-                if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
-                    try {
-                        pointsResult = await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
-                        streakResult = await SubmissionService.updateUserStreak(submission.userId);
-                    } catch (sideEffectError) {
-                        console.error(`Side effect error (streak/solved) for submission ${submissionId}:`, sideEffectError);
-                        // Do not rethrow - we want to finish processing the submission
-                    }
+            await queueConnection.publish(`submission:${submissionId}`, JSON.stringify({
+                type: "COMPLETE",
+                data: {
+                    status: finalStatus,
+                    time: avgTime,
+                    memory: maxMemory,
+                    streakUpdated: streakResult.streakUpdated,
+                    currentStreak: streakResult.currentStreak,
+                    firstSolved: pointsResult.firstSolved,
+                    pointsGained: pointsResult.points
                 }
-
-                // Invalidate Live Tracking Cache
-                await SubmissionService.invalidateClassroomTracking(submission.userId);
-
-                // Publish Completion Event
-                await connection.publish(`submission:${submissionId}`, JSON.stringify({
-                    type: "COMPLETE",
-                    data: {
-                        status: finalStatus,
-                        time: avgTime,
-                        memory: maxMemory,
-                        streakUpdated: streakResult.streakUpdated,
-                        currentStreak: streakResult.currentStreak,
-                        firstSolved: pointsResult.firstSolved,
-                        pointsGained: pointsResult.points
-                    }
-                }));
-            } else {
-                await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
-                 await connection.publish(`submission:${submissionId}`, JSON.stringify({
-                    type: "COMPLETE",
-                    data: {
-                        status: "TIME_LIMIT_EXCEEDED",
-                        time: 0,
-                        memory: 0
-                    }
-                }));
-
-                // Invalidate Live Tracking Cache (Timeout)
-                await SubmissionService.invalidateClassroomTracking(submission.userId);
-            }
-
-        } catch (error) {
-            console.error(`Error processing submission ${submissionId}`, error);
-            await SubmissionService.updateSubmissionStatus(submissionId, "RUNTIME_ERROR");
-             await connection.publish(`submission:${submissionId}`, JSON.stringify({
-                    type: "COMPLETE",
-                    data: {
-                        status: "RUNTIME_ERROR",
-                        time: 0,
-                        memory: 0
-                    }
-                }));
+            }));
+        } else {
+            await SubmissionService.updateSubmissionStatus(submissionId, "TIME_LIMIT_EXCEEDED");
+            await queueConnection.publish(`submission:${submissionId}`, JSON.stringify({
+                type: "COMPLETE",
+                data: { status: "TIME_LIMIT_EXCEEDED", time: 0, memory: 0 }
+            }));
+            await SubmissionService.invalidateClassroomTracking(submission.userId);
         }
-    },
-    {
-        connection,
-        concurrency: 10, // Process up to 10 submissions in parallel
-        limiter: {
-            max: 50,
-            duration: 1000
-        }
+
+    } catch (error) {
+        console.error(`Error processing submission ${submissionId}`, error);
+        await SubmissionService.updateSubmissionStatus(submissionId, "RUNTIME_ERROR");
+        await queueConnection.publish(`submission:${submissionId}`, JSON.stringify({
+            type: "COMPLETE",
+            data: { status: "RUNTIME_ERROR", time: 0, memory: 0 }
+        }));
     }
-);
+}
+
+// FIX: Guard with globalThis singleton to prevent duplicate workers across HMR reloads and
+// multiple module evaluations. Without this, every Next.js Fast Refresh creates a new Worker
+// that competes for the same BullMQ jobs, causing duplicate processing and connection leaks.
+declare global { var __submissionWorker: Worker | undefined; }
+
+if (!globalThis.__submissionWorker) {
+    globalThis.__submissionWorker = new Worker(
+        QUEUE_NAME,
+        workerProcessor,
+        {
+            connection: workerConnection,
+            concurrency: 10, // Process up to 10 submissions in parallel
+            limiter: {
+                max: 50,
+                duration: 1000
+            }
+        }
+    );
+    console.log("[SubmissionWorker] Initialized worker singleton");
+}

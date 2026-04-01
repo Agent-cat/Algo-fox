@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
-import { cacheKey, cachedFetch, CACHE_CONFIG, deleteFromCache } from "@/lib/cache-utils";
+import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG, deleteFromCache } from "@/lib/cache-utils";
 
 const classroomSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -47,33 +47,36 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
     try {
         const validatedData = classroomSchema.parse(data);
 
-        // Generate unique 6-character join code
-        let joinCode = "";
-        let isUnique = false;
-        let attempts = 0;
-        while (!isUnique && attempts < 10) {
-            joinCode = generateJoinCode();
-            const existing = await prisma.classroom.findUnique({
-                where: { joinCode },
-            });
-            if (!existing) isUnique = true;
-            attempts++;
+        // FIX: Use DB-level unique constraint (already exists on joinCode) + catch P2002 instead of
+        // a retry loop with per-attempt DB queries. Eliminates up to 10 sequential DB round-trips.
+        let classroom;
+        let retries = 0;
+        while (retries < 5) {
+            try {
+                classroom = await prisma.classroom.create({
+                    data: {
+                        name: validatedData.name,
+                        section: validatedData.section || null,
+                        subject: validatedData.subject || null,
+                        joinCode: generateJoinCode(),
+                        institutionId: validatedData.institutionId,
+                        teacherId: currentUser.id,
+                    },
+                });
+                break; // success
+            } catch (e: any) {
+                if (e.code === 'P2002' && retries < 4) {
+                    retries++; // join code collision, regenerate
+                } else {
+                    throw e;
+                }
+            }
         }
 
-        if (!isUnique) {
+        if (!classroom) {
             return { success: false, error: "Failed to generate a unique join code. Please try again." };
         }
 
-        const classroom = await prisma.classroom.create({
-            data: {
-                name: validatedData.name,
-                section: validatedData.section || null,
-                subject: validatedData.subject || null,
-                joinCode,
-                institutionId: validatedData.institutionId,
-                teacherId: currentUser.id,
-            },
-        });
 
         // Invalidate relevant caches
         revalidateTag(`teacher-classrooms-${currentUser.id}`, "max");

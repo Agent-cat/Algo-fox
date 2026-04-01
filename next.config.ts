@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 
-  // output: 'standalone',
+  output: 'standalone',
 
   images: {
     remotePatterns: [
@@ -19,13 +19,14 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 
-  reactStrictMode: false,
+  reactStrictMode: true, // Re-enabled: BullMQ worker is now guarded by a globalThis singleton
 
   compress: true,
 
   poweredByHeader: false,
   cacheComponents: true,
   cacheHandlers: {
+    default: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-local.js"),
     remote: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-redis.js"),
   },
   cacheLife: {
@@ -65,9 +66,6 @@ const nextConfig: NextConfig = {
       revalidate: 600, // 10 minutes revalidate
       expire: 3600,    // 1 hour expire
     },
-  },
-  experimental: {
-    turbopackUseSystemTlsCerts: true
   },
   async headers() {
     return [

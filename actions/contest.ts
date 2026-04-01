@@ -171,21 +171,28 @@ export async function getContestDetail(contestId: string) {
     });
 
     try {
-        const contest = await getContestData(contestId);
+        // FIX: Parallelize fetches that have no dependency on each other.
+        // Previously fired sequentially: getContestData → wait → then participation.
+        const currentUser = session?.user as any;
+
+        const [contest, participation] = await Promise.all([
+            getContestData(contestId),
+            currentUser
+                ? prisma.contestParticipation.findUnique({
+                      where: {
+                          userId_contestId: {
+                              userId: currentUser.id,
+                              contestId: contestId
+                          }
+                      }
+                  })
+                : null
+        ]);
 
         if (!contest) {
             return { success: false, error: "Contest not found" };
         }
 
-        const currentUser = session?.user as any;
-        const participation = currentUser ? await prisma.contestParticipation.findUnique({
-            where: {
-                userId_contestId: {
-                    userId: currentUser.id,
-                    contestId: contestId
-                }
-            }
-        }) : null;
 
         const now = new Date();
         const hasStarted = now >= contest.startTime;
@@ -677,9 +684,10 @@ export async function getParticipationStatus(contestId: string) {
             }
         });
 
-        // Check if temp block has expired
-        if (participation?.tempBlockedUntil && new Date() > participation.tempBlockedUntil) {
-            // Temp block expired - unblock
+        // FIX: Only write the unblock update if isBlocked is still true in DB.
+        // Without this guard, the UPDATE fires on every poll as long as tempBlockedUntil is expired
+        // but the UI hasn't refreshed — causing needless DB writes on every 5-second poll.
+        if (participation?.tempBlockedUntil && new Date() > participation.tempBlockedUntil && participation.isBlocked) {
             await prisma.contestParticipation.update({
                 where: {
                     userId_contestId: {

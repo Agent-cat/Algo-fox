@@ -1,10 +1,10 @@
 /**
  * CENTRALIZED CACHE CONFIGURATION
- * 
+ *
  * This file defines all cache strategies for the application.
  * Previously scattered cache directives have been consolidated here
  * to prevent stale data and ensure consistency.
- * 
+ *
  * SECURITY FIX: Prevents undefined cache behaviors that can cause stale data
  */
 
@@ -197,31 +197,20 @@ export function getCacheTags(key: keyof typeof CACHE_CONFIG): string[] {
   return profile.tags;
 }
 
-/**
- * Track cache version for schema changes
- * Increment when changing cache structure
- */
-export const CACHE_VERSION = {
-  submission: 1,
-  leaderboard: 1,
-  contest: 1,
-  problem: 1,
-  user: 1,
-  classroom: 1
-};
+
 
 /**
  * Example usage in Server Actions:
- * 
+ *
  * import { getCacheDuration, getCacheTags } from "@/lib/cache-config";
- * 
+ *
  * export async function getLeaderboard(contestId: string) {
  *   "use cache";
- *   
+ *
  *   const config = getCacheProfile("leaderboard");
  *   cacheLife(getCacheDuration("leaderboard"));
  *   cacheTag(...getCacheTags("leaderboard"));
- *   
+ *
  *   return fetchLeaderboardData(contestId);
  * }
  */

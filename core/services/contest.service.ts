@@ -171,114 +171,120 @@ export class ContestService {
 
         if (!contest) return null;
 
-        // Get paginated participants with efficient aggregation
-        const participations = await prisma.contestParticipation.findMany({
-            where: { contestId },
-            include: {
-                user: { select: { id: true, name: true, image: true } }
-            },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            orderBy: { userId: "asc" } // Stable ordering for pagination
+        // FIX: Replaced N+1 pattern (2 queries per participant) with 4 bulk queries total.
+        // For 200 participants this reduces ~400 DB round-trips to 4.
+        const [participations, total, allAcceptedGrouped, allAttemptsGrouped] = await Promise.all([
+            // Paginated participants
+            prisma.contestParticipation.findMany({
+                where: { contestId },
+                include: { user: { select: { id: true, name: true, image: true } } },
+                skip: (page - 1) * pageSize,
+                take: pageSize,
+                orderBy: { userId: "asc" }
+            }),
+            // Total count for pagination
+            prisma.contestParticipation.count({ where: { contestId } }),
+            // All ACCEPTED submissions for the entire contest (single bulk query)
+            prisma.submission.groupBy({
+                by: ["userId", "problemId"],
+                where: {
+                    contestId,
+                    status: "ACCEPTED",
+                    mode: "SUBMIT",
+                    createdAt: { gte: contest.startTime, lte: contest.endTime }
+                },
+                _min: { createdAt: true },
+                _count: true
+            }),
+            // All submission attempts for the entire contest (single bulk query)
+            prisma.submission.groupBy({
+                by: ["userId", "problemId"],
+                where: {
+                    contestId,
+                    mode: "SUBMIT",
+                    createdAt: { gte: contest.startTime, lte: contest.endTime }
+                },
+                _count: true
+            }),
+        ]);
+
+        // Build O(1) lookup maps from bulk query results
+        // acceptedMap[userId][problemId] = { minCreatedAt, count }
+        const acceptedMap = new Map<string, Map<string, { minCreatedAt: Date | null; count: number }>>();
+        for (const row of allAcceptedGrouped) {
+            if (!acceptedMap.has(row.userId)) acceptedMap.set(row.userId, new Map());
+            acceptedMap.get(row.userId)!.set(row.problemId, {
+                minCreatedAt: row._min.createdAt,
+                count: row._count
+            });
+        }
+
+        // attemptsMap[userId][problemId] = totalCount
+        const attemptsMap = new Map<string, Map<string, number>>();
+        for (const row of allAttemptsGrouped) {
+            if (!attemptsMap.has(row.userId)) attemptsMap.set(row.userId, new Map());
+            attemptsMap.get(row.userId)!.set(row.problemId, row._count);
+        }
+
+        // Aggregate per participant entirely in JS — zero additional DB calls
+        const students = participations.map((p) => {
+            const userAccepted = acceptedMap.get(p.userId) || new Map();
+            const userAttempts = attemptsMap.get(p.userId) || new Map();
+
+            const problemScores = new Map<string, number>();
+            const problemSolveTimes = new Map<string, number>();
+            const problemSubmissionCounts = new Map<string, number>();
+            const problemWrongAttempts = new Map<string, number>();
+
+            // Process accepted submissions
+            for (const [probId, acc] of userAccepted.entries()) {
+                const prob = contest.problems.find(cp => cp.problemId === probId);
+                const maxScore = prob?.problem.score || 0;
+                problemScores.set(probId, maxScore);
+
+                if (acc.minCreatedAt) {
+                    const solveTime = acc.minCreatedAt.getTime() - contest.startTime.getTime();
+                    problemSolveTimes.set(probId, solveTime);
+                }
+            }
+
+            // Process all submission counts
+            for (const [probId, count] of userAttempts.entries()) {
+                problemSubmissionCounts.set(probId, count);
+                problemWrongAttempts.set(
+                    probId,
+                    problemScores.has(probId) ? Math.max(0, count - 1) : count
+                );
+            }
+
+            const totalScore = Array.from(problemScores.values()).reduce((a, b) => a + b, 0);
+            const totalTime = Array.from(problemSolveTimes.values()).reduce((a, b) => a + b, 0);
+
+            const problemStats = contest.problems.map(cp => ({
+                problemId: cp.problemId,
+                title: cp.problem.title,
+                slug: cp.problem.slug,
+                score: problemScores.get(cp.problemId) || 0,
+                maxScore: cp.problem.score,
+                submissions: problemSubmissionCounts.get(cp.problemId) || 0,
+                wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
+                solved: problemScores.has(cp.problemId),
+                solvedAt: problemSolveTimes.get(cp.problemId),
+            }));
+
+            return {
+                ...p.user,
+                score: totalScore,
+                timeTaken: totalTime,
+                problemsSolved: problemScores.size,
+                totalViolations: p.totalViolations,
+                problemStats,
+                ipAddress: p.ipAddress
+            };
         });
-
-        // For each participant, get their submission summary (minimal data)
-        const students = await Promise.all(
-            participations.map(async (p) => {
-                // Get summarized data per problem for this user
-                const acceptedSubmissions = await prisma.submission.groupBy({
-                    by: ["problemId"],
-                    where: {
-                        userId: p.userId,
-                        contestId,
-                        status: "ACCEPTED",
-                        createdAt: { gte: contest.startTime, lte: contest.endTime },
-                        mode: "SUBMIT"
-                    },
-                    _min: { createdAt: true },
-                    _count: true
-                });
-
-                // Get all submission counts per problem
-                const allSubmissions = await prisma.submission.groupBy({
-                    by: ["problemId"],
-                    where: {
-                        userId: p.userId,
-                        contestId,
-                        createdAt: { gte: contest.startTime, lte: contest.endTime },
-                        mode: "SUBMIT"
-                    },
-                    _count: true
-                });
-
-                const problemScores = new Map<string, number>();
-                const problemSolveTimes = new Map<string, number>();
-                const problemSubmissionCounts = new Map<string, number>();
-                const problemWrongAttempts = new Map<string, number>();
-
-                // Process accepted submissions
-                acceptedSubmissions.forEach((acc) => {
-                    const prob = contest.problems.find(cp => cp.problemId === acc.problemId);
-                    const maxScore = prob?.problem.score || 0;
-                    problemScores.set(acc.problemId, maxScore);
-
-                    if (acc._min.createdAt) {
-                        const solveTime = acc._min.createdAt.getTime() - contest.startTime.getTime();
-                        problemSolveTimes.set(acc.problemId, solveTime);
-                    }
-                });
-
-                // Process all submissions to count attempts
-                allSubmissions.forEach((sub) => {
-                    problemSubmissionCounts.set(sub.problemId, sub._count);
-
-                    // Wrong attempts = total submissions - 1 (if has accepted solution)
-                    if (problemScores.has(sub.problemId)) {
-                        problemWrongAttempts.set(
-                            sub.problemId,
-                            Math.max(0, sub._count - 1)
-                        );
-                    } else {
-                        problemWrongAttempts.set(sub.problemId, sub._count);
-                    }
-                });
-
-                const totalScore = Array.from(problemScores.values()).reduce((a, b) => a + b, 0);
-                const totalTime = Array.from(problemSolveTimes.values()).reduce((a, b) => a + b, 0);
-
-                const problemStats = contest.problems.map(cp => ({
-                    problemId: cp.problemId,
-                    title: cp.problem.title,
-                    slug: cp.problem.slug,
-                    score: problemScores.get(cp.problemId) || 0,
-                    maxScore: cp.problem.score,
-                    submissions: problemSubmissionCounts.get(cp.problemId) || 0,
-                    wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
-                    solved: problemScores.has(cp.problemId),
-                    solvedAt: problemSolveTimes.get(cp.problemId),
-                }));
-
-                return {
-                    ...p.user,
-                    score: totalScore,
-                    timeTaken: totalTime,
-                    problemsSolved: problemScores.size,
-                    totalViolations: p.totalViolations,
-                    problemStats,
-                    ipAddress: p.ipAddress
-                };
-            })
-        );
 
         // Sort by score (desc) then by time (asc)
         students.sort((a, b) => b.score - a.score || a.timeTaken - b.timeTaken);
-
-        // Get total count for pagination
-        const total = await prisma.contestParticipation.count({
-            where: { contestId }
-        });
-
-        const totalPages = Math.ceil(total / pageSize);
 
         return {
             students,
@@ -291,7 +297,7 @@ export class ContestService {
                 score: cp.problem.score
             })),
             total,
-            totalPages,
+            totalPages: Math.ceil(total / pageSize),
             page,
             pageSize
         };

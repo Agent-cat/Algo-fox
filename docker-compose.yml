@@ -10,6 +10,12 @@ services:
       POSTGRES_DB: algofox
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algofox -d algofox"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
   redis:
     image: redis:7-alpine
@@ -18,7 +24,46 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # network: host allows the build phase to connect to the DB you just started on localhost:5432
+      network: host
+      args:
+        # Use localhost during build to reach the host-mapped DB ports
+        - DATABASE_URL=postgresql://algofox:algofox@localhost:5432/algofox
+    container_name: algofox-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Use postgres (service name) for runtime communication inside the Docker network
+      - DATABASE_URL=postgresql://algofox:algofox@postgres:5432/algofox
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      # All secrets (BETTER_AUTH_SECRET, OAuth client secrets, TELEGRAM_BOT_TOKEN, etc.)
+      # are loaded from the .env file below — never hardcode them here.
+    env_file:
+      - .env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
 
 volumes:
+  # This tells Docker to use the existing 66MB volume instead of creating a new one
   postgres_data:
+    external: true
+    name: algo-fox_postgres_data
   redis_data:

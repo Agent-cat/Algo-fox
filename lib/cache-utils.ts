@@ -1,9 +1,11 @@
 import redis from "./redis";
 
 /**
- * Cache configuration for different data types
+ * Generic Redis TTL tiers for cache-utils.
+ * Renamed from CACHE_CONFIG to REDIS_CACHE_CONFIG to avoid import confusion with
+ * the domain-specific CACHE_CONFIG in lib/cache-config.ts which has different structure.
  */
-export const CACHE_CONFIG = {
+export const REDIS_CACHE_CONFIG = {
   // Short-lived cache for frequently changing data
   SHORT: { ttl: 30, stale: 15 },
   // Medium cache for moderately changing data
@@ -13,6 +15,7 @@ export const CACHE_CONFIG = {
   // Very long cache for static-ish data
   STATIC: { ttl: 3600, stale: 1800 },
 } as const;
+
 
 /**
  * Generate a consistent cache key
@@ -41,7 +44,7 @@ async function getFromCache<T>(key: string): Promise<T | null> {
 async function setInCache<T>(
   key: string,
   data: T,
-  ttlSeconds: number = CACHE_CONFIG.MEDIUM.ttl
+  ttlSeconds: number = REDIS_CACHE_CONFIG.MEDIUM.ttl
 ): Promise<void> {
   try {
     await redis.setex(key, ttlSeconds, JSON.stringify(data));
@@ -67,7 +70,7 @@ export async function deleteFromCache(key: string): Promise<void> {
 export async function cachedFetch<T>(
   key: string,
   fetcher: () => Promise<T>,
-  ttlSeconds: number = CACHE_CONFIG.MEDIUM.ttl
+  ttlSeconds: number = REDIS_CACHE_CONFIG.MEDIUM.ttl
 ): Promise<T> {
   // Try cache first
   const cached = await getFromCache<T>(key);

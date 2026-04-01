@@ -127,10 +127,19 @@ class RateLimiter {
 
   async resetAll(keyPrefix: string = 'rl'): Promise<void> {
     if (this.useRedis && this.redis) {
+      // FIX: Use SCAN instead of KEYS to avoid blocking Redis.
+      // KEYS is O(N) over all keys and blocks the entire Redis event loop.
       const pattern = `${keyPrefix}:*`;
-      const keys = await this.redis.keys(pattern);
-      if (keys.length > 0) {
-        await this.redis.del(...keys);
+      let cursor = '0';
+      const keysToDelete: string[] = [];
+      do {
+        const [nextCursor, keys] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', '100');
+        cursor = nextCursor;
+        keysToDelete.push(...keys);
+      } while (cursor !== '0');
+
+      if (keysToDelete.length > 0) {
+        await this.redis.del(...keysToDelete);
       }
     } else {
       for (const key of this.memoryStore.keys()) {

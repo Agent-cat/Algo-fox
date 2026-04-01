@@ -227,17 +227,18 @@ export class SubmissionService {
     }
 
     static async incrementProblemSolved(problemId: string, userId: string): Promise<{ firstSolved: boolean; points: number }> {
+        // FIX: Store result outside try-catch so cache invalidation (below) can always run.
+        // Previously, cache invalidation was dead code placed after an early `return` inside try{}.
+        let result: { firstSolved: boolean; points: number };
+
         try {
-            // Step 1: Atomic check and marker creation
-            // We use a separate model 'UserProblemSolved' with a unique constraint on [userId, problemId]
-            // This ensures that only one concurrent request can successfully create the marker.
-            return await prisma.$transaction(async (tx) => {
+            result = await prisma.$transaction(async (tx) => {
                 // 1. Check if already solved (Marker existence)
                 const existingMarker = await (tx as any).userProblemSolved.findUnique({
                     where: { userId_problemId: { userId, problemId } }
                 });
 
-                if (existingMarker) return { firstSolved: false, points: 0 }; // Already solved and counted
+                if (existingMarker) return { firstSolved: false, points: 0 };
 
                 // 2. Fetch problem and latest submission details within transaction
                 const [problem, latestSubmission] = await Promise.all([
@@ -254,13 +255,12 @@ export class SubmissionService {
 
                 if (!problem) throw new Error("Problem not found");
 
-                // 3. Logic check: If it's a CONTEST problem and solved in practice mode, don't increment global stats
+                // 3. If it's a CONTEST problem solved in practice mode, don't increment global stats
                 if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
                     return { firstSolved: false, points: 0 };
                 }
 
-                // 4. Create the unique marker - if this fails due to a race, the transaction will rollback
-                // providing the atomicity we need.
+                // 4. Create the unique marker — race conditions cause transaction rollback
                 await (tx as any).userProblemSolved.create({
                     data: { userId, problemId }
                 });
@@ -285,47 +285,67 @@ export class SubmissionService {
                 return { firstSolved: true, points };
             });
         } catch (error: any) {
-            // P2002 is Prisma's code for unique constraint violation (handled by the findUnique check mostly, but safe to catch)
             if (error.code === 'P2002') return { firstSolved: false, points: 0 };
-
             console.error("Failed to update problem stats:", error);
             throw error;
         }
 
-        // Step 4: Cache invalidation AFTER transaction completes
-        // This is safe to do outside transaction and prevents deadlocks
+        // Cache invalidation runs AFTER the transaction — now guaranteed to execute.
+        if (result.firstSolved) {
+            await this.invalidateSolvedCaches(userId);
+        }
+
+        return result;
+    }
+
+    /**
+     * Invalidate Redis and Next.js caches after a problem is first solved.
+     * Extracted from incrementProblemSolved so it is always reachable (was previously dead code).
+     * Uses SCAN instead of KEYS to avoid blocking Redis in production.
+     */
+    static async invalidateSolvedCaches(userId: string): Promise<void> {
+        // 1. Redis key invalidation
         try {
-            // Invalidate user score cache and leaderboard cache
-            await Promise.all([
-                redis.del(`user-score-${userId}`),
-                redis.del('leaderboard:global'),
-                redis.del(`leaderboard:inst:*`)  // Invalidate all institution leaderboards
-            ]);
+            const keysToDelete: string[] = [
+                `user-score-${userId}`,
+                `lb:global:p:1:s:`,
+            ];
+
+            // FIX: Use SCAN cursor loop instead of redis.del('pattern:*')
+            // redis.del does NOT accept glob wildcards — they silently fail.
+            let cursor = '0';
+            do {
+                const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'lb:inst:*:p:1:s:', 'COUNT', '100');
+                cursor = nextCursor;
+                keysToDelete.push(...keys);
+            } while (cursor !== '0');
+
+            if (keysToDelete.length > 0) {
+                await redis.del(...keysToDelete);
+            }
         } catch (error) {
-            // Cache invalidation failure is non-critical
             if (process.env.NODE_ENV !== "production") {
-                console.warn("Failed to invalidate Redis cache:", error);
+                console.warn("Failed to invalidate Redis cache after solve:", error);
             }
         }
 
-        // Step 5: Invalidate Next.js cache tags
+        // 2. Next.js cache tag invalidation
         const tagsToRevalidate = [
             'categories-list',
             `categories-DSA-user-${userId}`,
             `categories-SQL-user-${userId}`,
             `user-submissions-${userId}`,
             'problems-list',
-            'problems-search'
+            'problems-search',
+            'leaderboard',
+            'leaderboard-global',
         ];
 
         for (const tag of tagsToRevalidate) {
             try {
                 revalidateTag(tag, 'max');
-            } catch (error) {
-                // Tag invalidation failure is non-critical (e.g. in worker context)
-                if (process.env.NODE_ENV !== "production") {
-                    console.debug(`Note: Could not revalidate tag "${tag}" (likely outside request context)`);
-                }
+            } catch (_err) {
+                // Non-critical — may throw outside of a request context (e.g. in BullMQ worker)
             }
         }
     }

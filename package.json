@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "bot": "npx tsx scripts/telegram-bot.ts",
+    "worker": "tsx core/queues/submission.queue.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
