@@ -170,7 +170,7 @@ function CategoryItem({
                                             </Link>
                                         );
                                     })}
-                                    {!loadingCategoryProblems && (!categoryProblems[category.id] || categoryProblems[category.id].length === 0) && (!category.children || category.children.length === 0) && (
+                                    {(!categoryProblems[category.id] || categoryProblems[category.id].length === 0) && (!category.children || category.children.length === 0) && (
                                         <div className="py-8 flex flex-col items-center justify-center opacity-40">
                                             <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-700 mb-2" />
                                             <p className="text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest text-center">

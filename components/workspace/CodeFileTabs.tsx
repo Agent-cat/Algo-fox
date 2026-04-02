@@ -32,9 +32,15 @@ export default function CodeFileTabs({
         }
     }, [editingId]);
 
-    // Keyboard shortcut for renaming (Alt + R)
+    // Keyboard shortcuts for management
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Guard against inputs/contentEditables
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+            if (editingId) return;
+
+            // 1. Rename (Alt + R)
             if (e.altKey && e.key.toLowerCase() === 'r' && activeFileId) {
                 e.preventDefault();
                 const activeFile = files.find(f => f.fileId === activeFileId);
@@ -43,10 +49,30 @@ export default function CodeFileTabs({
                     setEditValue(activeFile.name);
                 }
             }
+            // 2. Close (Alt + W)
+            else if (e.altKey && e.key.toLowerCase() === 'w' && activeFileId) {
+                e.preventDefault();
+                if (files.length > 1) {
+                    onRemove(activeFileId);
+                }
+            }
+            // 3. New File (Alt + N)
+            else if (e.altKey && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                onAdd();
+            }
+            // 4. Switch (Alt + 1-9)
+            else if (e.altKey && /^[1-9]$/.test(e.key)) {
+                const index = parseInt(e.key, 10) - 1;
+                if (files[index]) {
+                    e.preventDefault();
+                    onSelect(files[index].fileId);
+                }
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [activeFileId, files]);
+    }, [activeFileId, files, editingId, onAdd, onRemove, onSelect]);
 
     const startEdit = (e: React.MouseEvent | null, file: CodeFile) => {
         if (e) e.stopPropagation();
@@ -99,7 +125,7 @@ export default function CodeFileTabs({
                                 className="bg-transparent outline-none border-b border-orange-400 text-gray-900 dark:text-gray-100 w-24 text-xs"
                             />
                         ) : (
-                            <CustomTooltip content={`Switch to tab ${idx + 1}`} shortcut={`Alt+${idx + 1}`} delay={0.5}>
+                            <CustomTooltip content={`Switch to tab ${idx + 1}`} shortcut={idx < 9 ? `Alt+${idx + 1}` : undefined} delay={0.5}>
                                 <span className="max-w-[100px] truncate">{file.name}</span>
                             </CustomTooltip>
                         )}

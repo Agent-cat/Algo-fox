@@ -232,7 +232,7 @@ export default function ProblemSidebar({
               <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/50 dark:border-[#1e1e1e]/50 backdrop-blur-md bg-white/70 dark:bg-[#121212]/70 sticky top-0 z-20">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
-                    <List className="w-4.5 h-4.5 text-orange-600 dark:text-orange-500" />
+                    <List className="w-5 h-5 text-orange-600 dark:text-orange-500" />
                   </div>
                   <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-none pt-0.5">
                     Problem Navigator
@@ -243,7 +243,7 @@ export default function ProblemSidebar({
                   className="p-2 shrink-0 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm group active:scale-95"
                   title="Close Sidebar"
                 >
-                  <X className="w-4.5 h-4.5 transition-transform group-hover:rotate-90 duration-300" />
+                  <X className="w-5 h-5 transition-transform group-hover:rotate-90 duration-300" />
                 </button>
               </div>
 

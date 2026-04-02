@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, memo } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import dynamic from "next/dynamic";
 import {
   AlignLeft,
@@ -112,7 +112,7 @@ const CodeEditor = memo(({
 
   // Helper: get the boilerplate for the current language
   // If function template exists for this language, use it; otherwise use default
-  const getBoilerplate = (): string => {
+  const getBoilerplate = useCallback((): string => {
     if (domain === "SQL") return "";
     // Check if we have a function template for this language
     if (functionTemplates && functionTemplates.length > 0) {
@@ -125,7 +125,7 @@ const CodeEditor = memo(({
     }
     // Fall back to default boilerplate from languages.ts
     return currentLanguage.boilerplate;
-  };
+  }, [domain, functionTemplates, effectiveLanguageId, currentLanguage.boilerplate]);
 
   const getDriverCode = (): string | null => {
     if (domain === "SQL") return null;
@@ -647,7 +647,7 @@ const CodeEditor = memo(({
     };
   }, []);
 
-  const handleFormat = () => {
+  const handleFormat = useCallback(() => {
     if (editorRef.current) {
       try {
         const editor = editorRef.current;
@@ -660,9 +660,9 @@ const CodeEditor = memo(({
         console.debug("Format error (safe to ignore):", error);
       }
     }
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (readOnly) return; // Disable reset in read-only
 
     const resetCode = domain === "SQL" ? "" : getBoilerplate();
@@ -688,11 +688,11 @@ const CodeEditor = memo(({
         }
       );
     }
-  };
+  }, [readOnly, domain, getBoilerplate, onChange, problemId, userId, effectiveLanguageId]);
 
-  const handleFullScreen = () => {
-    setIsFullScreen(!isFullScreen);
-  };
+  const handleFullScreen = useCallback(() => {
+    setIsFullScreen(prev => !prev);
+  }, []);
 
   // Keyboard shortcut listeners (via custom events from Workspace)
   useEffect(() => {

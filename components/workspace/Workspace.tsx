@@ -585,17 +585,17 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             // Allow shortcuts even if in input if they use Ctrl/Alt/Meta
             if (isInput && !e.ctrlKey && !e.altKey && !e.metaKey) return;
 
-            // 1. Run (Ctrl + Enter)
-            if (e.ctrlKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
-                e.preventDefault();
-                handleSubmission("RUN");
-                return;
-            }
-
-            // 2. Submit (Ctrl + Shift + Enter)
+            // 1. Submit (Ctrl + Shift + Enter)
             if (e.ctrlKey && e.shiftKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
                 e.preventDefault();
                 handleSubmission("SUBMIT");
+                return;
+            }
+
+            // 2. Run (Ctrl + Enter)
+            if (e.ctrlKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
+                e.preventDefault();
+                handleSubmission("RUN");
                 return;
             }
 

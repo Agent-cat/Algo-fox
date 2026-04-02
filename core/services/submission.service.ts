@@ -264,8 +264,8 @@ export class SubmissionService {
                         await (tx as any).userProblemSolved.create({
                             data: { userId, problemId }
                         });
-                    } catch (e) {
-                         // Ignore P2002 if someone else just created it
+                    } catch (e: any) {
+                         if (e.code !== 'P2002') throw e;
                     }
                     return { firstSolved: false, points: 0 };
                 }
@@ -281,14 +281,18 @@ export class SubmissionService {
                 // 3. If it's a CONTEST problem solved in practice mode, don't increment global stats
                 // unless already solved in a contest. But our logic above checks for ANY accepted.
                 // We double check the current submission or latest if current not provided.
+                const submissionWhere: any = {
+                    problemId,
+                    userId,
+                    status: "ACCEPTED",
+                    mode: "SUBMIT"
+                };
+                if (currentSubmissionId) {
+                    submissionWhere.id = currentSubmissionId;
+                }
+
                 const latestSubmission = await tx.submission.findFirst({
-                    where: {
-                        id: currentSubmissionId,
-                        problemId,
-                        userId,
-                        status: "ACCEPTED",
-                        mode: "SUBMIT"
-                    },
+                    where: submissionWhere,
                     orderBy: { createdAt: 'desc' },
                     select: { contestId: true }
                 });

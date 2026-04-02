@@ -71,6 +71,9 @@ export async function markConceptAsCompleted(problemId: string) {
 
     try {
         const submission = await SubmissionService.markConceptAsSolved(userId, problemId);
+        if (!submission) {
+            return { success: false, error: "Failed to create submission" };
+        }
         const result = await SubmissionService.incrementProblemSolved(problemId, userId, submission.id);
 
         after(async () => {

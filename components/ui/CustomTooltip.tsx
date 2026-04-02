@@ -23,16 +23,26 @@ export default function CustomTooltip({
     delay = 0.2,
 }: TooltipProps) {
     const [isVisible, setIsVisible] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0 });
+    const [mounted, setMounted] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0 });
     const triggerRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const id = useRef(`tooltip-${Math.random().toString(36).substring(2, 9)}`);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const updateCoords = () => {
         if (triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
             setCoords({
                 top: rect.top,
-                left: rect.left + rect.width / 2,
+                left: rect.left,
+                right: rect.right,
+                bottom: rect.bottom,
+                width: rect.width,
+                height: rect.height
             });
         }
     };
@@ -62,18 +72,21 @@ export default function CustomTooltip({
         opacity: 0,
         scale: 0.95,
         y: side === "top" ? 5 : side === "bottom" ? -5 : 0,
+        x: side === "left" ? 5 : side === "right" ? -5 : 0,
     };
 
     const animate = {
         opacity: 1,
         scale: 1,
         y: 0,
+        x: 0,
     };
 
     const tooltipContent = (
         <AnimatePresence>
             {isVisible && (
                 <TooltipPortal
+                    id={id.current}
                     content={content}
                     shortcut={shortcut}
                     coords={coords}
@@ -92,22 +105,42 @@ export default function CustomTooltip({
             className="relative inline-flex"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onFocus={handleMouseEnter}
+            onBlur={handleMouseLeave}
+            aria-describedby={isVisible ? id.current : undefined}
         >
             {children}
-            {typeof document !== "undefined" && createPortal(tooltipContent, document.body)}
+            {mounted && createPortal(tooltipContent, document.body)}
         </div>
     );
 }
 
-function TooltipPortal({ content, shortcut, coords, side, className, initial, animate }: any) {
+function TooltipPortal({ id, content, shortcut, coords, side, className, initial, animate }: any) {
     const tooltipRef = useRef<HTMLDivElement>(null);
     const [adjustedCoords, setAdjustedCoords] = useState({ top: 0, left: 0 });
+
+    const [tooltipSize, setTooltipSize] = useState({ width: 0, height: 0 });
 
     useLayoutEffect(() => {
         if (tooltipRef.current) {
             const rect = tooltipRef.current.getBoundingClientRect();
-            let left = coords.left - rect.width / 2;
-            let top = side === "top" ? coords.top - rect.height - 8 : coords.top + 32;
+            setTooltipSize({ width: rect.width, height: rect.height });
+            let left = 0;
+            let top = 0;
+
+            if (side === "top") {
+                top = coords.top - rect.height - 8;
+                left = coords.left + coords.width / 2 - rect.width / 2;
+            } else if (side === "bottom") {
+                top = coords.bottom + 8;
+                left = coords.left + coords.width / 2 - rect.width / 2;
+            } else if (side === "left") {
+                left = coords.left - rect.width - 8;
+                top = coords.top + coords.height / 2 - rect.height / 2;
+            } else if (side === "right") {
+                left = coords.right + 8;
+                top = coords.top + coords.height / 2 - rect.height / 2;
+            }
 
             // Edge detection
             const padding = 8;
@@ -127,6 +160,8 @@ function TooltipPortal({ content, shortcut, coords, side, className, initial, an
     return (
         <motion.div
             ref={tooltipRef}
+            id={id}
+            role="tooltip"
             initial={initial}
             animate={animate}
             exit={initial}
@@ -134,7 +169,7 @@ function TooltipPortal({ content, shortcut, coords, side, className, initial, an
             style={{
                 position: "fixed",
                 top: adjustedCoords.top || (side === "top" ? coords.top - 40 : coords.top + 32),
-                left: adjustedCoords.left || coords.left - 50,
+                left: adjustedCoords.left || coords.left - (side === "left" ? 100 : 50),
                 zIndex: 9999,
                 opacity: adjustedCoords.top === 0 ? 0 : 1, // Hide until positioned
             }}
@@ -162,13 +197,16 @@ function TooltipPortal({ content, shortcut, coords, side, className, initial, an
                     </div>
                 )}
                 {/* Little triangle arrow - only show if NOT adjusted too much */}
-                {Math.abs(adjustedCoords.left - (coords.left - (tooltipRef.current?.offsetWidth || 0) / 2)) < 10 && (
-                     <div
-                        className={cn(
-                            "absolute w-2 h-2 bg-white/95 dark:bg-zinc-800/95 border-gray-200 dark:border-white/5 rotate-45 z-[-1]",
-                            side === "top" && "bottom-[-4px] left-1/2 -translate-x-1/2 border-r border-b",
-                            side === "bottom" && "top-[-4px] left-1/2 -translate-x-1/2 border-l border-t"
-                        )}
+                {side === "top" && adjustedCoords.top !== 0 && (
+                    <div
+                        className="absolute w-2 h-2 bg-white/95 dark:bg-zinc-800/95 border-gray-200 dark:border-white/5 rotate-45 z-[-1] bottom-[-4px] border-r border-b"
+                        style={{ left: Math.max(8, Math.min(tooltipSize.width - 16, coords.left + coords.width / 2 - adjustedCoords.left - 4)) }}
+                    />
+                )}
+                {side === "bottom" && adjustedCoords.top !== 0 && (
+                    <div
+                        className="absolute w-2 h-2 bg-white/95 dark:bg-zinc-800/95 border-gray-200 dark:border-white/5 rotate-45 z-[-1] top-[-4px] border-l border-t"
+                        style={{ left: Math.max(8, Math.min(tooltipSize.width - 16, coords.left + coords.width / 2 - adjustedCoords.left - 4)) }}
                     />
                 )}
             </div>
