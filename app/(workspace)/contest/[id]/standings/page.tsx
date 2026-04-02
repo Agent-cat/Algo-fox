@@ -6,6 +6,7 @@ import { ContestStandings } from "@/components/contest/ContestStandings";
 import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -13,6 +14,7 @@ interface PageProps {
 
 async function StandingsContent({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ page?: string }> }) {
     "use cache: private";
+    cacheLife("minutes");
     const { id } = await params;
     const { page } = await searchParams;
     let pageNumber = parseInt(page || "1", 10);

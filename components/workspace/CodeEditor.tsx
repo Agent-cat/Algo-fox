@@ -21,6 +21,7 @@ import {
 } from "@/lib/languages";
 import { ProblemDomain } from "@prisma/client";
 import { useTheme } from "next-themes";
+import CustomTooltip from "../ui/CustomTooltip";
 
 // Dynamically import Monaco Editor to prevent SSR issues
 const Editor = dynamic(
@@ -693,6 +694,23 @@ const CodeEditor = memo(({
     setIsFullScreen(!isFullScreen);
   };
 
+  // Keyboard shortcut listeners (via custom events from Workspace)
+  useEffect(() => {
+    const handleFormatEvent = () => handleFormat();
+    const handleResetEvent = () => handleReset();
+    const handleToggleFullscreenEvent = () => handleFullScreen();
+
+    window.addEventListener('algofox_format_code', handleFormatEvent);
+    window.addEventListener('algofox_reset_code', handleResetEvent);
+    window.addEventListener('algofox_toggle_fullscreen', handleToggleFullscreenEvent);
+
+    return () => {
+      window.removeEventListener('algofox_format_code', handleFormatEvent);
+      window.removeEventListener('algofox_reset_code', handleResetEvent);
+      window.removeEventListener('algofox_toggle_fullscreen', handleToggleFullscreenEvent);
+    };
+  }, [handleFormat, handleReset, handleFullScreen]);
+
   return (
     <div
       ref={editorContainerRef}
@@ -769,41 +787,48 @@ const CodeEditor = memo(({
           {isRestoring && (
             <Loader2 className="w-3 h-3 animate-spin text-gray-400 mr-2" />
           )}
-          <button
-            onClick={handleFormat}
-            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
-            title="Format Code"
-          >
-            <AlignLeft className="w-4 h-4" />
-          </button>
-          {!readOnly && (
+          <CustomTooltip content="Format Code" shortcut="Shift+Alt+F" side="bottom">
             <button
-              onClick={handleReset}
+              onClick={handleFormat}
               className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
-              title="Reset to Default"
             >
-              <RotateCcw className="w-4 h-4" />
+              <AlignLeft className="w-4 h-4" />
             </button>
+          </CustomTooltip>
+
+          {!readOnly && (
+            <CustomTooltip content="Reset to Default" shortcut="Alt+Backspace" side="bottom">
+              <button
+                onClick={handleReset}
+                className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </CustomTooltip>
           )}
-          <button
-            onClick={handleFullScreen}
-            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
-            title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
-          >
-            {isFullScreen ? (
-              <Minimize2 className="w-4 h-4" />
-            ) : (
-              <Maximize2 className="w-4 h-4" />
-            )}
-          </button>
-          {!readOnly && (
+
+          <CustomTooltip content={isFullScreen ? "Exit Full Screen" : "Full Screen"} shortcut="Alt+Z" side="bottom">
             <button
-              onClick={onOpenSettings}
+              onClick={handleFullScreen}
               className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
-              title="Editor Settings"
             >
-              <Settings className="w-4 h-4" />
+              {isFullScreen ? (
+                <Minimize2 className="w-4 h-4" />
+              ) : (
+                <Maximize2 className="w-4 h-4" />
+              )}
             </button>
+          </CustomTooltip>
+
+          {!readOnly && (
+            <CustomTooltip content="Editor Settings" shortcut="Ctrl+," side="bottom">
+              <button
+                onClick={onOpenSettings}
+                className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            </CustomTooltip>
           )}
         </div>
       </div>

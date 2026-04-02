@@ -227,17 +227,49 @@ export default function ProblemSidebar({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-2xl bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626]"
           >
-            <div className="flex flex-col h-full">
-              {/* Tabs & Controls */}
-              <div className="px-5 pt-5 pb-4 flex items-center gap-3">
-                <div className="flex-1 flex p-1.5 gap-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200/50 dark:border-[#262626]">
+            <div className="flex flex-col h-full overflow-hidden">
+              {/* Header section with Title and Close button */}
+              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/50 dark:border-[#1e1e1e]/50 backdrop-blur-md bg-white/70 dark:bg-[#121212]/70 sticky top-0 z-20">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
+                    <List className="w-4.5 h-4.5 text-orange-600 dark:text-orange-500" />
+                  </div>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-none pt-0.5">
+                    Problem Navigator
+                  </h2>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-2 shrink-0 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm group active:scale-95"
+                  title="Close Sidebar"
+                >
+                  <X className="w-4.5 h-4.5 transition-transform group-hover:rotate-90 duration-300" />
+                </button>
+              </div>
+
+              {/* Navigation & Search Container */}
+              <div className="px-6 py-4 space-y-4 bg-linear-to-b from-[#fafafa] to-white dark:from-[#121212] dark:to-[#121212] border-b border-gray-100/30 dark:border-[#1e1e1e]/30 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.03)] dark:shadow-none">
+                {/* Tabs with sliding indicator */}
+                <div className="relative flex p-1.5 gap-1 bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-[#262626] overflow-hidden">
+                  {/* Sliding Background */}
+                  <motion.div
+                    className="absolute inset-y-1.5 bg-white dark:bg-[#2c2c2c] rounded-lg shadow-md ring-1 ring-black/5 dark:ring-white/5 z-0"
+                    initial={false}
+                    animate={{
+                      x: activeTab === "problems" ? 0 : "100%",
+                      width: "calc(50% - 6px)"
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    style={{ left: activeTab === "problems" ? "4px" : "2px" }}
+                  />
+
                   <button
                     onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
                     className={cn(
-                      "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+                      "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
                       activeTab === "problems"
-                        ? "bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-[#2c2c2c]/50"
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     )}
                   >
                     <List className="w-4 h-4" />
@@ -246,66 +278,66 @@ export default function ProblemSidebar({
                   <button
                     onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
                     className={cn(
-                      "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all",
+                      "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
                       activeTab === "learn"
-                        ? "bg-white dark:bg-[#2c2c2c] text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-[#2c2c2c]/50"
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                     )}
                   >
                     <BookOpen className="w-4 h-4" />
                     Learn
                   </button>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 shrink-0 bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm"
-                  title="Close Sidebar"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              {/* Search Bar */}
-              <div className="px-5 pb-4 border-b border-gray-100 dark:border-[#262626] sticky top-0 bg-[#fafafa] dark:bg-[#121212] z-10">
+                {/* Search Bar section */}
                 <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
               </div>
 
-
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-hide">
-                {searchTerm ? (
-                   <ProblemsList
-                        problems={searchResults}
-                        solvedSet={solvedSet}
-                        currentProblemId={currentProblemId}
-                        isLoading={false}
-                        hasMore={false}
-                        onLoadMore={() => {}}
-                        isSearchMode={true}
-                        searchTerm={searchTerm}
-                        isSearching={isSearching}
-                   />
-                ) : activeTab === "problems" ? (
-                   <ProblemsList
-                        problems={problems}
-                        solvedSet={solvedSet}
-                        currentProblemId={currentProblemId}
-                        isLoading={isLoadingProblems}
-                        hasMore={hasMore}
-                        onLoadMore={() => loadProblems(page + 1)}
-                   />
-                ) : (
-                   <CategoriesList
-                        categories={categories}
-                        loadingCategories={loadingCategories}
-                        expandedCategories={expandedCategories}
-                        categoryProblems={categoryProblems}
-                        loadingCategoryProblems={loadingCategoryProblems}
-                        solvedSet={solvedSet}
-                        currentProblemId={currentProblemId}
-                        onToggleCategory={toggleCategory}
-                   />
-                )}
+              {/* Content area with improved scrolling */}
+              <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-[#262626] scrollbar-track-transparent">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={searchTerm ? "search" : activeTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {searchTerm ? (
+                       <ProblemsList
+                            problems={searchResults}
+                            solvedSet={solvedSet}
+                            currentProblemId={currentProblemId}
+                            isLoading={false}
+                            hasMore={false}
+                            onLoadMore={() => {}}
+                            isSearchMode={true}
+                            searchTerm={searchTerm}
+                            isSearching={isSearching}
+                       />
+                    ) : activeTab === "problems" ? (
+                       <ProblemsList
+                            problems={problems}
+                            solvedSet={solvedSet}
+                            currentProblemId={currentProblemId}
+                            isLoading={isLoadingProblems}
+                            hasMore={hasMore}
+                            onLoadMore={() => loadProblems(page + 1)}
+                       />
+                    ) : (
+                       <CategoriesList
+                            categories={categories}
+                            loadingCategories={loadingCategories}
+                            expandedCategories={expandedCategories}
+                            categoryProblems={categoryProblems}
+                            loadingCategoryProblems={loadingCategoryProblems}
+                            solvedSet={solvedSet}
+                            currentProblemId={currentProblemId}
+                            onToggleCategory={toggleCategory}
+                       />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>

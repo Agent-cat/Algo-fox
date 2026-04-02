@@ -4,9 +4,11 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { TeacherDashboardContent } from "./TeacherDashboardContent";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 
 async function TeacherClassroomsPageContent() {
     "use cache: private";
+    cacheLife("minutes");
 
     const session = await auth.api.getSession({
         headers: await headers(),

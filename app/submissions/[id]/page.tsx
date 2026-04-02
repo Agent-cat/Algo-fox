@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Clock, Database, CheckCircle2, XCircle, AlertCircl
 import CodeEditor from "@/components/workspace/CodeEditor";
 import { Suspense } from "react";
 import SubmissionDistribution from "@/components/workspace/SubmissionDistribution";
+import { cacheLife } from "next/cache";
 
 
 interface PageProps {
@@ -13,6 +14,7 @@ interface PageProps {
 
 async function SubmissionContent({ params }: PageProps) {
     "use cache: private";
+    cacheLife("minutes"); // Fix: Use explicit built-in profile for nested cache compliance
     const { id } = await params;
     const submission = await getSubmission(id);
 

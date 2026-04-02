@@ -3,11 +3,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 import { Users, FileCode, Trophy, Send, ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 async function AdminDashboardStats() {
     "use cache: private";
+    cacheLife("minutes");
 
     const session = await auth.api.getSession({
         headers: await headers(),

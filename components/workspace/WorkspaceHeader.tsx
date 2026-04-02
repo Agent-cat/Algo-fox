@@ -15,7 +15,8 @@ import {
   ShieldAlert,
   Shuffle,
   Play,
-  Menu
+  Menu,
+  List
 } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -25,6 +26,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import UserPoints from "@/components/UserPoints";
 import { StreakBadge } from "@/components/shared/StreakBadge";
 import { useTheme } from "next-themes";
+import CustomTooltip from "../ui/CustomTooltip";
 
 // Theme toggle button component
 function ThemeToggleButton() {
@@ -204,16 +206,17 @@ const WorkspaceHeader = memo(({
         </Link>
 
         {onToggleSidebar && (
-          <motion.button
-            id="problem-list-toggle"
-            onClick={onToggleSidebar}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors"
-            title="Toggle Sidebar"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.92 }}
-          >
-            <Menu className="w-4 h-4" />
-          </motion.button>
+          <CustomTooltip content="Toggle Sidebar" side="bottom">
+            <motion.button
+              id="problem-list-toggle"
+              onClick={onToggleSidebar}
+              className="p-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/10 rounded-xl text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-300 border border-transparent hover:border-orange-500/20 shadow-sm hover:shadow-orange-500/5 group"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <List className="w-4.5 h-4.5 transition-transform duration-300 group-hover:rotate-3" />
+            </motion.button>
+          </CustomTooltip>
         )}
 
         {!contestId && (
@@ -239,47 +242,50 @@ const WorkspaceHeader = memo(({
 
             {/* Navigation buttons */}
             <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#141414] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
-              <motion.button
-                className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-                disabled={!prevProblemSlug}
-                onClick={() => prevProblemSlug && router.push(`/problems/${prevProblemSlug}`)}
-                title="Previous Problem"
-                whileHover={prevProblemSlug ? { scale: 1.1 } : {}}
-                whileTap={prevProblemSlug ? { scale: 0.9 } : {}}
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </motion.button>
-              <motion.button
-                className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-                disabled={!nextProblemSlug}
-                onClick={() => nextProblemSlug && router.push(`/problems/${nextProblemSlug}`)}
-                title="Next Problem"
-                whileHover={nextProblemSlug ? { scale: 1.1 } : {}}
-                whileTap={nextProblemSlug ? { scale: 0.9 } : {}}
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </motion.button>
+              <CustomTooltip content="Previous Problem" shortcut="Alt+ArrowLeft" side="bottom">
+                <motion.button
+                  className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                  disabled={!prevProblemSlug}
+                  onClick={() => prevProblemSlug && router.push(`/problems/${prevProblemSlug}`)}
+                  whileHover={prevProblemSlug ? { scale: 1.1 } : {}}
+                  whileTap={prevProblemSlug ? { scale: 0.9 } : {}}
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </motion.button>
+              </CustomTooltip>
+              <CustomTooltip content="Next Problem" shortcut="Alt+ArrowRight" side="bottom">
+                <motion.button
+                  className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                  disabled={!nextProblemSlug}
+                  onClick={() => nextProblemSlug && router.push(`/problems/${nextProblemSlug}`)}
+                  whileHover={nextProblemSlug ? { scale: 1.1 } : {}}
+                  whileTap={nextProblemSlug ? { scale: 0.9 } : {}}
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </motion.button>
+              </CustomTooltip>
             </div>
 
-            <motion.button
-              onClick={() => {
-                if (domain && type) {
-                  startRandomizing(async () => {
-                    const slug = await getRandomProblem(domain, type);
-                    if (slug) router.push(`/problems/${slug}`);
-                    else toast.error("No other problems found");
-                  });
-                }
-              }}
-              disabled={isRandomizing}
-              className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
-              title="Random Problem"
-              whileHover={{ scale: 1.08, rotate: 45 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
-            </motion.button>
+            <CustomTooltip content="Random Problem" side="bottom">
+              <motion.button
+                onClick={() => {
+                  if (domain && type) {
+                    startRandomizing(async () => {
+                      const slug = await getRandomProblem(domain, type);
+                      if (slug) router.push(`/problems/${slug}`);
+                      else toast.error("No other problems found");
+                    });
+                  }
+                }}
+                disabled={isRandomizing}
+                className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
+                whileHover={{ scale: 1.08, rotate: 45 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
+              </motion.button>
+            </CustomTooltip>
           </motion.div>
         )}
       </div>
@@ -288,54 +294,58 @@ const WorkspaceHeader = memo(({
       <div className={`flex items-center gap-2 ${contestId ? 'flex-1 justify-center' : ''}`}>
         {domain !== "APTITUDE" && (
           <>
-            <motion.button
-              id="run-button"
-              className={`
-                flex items-center gap-2 px-5 py-2
-                bg-gray-100 dark:bg-[#141414] hover:bg-gray-200 dark:hover:bg-[#1c1c1c]
-                text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg
-                transition-colors duration-200 disabled:opacity-50
-                border border-gray-200/80 dark:border-[#262626]
-                ${contestId ? 'shadow-sm' : ''}
-              `}
-              onClick={onRun}
-              disabled={isRunning || isSubmitting}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              {isRunning ? (
-                <motion.div
-                  className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-600 rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                />
-              ) : (
-                <Play className="w-3.5 h-3.5 fill-current" />
-              )}
-              {isRunning ? 'Running...' : 'Run'}
-            </motion.button>
+            <CustomTooltip content="Run your code" shortcut="Ctrl+Enter" side="bottom">
+              <motion.button
+                id="run-button"
+                className={`
+                  flex items-center gap-2 px-5 py-2
+                  bg-gray-100 dark:bg-[#141414] hover:bg-gray-200 dark:hover:bg-[#1c1c1c]
+                  text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg
+                  transition-colors duration-200 disabled:opacity-50
+                  border border-gray-200/80 dark:border-[#262626]
+                  ${contestId ? 'shadow-sm' : ''}
+                `}
+                onClick={onRun}
+                disabled={isRunning || isSubmitting}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                {isRunning ? (
+                  <motion.div
+                    className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-600 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                  />
+                ) : (
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                )}
+                {isRunning ? 'Running...' : 'Run'}
+              </motion.button>
+            </CustomTooltip>
 
-            <motion.button
-              id="submit-button"
-              onClick={onSubmit}
-              disabled={isSubmitting}
-              className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              {isSubmitting ? (
-                <motion.div
-                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                />
-              ) : (
-                <Send className="w-3.5 h-3.5" />
-              )}
-              {isSubmitting ? 'Submitting...' : 'Submit'}
-            </motion.button>
+            <CustomTooltip content="Save & Submit" shortcut="Ctrl+Shift+Enter" side="bottom">
+              <motion.button
+                id="submit-button"
+                onClick={onSubmit}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              >
+                {isSubmitting ? (
+                  <motion.div
+                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                  />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </motion.button>
+            </CustomTooltip>
           </>
         )}
 

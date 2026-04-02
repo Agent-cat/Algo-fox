@@ -3,11 +3,13 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import CreateContestWizard from "@/components/contest/CreateContestWizard";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 async function CreateContestContent() {
     "use cache: private";
+    cacheLife("minutes");
 
     const session = await auth.api.getSession({
         headers: await headers(),

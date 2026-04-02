@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 import { getVisibleContests } from "@/actions/contest";
 import { ContestList } from "@/components/contest/ContestList";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 import BackButton from "@/components/BackButton";
 
 async function ContestsContent() {
     "use cache: private";
+    cacheLife("minutes");
 
     const session = await auth.api.getSession({
         headers: await headers(),

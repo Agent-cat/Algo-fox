@@ -53,31 +53,40 @@ function CategoryItem({
 
     return (
         <div className={cn(
-            "rounded-xl overflow-hidden transition-all duration-300",
-            level === 0 ? "mb-2" : "ml-4 border-l border-gray-100 dark:border-[#1a1a1a]"
+            "rounded-2xl overflow-hidden transition-all duration-500",
+            level === 0 ? "mb-3 shadow-sm border border-gray-100/50 dark:border-[#1e1e1e]/50 bg-white dark:bg-[#0d0d0d]" : "ml-4 border-l-2 border-gray-100/50 dark:border-[#1e1e1e]/50 mt-1"
         )}>
             <button
                 onClick={() => onToggleCategory(category.id)}
                 className={cn(
-                    "w-full flex items-center justify-between transition-all text-left group",
-                    level === 0
-                        ? "p-4 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.02] shadow-sm"
-                        : "p-3 bg-transparent hover:bg-gray-100 dark:hover:bg-white/[0.04] rounded-lg"
+                    "w-full flex items-center justify-between transition-all text-left group px-4 py-3.5",
+                    isExpanded && level === 0 ? "bg-orange-50/30 dark:bg-orange-500/3" : "hover:bg-gray-50/50 dark:hover:bg-white/1"
                 )}
             >
-                <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                <div className="flex items-center gap-3.5 flex-1 overflow-hidden">
+                    <div className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-500",
+                        isExpanded ? "bg-orange-500 scale-125 shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gray-300 dark:bg-gray-700"
+                    )} />
                     <span className={cn(
-                        "font-bold text-gray-800 dark:text-gray-200 truncate",
-                        level === 0 ? "text-[15px]" : "text-sm font-semibold opacity-80"
+                        "font-bold tracking-tight truncate transition-colors duration-300",
+                        level === 0 ? "text-[15px]" : "text-sm",
+                        isExpanded ? "text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200"
                     )}>
-
                         {category.name}
                     </span>
                 </div>
-                <ChevronDown className={cn(
-                    "w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-300",
-                    isExpanded && "rotate-180 text-orange-500"
-                )} />
+                <div className="flex items-center gap-2">
+                    {categoryProblems[category.id] && (
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 bg-gray-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded-md">
+                            {categoryProblems[category.id].length}
+                        </span>
+                    )}
+                    <ChevronDown className={cn(
+                        "w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-500",
+                        isExpanded && "rotate-180 text-orange-500"
+                    )} />
+                </div>
             </button>
 
             <AnimatePresence initial={false}>
@@ -86,16 +95,16 @@ function CategoryItem({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                         className="overflow-hidden"
                     >
                         <div className={cn(
-                           "space-y-1 transition-all",
-                           level === 0 ? "p-3 pt-2" : "p-1.5 pl-4"
+                           "transition-all bg-white dark:bg-[#0d0d0d]",
+                           level === 0 ? "px-3 pb-3 pt-1" : "px-2 pb-2 pt-1"
                         )}>
                             {/* Render Sub-categories first */}
                             {category.children && category.children.length > 0 && (
-                                <div className="space-y-1">
+                                <div className="space-y-1.5 mb-2">
                                     {category.children.map(child => (
                                         <CategoryItem
                                             key={child.id}
@@ -114,11 +123,12 @@ function CategoryItem({
 
                             {/* Render Problems */}
                             {loadingCategoryProblems === category.id ? (
-                                <div className="flex justify-center p-4">
-                                    <Loader2 className="w-5 h-5 animate-spin text-orange-500/50" />
+                                <div className="flex flex-col items-center justify-center p-8 gap-2">
+                                    <Loader2 className="w-5 h-5 animate-spin text-orange-500/40" />
+                                    <span className="text-[10px] text-gray-400 font-bold tracking-widest animate-pulse">FETCHING...</span>
                                 </div>
                             ) : (
-                                <div className="space-y-0.5 mt-1">
+                                <div className="space-y-1 mt-1">
                                     {categoryProblems[category.id]?.map((prob) => {
                                         const isSolved = solvedSet.has(prob.id);
                                         const isCurrent = currentProblemId === prob.id;
@@ -128,39 +138,45 @@ function CategoryItem({
                                                 key={prob.id}
                                                 href={`/problems/${prob.slug}`}
                                                 className={cn(
-                                                    "group/prob flex items-center justify-between p-3 rounded-xl text-[14px] transition-all border border-transparent",
+                                                    "group/prob flex items-center justify-between p-3 rounded-xl text-[13px] transition-all border border-transparent duration-300",
                                                     isCurrent
-                                                        ? "bg-orange-50/50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/50 dark:border-orange-500/20 shadow-sm"
-                                                        : "hover:bg-gray-100 dark:hover:bg-white/[0.04] text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                                                        ? "bg-orange-50/60 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/40 dark:border-orange-500/20 shadow-sm"
+                                                        : "hover:bg-gray-50/80 dark:hover:bg-white/3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                                 )}
                                             >
-                                                <div className="flex items-center gap-3.5 overflow-hidden">
+                                                <div className="flex items-center gap-4 overflow-hidden">
                                                     <div className="w-5 flex justify-center shrink-0">
                                                         {isSolved ? (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                                                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                                                         ) : (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-800" />
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-[#1e1e1e] group-hover/prob:scale-125 transition-transform duration-300" />
                                                         )}
                                                     </div>
                                                     <span className={cn(
-                                                        "truncate font-semibold tracking-tight transition-colors",
-                                                        isCurrent ? "font-bold" : "font-medium"
+                                                        "truncate tracking-tight transition-all duration-300",
+                                                        isCurrent ? "font-bold" : "font-semibold group-hover/prob:translate-x-1"
                                                     )}>
                                                         {prob.title}
                                                     </span>
                                                 </div>
-                                                <div className="flex-shrink-0">
+                                                <div className="flex items-center gap-2 pl-2">
                                                      {prob.difficulty === "CONCEPT" && (
-                                                         <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-lg uppercase tracking-widest border border-indigo-500/10">Theory</span>
+                                                         <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10 px-1.5 py-0.5 rounded-md uppercase tracking-tighter border border-indigo-500/10">Theory</span>
                                                      )}
+                                                     <div className="opacity-0 -translate-x-2 group-hover/prob:opacity-100 group-hover/prob:translate-x-0 transition-all duration-300">
+                                                         <ChevronDown className="-rotate-90 w-3.5 h-3.5 text-gray-400" />
+                                                     </div>
                                                 </div>
                                             </Link>
                                         );
                                     })}
                                     {!loadingCategoryProblems && (!categoryProblems[category.id] || categoryProblems[category.id].length === 0) && (!category.children || category.children.length === 0) && (
-                                        <p className="text-[11px] text-gray-400 dark:text-gray-600 text-center py-6 font-bold uppercase tracking-[0.15em] opacity-80">
-                                            Empty Module
-                                        </p>
+                                        <div className="py-8 flex flex-col items-center justify-center opacity-40">
+                                            <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-700 mb-2" />
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest text-center">
+                                                Module Content Coming Soon
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                             )}

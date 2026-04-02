@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, School, GraduationCap, ChevronRight } from "lucide-react";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -13,6 +14,7 @@ interface PageProps {
 
 async function ClassroomDetailContent({ params }: { params: Promise<{ id: string }> }) {
     "use cache: private";
+    cacheLife("minutes");
     const { id } = await params;
 
     const session = await auth.api.getSession({

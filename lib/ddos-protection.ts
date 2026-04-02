@@ -56,7 +56,7 @@ export async function withDDoSProtection(
     // Check Cloudflare security info
     if (config.enableCloudflareHeaders) {
       const securityInfo = getCloudflareSecurityInfo(req);
-      
+
       // Block if threat score is too high (Cloudflare detected threat)
       if (securityInfo.threatScore) {
         const score = parseInt(securityInfo.threatScore);
@@ -79,7 +79,7 @@ export async function withDDoSProtection(
     if (config.enableRateLimit) {
       const keyGenerator = config.customKeyGenerator || ((req: NextRequest) => clientIp);
       const rateLimitKey = keyGenerator(req);
-      
+
       const limiter = getRateLimiter();
       const result = await limiter.checkLimit(rateLimitKey, config.rateLimitConfig);
 
@@ -92,13 +92,13 @@ export async function withDDoSProtection(
       if (!result.allowed) {
         console.warn(`[RateLimit] Rate limit exceeded for ${rateLimitKey}`);
         responseHeaders.set('Retry-After', result.retryAfter!.toString());
-        
+
         return NextResponse.json(
           {
             error: 'Too many requests',
             retryAfter: result.retryAfter,
           },
-          { 
+          {
             status: 429,
             headers: responseHeaders,
           }

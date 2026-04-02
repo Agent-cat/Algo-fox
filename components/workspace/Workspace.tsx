@@ -527,10 +527,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
                              // If in contest and submitted successfully, redirect back to contest dashboard
                              if (contestId) {
-                                toast.success("Problem Solved! Returning to contest...", { duration: 2000 });
-                                setTimeout(() => {
-                                    router.push(`/contest/${contestId}`);
-                                }, 1500);
+                                 toast.success("Problem Solved! Returning to contest...", { duration: 2000 });
+                                 setTimeout(() => {
+                                     router.push(`/contest/${contestId}`);
+                                 }, 1500);
                              }
                          } else {
                              toast.success("Run Accepted!", { description: desc, descriptionClassName: "!text-white/90" });
@@ -574,6 +574,104 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             else setIsSubmitting(false);
         }
     };
+
+    // ─── KEYBOARD SHORTCUTS ──────────────────────────────────────────────────
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Skip shortcuts if user is typing in an input or textarea
+            const target = e.target as HTMLElement;
+            const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+            // Allow shortcuts even if in input if they use Ctrl/Alt/Meta
+            if (isInput && !e.ctrlKey && !e.altKey && !e.metaKey) return;
+
+            // 1. Run (Ctrl + Enter)
+            if (e.ctrlKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
+                e.preventDefault();
+                handleSubmission("RUN");
+                return;
+            }
+
+            // 2. Submit (Ctrl + Shift + Enter)
+            if (e.ctrlKey && e.shiftKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
+                e.preventDefault();
+                handleSubmission("SUBMIT");
+                return;
+            }
+
+            // 3. New File (Alt + N)
+            if (e.altKey && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                handleAddFile();
+                return;
+            }
+
+            // 4. Switch Tabs (Alt + 1 to 9)
+            if (e.altKey && /^[1-9]$/.test(e.key)) {
+                e.preventDefault();
+                const index = parseInt(e.key, 10) - 1;
+                if (codeFiles.files[index]) {
+                    codeFiles.selectFile(codeFiles.files[index].fileId);
+                    toast.info(`Switched to ${codeFiles.files[index].name}`);
+                }
+                return;
+            }
+
+            // 5. Delete active file (Alt + W)
+            if (e.altKey && e.key.toLowerCase() === 'w') {
+                e.preventDefault();
+                if (codeFiles.files.length > 1 && codeFiles.activeFileId) {
+                    handleRemoveFile(codeFiles.activeFileId);
+                } else if (codeFiles.files.length === 1) {
+                    toast.error("Cannot delete the last remaining file");
+                }
+                return;
+            }
+
+            // 6. Navigation: Next/Previous Problem (Alt + ArrowRight/Left)
+            if (e.altKey && e.key === 'ArrowRight' && nextProblemSlug) {
+                e.preventDefault();
+                router.push(`/problems/${nextProblemSlug}`);
+                return;
+            }
+            if (e.altKey && e.key === 'ArrowLeft' && prevProblemSlug) {
+                e.preventDefault();
+                router.push(`/problems/${prevProblemSlug}`);
+                return;
+            }
+
+            // 7. Editor Actions: Format (Shift + Alt + F)
+            if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('algofox_format_code'));
+                return;
+            }
+
+            // 8. Editor Actions: Reset (Alt + Backspace)
+            if (e.altKey && e.key === 'Backspace') {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('algofox_reset_code'));
+                return;
+            }
+
+            // 9. Editor Actions: Full Screen (Alt + Z)
+            if (e.altKey && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('algofox_toggle_fullscreen'));
+                return;
+            }
+
+            // 10. Editor Actions: Settings (Ctrl + ,)
+            if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+                e.preventDefault();
+                handleOpenSettings();
+                return;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleSubmission, handleAddFile, handleRemoveFile, isRunning, isSubmitting, codeFiles.files, codeFiles.activeFileId, codeFiles.selectFile, nextProblemSlug, prevProblemSlug, router, handleOpenSettings]);
 
     const [pendingRestore, setPendingRestore] = useState<{ code: string; langId: number } | null>(null);
 

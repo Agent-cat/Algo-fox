@@ -70,8 +70,8 @@ export async function markConceptAsCompleted(problemId: string) {
     const userId = session.user.id;
 
     try {
-        await SubmissionService.markConceptAsSolved(userId, problemId);
-        const result = await SubmissionService.incrementProblemSolved(problemId, userId);
+        const submission = await SubmissionService.markConceptAsSolved(userId, problemId);
+        const result = await SubmissionService.incrementProblemSolved(problemId, userId, submission.id);
 
         after(async () => {
              // FIXED: Add proper scope parameter to revalidateTag

@@ -6,6 +6,7 @@ import ContestDetails from "@/components/contest/ContestDetails";
 import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 
 
 interface PageProps {
@@ -14,6 +15,7 @@ interface PageProps {
 
 async function ContestDetailContent({ params }: { params: Promise<{ id: string }> }) {
     "use cache: private";
+    cacheLife("minutes");
 
     const { id } = await params;
 

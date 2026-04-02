@@ -226,36 +226,73 @@ export class SubmissionService {
         }
     }
 
-    static async incrementProblemSolved(problemId: string, userId: string): Promise<{ firstSolved: boolean; points: number }> {
+    static async incrementProblemSolved(problemId: string, userId: string, currentSubmissionId?: string): Promise<{ firstSolved: boolean; points: number }> {
         // FIX: Store result outside try-catch so cache invalidation (below) can always run.
-        // Previously, cache invalidation was dead code placed after an early `return` inside try{}.
         let result: { firstSolved: boolean; points: number };
 
         try {
             result = await prisma.$transaction(async (tx) => {
-                // 1. Check if already solved (Marker existence)
+                // 1. Double-check idempotency using both the marker table (UserProblemSolved)
+                // and the Submission table. This prevents double-counting points even if
+                // marker records are missing or failed to create in previous attempts.
+
+                // Check solved marker first (O(1) in DB if unique index exists)
                 const existingMarker = await (tx as any).userProblemSolved.findUnique({
                     where: { userId_problemId: { userId, problemId } }
                 });
 
-                if (existingMarker) return { firstSolved: false, points: 0 };
+                if (existingMarker) {
+                    return { firstSolved: false, points: 0 };
+                }
 
-                // 2. Fetch problem and latest submission details within transaction
-                const [problem, latestSubmission] = await Promise.all([
-                    tx.problem.findUnique({
-                        where: { id: problemId },
-                        select: { difficulty: true, type: true, id: true }
-                    }),
-                    tx.submission.findFirst({
-                        where: { problemId, userId, status: "ACCEPTED", mode: "SUBMIT" },
-                        orderBy: { createdAt: 'desc' },
-                        select: { contestId: true }
-                    })
-                ]);
+                // Fallback: Check if there's any other ACCEPTED submission for this problem/user
+                // This handles cases where marker was never created but submission was recorded as ACCEPTED.
+                const previousAccepted = await tx.submission.findFirst({
+                    where: {
+                        userId,
+                        problemId,
+                        status: "ACCEPTED",
+                        mode: "SUBMIT",
+                        ...(currentSubmissionId ? { id: { not: currentSubmissionId } } : {})
+                    },
+                    select: { id: true }
+                });
+
+                if (previousAccepted) {
+                    // Backfill the missing marker record for data consistency
+                    try {
+                        await (tx as any).userProblemSolved.create({
+                            data: { userId, problemId }
+                        });
+                    } catch (e) {
+                         // Ignore P2002 if someone else just created it
+                    }
+                    return { firstSolved: false, points: 0 };
+                }
+
+                // 2. Fetch problem details within transaction
+                const problem = await tx.problem.findUnique({
+                    where: { id: problemId },
+                    select: { difficulty: true, type: true, id: true }
+                });
 
                 if (!problem) throw new Error("Problem not found");
 
                 // 3. If it's a CONTEST problem solved in practice mode, don't increment global stats
+                // unless already solved in a contest. But our logic above checks for ANY accepted.
+                // We double check the current submission or latest if current not provided.
+                const latestSubmission = await tx.submission.findFirst({
+                    where: {
+                        id: currentSubmissionId,
+                        problemId,
+                        userId,
+                        status: "ACCEPTED",
+                        mode: "SUBMIT"
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    select: { contestId: true }
+                });
+
                 if (problem.type === "CONTEST" && !latestSubmission?.contestId) {
                     return { firstSolved: false, points: 0 };
                 }
@@ -273,7 +310,7 @@ export class SubmissionService {
                     data: { solved: { increment: 1 } }
                 });
 
-                if (problem.difficulty !== "CONCEPT") {
+                if (problem.difficulty !== "CONCEPT" && points > 0) {
                     await tx.user.update({
                         where: { id: userId },
                         data: {
@@ -285,6 +322,7 @@ export class SubmissionService {
                 return { firstSolved: true, points };
             });
         } catch (error: any) {
+            // P2002 unique constraint on UserProblemSolved
             if (error.code === 'P2002') return { firstSolved: false, points: 0 };
             console.error("Failed to update problem stats:", error);
             throw error;

@@ -317,7 +317,7 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
             let pointsResult = { firstSolved: false, points: 0 };
             if (finalStatus === "ACCEPTED" && submission.mode === "SUBMIT") {
                 try {
-                    pointsResult = await SubmissionService.incrementProblemSolved(problem.id, submission.userId);
+                    pointsResult = await SubmissionService.incrementProblemSolved(problem.id, submission.userId, submissionId);
                     streakResult = await SubmissionService.updateUserStreak(submission.userId);
                 } catch (sideEffectError) {
                     console.error(`Side effect error (streak/solved) for submission ${submissionId}:`, sideEffectError);

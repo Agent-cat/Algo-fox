@@ -161,7 +161,7 @@ export default function LeaderboardPage() {
                                         : isCurrentUser
                                             ? "bg-orange-100/20 dark:bg-orange-500/5"
                                             : isEven
-                                                ? "bg-black/[0.03] dark:bg-white/[0.02]"
+                                                ? "bg-black/[0.03] dark:bg-white/2"
                                                 : "bg-transparent";
 
                                     // Solid background for sticky columns to prevent transparency issues
