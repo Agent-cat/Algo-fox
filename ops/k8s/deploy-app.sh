@@ -42,8 +42,46 @@ deploy_app() {
 }
 
 wait_for_db() {
-    log_info "Waiting for PostgreSQL to be ready..."
-    kubectl wait -n algofox --for=condition=ready pod -l app=postgres --timeout=300s
+    log_info "Waiting for PostgreSQL PVC to be bound..."
+    if ! kubectl wait -n algofox --for=jsonpath='{.status.phase}'=Bound pvc/postgres-pvc --timeout=60s; then
+        log_error "PVC postgres-pvc is not Binding. Check your storage class or storage limits."
+        kubectl describe -n algofox pvc/postgres-pvc
+        exit 1
+    fi
+    log_success "PostgreSQL PVC is Bound."
+
+    log_info "Waiting for PostgreSQL Pod to be ready (this can take up to 300s)..."
+    # Use a loop to give better diagnostics if it fails
+    local timeout=300
+    local start_time=$(date +%s)
+
+    while true; do
+        if kubectl wait -n algofox --for=condition=ready pod -l app=postgres --timeout=15s >/dev/null 2>&1; then
+            log_success "PostgreSQL is ready."
+            break
+        fi
+
+        local current_time=$(date +%s)
+        local elapsed=$((current_time - start_time))
+
+        if [ $elapsed -ge $timeout ]; then
+            log_error "PostgreSQL failed to become ready within ${timeout}s."
+            log_info "Checking pod status for diagnostic info..."
+            kubectl get pods -n algofox -l app=postgres
+            kubectl describe -n algofox pods -l app=postgres | grep -A 10 "Events:"
+            exit 1
+        fi
+
+        # Check for common error states
+        status=$(kubectl get pods -n algofox -l app=postgres -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}' 2>/dev/null || true)
+        if [[ "$status" == "ImagePullBackOff" || "$status" == "ErrImagePull" ]]; then
+            log_error "Critical: Pod is in $status state. Check your image name or internet connection."
+            exit 1
+        fi
+
+        log_info "Still waiting... ($elapsed/${timeout}s elapsed)"
+        sleep 5
+    done
 }
 
 setup_db() {
