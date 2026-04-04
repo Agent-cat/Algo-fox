@@ -53,9 +53,25 @@ install_keda() {
     fi
 }
 
+
+
+install_metrics_server() {
+    log_info " installing/checking Metrics Server..."
+    if ! kubectl get deployment metrics-server -n kube-system >/dev/null 2>&1; then
+        kubectl apply -f "$(dirname "$0")/metrics-server.yaml"
+        log_success "Metrics Server installed."
+    else
+        log_info "Metrics Server already exists."
+    fi
+}
+
 deploy_app() {
     log_info "Deploying Algofox Stack..."
+    # Apply global configurations first
     kubectl apply -k "$(dirname "$0")/base"
+    # Apply app and judge0 stacks
+    kubectl apply -k "$(dirname "$0")/app"
+    kubectl apply -k "$(dirname "$0")/judge0"
     log_success "Manifests applied."
 }
 
@@ -106,16 +122,18 @@ setup_db() {
 
 wait_for_pods() {
     log_info "Waiting for pods to be ready..."
-    kubectl wait -n algofox --for=condition=ready pod --all --timeout=300s || true
+    kubectl wait -n algofox --for=condition=ready pod --all --timeout=600s || true
 }
 
 main() {
     check_tools
     install_ingress
     install_keda
+    install_metrics_server
 
     # Wait a bit for CRDs to be established
-    sleep 5
+    sleep 10
+
 
     deploy_app
 

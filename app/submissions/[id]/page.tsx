@@ -45,7 +45,7 @@ async function SubmissionContent({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#050505] antialiased text-gray-900 dark:text-gray-100">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] antialiased text-gray-900 dark:text-gray-100">
             <div className="max-w-[1440px] mx-auto p-4 md:p-8">
                 {/* TOP BREADCRUMB / NAV */}
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-[#1a1a1a]">
@@ -232,7 +232,7 @@ async function SubmissionContent({ params }: PageProps) {
 export default function SubmissionPage({ params }: PageProps) {
     return (
         <Suspense fallback={
-            <div className="min-h-screen pt-24 flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] pt-24 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
             </div>
         }>

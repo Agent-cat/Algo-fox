@@ -32,6 +32,7 @@ services:
     restart: always
 
   app:
+    image: agentcat1/algofox
     build:
       context: .
       dockerfile: Dockerfile
@@ -40,6 +41,7 @@ services:
       args:
         # Use localhost during build to reach the host-mapped DB ports
         - DATABASE_URL=postgresql://algofox:algofox@localhost:5432/algofox
+        - BETTER_AUTH_SECRET=zpN6vAuvJwJ79IkeWIOPlwUoA5M1F2HG
     container_name: algofox-app
     ports:
       - "3000:3000"

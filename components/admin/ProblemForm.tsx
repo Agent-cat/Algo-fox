@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Difficulty, ProblemDomain } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
     Plus, Trash2, Eye, EyeOff, Code2, Check,
-    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2
+    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,6 +98,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
     const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const descriptionFileInputRef = useRef<HTMLInputElement>(null);
+    const solutionFileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (initialData?.useFunctionTemplate !== undefined) setUseFunctionTemplate(initialData.useFunctionTemplate);
@@ -252,6 +255,43 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         }
         setIsLoading(false);
     }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: "description" | "solution") => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size must be less than 5MB");
+            return;
+        }
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                const markdownImage = `\n![${file.name}](${result.url})\n`;
+                const currentValue = watch(fieldName) || "";
+                setValue(fieldName, currentValue + markdownImage);
+                toast.success("Image uploaded successfully");
+            } else {
+                toast.error(result.error || "Upload failed");
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            toast.error("Upload failed");
+        } finally {
+            setIsUploading(false);
+            e.target.value = ""; // Reset input
+        }
+    };
 
     const progressPct = Math.round((currentStep / totalSteps) * 100);
 
@@ -489,11 +529,27 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     <div className="flex items-center gap-1 text-gray-400">
                                         <button type="button" onClick={() => setValue("description", descriptionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
                                         <button type="button" onClick={() => setValue("description", descriptionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
-                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                                         <button type="button" onClick={() => setValue("description", descriptionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                                             <FileText className="w-4 h-4" />
                                         </button>
-                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button
+                                            type="button"
+                                            onClick={() => descriptionFileInputRef.current?.click()}
+                                            disabled={isUploading}
+                                            className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors disabled:opacity-50"
+                                        >
+                                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                                        </button>
+                                        <input
+                                            type="file"
+                                            ref={descriptionFileInputRef}
+                                            onChange={(e) => handleImageUpload(e, "description")}
+                                            className="hidden"
+                                            accept="image/*"
+                                        />
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                                         <button type="button" onClick={() => setValue("description", descriptionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                                             <Plus className="w-4 h-4" />
                                         </button>
@@ -564,11 +620,27 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     <div className="flex items-center gap-1 text-gray-400">
                                         <button type="button" onClick={() => setValue("solution", solutionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
                                         <button type="button" onClick={() => setValue("solution", solutionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
-                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                                         <button type="button" onClick={() => setValue("solution", solutionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                                             <FileText className="w-4 h-4" />
                                         </button>
-                                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
+                                        <button
+                                            type="button"
+                                            onClick={() => solutionFileInputRef.current?.click()}
+                                            disabled={isUploading}
+                                            className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors disabled:opacity-50"
+                                        >
+                                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                                        </button>
+                                        <input
+                                            type="file"
+                                            ref={solutionFileInputRef}
+                                            onChange={(e) => handleImageUpload(e, "solution")}
+                                            className="hidden"
+                                            accept="image/*"
+                                        />
+                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
                                         <button type="button" onClick={() => setValue("solution", solutionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
                                             <Plus className="w-4 h-4" />
                                         </button>

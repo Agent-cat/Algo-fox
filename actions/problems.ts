@@ -127,10 +127,10 @@ export async function createProblem(data: {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list','max');
-        revalidateTag('problems-list','max');
-        revalidateTag('problems-SQL-PRACTICE','max');
-        revalidateTag('problems-DSA-PRACTICE','max');
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
+        revalidateTag('problems-SQL-PRACTICE', 'max');
+        revalidateTag('problems-DSA-PRACTICE', 'max');
     }
 
     return result;
@@ -189,10 +189,14 @@ export async function updateProblem(id: string, data: any) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list','max');
-        revalidateTag('problems-list','max');
-        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`,'max');
-        revalidateTag(`problem-${result.data?.slug}`,'max');
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
+        if (result.data?.slug) {
+            revalidateTag(`problem-${result.data.slug}`, 'max');
+            revalidatePath(`/problems/${result.data.slug}`);
+            revalidatePath(`/admin/problems/${result.data.id}/edit`);
+        }
+        revalidateTag(`problems-${result.data?.domain || 'DSA'}-${result.data?.type || 'PRACTICE'}`, 'max');
     }
 
     return result;
@@ -221,8 +225,8 @@ export async function deleteProblem(id: string) {
         revalidatePath("/admin/dsa/problems");
         revalidatePath("/admin/sql/problems");
 
-        revalidateTag('admin-problems-list','max');
-        revalidateTag('problems-list','max');
+        revalidateTag('admin-problems-list', 'max');
+        revalidateTag('problems-list', 'max');
     }
 
     return result;
