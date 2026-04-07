@@ -161,6 +161,11 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         onActiveCodeChange: handleActiveCodeChange,
     });
 
+    // Clear highlight when file changes
+    useEffect(() => {
+        setHighlightLine(null);
+    }, [codeFiles.activeFileId]);
+
     // Stable onChange for CodeEditor — avoids recreating a new function every render
     const handleEditorChange = useCallback((value: string | undefined) => {
         const v = value || '';
@@ -400,6 +405,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             else setIsSubmitting(true);
 
             toast.info(mode === "RUN" ? "Running code..." : "Submitting code...");
+
+            setHighlightLine(null); // Clear previous highlights before new run
 
             // 1. Create Submission / Run Code
             const res = await fetch("/api/submissions", {
@@ -804,7 +811,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     onClose={() => setIsSidebarOpen(false)}
                     contest={contest}
                     currentProblemId={problem.id}
-                    solvedProblemIds={solvedProblemIds}
+                    solvedProblemIds={solvedIds}
                 />
             )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Markdown from 'react-markdown';
+import Markdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import remarkDirective from 'remark-directive';
@@ -112,29 +112,28 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                                     remarkSolutionDirective
                                 ]}
                                 rehypePlugins={[rehypeRaw]}
-                                components={{
-                                    // @ts-ignore - custom element
+                                 components={{
                                     'solution-group': SolutionCodeGroup,
-                                    table: ({ children }) => (
+                                    table: ({ children, ...props }) => (
                                         <div className="my-6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#262626]">
                                             <div className="overflow-x-auto text-left">
-                                                <table className="w-full border-collapse text-sm">{children}</table>
+                                                <table className="w-full border-collapse text-sm" {...props}>{children}</table>
                                             </div>
                                         </div>
                                     ),
-                                    thead: ({ children }) => (
-                                        <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
+                                    thead: ({ children, ...props }) => (
+                                        <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono" {...props}>{children}</thead>
                                     ),
-                                    th: ({ children }) => (
-                                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle">{children}</th>
+                                    th: ({ children, ...props }) => (
+                                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle" {...props}>{children}</th>
                                     ),
-                                    td: ({ children }) => (
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle">{children}</td>
+                                    td: ({ children, ...props }) => (
+                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle" {...props}>{children}</td>
                                     ),
-                                    tr: ({ children }) => (
-                                        <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
+                                    tr: ({ children, ...props }) => (
+                                        <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150" {...props}>{children}</tr>
                                     ),
-                                }}
+                                } as Components}
                             >
                                 {preprocessMarkdown(problem.description)}
                             </Markdown>

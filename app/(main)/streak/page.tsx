@@ -14,7 +14,7 @@ export default function StreakTestPage() {
     <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-black text-gray-900 dark:text-white">Streak UI Testing</h1>
-        <p className="text-gray-500 dark:text-gray-400">Click the button below to trigger the celebration modal</p>
+        <p className="text-gray-500 dark:text-gray-400">Click a button below to trigger the celebration or the streak-ended modal</p>
       </div>
 
       <div className="flex items-center space-x-4">

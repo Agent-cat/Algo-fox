@@ -23,7 +23,7 @@ interface SubmissionPerformanceProps {
 }
 
 // Generate distribution data
-const generateDistribution = (userPercentile: number) => {
+const generateDistribution = () => {
     const data = [];
     const points = 60;
 
@@ -78,7 +78,7 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
     const unit = activeTab === "runtime" ? "ms" : "KB";
     const label = activeTab === "runtime" ? "Runtime" : "Memory";
 
-    const data = useMemo(() => generateDistribution(percentile), []);
+    const data = useMemo(() => generateDistribution(), []);
 
     // Calculate which index corresponds to the user's percentile
     // (100 - percentile) / 100 * data.length
@@ -220,15 +220,15 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
                      <div className="flex justify-between text-[10px] font-black font-mono text-gray-400 dark:text-gray-600 mt-4 px-1 uppercase tracking-widest">
                         <span className="flex flex-col">
                             <span>Faster</span>
-                            <span className="text-[14px] text-emerald-500 font-bold">{(value * 0.4).toFixed(0)}{unit}</span>
+                            <span className="text-[14px] text-emerald-500 font-bold">~{(value * 0.4).toFixed(0)}{unit}</span>
                         </span>
                         <span className="flex flex-col items-center opacity-40">
                             <span>Average</span>
-                            <span className="text-[14px] text-gray-300 font-bold">{(value * 1.2).toFixed(0)}{unit}</span>
+                            <span className="text-[14px] text-gray-300 font-bold">~{(value * 1.2).toFixed(0)}{unit}</span>
                         </span>
                         <span className="flex flex-col items-end">
                             <span>Slower</span>
-                            <span className="text-[14px] text-rose-500 font-bold">{(value * 2.1).toFixed(0)}{unit}</span>
+                            <span className="text-[14px] text-rose-500 font-bold">~{(value * 2.1).toFixed(0)}{unit}</span>
                         </span>
                     </div>
 

@@ -46,7 +46,7 @@ export const StreakEndedNotification: React.FC<StreakEndedNotificationProps> = (
                 Streak Ended
               </span>
               <span className="text-[9px] text-gray-400 dark:text-gray-600 font-medium whitespace-nowrap">
-                It was {lastStreak} days! Play today to start a new one.
+                It was {lastStreak} {lastStreak === 1 ? 'day' : 'days'}! Play today to start a new one.
               </span>
             </div>
           </div>

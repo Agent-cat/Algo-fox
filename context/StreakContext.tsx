@@ -34,17 +34,23 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
     if (session?.user) {
       const serverStreak = (session.user as any).currentStreak || 0;
       const streakKey = `algofox_last_streak_${session.user.id}`;
-      const lastStreakStr = localStorage.getItem(streakKey);
-      const lastStreak = lastStreakStr !== null ? parseInt(lastStreakStr, 10) : null;
 
-      // Detect reset
-      if (serverStreak === 0 && lastStreak !== null && lastStreak > 0) {
-        setLastStreakBeforeReset(lastStreak);
-        setIsStreakEndedOpen(true);
+      try {
+        const lastStreakStr = localStorage.getItem(streakKey);
+        const lastStreak = lastStreakStr !== null ? parseInt(lastStreakStr, 10) : null;
+
+        // Detect reset
+        if (serverStreak === 0 && lastStreak !== null && lastStreak > 0) {
+          setLastStreakBeforeReset(lastStreak);
+          setIsStreakEndedOpen(true);
+        }
+
+        setStreak(serverStreak);
+        localStorage.setItem(streakKey, serverStreak.toString());
+      } catch (error) {
+        console.warn("Storage access denied:", error);
+        setStreak(serverStreak);
       }
-
-      setStreak(serverStreak);
-      localStorage.setItem(streakKey, serverStreak.toString());
     }
   }, [session]);
 

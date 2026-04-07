@@ -130,13 +130,23 @@ const TestCases = memo(({
         };
     }, [results]);
 
-    // Send line highlight to parent
     useEffect(() => {
-        if (activeTab === "console" && errorDetails?.line) {
-            onErrorLineDetected?.(errorDetails.line);
-        } else if (activeTab !== "console") {
+        if (activeTab === "console") {
+            if (errorDetails?.line) {
+                onErrorLineDetected?.(errorDetails.line);
+            } else {
+                // Clear highlight if we're on console but no specific line is found
+                onErrorLineDetected?.(null);
+            }
+        } else {
+            // Not on console tab, clear any existing highlight
             onErrorLineDetected?.(null);
         }
+
+        return () => {
+            // Clear on unmount
+            onErrorLineDetected?.(null);
+        };
     }, [activeTab, errorDetails?.line, onErrorLineDetected]);
 
     // Auto-switch to console tab when error is first detected

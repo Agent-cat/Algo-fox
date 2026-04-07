@@ -138,6 +138,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         const value = watch(fieldName) || "";
         const selectedText = value.substring(start, end);
 
+        const isAtStart = start === 0 || value[start - 1] === "\n";
         let before = "";
         let after = "";
         let placeholder = "";
@@ -145,7 +146,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         switch (type) {
             case "bold": before = "**"; after = "**"; placeholder = "bold text"; break;
             case "italic": before = "*"; after = "*"; placeholder = "italic text"; break;
-            case "list": before = "\n- "; after = ""; placeholder = "item"; break;
+            case "list": before = isAtStart ? "- " : "\n- "; after = ""; placeholder = "item"; break;
             case "code": before = "```\n"; after = "\n```"; placeholder = "code"; break;
             case "inline-code": before = "`"; after = "`"; placeholder = "code"; break;
             case "h2": before = "## "; after = ""; placeholder = "Heading"; break;

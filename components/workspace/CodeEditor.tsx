@@ -144,6 +144,40 @@ const CodeEditor = memo(({
 
   const currentDriverCode = getDriverCode();
 
+  const applyHighlightLine = useCallback((editor: any, line: number | null | undefined) => {
+    if (!editor) return;
+
+    try {
+      const model = editor.getModel();
+      if (!model || model.isDisposed()) return;
+
+      // Clear previous decorations
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current || [], []);
+
+      if (line && line > 0) {
+        editor.revealLineInCenter(line);
+        decorationsRef.current = editor.deltaDecorations([], [
+          {
+            range: {
+              startLineNumber: line,
+              startColumn: 1,
+              endLineNumber: line,
+              endColumn: 1
+            },
+            options: {
+              isWholeLine: true,
+              className: 'error-line-highlight',
+              glyphMarginClassName: 'error-line-glyph',
+              stickiness: 1 // NeverGrowsWhenTypingAtEdges
+            }
+          }
+        ]);
+      }
+    } catch (err) {
+      console.debug("Highlight error:", err);
+    }
+  }, []);
+
   // Initialize code state
   // If readOnly, prioritize controlledValue.
   // Else, use domain/boilerplate logic.
@@ -300,43 +334,9 @@ const CodeEditor = memo(({
   // ─── ERROR HIGHLIGHTING ────────────────────────────────────────────────
   useEffect(() => {
     if (editorRef.current) {
-      const editor = editorRef.current;
-
-      // Clear previous decorations
-      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
-
-      if (highlightLine && highlightLine > 0) {
-        // We need to wait for the next tick to ensure model is ready and monaco global is available
-        // but since we're inside mount, it should be fine to use the model's range.
-
-        try {
-          const model = editor.getModel();
-          if (model && !model.isDisposed()) {
-            editor.revealLineInCenter(highlightLine);
-
-            decorationsRef.current = editor.deltaDecorations([], [
-              {
-                range: {
-                  startLineNumber: highlightLine,
-                  startColumn: 1,
-                  endLineNumber: highlightLine,
-                  endColumn: 1
-                },
-                options: {
-                  isWholeLine: true,
-                  className: 'error-line-highlight',
-                  glyphMarginClassName: 'error-line-glyph',
-                  stickiness: 1 // NeverGrowsWhenTypingAtEdges
-                }
-              }
-            ]);
-          }
-        } catch (err) {
-          console.debug("Highlight error:", err);
-        }
-      }
+      applyHighlightLine(editorRef.current, highlightLine);
     }
-  }, [highlightLine]);
+  }, [highlightLine, applyHighlightLine]);
 
 
   // ─── FILE-MANAGED MODE: Sync controlled value → internal state + Monaco ───
@@ -624,6 +624,11 @@ const CodeEditor = memo(({
           // Editor might be disposed, ignore
           console.debug("Editor setValue error (safe to ignore):", error);
         }
+      }
+
+      // Apply highlight if it exists at mount time
+      if (highlightLine) {
+        applyHighlightLine(editor, highlightLine);
       }
     } catch (error) {
       console.debug("Editor mount error (safe to ignore):", error);

@@ -23,6 +23,8 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
     const [endConfirmText, setEndConfirmText] = useState("");
     const [isEnding, setIsEnding] = useState(false);
 
+    const progressPercent = contest.problems.length ? (solvedProblemIds.length / contest.problems.length) * 100 : 0;
+
     useEffect(() => {
         // Track visited problems in localStorage
         const visitedKey = `contest-visited-${contest.id}`;
@@ -148,7 +150,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             <div>
                                 <div className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase mb-2 tracking-widest flex justify-between">
                                     <span>Session Progress</span>
-                                    <span>{Math.round((solvedProblemIds.length / contest.problems.length) * 100)}%</span>
+                                    <span>{Math.round(progressPercent)}%</span>
                                 </div>
                                 <div className="flex items-center justify-between text-base font-bold text-gray-900 dark:text-gray-100 mb-3">
                                     <span>{solvedProblemIds.length} / {contest.problems.length} Challenges Done</span>
@@ -156,7 +158,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                                 <div className="w-full h-2 bg-gray-200 dark:bg-[#333] rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-orange-600 dark:bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.4)] transition-all duration-700 ease-out"
-                                        style={{ width: `${(solvedProblemIds.length / contest.problems.length) * 100}%` }}
+                                        style={{ width: `${progressPercent}%` }}
                                     />
                                 </div>
                             </div>
@@ -172,7 +174,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
 
                         {/* End Contest Confirmation Modal */}
                         {showEndModal && (
-                            <div className="fixed inset-0 z-'100' flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+                            <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
