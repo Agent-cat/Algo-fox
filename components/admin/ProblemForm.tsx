@@ -5,7 +5,7 @@ import { Difficulty, ProblemDomain } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
-    Plus, Trash2, Eye, EyeOff, Code2, Check,
+    Plus, Trash2, Eye, EyeOff, Code2, Check, List,
     FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -78,7 +78,32 @@ function MarkdownPreview({ content, placeholder }: { content: string; placeholde
             prose-headings:text-[#39424e] dark:prose-headings:text-white prose-headings:font-bold prose-headings:font-mono
             prose-a:text-[#26bd58] prose-strong:text-[#39424e] dark:prose-strong:text-white
             prose-blockquote:border-[#26bd58] prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    table: ({ children }) => (
+                        <div className="my-6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#262626]">
+                            <div className="overflow-x-auto text-left">
+                                <table className="w-full border-collapse text-sm">{children}</table>
+                            </div>
+                        </div>
+                    ),
+                    thead: ({ children }) => (
+                        <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
+                    ),
+                    th: ({ children }) => (
+                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle">{children}</th>
+                    ),
+                    td: ({ children }) => (
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle">{children}</td>
+                    ),
+                    tr: ({ children }) => (
+                        <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
+                    ),
+                }}
+            >
+                {content}
+            </ReactMarkdown>
         </div>
     );
 }
@@ -99,8 +124,50 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
     const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const descriptionRef = useRef<HTMLTextAreaElement>(null);
+    const solutionRef = useRef<HTMLTextAreaElement>(null);
     const descriptionFileInputRef = useRef<HTMLInputElement>(null);
     const solutionFileInputRef = useRef<HTMLInputElement>(null);
+
+    const insertMarkdown = (fieldName: "description" | "solution", type: string) => {
+        const textarea = fieldName === "description" ? descriptionRef.current : solutionRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const value = watch(fieldName) || "";
+        const selectedText = value.substring(start, end);
+
+        let before = "";
+        let after = "";
+        let placeholder = "";
+
+        switch (type) {
+            case "bold": before = "**"; after = "**"; placeholder = "bold text"; break;
+            case "italic": before = "*"; after = "*"; placeholder = "italic text"; break;
+            case "list": before = "\n- "; after = ""; placeholder = "item"; break;
+            case "code": before = "```\n"; after = "\n```"; placeholder = "code"; break;
+            case "inline-code": before = "`"; after = "`"; placeholder = "code"; break;
+            case "h2": before = "## "; after = ""; placeholder = "Heading"; break;
+            case "h3": before = "### "; after = ""; placeholder = "Subheading"; break;
+            case "link": before = "["; after = "](url)"; placeholder = "link text"; break;
+        }
+
+        const textToInsert = selectedText || placeholder;
+        const newValue = value.substring(0, start) + before + textToInsert + after + value.substring(end);
+
+        setValue(fieldName, newValue);
+
+        // Ensure state is updated before focusing
+        setTimeout(() => {
+            textarea.focus();
+            if (selectedText) {
+                textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+            } else {
+                textarea.setSelectionRange(start + before.length, start + before.length + placeholder.length);
+            }
+        }, 0);
+    };
 
     useEffect(() => {
         if (initialData?.useFunctionTemplate !== undefined) setUseFunctionTemplate(initialData.useFunctionTemplate);
@@ -166,6 +233,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             categoryId: (initialData as any)?.categoryId || "",
         }
     });
+
+    const { ref: descriptionFormRef, ...descriptionRegister } = register("description");
+    const { ref: solutionFormRef, ...solutionRegister } = register("solution");
 
     const { fields, append, remove } = useFieldArray({ control, name: "testCases" });
 
@@ -524,24 +594,39 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                             </div>
 
                             <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
-                                {/* Toolbar mimicking Contest Wizard */}
-                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#111]">
-                                    <div className="flex items-center gap-1 text-gray-400">
-                                        <button type="button" onClick={() => setValue("description", descriptionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
-                                        <button type="button" onClick={() => setValue("description", descriptionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button type="button" onClick={() => setValue("description", descriptionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <FileText className="w-4 h-4" />
-                                        </button>
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button
-                                            type="button"
-                                            onClick={() => descriptionFileInputRef.current?.click()}
-                                            disabled={isUploading}
-                                            className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors disabled:opacity-50"
-                                        >
-                                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                                        </button>
+                                {/* Enhanced Toolbar */}
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
+                                    <div className="flex items-center gap-1">
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("description", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
+                                            <button type="button" onClick={() => insertMarkdown("description", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("description", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
+                                            <button type="button" onClick={() => insertMarkdown("description", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("description", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
+                                                <List className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button type="button" onClick={() => insertMarkdown("description", "code")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Code Block">
+                                                <Code2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => descriptionFileInputRef.current?.click()}
+                                                disabled={isUploading}
+                                                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors disabled:opacity-50"
+                                                title="Upload Image"
+                                            >
+                                                {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                                            </button>
+                                            <button type="button" onClick={() => insertMarkdown("description", "link")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Insert Link">
+                                                <Plus className="w-3.5 h-3.5 rotate-45" />
+                                            </button>
+                                        </div>
                                         <input
                                             type="file"
                                             ref={descriptionFileInputRef}
@@ -549,13 +634,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             className="hidden"
                                             accept="image/*"
                                         />
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button type="button" onClick={() => setValue("description", descriptionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => setValue("description", descriptionValue + "`inline code` ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <Code2 className="w-4 h-4" />
-                                        </button>
                                     </div>
                                     <button
                                         type="button"
@@ -570,7 +648,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     {!descriptionPreview ? (
                                         <div className="border-r border-gray-200 dark:border-[#333]">
                                             <textarea
-                                                {...register("description")}
+                                                {...descriptionRegister}
+                                                ref={(e) => {
+                                                    descriptionFormRef(e);
+                                                    descriptionRef.current = e;
+                                                }}
                                                 rows={28}
                                                 placeholder={"# Problem\n\nDescribe the problem here...\n\n## Constraints\n- 1 ≤ n ≤ 10⁵\n\n## Example\n\n**Input:** nums = [2,7,11,15], target = 9\n**Output:** [0,1]"}
                                                 className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
@@ -615,24 +697,39 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                             </div>
 
                             <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
-                                {/* Toolbar mimicking Contest Wizard */}
-                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#111]">
-                                    <div className="flex items-center gap-1 text-gray-400">
-                                        <button type="button" onClick={() => setValue("solution", solutionValue + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
-                                        <button type="button" onClick={() => setValue("solution", solutionValue + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button type="button" onClick={() => setValue("solution", solutionValue + "\n- list item ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <FileText className="w-4 h-4" />
-                                        </button>
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button
-                                            type="button"
-                                            onClick={() => solutionFileInputRef.current?.click()}
-                                            disabled={isUploading}
-                                            className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors disabled:opacity-50"
-                                        >
-                                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                                        </button>
+                                {/* Enhanced Toolbar */}
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
+                                    <div className="flex items-center gap-1">
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("solution", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
+                                            <button type="button" onClick={() => insertMarkdown("solution", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("solution", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
+                                            <button type="button" onClick={() => insertMarkdown("solution", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button type="button" onClick={() => insertMarkdown("solution", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
+                                                <List className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button type="button" onClick={() => insertMarkdown("solution", "code")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Code Block">
+                                                <Code2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => solutionFileInputRef.current?.click()}
+                                                disabled={isUploading}
+                                                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors disabled:opacity-50"
+                                                title="Upload Image"
+                                            >
+                                                {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                                            </button>
+                                            <button type="button" onClick={() => insertMarkdown("solution", "link")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Insert Link">
+                                                <Plus className="w-3.5 h-3.5 rotate-45" />
+                                            </button>
+                                        </div>
                                         <input
                                             type="file"
                                             ref={solutionFileInputRef}
@@ -640,13 +737,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             className="hidden"
                                             accept="image/*"
                                         />
-                                        <div className="w-px h-4 bg-gray-300 dark:bg-[#444] mx-1"></div>
-                                        <button type="button" onClick={() => setValue("solution", solutionValue + "![alt text](image url) ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => setValue("solution", solutionValue + "`inline code` ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors">
-                                            <Code2 className="w-4 h-4" />
-                                        </button>
                                     </div>
                                     <button
                                         type="button"
@@ -661,7 +751,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     {!solutionPreview ? (
                                         <div className="border-r border-gray-200 dark:border-[#333]">
                                             <textarea
-                                                {...register("solution")}
+                                                {...solutionRegister}
+                                                ref={(e) => {
+                                                    solutionFormRef(e);
+                                                    solutionRef.current = e;
+                                                }}
                                                 rows={28}
                                                 placeholder={"# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```"}
                                                 className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"

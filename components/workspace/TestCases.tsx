@@ -18,6 +18,7 @@ interface TestCasesProps {
     problemId?: string;
     isCollapsed: boolean;
     onToggleCollapse: () => void;
+    onErrorLineDetected?: (line: number | null) => void;
 }
 
 const tabButtonVariants = {
@@ -64,6 +65,7 @@ const TestCases = memo(({
     isCollapsed,
     onToggleCollapse,
     problemId,
+    onErrorLineDetected,
 }: TestCasesProps) => {
     const [activeTab, setActiveTab] = useState<number | "console">(0);
 
@@ -95,76 +97,47 @@ const TestCases = memo(({
 
     // Get error details for console
     const errorDetails = useMemo(() => {
-        if ((status === "COMPILE_ERROR" || status === "RUNTIME_ERROR") && (!results || results.length === 0)) {
-            return {
-                type: status === "COMPILE_ERROR" ? "Compilation Error" : "Runtime Error",
-                status: status,
-                message: "System Error: The execution environment returned an error without test case details.",
-                testCaseIndex: undefined,
-                time: undefined,
-                memory: undefined
-            };
-        }
-        if (!results || results.length === 0) return null;
+        const errorCase = results?.find(r => r.status === "COMPILE_ERROR" || r.status === "RUNTIME_ERROR");
+        if (!errorCase) return null;
 
-        const compileError = results.find(r => r.status === "COMPILE_ERROR");
-        if (compileError) {
-            return {
-                type: "Compilation Error",
-                status: "COMPILE_ERROR",
-                message: compileError.errorMessage || "Compilation failed",
-                testCaseIndex: compileError.index,
-                time: undefined,
-                memory: undefined
-            };
+        const message = errorCase.errorMessage || "";
+
+        // Extract line number from message
+        // Patterns: "line 12", ":12:5", "at 12"
+        let line: number | null = null;
+        const linePatterns = [
+            /line\s+(\d+)/i,
+            /:(\d+):/,
+            /at\s+(\d+)/i
+        ];
+
+        for (const pattern of linePatterns) {
+            const match = message.match(pattern);
+            if (match && match[1]) {
+                line = parseInt(match[1], 10);
+                break;
+            }
         }
 
-        const runtimeError = results.find(r => r.status === "RUNTIME_ERROR");
-        if (runtimeError) {
-            const errorMsg = runtimeError.errorMessage?.trim();
-            const defaultMsg = errorMsg
-                ? errorMsg
-                : "A runtime error occurred. This usually means:\n- Division by zero\n- Array index out of bounds\n- Null pointer exception\n- Stack overflow";
+        return {
+            type: errorCase.status === "COMPILE_ERROR" ? "Compilation Error" : "Runtime Error",
+            message: message,
+            status: errorCase.status,
+            testCaseIndex: errorCase.index,
+            time: errorCase.time,
+            memory: errorCase.memory,
+            line: line
+        };
+    }, [results]);
 
-            return {
-                type: "Runtime Error",
-                status: "RUNTIME_ERROR",
-                message: defaultMsg,
-                testCaseIndex: runtimeError.index,
-                time: runtimeError.time,
-                memory: runtimeError.memory
-            };
+    // Send line highlight to parent
+    useEffect(() => {
+        if (activeTab === "console" && errorDetails?.line) {
+            onErrorLineDetected?.(errorDetails.line);
+        } else if (activeTab !== "console") {
+            onErrorLineDetected?.(null);
         }
-
-        const anyError = results.find(r => r.errorMessage && r.errorMessage.trim().length > 0);
-        if (anyError) {
-            return {
-                type: "Error",
-                status: anyError.status,
-                message: anyError.errorMessage,
-                testCaseIndex: anyError.index,
-                time: anyError.time,
-                memory: anyError.memory
-            };
-        }
-
-        const anyErrorStatus = results.find(r =>
-            r.status !== "ACCEPTED" &&
-            r.status !== "PENDING" &&
-            (r.status === "WRONG_ANSWER" || r.status === "TIME_LIMIT_EXCEEDED" || r.status === "MEMORY_LIMIT_EXCEEDED")
-        );
-        if (anyErrorStatus) {
-            return {
-                type: anyErrorStatus.status.replace(/_/g, " "),
-                status: anyErrorStatus.status,
-                message: anyErrorStatus.errorMessage || `${anyErrorStatus.status.replace(/_/g, " ")} occurred`,
-                testCaseIndex: anyErrorStatus.index,
-                time: anyErrorStatus.time,
-                memory: anyErrorStatus.memory
-            };
-        }
-        return null;
-    }, [results, status]);
+    }, [activeTab, errorDetails?.line, onErrorLineDetected]);
 
     // Auto-switch to console tab when error is first detected
     useEffect(() => {
@@ -174,15 +147,6 @@ const TestCases = memo(({
             setActiveTab("console");
         }
     }, [hasError, results]);
-
-    // AUTO-EXPAND handled by parent (Workspace) via handleSubmission
-    /*
-    useEffect(() => {
-        if (results && results.length > 0) {
-            setIsCollapsed(false);
-        }
-    }, [results]);
-    */
 
     // Calculate runtime and memory
     const { submissionRuntime, submissionMemory } = useMemo(() => {
@@ -448,166 +412,40 @@ const TestCases = memo(({
                              {/* Content */}
                             <div className="flex-1">
                                 <AnimatePresence mode="wait">
-                                    {activeTab === "console" && hasError ? (
-                                        errorDetails ? (
-                                            <motion.div
-                                                key="console"
-                                                variants={contentVariants}
-                                                initial="hidden"
-                                                animate="visible"
-                                                exit="exit"
-                                                className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
-                                            >
-                                                {/* Console Header */}
-                                                <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#1e1e1e]">
-                                                    <Code2 className="w-4 h-4 text-gray-500" />
-                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Console Output</span>
-                                                    <div className="ml-auto flex items-center gap-2">
-                                                        <motion.div
-                                                            initial={{ opacity: 0, x: 10 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${errorDetails.status === "COMPILE_ERROR" || errorDetails.status === "RUNTIME_ERROR"
-                                                                ? "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30"
-                                                                : "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30"
-                                                            }`}
-                                                        >
-                                                            {errorDetails.type}
-                                                        </motion.div>
-                                                    </div>
+                                    {activeTab === "console" && hasError && (
+                                        <motion.div
+                                            key="console"
+                                            variants={contentVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                            exit="exit"
+                                            className="space-y-6 pt-2"
+                                        >
+                                            {/* Error Header */}
+                                            <div className="flex items-center gap-2 text-lg font-semibold tracking-tight text-red-500">
+                                                <AlertCircle className="w-5 h-5 stroke-[2.5px]" />
+                                                <span>{errorDetails?.type || "Execution Error"}</span>
+                                            </div>
+
+                                            {/* Error Message - Terminal Box */}
+                                            <div className="relative group">
+                                                <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-red-500/80 uppercase tracking-widest z-10 transition-colors group-hover:text-red-500">
+                                                    Console Output
                                                 </div>
-
-                                                {/* Console Content */}
-                                                <div className="flex-1 overflow-auto p-4">
-                                                    <div className="space-y-4">
-                                                        <motion.div
-                                                            initial={{ opacity: 0, x: -8 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: 0.1 }}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <AlertCircle className={`w-4 h-4 ${errorDetails.status === "COMPILE_ERROR" || errorDetails.status === "RUNTIME_ERROR" ? "text-red-500" : "text-amber-500"}`} />
-                                                            <span className={`text-sm font-semibold ${errorDetails.status === "COMPILE_ERROR" || errorDetails.status === "RUNTIME_ERROR" ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}>
-                                                                {errorDetails.type}
-                                                            </span>
-                                                        </motion.div>
-
-                                                        {errorDetails.testCaseIndex !== undefined && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                transition={{ delay: 0.15 }}
-                                                                className="text-xs text-gray-500 dark:text-gray-400"
-                                                            >
-                                                                <span className="font-medium text-gray-700 dark:text-gray-300">Test Case:</span> {errorDetails.testCaseIndex + 1}
-                                                            </motion.div>
-                                                        )}
-
-                                                        {((errorDetails.time !== null && errorDetails.time !== undefined) || (errorDetails.memory !== null && errorDetails.memory !== undefined)) && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                transition={{ delay: 0.2 }}
-                                                                className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400"
-                                                            >
-                                                                {errorDetails.time !== null && errorDetails.time !== undefined && (
-                                                                    <span className="flex items-center gap-1">
-                                                                        <Clock className="w-3 h-3" />
-                                                                        Time: {errorDetails.time}s
-                                                                    </span>
-                                                                )}
-                                                                {errorDetails.memory && (
-                                                                    <span>Memory: {errorDetails.memory}KB</span>
-                                                                )}
-                                                            </motion.div>
-                                                        )}
-
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 6 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ delay: 0.25 }}
-                                                            className="mt-4"
-                                                        >
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide font-semibold">Error Details</div>
-                                                            <div className="bg-red-50/50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-xl p-4 font-mono text-sm text-red-900 dark:text-red-300 whitespace-pre-wrap overflow-x-auto leading-relaxed">
-                                                                {errorDetails.message}
-                                                            </div>
-                                                        </motion.div>
-
-                                                        <motion.div
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            transition={{ delay: 0.3 }}
-                                                            className="text-xs text-gray-500 dark:text-gray-400"
-                                                        >
-                                                            <span className="font-medium text-gray-700 dark:text-gray-300">Status:</span>{" "}
-                                                            <span className="font-mono text-gray-600 dark:text-gray-400">
-                                                                {errorDetails.status.replace(/_/g, " ")}
-                                                            </span>
-                                                        </motion.div>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        ) : (
-                                            <motion.div
-                                                key="console-fallback"
-                                                variants={contentVariants}
-                                                initial="hidden"
-                                                animate="visible"
-                                                exit="exit"
-                                                className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#1e1e1e] overflow-hidden shadow-sm"
-                                            >
-                                                <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#1e1e1e]">
-                                                    <Code2 className="w-4 h-4 text-amber-500" />
-                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Console</span>
-                                                    <div className="ml-auto">
-                                                        <div className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
-                                                            Error Detected
+                                                <div className="w-full bg-[#0d0d0d] border border-red-500/20 rounded-lg p-5 font-mono text-sm text-red-50/90 whitespace-pre-wrap overflow-x-auto leading-relaxed shadow-lg shadow-red-500/5 min-h-[120px]">
+                                                    {errorDetails?.message || "An unknown error occurred during execution."}
+                                                    {(!errorDetails && results) && results.filter(r => r.errorMessage).map((r, i) => (
+                                                        <div key={i} className="mt-4 first:mt-0">
+                                                            <div className="text-[10px] text-gray-500 mb-1">// Case {r.index + 1}</div>
+                                                            {r.errorMessage}
                                                         </div>
-                                                    </div>
+                                                    ))}
                                                 </div>
-                                                <div className="flex-1 overflow-auto p-4">
-                                                    <div className="space-y-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <AlertCircle className="w-4 h-4 text-amber-500" />
-                                                            <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Runtime or Compilation Error</span>
-                                                        </div>
-                                                        <div className="bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl p-4">
-                                                            <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">Error Information</div>
-                                                            <div className="text-sm space-y-2">
-                                                                {results && results.length > 0 && (
-                                                                    <>
-                                                                        {results.some(r => r.status === "RUNTIME_ERROR") && (
-                                                                            <div>
-                                                                                <span className="text-gray-500">Status: </span>
-                                                                                <span className="text-red-600 dark:text-red-400 font-mono font-medium">RUNTIME_ERROR</span>
-                                                                            </div>
-                                                                        )}
-                                                                        {results.some(r => r.status === "COMPILE_ERROR") && (
-                                                                            <div>
-                                                                                <span className="text-gray-500">Status: </span>
-                                                                                <span className="text-red-600 dark:text-red-400 font-mono font-medium">COMPILE_ERROR</span>
-                                                                            </div>
-                                                                        )}
-                                                                        {results.filter(r => (r.status === "RUNTIME_ERROR" || r.status === "COMPILE_ERROR") && r.errorMessage).map((errorResult, idx) => (
-                                                                            <div key={idx} className="mt-3 p-3 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-lg">
-                                                                                <div className="text-xs text-gray-500 mb-1">Test Case {errorResult.index + 1}:</div>
-                                                                                <div className="text-sm text-red-700 dark:text-red-300 font-mono whitespace-pre-wrap">{errorResult.errorMessage}</div>
-                                                                            </div>
-                                                                        ))}
-                                                                        {!results.some(r => (r.status === "RUNTIME_ERROR" || r.status === "COMPILE_ERROR") && r.errorMessage) && (
-                                                                            <div className="mt-4 text-xs text-gray-500">
-                                                                                No detailed error message available.
-                                                                            </div>
-                                                                        )}
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                    )) : (() => {
-                                        if (typeof activeTab !== "number") return null;
+                                            </div>
+
+                                        </motion.div>
+                                    )}
+                                    {typeof activeTab === "number" && (() => {
                                         const displayIndex = activeTab;
                                         const isCustom = displayIndex >= safeCases.length;
 
@@ -625,7 +463,7 @@ const TestCases = memo(({
                                             isHidden = false;
                                             hideContents = false;
                                         } else {
-                                            if (displayIndex >= totalCount) return <div className='text-gray-400 text-sm'>Select a case</div>;
+                                            if (displayIndex >= totalCount) return <div key="select-case" className='text-gray-400 text-sm'>Select a case</div>;
                                             const problemCase = displayCases[displayIndex];
                                             testCase = problemCase;
                                             originalIndex = safeCases.findIndex(tc => tc.id === problemCase.id);
@@ -640,61 +478,55 @@ const TestCases = memo(({
                                                 initial="hidden"
                                                 animate="visible"
                                                 exit="exit"
-                                                className="space-y-4"
+                                                className="space-y-6 pt-2"
                                             >
-                                                {/* Result Status Banner */}
+                                                {/* Result Status Header */}
                                                 {result && (
                                                     <motion.div
-                                                        variants={bannerVariants}
-                                                        initial="hidden"
-                                                        animate="visible"
-                                                        className={`
-                                                            p-3 rounded-xl border text-sm font-medium flex items-center justify-between
-                                                            ${result.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' :
-                                                            result.status === 'PENDING' ? 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700' :
-                                                            result.status === 'PROCESSING' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' :
-                                                                'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'}
-                                                        `}
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        className={`flex items-center gap-2 text-lg font-semibold tracking-tight ${
+                                                            result.status === 'ACCEPTED' ? 'text-emerald-500' :
+                                                            result.status === 'PENDING' || result.status === 'PROCESSING' ? 'text-gray-400' : 'text-red-500'
+                                                        }`}
                                                     >
-                                                        <span className="flex items-center gap-2">
-                                                            {result.status === 'ACCEPTED' && <CheckCircle2 className="w-4 h-4" />}
-                                                            {result.status === 'PROCESSING' && <div className="w-3.5 h-3.5 border-2 border-orange-300 border-t-orange-600 rounded-full animate-spin" />}
-                                                            {result.status === 'PENDING' ? 'IN QUEUE' :
-                                                             result.status === 'PROCESSING' ? 'EXECUTING...' :
+                                                        {result.status === 'ACCEPTED' && <CheckCircle2 className="w-5 h-5 stroke-[2.5px]" />}
+                                                        {result.status === 'WRONG_ANSWER' && <XCircle className="w-5 h-5 stroke-[2.5px]" />}
+                                                        {(result.status === 'PENDING' || result.status === 'PROCESSING') && (
+                                                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                                        )}
+                                                        <span>
+                                                            {result.status === 'ACCEPTED' ? 'Accepted' :
+                                                             result.status === 'PENDING' ? 'In Queue' :
+                                                             result.status === 'PROCESSING' ? 'Executing...' :
                                                              result.status.replace(/_/g, " ")}
                                                         </span>
-                                                        <div className="flex items-center gap-4 text-xs opacity-80">
-                                                            {result.time !== null && (
-                                                                <span className="flex items-center gap-1">
-                                                                    <Clock className="w-3 h-3" />
-                                                                    {result.time}s
-                                                                </span>
-                                                            )}
-                                                        </div>
+
+                                                        {result.time !== null && (
+                                                            <span className="ml-auto text-xs font-medium text-gray-400 opacity-60 flex items-center gap-1">
+                                                                <Clock className="w-3 h-3" />
+                                                                {result.time}s
+                                                            </span>
+                                                        )}
                                                     </motion.div>
                                                 )}
 
                                                 {(isHidden || hideContents) ? (
                                                     <motion.div
-                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        initial={{ opacity: 0, scale: 0.98 }}
                                                         animate={{ opacity: 1, scale: 1 }}
-                                                        className="flex flex-col items-center justify-center p-8 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-200 dark:border-[#262626] rounded-xl bg-gray-50/50 dark:bg-[#0d0d0d]"
+                                                        className="flex flex-col items-center justify-center p-10 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-[#262626] rounded-xl bg-gray-50/30 dark:bg-[#0d0d0d]/30"
                                                     >
-                                                        <Lock className="w-8 h-8 mb-2 opacity-50" />
+                                                        <Lock className="w-8 h-8 mb-3 opacity-40" />
                                                         <span className="text-sm font-medium">
-                                                            {hideContents ? "Test case contents are hidden" : "This test case is hidden"}
+                                                            {hideContents ? "Test case contents are hidden" : "This test case is private"}
                                                         </span>
                                                     </motion.div>
                                                 ) : (
                                                     <>
-                                                        {/* Input */}
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 4 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ delay: 0.05 }}
-                                                            className="space-y-2"
-                                                        >
-                                                            <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                                        {/* Input Box - Legend style */}
+                                                        <div className="relative group">
+                                                            <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
                                                                 Input
                                                             </div>
                                                             {isCustom ? (
@@ -702,56 +534,57 @@ const TestCases = memo(({
                                                                     value={testCase.input}
                                                                     onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { input: e.target.value })}
                                                                     placeholder="Enter custom input..."
-                                                                    className="w-full bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-orange-500/30 min-h-[120px] resize-y"
+                                                                    className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
                                                                 />
                                                             ) : (
-                                                                <div className="bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                                                                <div className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto">
                                                                     {testCase.input}
                                                                 </div>
                                                             )}
-                                                        </motion.div>
+                                                        </div>
 
                                                         {/* Output Grid */}
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 4 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ delay: 0.1 }}
-                                                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                                                        >
-                                                            <div className="space-y-2">
-                                                                <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                                                    Expected
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                            {/* Actual Box */}
+                                                            <div className="relative group">
+                                                                <div className={`absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold uppercase tracking-widest z-10 ${
+                                                                    result?.status === 'ACCEPTED' ? 'text-emerald-500/80' :
+                                                                    result?.status === 'WRONG_ANSWER' ? 'text-red-500/80' : 'text-gray-400 dark:text-gray-500'
+                                                                }`}>
+                                                                    Your Output
+                                                                </div>
+                                                                <div className={`
+                                                                    w-full border rounded-lg p-4 font-mono text-sm whitespace-pre-wrap min-h-[80px] overflow-x-auto transition-all
+                                                                    ${result?.status === 'ACCEPTED'
+                                                                        ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-900 dark:text-emerald-300'
+                                                                        : result?.status === 'WRONG_ANSWER'
+                                                                            ? 'bg-red-500/5 border-red-500/20 text-red-900 dark:text-red-300'
+                                                                            : 'bg-transparent border-gray-200 dark:border-[#262626] text-gray-800 dark:text-gray-200'
+                                                                    }
+                                                                `}>
+                                                                    {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Expected Box */}
+                                                            <div className="relative group">
+                                                                <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
+                                                                    Expected Output
                                                                 </div>
                                                                 {isCustom ? (
                                                                     <textarea
                                                                         value={testCase.output}
                                                                         onChange={(e) => onUpdateCustomCase?.(displayIndex - safeCases.length, { output: e.target.value })}
                                                                         placeholder="Expected output..."
-                                                                        className="w-full bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-orange-500/30 min-h-[120px] resize-y"
+                                                                        className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
                                                                     />
                                                                 ) : (
-                                                                    <div className="bg-[#fafafa] dark:bg-[#121212] border-2 border-dotted border-gray-200 dark:border-[#262626] rounded-xl p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap min-h-[120px]">
+                                                                    <div className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto min-h-[80px]">
                                                                         {testCase.output}
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="space-y-2">
-                                                                <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                                                    Actual
-                                                                </div>
-                                                                <div className={`
-                                                                    border-2 border-dotted rounded-xl p-4 font-mono text-sm whitespace-pre-wrap transition-colors duration-300 min-h-[120px]
-                                                                    ${result?.status === 'ACCEPTED'
-                                                                        ? 'bg-emerald-500/3 dark:bg-emerald-500/3 border-emerald-500/30 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-300'
-                                                                        : result?.status === 'WRONG_ANSWER'
-                                                                            ? 'bg-red-500/3 dark:bg-red-500/3 border-red-500/30 dark:border-red-500/30 text-red-900 dark:text-red-300'
-                                                                            : 'bg-[#fafafa] dark:bg-[#121212] border-gray-200 dark:border-[#262626] text-gray-800 dark:text-gray-200'
-                                                                    }
-                                                                `}>
-                                                                    {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
-                                                                </div>
-                                                            </div>
-                                                        </motion.div>
+                                                        </div>
                                                     </>
                                                 )}
                                             </motion.div>

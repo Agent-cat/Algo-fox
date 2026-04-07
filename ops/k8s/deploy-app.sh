@@ -75,7 +75,9 @@ wait_for_db() {
         # Check for common error states
         status=$(kubectl get pods -n algofox -l app=postgres -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}' 2>/dev/null || true)
         if [[ "$status" == "ImagePullBackOff" || "$status" == "ErrImagePull" ]]; then
-            log_error "Critical: Pod is in $status state. Check your image name or internet connection."
+            log_error "Critical: Pod is in $status state."
+            log_info "Showing pod events for diagnosis..."
+            kubectl describe -n algofox pod -l app=postgres | grep -A 20 "Events:" | grep -v "Normal"
             exit 1
         fi
 
@@ -85,7 +87,7 @@ wait_for_db() {
 }
 
 setup_db() {
-    log_info "Syncing Database Schema..."
+    log_info "Syncing Database Schema via Host (Port-forwarding)..."
 
     # Find a random free port
     local_port=$(shuf -i 10000-65000 -n 1)
@@ -96,15 +98,15 @@ setup_db() {
     pf_pid=$!
 
     # Wait for connection
-    sleep 5
+    sleep 8
 
     # helper to run command
     run_prisma() {
         export DATABASE_URL="postgresql://algofox:algofox@localhost:$local_port/algofox"
         if command -v bunx >/dev/null 2>&1; then
-            bunx prisma db push
+            bunx prisma@5 db push --skip-generate
         else
-            npx prisma db push
+            npx prisma@5 db push --skip-generate
         fi
     }
 

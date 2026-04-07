@@ -1,11 +1,14 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { revalidateTag, cacheLife, cacheTag } from "next/cache";
 import { fetchExternalContests, type Contest } from "@/lib/contest-fetcher";
 
 // Types are imported from lib/contest-fetcher directly in components
 
 export async function getUpcomingContests(ignoreCache = false) {
+    "use cache";
+    cacheLife("contests");
+    cacheTag("external-contests");
     // Note: ignoreCache parameter is kept for interface compatibility but we rely on revalidateTag
     // or just fetch fresh in SWR/React Server Components if configured.
     // The lib function does standard fetch.

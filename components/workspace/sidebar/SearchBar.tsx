@@ -18,7 +18,7 @@ export function SearchBar({ searchTerm, onSearchChange }: SearchBarProps) {
                 placeholder={`Search ${searchTerm ? '' : 'problems...'}`}
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] hover:border-gray-300 dark:hover:border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all duration-300 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                className="w-full bg-[#fafafa] dark:bg-[#121212] border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-600"
             />
             {searchTerm && (
                 <button

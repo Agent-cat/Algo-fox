@@ -65,6 +65,7 @@ interface CodeEditorProps {
   onOpenSettings?: () => void;
   /** Optional file tabs bar to render above the toolbar */
   fileTabs?: React.ReactNode;
+  highlightLine?: number | null;
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -83,6 +84,7 @@ const CodeEditor = memo(({
   onOpenSettings,
   userId = "",
   fileTabs,
+  highlightLine,
 }: CodeEditorProps) => {
   // Get system theme
   const { resolvedTheme } = useTheme();
@@ -173,6 +175,7 @@ const CodeEditor = memo(({
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDriverCodeModalOpen, setIsDriverCodeModalOpen] = useState(false);
+  const decorationsRef = useRef<string[]>([]);
 
   // Track component mount state with a small delay to ensure DOM is ready
   useEffect(() => {
@@ -294,7 +297,46 @@ const CodeEditor = memo(({
     }
   }, [isDropdownOpen]);
 
-  // Removed native fullscreen event persistence to allow internal state management
+  // ─── ERROR HIGHLIGHTING ────────────────────────────────────────────────
+  useEffect(() => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+
+      // Clear previous decorations
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
+
+      if (highlightLine && highlightLine > 0) {
+        // We need to wait for the next tick to ensure model is ready and monaco global is available
+        // but since we're inside mount, it should be fine to use the model's range.
+
+        try {
+          const model = editor.getModel();
+          if (model && !model.isDisposed()) {
+            editor.revealLineInCenter(highlightLine);
+
+            decorationsRef.current = editor.deltaDecorations([], [
+              {
+                range: {
+                  startLineNumber: highlightLine,
+                  startColumn: 1,
+                  endLineNumber: highlightLine,
+                  endColumn: 1
+                },
+                options: {
+                  isWholeLine: true,
+                  className: 'error-line-highlight',
+                  glyphMarginClassName: 'error-line-glyph',
+                  stickiness: 1 // NeverGrowsWhenTypingAtEdges
+                }
+              }
+            ]);
+          }
+        } catch (err) {
+          console.debug("Highlight error:", err);
+        }
+      }
+    }
+  }, [highlightLine]);
 
 
   // ─── FILE-MANAGED MODE: Sync controlled value → internal state + Monaco ───
@@ -718,6 +760,17 @@ const CodeEditor = memo(({
         isFullScreen ? "fixed inset-0 z-50" : ""
       }`}
     >
+      <style>{`
+        .error-line-highlight {
+          background: rgba(239, 68, 68, 0.15) !important;
+          border-left: 2px solid #ef4444 !important;
+        }
+        .error-line-glyph {
+          background: #ef4444 !important;
+          width: 5px !important;
+          margin-left: 5px !important;
+        }
+      `}</style>
       {/* FILE TABS */}
       {fileTabs}
 

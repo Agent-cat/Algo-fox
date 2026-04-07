@@ -117,7 +117,7 @@ export function VerificationModal({ platform, handle, onClose, onSuccess }: Veri
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-xl">
+                            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl">
                                 <code className="flex-1 text-center font-mono text-lg font-bold text-gray-900 dark:text-gray-100 tracking-wider">
                                     {verificationCode}
                                 </code>

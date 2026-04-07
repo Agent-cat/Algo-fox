@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { StreakEndedNotification } from "@/components/shared/StreakEndedNotification";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -24,12 +25,26 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
   const [isPulsing, setIsPulsing] = useState(false);
   const [flightStart, setFlightStart] = useState({ x: 0, y: 0 });
   const [pendingValue, setPendingValue] = useState(0);
+  const [isStreakEndedOpen, setIsStreakEndedOpen] = useState(false);
+  const [lastStreakBeforeReset, setLastStreakBeforeReset] = useState(0);
   const badgeRef = useRef<HTMLDivElement>(null);
 
   // Sync with session when it loads
   useEffect(() => {
     if (session?.user) {
-      setStreak((session.user as any).currentStreak || 0);
+      const serverStreak = (session.user as any).currentStreak || 0;
+      const streakKey = `algofox_last_streak_${session.user.id}`;
+      const lastStreakStr = localStorage.getItem(streakKey);
+      const lastStreak = lastStreakStr !== null ? parseInt(lastStreakStr, 10) : null;
+
+      // Detect reset
+      if (serverStreak === 0 && lastStreak !== null && lastStreak > 0) {
+        setLastStreakBeforeReset(lastStreak);
+        setIsStreakEndedOpen(true);
+      }
+
+      setStreak(serverStreak);
+      localStorage.setItem(streakKey, serverStreak.toString());
     }
   }, [session]);
 
@@ -69,6 +84,12 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
           />
         )}
       </AnimatePresence>
+
+      <StreakEndedNotification
+        isOpen={isStreakEndedOpen}
+        onClose={() => setIsStreakEndedOpen(false)}
+        lastStreak={lastStreakBeforeReset}
+      />
     </StreakContext.Provider>
   );
 }

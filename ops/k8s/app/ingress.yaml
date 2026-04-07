@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: intelligentsiaclub.in
+  - host: klfemflare.in
     http:
       paths:
       - path: /

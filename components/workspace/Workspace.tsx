@@ -308,6 +308,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [streakCount, setStreakCount] = useState(0);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
     const [pointsGained, setPointsGained] = useState(0);
+    const [highlightLine, setHighlightLine] = useState<number | null>(null);
 
 
     // Custom Test Cases state
@@ -376,39 +377,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     useEffect(() => {
         setSolvedIds(solvedProblemIds);
     }, [solvedProblemIds]);
-
-    const {
-        sizes: sidebarSizes,
-        setSizes: setSidebarSizes,
-        setSizesProgrammatically: setSidebarSizesProgrammatically, // Added this
-        layoutKey: sidebarLayoutKey,
-        isHydrated: sidebarHydrated
-    } = usePersistentSplit('algofox_workspace_sidebar_split', [20, 80]);
-
-    const [isContestSidebarCollapsed, setIsContestSidebarCollapsed] = useState(false);
-    const [sidebarLastSize, setSidebarLastSize] = useState(20);
-
-    // Track collapsed state based on sizes
-    useEffect(() => {
-        if (sidebarHydrated) {
-            const collapsed = sidebarSizes[0] < 5;
-            setIsContestSidebarCollapsed(collapsed);
-            if (!collapsed && sidebarSizes[0] > 5) {
-                setSidebarLastSize(sidebarSizes[0]);
-            }
-        }
-    }, [sidebarSizes, sidebarHydrated]);
-
-    const toggleContestSidebar = useCallback(() => {
-        if (!isContestSidebarCollapsed) {
-            // Store current size before collapsing if it's not already near zero
-            if (sidebarSizes[0] > 5) setSidebarLastSize(sidebarSizes[0]);
-            setSidebarSizesProgrammatically([0, 100]);
-        } else {
-            // Expand to last known size
-            setSidebarSizesProgrammatically([sidebarLastSize, 100 - sidebarLastSize]);
-        }
-    }, [isContestSidebarCollapsed, sidebarSizes, sidebarLastSize, setSidebarSizesProgrammatically]);
 
     const handleSubmission = async (mode: "RUN" | "SUBMIT") => {
         if (!code) {
@@ -685,7 +653,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         }
     }, [pendingRestore, codeFiles.isLoaded, languageId]);
 
-    if (!mainHydrated || !verticalHydrated || !sidebarHydrated) {
+    if (!mainHydrated || !verticalHydrated) {
         return null; // or a loading skeleton
     }
 
@@ -754,6 +722,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             readOnly={isSubmitting}
                             userId={session?.user?.id || ""}
                             fileTabs={fileTabsNode}
+                            highlightLine={highlightLine}
                         />
                     </div>
                     <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
@@ -769,6 +738,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             problemId={problem.id}
                             isCollapsed={isTestCasesCollapsed}
                             onToggleCollapse={toggleTestCases}
+                            onErrorLineDetected={setHighlightLine}
                         />
                     </div>
                 </Split>
@@ -818,7 +788,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 </>
             )}
             {/* Problem Navigation Sidebar - Only show when not in contest mode */}
-            {!contestId && (
+            {/* Sidebar implementations */}
+            {!contestId ? (
                 <ProblemSidebar
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
@@ -826,6 +797,14 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     domain={problem.domain}
                     problemType={problem.type}
                     solvedProblemIds={solvedIds}
+                />
+            ) : (
+                <ContestSidebar
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
+                    contest={contest}
+                    currentProblemId={problem.id}
+                    solvedProblemIds={solvedProblemIds}
                 />
             )}
 
@@ -840,43 +819,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 prevProblemSlug={prevProblemSlug}
                 domain={problem.domain}
                 type={problem.type}
-                onToggleSidebar={!contestId ? () => setIsSidebarOpen(true) : undefined}
+                onToggleSidebar={() => setIsSidebarOpen(true)}
             />
             <div className="flex-1 overflow-hidden flex flex-row min-h-0">
-                {isContestSidebarCollapsed && (
-                    <div className="w-9 h-full bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626] flex flex-col items-center pt-4 shrink-0 animate-in slide-in-from-left duration-200">
-                        <button
-                            onClick={toggleContestSidebar}
-                            className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors shadow-sm"
-                            title="Expand Navigator"
-                        >
-                            <LayoutGrid className="w-4 h-4" />
-                        </button>
-                    </div>
-                )}
-                {contest ? (
-                    <Split
-                        className="split flex h-full w-full"
-                        sizes={sidebarSizes}
-                        minSize={[0, 400]}
-                        gutterSize={4}
-                        onDragEnd={setSidebarSizes}
-                    >
-                        <div className="h-full overflow-hidden min-w-0 shrink-0 border-r border-gray-200 dark:border-[#262626]">
-                            <ContestSidebar
-                                contest={contest}
-                                currentProblemId={problem.id}
-                                solvedProblemIds={solvedProblemIds}
-                                onToggle={toggleContestSidebar}
-                            />
-                        </div>
-                        <div className="h-full overflow-hidden min-w-0 flex-1">
-                            {mainEditorContent}
-                        </div>
-                    </Split>
-                ) : (
-                    mainEditorContent
-                )}
+                {mainEditorContent}
 
                 <style jsx global>{`
                     .split {

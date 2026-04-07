@@ -157,8 +157,8 @@ export default function CategoryCard({
         className={cn(
           "w-full transition-all group flex",
           isSubCategory
-            ? "bg-transparent border-none py-1.5 hover:bg-gray-100/50 dark:hover:bg-white/3 rounded-lg"
-            : "bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/2 shadow-sm hover:shadow-md"
+            ? "bg-transparent border-none py-1.5 hover:bg-gray-100/70 dark:hover:bg-white/4 rounded-lg group/sub"
+            : "bg-white dark:bg-[#121212] border border-gray-200/80 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/2 shadow-sm hover:shadow-md"
         )}
       >
         <motion.button
@@ -170,7 +170,9 @@ export default function CategoryCard({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-gray-400 font-medium text-sm min-w-[1.2rem]">{displayOrder || "•"}</span>
-            <h3 className={`text-sm md:text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors ${isSubCategory ? "text-xs md:text-sm" : ""}`}>
+            <h3 className={`font-medium transition-colors ${
+              isSubCategory ? "text-xs md:text-[13px] text-gray-500 dark:text-gray-300 group-hover/sub:text-gray-900 dark:group-hover/sub:text-white" : "text-sm md:text-base text-gray-700 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white"
+            }`}>
               {name}
             </h3>
             {isCompleted && (
@@ -200,9 +202,9 @@ export default function CategoryCard({
             </div>
             <div className="shrink-0">
               {isExpanded ? (
-                <Minus className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                <Minus className={cn("text-gray-400 group-hover:text-gray-700 transition-colors", isSubCategory ? "w-3.5 h-3.5" : "w-5 h-5")} />
               ) : (
-                <Plus className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                <Plus className={cn("text-gray-400 group-hover:text-gray-700 transition-colors", isSubCategory ? "w-3.5 h-3.5" : "w-5 h-5")} />
               )}
             </div>
           </div>
@@ -237,8 +239,8 @@ export default function CategoryCard({
             className="overflow-hidden"
           >
             <div className={cn(
-              "mt-2 ml-4 pl-4 border-l border-gray-100 dark:border-[#1a1a1a] space-y-4",
-              !isSubCategory && "pb-4"
+              "mt-1.5 ml-3 pl-5 border-l-2 border-orange-500/20 dark:border-orange-500/15 space-y-2",
+              !isSubCategory && "pb-4 mb-2"
             )}>
               {/* Render Sub-categories first if they exist */}
               {subCategories && subCategories.length > 0 && (

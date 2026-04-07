@@ -65,8 +65,8 @@ export function ProblemsList({
                         className={cn(
                             "group flex items-center gap-4 p-3.5 rounded-xl transition-all duration-300 border relative overflow-hidden",
                             isCurrent
-                                ? "bg-orange-50/60 dark:bg-orange-500/5 border-orange-200/50 dark:border-orange-500/20 shadow-md ring-1 ring-orange-500/20 dark:ring-transparent shadow-orange-500/5"
-                                : "bg-white dark:bg-[#111111] hover:bg-gray-50/80 dark:hover:bg-[#161616] border-gray-100/80 dark:border-[#262626] hover:border-gray-200 dark:hover:border-[#333] hover:shadow-sm"
+                                ? "bg-orange-50/60 dark:bg-orange-500/5 border-orange-200/50 dark:border-orange-500/20 shadow-sm ring-1 ring-orange-500/10 dark:ring-transparent"
+                                : "bg-[#fafafa] dark:bg-[#121212] hover:bg-white dark:hover:bg-white/3 border-gray-200/50 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 hover:shadow-sm"
                         )}
                     >
                         {/* Status Checkbox/Indicator */}

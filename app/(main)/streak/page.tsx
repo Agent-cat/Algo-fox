@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import { StreakCelebrationModal } from '@/components/shared/StreakCelebrationModal';
+import { StreakEndedNotification } from '@/components/shared/StreakEndedNotification';
 import { Button } from '@/components/ui/button';
 
 export default function StreakTestPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isEndedOpen, setIsEndedOpen] = useState(false);
   const [streak, setStreak] = useState(5);
 
   return (
@@ -31,17 +33,32 @@ export default function StreakTestPage() {
         </button>
       </div>
 
-      <button
-        onClick={() => setIsOpen(true)}
-        className="px-8 py-4 bg-orange-600 hover:bg-orange-500 rounded-2xl font-bold text-white shadow-[0_0_30px_rgba(234,88,12,0.3)] transition-all hover:scale-105 active:scale-95"
-      >
-        Trigger Streak Modal
-      </button>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="px-8 py-4 bg-orange-600 hover:bg-orange-500 rounded-2xl font-bold text-white shadow-[0_0_30px_rgba(234,88,12,0.3)] transition-all hover:scale-105 active:scale-95"
+        >
+          Trigger Celebration
+        </button>
+
+        <button
+          onClick={() => setIsEndedOpen(true)}
+          className="px-8 py-4 bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 rounded-2xl font-bold text-gray-900 dark:text-white transition-all hover:scale-105 active:scale-95"
+        >
+          Trigger Streak Ended
+        </button>
+      </div>
 
       <StreakCelebrationModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         currentStreak={streak}
+      />
+
+      <StreakEndedNotification
+        isOpen={isEndedOpen}
+        onClose={() => setIsEndedOpen(false)}
+        lastStreak={streak}
       />
     </div>
   );

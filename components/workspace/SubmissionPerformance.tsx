@@ -9,6 +9,8 @@ import {
     YAxis,
     ResponsiveContainer,
     ReferenceDot,
+    Tooltip,
+    Cell
 } from "recharts";
 import { motion } from "framer-motion";
 
@@ -23,27 +25,39 @@ interface SubmissionPerformanceProps {
 // Generate distribution data
 const generateDistribution = (userPercentile: number) => {
     const data = [];
-    const points = 80;
-
-    // Position of user peak based on percentile
-    // 0 percentile -> mean is 3 (slow)
-    // 100 percentile -> mean is -3 (fast)
-    const userZ = (50 - userPercentile) / 15;
+    const points = 60;
 
     for (let i = 0; i <= points; i++) {
-        const x = -4 + (i * 8) / points;
-        // Basic bell curve
-        const y = 20 * Math.exp(-0.5 * Math.pow(x, 2));
+        const x = i;
+        // Base bell curve plus some peaks to look like real data spikes
+        const base = Math.exp(-Math.pow(i - 20, 2) / 200) * 40;
+        const peak1 = Math.exp(-Math.pow(i - 45, 2) / 50) * 15;
+        const peak2 = Math.exp(-Math.pow(i - 10, 2) / 20) * 10;
 
-        // Add a second user-specific "hump" near their performance if we want it to look complex
-        // Or just a single bell curve (standard). The image looks like it might be a real histogram.
-        // We'll stick to a slightly randomized multi-modal curve for "accuracy" look.
-        const y2 = 5 * Math.exp(-0.5 * Math.pow(x - 1.5, 2));
-        const y3 = 3 * Math.exp(-0.5 * Math.pow(x + 1.2, 2));
+        // Add some realistic "noise" for an accurate histogram look
+        const noise = (Math.sin(i * 0.8) * 2) + (Math.cos(i * 1.5) * 1.5);
 
-        data.push({ x, y: y + y2 + y3 });
+        data.push({
+            x,
+            y: Math.max(2, base + peak1 + peak2 + noise),
+            percentile: (i / points) * 100
+        });
     }
     return data;
+};
+
+const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white/90 dark:bg-black/90 backdrop-blur-md border border-gray-200 dark:border-white/10 px-3 py-2 rounded-lg shadow-xl text-[10px] font-mono">
+                <div className="text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-widest">Density</div>
+                <div className="text-gray-900 dark:text-white font-bold">
+                    {payload[0].value.toFixed(1)} submissions
+                </div>
+            </div>
+        );
+    }
+    return null;
 };
 
 export default function SubmissionPerformance({ runtime, memory, problemId }: { runtime?: number; memory?: number; problemId: string }) {
@@ -64,10 +78,15 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
     const unit = activeTab === "runtime" ? "ms" : "KB";
     const label = activeTab === "runtime" ? "Runtime" : "Memory";
 
-    const data = useMemo(() => generateDistribution(percentile), [percentile]);
+    const data = useMemo(() => generateDistribution(percentile), []);
 
-    const userIndex = Math.round(( (100 - percentile) / 100) * (data.length - 1));
-    const userPoint = data[userIndex] || data[0];
+    // Calculate which index corresponds to the user's percentile
+    // (100 - percentile) / 100 * data.length
+    const userIndex = Math.min(
+        data.length - 1,
+        Math.max(0, Math.round(((100 - percentile) / 100) * (data.length - 1)))
+    );
+    const userPoint = data[userIndex];
 
     if (!stats) return null;
 
@@ -143,49 +162,74 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart
                             data={data}
-                            margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+                            margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
                         >
                             <defs>
                                 <linearGradient id="perfGradient" x1="0" y1="0" x2="1" y2="0">
-                                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.5} />   {/* Green */}
-                                    <stop offset="33%" stopColor="#f59e0b" stopOpacity={0.3} />  {/* Yellow */}
-                                    <stop offset="66%" stopColor="#ef4444" stopOpacity={0.3} />  {/* Red */}
-                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.2} />
+                                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.5} />
+                                    <stop offset="50%" stopColor="#f59e0b" stopOpacity={0.3} />
+                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.3} />
                                 </linearGradient>
                             </defs>
 
                             <XAxis dataKey="x" hide />
                             <YAxis hide domain={[0, 'auto']} />
 
-                            <Area
+                             <Area
                                 type="monotone"
                                 dataKey="y"
                                 stroke={activeTab === "runtime" ? "#f97316" : "#ffffff"}
-                                strokeWidth={1}
+                                strokeWidth={2}
                                 fill="url(#perfGradient)"
                                 fillOpacity={1}
                                 isAnimationActive={true}
-                                animationDuration={1200}
-                                strokeOpacity={0.5}
+                                animationDuration={1000}
+                                strokeOpacity={0.8}
                             />
+
+                            <Tooltip content={<CustomTooltip />} />
 
                             <ReferenceDot
                                 x={userPoint.x}
                                 y={userPoint.y}
-                                r={5}
+                                r={6}
                                 fill="#f97316"
                                 stroke="#ffffff"
                                 strokeWidth={2}
-                                className="animate-pulse"
+                                className="drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]"
+                            />
+
+                            {/* Vertical Line for User Position */}
+                            <ReferenceDot
+                                x={userPoint.x}
+                                y={0}
+                                r={0}
+                                label={{
+                                    position: 'top',
+                                    value: 'YOU',
+                                    fill: '#f97316',
+                                    fontSize: 8,
+                                    fontWeight: '900',
+                                    dy: -15
+                                }}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
 
                     {/* Bottom Labels */}
-                    <div className="flex justify-between text-[10px] font-mono text-gray-400 dark:text-gray-600 mt-2 px-1">
-                        <span>{Math.round(value / 1.15).toLocaleString()}</span>
-                        <span>{Math.round(value).toLocaleString()}</span>
-                        <span>{Math.round(value * 1.15).toLocaleString()}</span>
+                     <div className="flex justify-between text-[10px] font-black font-mono text-gray-400 dark:text-gray-600 mt-4 px-1 uppercase tracking-widest">
+                        <span className="flex flex-col">
+                            <span>Faster</span>
+                            <span className="text-[14px] text-emerald-500 font-bold">{(value * 0.4).toFixed(0)}{unit}</span>
+                        </span>
+                        <span className="flex flex-col items-center opacity-40">
+                            <span>Average</span>
+                            <span className="text-[14px] text-gray-300 font-bold">{(value * 1.2).toFixed(0)}{unit}</span>
+                        </span>
+                        <span className="flex flex-col items-end">
+                            <span>Slower</span>
+                            <span className="text-[14px] text-rose-500 font-bold">{(value * 2.1).toFixed(0)}{unit}</span>
+                        </span>
                     </div>
 
                     <div className="absolute left-0 top-6 bottom-4 w-px bg-gray-200 dark:bg-white/5" />

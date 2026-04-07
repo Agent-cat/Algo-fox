@@ -53,8 +53,10 @@ function CategoryItem({
 
     return (
         <div className={cn(
-            "rounded-2xl overflow-hidden transition-all duration-500",
-            level === 0 ? "mb-3 shadow-sm border border-gray-100/50 dark:border-[#1e1e1e]/50 bg-white dark:bg-[#0d0d0d]" : "ml-4 border-l-2 border-gray-100/50 dark:border-[#1e1e1e]/50 mt-1"
+            "rounded-2xl transition-all duration-300",
+            level === 0
+                ? "mb-4 border border-gray-100/60 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]"
+                : "ml-5 border-l border-gray-200 dark:border-white/10 mt-1.5"
         )}>
             <button
                 onClick={() => onToggleCategory(category.id)}
@@ -99,7 +101,7 @@ function CategoryItem({
                         className="overflow-hidden"
                     >
                         <div className={cn(
-                           "transition-all bg-white dark:bg-[#0d0d0d]",
+                           "transition-all bg-[#fafafa] dark:bg-[#121212]",
                            level === 0 ? "px-3 pb-3 pt-1" : "px-2 pb-2 pt-1"
                         )}>
                             {/* Render Sub-categories first */}
@@ -138,23 +140,23 @@ function CategoryItem({
                                                 key={prob.id}
                                                 href={`/problems/${prob.slug}`}
                                                 className={cn(
-                                                    "group/prob flex items-center justify-between p-3 rounded-xl text-[13px] transition-all border border-transparent duration-300",
+                                                    "group/prob flex items-center justify-between p-2.5 rounded-xl text-[13px] transition-all border border-transparent duration-300",
                                                     isCurrent
                                                         ? "bg-orange-50/60 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/40 dark:border-orange-500/20 shadow-sm"
-                                                        : "hover:bg-gray-50/80 dark:hover:bg-white/3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                                        : "hover:bg-gray-100/80 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                                 )}
                                             >
-                                                <div className="flex items-center gap-4 overflow-hidden">
+                                                <div className="flex items-center gap-3 overflow-hidden">
                                                     <div className="w-5 flex justify-center shrink-0">
                                                         {isSolved ? (
-                                                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                                                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
                                                         ) : (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-[#1e1e1e] group-hover/prob:scale-125 transition-transform duration-300" />
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-[#1e1e1e]" />
                                                         )}
                                                     </div>
                                                     <span className={cn(
-                                                        "truncate tracking-tight transition-all duration-300",
-                                                        isCurrent ? "font-bold" : "font-semibold group-hover/prob:translate-x-1"
+                                                        "truncate tracking-tight",
+                                                        isCurrent ? "font-bold text-orange-700 dark:text-orange-400" : "font-medium group-hover/prob:text-gray-900 dark:group-hover/prob:text-white transition-colors"
                                                     )}>
                                                         {prob.title}
                                                     </span>

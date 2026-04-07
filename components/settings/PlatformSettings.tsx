@@ -120,7 +120,7 @@ const PlatformRow = ({
             </div>
 
             <div className="flex-1 flex gap-2">
-                    <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-lg px-3 overflow-hidden relative">
+                    <div className="flex-1 flex items-center bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-lg px-3 overflow-hidden relative">
                         {urlPrefix && <span className="text-gray-400 text-sm whitespace-nowrap mr-1">{urlPrefix}</span>}
                         <input
                             {...register(id)}
@@ -175,7 +175,7 @@ const PlatformRow = ({
                         <button
                         onClick={() => onSubmit(id)}
                         disabled={isLoading === id || isValid === false}
-                        className="px-4 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-sm font-medium rounded-lg transition-colors min-w-[80px] disabled:opacity-50"
+                        className="px-4 py-2 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-sm font-medium rounded-lg transition-colors min-w-[80px] disabled:opacity-50"
                     >
                         {isLoading === id ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Save"}
                     </button>
@@ -265,7 +265,7 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                         <span className="font-medium text-gray-900 dark:text-gray-100">Github</span>
                     </div>
                     {isGithubConnected ? (
-                         <button className="px-4 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] text-sm font-medium rounded-lg">
+                         <button className="px-4 py-2 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] text-sm font-medium rounded-lg">
                             Connected as {user.githubHandle || watch("githubHandle")}
                          </button>
                     ) : (

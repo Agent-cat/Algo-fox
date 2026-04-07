@@ -143,7 +143,7 @@ export default function LeaderboardPage() {
                             <th className="px-8 py-4 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 min-w-[150px] bg-inherit">Branch</th>
                             <th className="px-8 py-4 text-center text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 min-w-[160px] bg-inherit">Problems Solved</th>
                             <th className="px-8 py-4 text-center text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 min-w-[140px] bg-inherit">Academic Year</th>
-                            <th className="px-8 py-4 text-right text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest w-40 z-10 bg-orange-50/20 dark:bg-orange-500/10 border-l border-gray-200 dark:border-white/10">Total Points</th>
+                            <th className="px-8 py-4 text-right text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest w-40 z-10 bg-orange-50/20 dark:bg-orange-500/10 border-l border-gray-200 dark:border-white/10">Points</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
@@ -235,7 +235,6 @@ export default function LeaderboardPage() {
                                                 <span className="text-xl font-semibold text-gray-950 dark:text-white tabular-nums tracking-tighter">
                                                     {entry.totalScore.toLocaleString()}
                                                 </span>
-                                                <span className="text-[9px] font-semibold text-orange-500 uppercase tracking-widest">Points</span>
                                             </div>
                                         </td>
                                     </motion.tr>

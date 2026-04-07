@@ -105,11 +105,14 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
     });
 
     const { page = 1, pageSize = 12, status } = params;
+    const currentUser = session?.user as any;
 
-    try {
-        const currentUser = session?.user as any;
+    async function fetchContestsCached() {
+        "use cache";
+        cacheLife("contests");
+        cacheTag("contests");
 
-        const result = await ContestService.getVisibleContests({
+        return ContestService.getVisibleContests({
             userId: currentUser?.id,
             email: currentUser?.email,
             role: currentUser?.role,
@@ -118,7 +121,10 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
             pageSize,
             status
         });
+    }
 
+    try {
+        const result = await fetchContestsCached();
         return { success: true, ...result };
     } catch (error) {
         console.error("Failed to fetch contests:", error);

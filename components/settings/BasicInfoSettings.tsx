@@ -104,10 +104,10 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                                 </div>
                             )}
                          </div>
-                         <button className="absolute bottom-0 right-0 p-1.5 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-colors border-2 border-white dark:border-[#0a0a0a]" title="Change Picture">
+                         <button className="absolute bottom-0 right-0 p-1.5 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-colors border-2 border-white dark:border-[#121212]" title="Change Picture">
                             <Pencil className="w-3.5 h-3.5" />
                          </button>
-                         <button className="absolute bottom-0 left-0 p-1.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full shadow-md hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 transition-colors border-2 border-white dark:border-[#0a0a0a]" title="Remove Picture">
+                         <button className="absolute bottom-0 left-0 p-1.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full shadow-md hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 transition-colors border-2 border-white dark:border-[#121212]" title="Remove Picture">
                             <X className="w-3.5 h-3.5" />
                          </button>
                     </div>
@@ -121,7 +121,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                              </label>
                              <input
                                 {...register("firstName", { required: "First name is required" })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                                 placeholder="First Name"
                              />
                              {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message}</p>}
@@ -132,7 +132,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                              </label>
                              <input
                                 {...register("lastName")}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                                 placeholder="Last Name"
                              />
                         </div>
@@ -154,7 +154,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                         <textarea
                             {...register("bio")}
                             rows={4}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm resize-none"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm resize-none"
                             placeholder="Tell us about yourself..."
                         />
                     </div>
@@ -169,7 +169,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                                 </label>
                                 <input
                                     {...register("collegeName")}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                                     placeholder="College Name"
                                 />
                             </div>
@@ -181,7 +181,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                                     </label>
                                     <input
                                         {...register("collegeId")}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                                         placeholder="College ID"
                                     />
                                 </div>
@@ -191,7 +191,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                                     </label>
                                     <input
                                         {...register("branch")}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                                         placeholder="Branch"
                                     />
                                 </div>

@@ -184,7 +184,21 @@ const WorkspaceHeader = memo(({
     >
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3' : ''}`}>
-        <Link href={contestId ? `/contest/${contestId}` : "/"} className="flex items-center gap-2 group mr-3">
+        {onToggleSidebar && (
+          <CustomTooltip content="Toggle Sidebar" side="bottom">
+            <motion.button
+              id="problem-list-toggle"
+              onClick={onToggleSidebar}
+              className="p-2 hover:bg-gray-100/50 dark:hover:bg-white/3 rounded-xl text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-300 border border-transparent shadow-none group"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <List className="w-4.5 h-4.5 transition-transform duration-300 group-hover:rotate-1" />
+            </motion.button>
+          </CustomTooltip>
+        )}
+
+        <Link href={contestId ? `/contest/${contestId}` : "/"} className="flex items-center gap-2 group">
           <motion.span
             whileHover={{ scale: 1.08, rotate: -3 }}
             whileTap={{ scale: 0.95 }}
@@ -204,20 +218,6 @@ const WorkspaceHeader = memo(({
             </motion.div>
           )}
         </Link>
-
-        {onToggleSidebar && (
-          <CustomTooltip content="Toggle Sidebar" side="bottom">
-            <motion.button
-              id="problem-list-toggle"
-              onClick={onToggleSidebar}
-              className="p-2 hover:bg-orange-500/10 dark:hover:bg-orange-500/10 rounded-xl text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-300 border border-transparent hover:border-orange-500/20 shadow-sm hover:shadow-orange-500/5 group"
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <List className="w-4.5 h-4.5 transition-transform duration-300 group-hover:rotate-3" />
-            </motion.button>
-          </CustomTooltip>
-        )}
 
         {!contestId && (
           <motion.div

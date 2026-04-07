@@ -225,11 +225,11 @@ export default function ProblemSidebar({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-2xl bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626]"
+            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-none bg-[#fafafa] dark:bg-[#121212] border-r border-gray-100/80 dark:border-white/5"
           >
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header section with Title and Close button */}
-              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/50 dark:border-[#1e1e1e]/50 backdrop-blur-md bg-white/70 dark:bg-[#121212]/70 sticky top-0 z-20">
+              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/10 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
                     <List className="w-5 h-5 text-orange-600 dark:text-orange-500" />
@@ -248,7 +248,7 @@ export default function ProblemSidebar({
               </div>
 
               {/* Navigation & Search Container */}
-              <div className="px-6 py-4 space-y-4 bg-linear-to-b from-[#fafafa] to-white dark:from-[#121212] dark:to-[#121212] border-b border-gray-100/30 dark:border-[#1e1e1e]/30 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.03)] dark:shadow-none">
+              <div className="px-6 py-4 space-y-4 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-100/10 dark:border-white/5">
                 {/* Tabs with sliding indicator */}
                 <div className="relative flex p-1.5 gap-1 bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-[#262626] overflow-hidden">
                   {/* Sliding Background */}
