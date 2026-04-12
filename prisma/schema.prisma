@@ -431,6 +431,7 @@ model ContestSection {
   contest        Contest                       @relation(fields: [contestId], references: [id], onDelete: Cascade)
   problems       ContestSectionProblem[]
   participations ContestParticipationSection[]
+  activeParticipations ContestParticipation[] @relation("ActiveSection")
 
   @@unique([contestId, order])
   @@map("contest_section")
@@ -480,6 +481,7 @@ model ContestParticipation {
   startedAt           DateTime?
   effectiveEndTime    DateTime?
   currentSectionId    String?
+  currentSection      ContestSection?               @relation("ActiveSection", fields: [currentSectionId], references: [id])
   sessionId           String?
   sessionStartedAt    DateTime?
   tabSwitchCount      Int                           @default(0)

@@ -51,16 +51,18 @@ async function main() {
                         participationId: p.id,
                         sectionId: section.id,
                         isUnlocked: true,
-                        startedAt: p.sessionStartedAt || new Date()
+                        startedAt: p.sessionStartedAt || p.startedAt || p.createdAt || new Date()
                     }))
                 });
 
                 // Update participations to calculate missing timestamps
                 for (const p of participations) {
-                    const started = p.sessionStartedAt || p.createdAt;
+                    const started = p.sessionStartedAt || p.startedAt || p.createdAt || new Date();
                     let effectiveEnd: Date | null = null;
                     if (contest.durationMinutes) {
-                        effectiveEnd = new Date(started.getTime() + contest.durationMinutes * 60 * 1000);
+                        const calculatedEnd = new Date(started.getTime() + contest.durationMinutes * 60 * 1000);
+                        // Cap at contest.endTime
+                        effectiveEnd = calculatedEnd.getTime() < contest.endTime.getTime() ? calculatedEnd : contest.endTime;
                     } else {
                         effectiveEnd = contest.endTime;
                     }

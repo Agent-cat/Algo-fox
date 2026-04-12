@@ -426,6 +426,7 @@ const TestCases = memo(({
                                 <AnimatePresence mode="wait">
                                     {activeTab === "console" && hasError && (
                                         <ConsoleErrorView
+                                            key="error-view"
                                             errorDetails={errorDetails}
                                             results={results}
                                         />

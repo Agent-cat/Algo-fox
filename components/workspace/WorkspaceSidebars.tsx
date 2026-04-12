@@ -28,6 +28,8 @@ export const WorkspaceSidebars = React.memo(({
     solvedIds,
     contest
 }: WorkspaceSidebarsProps) => {
+    if (!problem) return null;
+
     if (!contestId) {
         return (
             <ProblemSidebar

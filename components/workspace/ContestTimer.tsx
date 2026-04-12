@@ -12,13 +12,24 @@ export const ContestTimer = memo(({ endTime, contestId }: ContestTimerProps) => 
     const [timeLeft, setTimeLeft] = useState<string>("");
     const notifiedMins = useRef<Set<number>>(new Set());
 
+    // Reset notifications when endTime changes (e.g. extension)
+    useEffect(() => {
+        notifiedMins.current = new Set();
+    }, [endTime]);
+
     useEffect(() => {
         const targetDate = new Date(endTime);
+        let interval: NodeJS.Timeout | null = null;
+
         const updateTimer = () => {
             const now = new Date();
             const diff = targetDate.getTime() - now.getTime();
             if (diff <= 0) {
                 setTimeLeft("00:00:00");
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
                 return;
             }
             const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -34,9 +45,12 @@ export const ContestTimer = memo(({ endTime, contestId }: ContestTimerProps) => 
                 notifiedMins.current.add(totalMinutes);
             }
         };
+
         updateTimer();
-        const interval = setInterval(updateTimer, 1000);
-        return () => clearInterval(interval);
+        interval = setInterval(updateTimer, 1000);
+        return () => {
+            if (interval) clearInterval(interval);
+        };
     }, [endTime]);
 
     if (!timeLeft) return null;

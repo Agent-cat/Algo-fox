@@ -66,9 +66,9 @@ export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProb
             </div>
 
             {/* Points Badge */}
-            {((problem.points ?? 0) > 0 || (problem.score ?? 0) > 0) && (
+            {(typeof problem.points === 'number' || typeof problem.score === 'number') && (
                 <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] text-gray-600 dark:text-gray-400 text-[11px] font-bold uppercase tracking-wider">
-                    {problem.points ?? problem.score} pts
+                    {problem.points ?? problem.score ?? 0} pts
                 </div>
             )}
 

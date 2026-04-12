@@ -31,10 +31,6 @@ COPY . .
 RUN bunx prisma generate
 
 # Build-time environment variables
-ARG BETTER_AUTH_SECRET
-ARG REDIS_URL
-ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-ENV REDIS_URL=${REDIS_URL}
 ENV BETTER_AUTH_URL=http://localhost:3000
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -52,6 +48,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Redis URL should be supplied at runtime (e.g. via k8s secrets or docker run)
+ENV REDIS_URL=""
 
 # Security: add system user for better security
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs

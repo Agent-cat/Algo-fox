@@ -70,7 +70,10 @@ export const EditorToolbar = React.memo(({
                             {availableLanguages.map((lang) => (
                                 <button
                                     key={lang.id}
-                                    onClick={() => handleLanguageChange(lang.id)}
+                                    onClick={() => {
+                                        handleLanguageChange(lang.id);
+                                        setIsDropdownOpen(false);
+                                    }}
                                     className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors first:rounded-t-lg last:rounded-b-lg ${
                                         effectiveLanguageId === lang.id
                                             ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium"
@@ -140,7 +143,7 @@ export const EditorToolbar = React.memo(({
                     </button>
                 </CustomTooltip>
 
-                {!readOnly && (
+                {!readOnly && onOpenSettings && (
                     <CustomTooltip content="Editor Settings" shortcut="Ctrl+," side="bottom">
                         <button
                             onClick={onOpenSettings}

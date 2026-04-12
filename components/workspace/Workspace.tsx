@@ -1,7 +1,7 @@
 "use client";
 import dynamic from 'next/dynamic';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import Split from 'react-split';
 
@@ -78,6 +78,14 @@ function getStoredLanguageId(domain?: string): number {
 export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Slug protection: Ensure URL contest slug matches contest object
+    useEffect(() => {
+        if (contestId && contest?.slug && !pathname.includes(`/contest/${contest.slug}/problems/`)) {
+            router.replace(`/contest/${contest.slug}/problems/${problem.slug}?contestId=${contestId}`);
+        }
+    }, [contestId, contest?.slug, pathname, problem.slug, router]);
 
     const [languageId, setLanguageId] = useState<number>(() => getStoredLanguageId(problem.domain as string));
     const [code, setCode] = useState<string>(() => {
@@ -169,6 +177,11 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         toast.success('File removed');
     }, [codeFiles.removeFile]);
 
+    const handleContestBlocked = useCallback((reason: string) => {
+        toast.error(`Contest blocked: ${reason}`);
+        router.push(`/contest/${contestId}`);
+    }, [contestId, router]);
+
     const fileTabsNode = useMemo(() => {
         if (!codeFiles.isLoaded || contestId) return null;
         return (
@@ -186,20 +199,27 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     useEffect(() => {
         if (!contestId) return;
         const checkParticipation = async () => {
-            const result = await getParticipationStatus(contestId);
-            if (result.success && result.participation) {
-                if (result.participation.sessionId && result.participation.acceptedRules) {
-                    setContestSessionId(result.participation.sessionId);
-                    setContestModeActive(true);
-                } else if (!result.participation.isFinished && !result.participation.isBlocked) {
+            try {
+                const result = await getParticipationStatus(contestId);
+                if (result.success && result.participation) {
+                    if (result.participation.sessionId && result.participation.acceptedRules) {
+                        setContestSessionId(result.participation.sessionId);
+                        setContestModeActive(true);
+                    } else if (!result.participation.isFinished && !result.participation.isBlocked) {
+                        setShowEntryModal(true);
+                    } else if (result.participation.isBlocked) {
+                        handleContestBlocked("Security violation or manual block.");
+                    }
+                } else {
                     setShowEntryModal(true);
                 }
-            } else {
-                setShowEntryModal(true);
+            } catch (err) {
+                console.error("Failed to check participation:", err);
+                toast.error("Failed to verify contest participation. Please refresh.");
             }
         };
         checkParticipation();
-    }, [contestId]);
+    }, [contestId, handleContestBlocked]);
 
     const handleContestStart = useCallback((sessionId: string) => {
         setContestSessionId(sessionId);
@@ -292,11 +312,6 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     useEffect(() => { contestSessionIdRef.current = contestSessionId; }, [contestSessionId]);
     useEffect(() => { solvedIdsRef.current = solvedIds; }, [solvedIds]);
     useEffect(() => { editorSettingsRef.current = editorSettings; }, [editorSettings]);
-
-    const handleContestBlocked = useCallback((reason: string) => {
-        toast.error(`Contest blocked: ${reason}`);
-        router.push(`/contest/${contestId}`);
-    }, [contestId, router]);
 
     const onSubmissionSolved = useCallback((streakUpdated?: boolean, currentStreak?: number, firstSolved?: boolean, pointsGained?: number) => {
         setIsSolvedState(true);

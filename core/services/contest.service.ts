@@ -145,6 +145,33 @@ export class ContestService {
     }
 
     /**
+     * Terminate the participant's session manually
+     */
+    static async finishSession(userId: string, contestId: string) {
+        return prisma.$transaction(async (tx) => {
+            const now = new Date();
+            const participation = await tx.contestParticipation.findUnique({
+                where: { userId_contestId: { userId, contestId } }
+            });
+
+            if (!participation || participation.isFinished) {
+                return { success: true, alreadyFinished: !!participation?.isFinished };
+            }
+
+            await tx.contestParticipation.update({
+                where: { id: participation.id },
+                data: {
+                    isFinished: true,
+                    finishedAt: now,
+                    finishReason: "SUBMITTED_MANUALLY"
+                }
+            });
+
+            return { success: true };
+        });
+    }
+
+    /**
      * Calculate and return the leaderboard with efficient pagination (OPTIMIZED)
      *
      * SECURITY/PERFORMANCE FIX: Previously loaded ALL submissions into RAM.
@@ -537,7 +564,7 @@ export class ContestService {
                 where: { id: contestId },
                 data: {
                     title: data.title,
-                    slug: data.slug,
+                    slug: data.slug?.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
                     description: data.description,
                     startTime: data.startTime,
                     endTime: data.endTime,
@@ -563,9 +590,10 @@ export class ContestService {
             });
 
             if (data.sections) {
-                // Delete existing sections completely (this cascades to ContestSectionProblem)
+                // SECURITY: Ensure we only delete sections belonging to THIS contest
+                // This prevents cross-contest data corruption if contestId was manipulated
                 await tx.contestSection.deleteMany({
-                    where: { contestId }
+                    where: { contestId: contestId }
                 });
 
                 // Re-create sections

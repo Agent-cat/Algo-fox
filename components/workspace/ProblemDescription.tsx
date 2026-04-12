@@ -228,14 +228,27 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                 )}
                                             </motion.div>
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                            <motion.div
+                                                key="locked-solution"
+                                                initial={{ opacity: 0, y: 8 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -6 }}
+                                                className="flex flex-col items-center justify-center py-20 text-center"
+                                            >
                                                 <BadgeCheck className="w-12 h-12 text-gray-300 mb-4" />
                                                 <h2 className="text-lg font-bold">Solution Locked</h2>
                                                 <p className="text-gray-500 text-sm">Solve this problem to unlock.</p>
-                                            </div>
+                                            </motion.div>
                                         )
                                     ) : (
-                                        <div key="community">Community solutions coming soon.</div>
+                                        <motion.div
+                                            key="community"
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -6 }}
+                                        >
+                                            Community solutions coming soon.
+                                        </motion.div>
                                     )}
                                 </AnimatePresence>
                             </div>

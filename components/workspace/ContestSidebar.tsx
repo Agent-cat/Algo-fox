@@ -29,6 +29,13 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
     const activeSectionTarget = contest.sections?.find((s: any) => s.isUnlocked && !s.isSubmitted)?.id || contest.sections?.[0]?.id;
     const [activeSectionId, setActiveSectionId] = useState<string>(activeSectionTarget);
 
+    // Sync activeSectionId when contest data changes (e.g. after router.refresh())
+    useEffect(() => {
+        if (activeSectionTarget && activeSectionTarget !== activeSectionId) {
+            setActiveSectionId(activeSectionTarget);
+        }
+    }, [activeSectionTarget, activeSectionId]);
+
     const isParallel = contest.mode === "PARALLEL";
 
     const currentSection = contest.sections?.find((s: any) => s.id === activeSectionId);

@@ -75,7 +75,7 @@ export const TestCaseView = React.memo(({
                     {result.time !== null && (
                         <span className="ml-auto text-xs font-medium text-gray-400 opacity-60 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {result.time}s
+                            {Number(result.time).toFixed(3)}s
                         </span>
                     )}
                 </motion.div>
@@ -132,7 +132,7 @@ export const TestCaseView = React.memo(({
                                         : 'bg-transparent border-gray-200 dark:border-[#262626] text-gray-800 dark:text-gray-200'
                                 }
                             `}>
-                                {(result as any)?.stdout || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
+                                {((result as any)?.stdout?.toString() || "") || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
                             </div>
                         </div>
 

@@ -72,6 +72,11 @@ export default function AptitudeWorkspace({
         setActiveTab("solutions");
     }, []);
 
+    const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
+    const handleToggleSidebar = useCallback(() => setIsSidebarOpen(true), []);
+    const handleClosePoints = useCallback(() => setIsPointsModalOpen(false), []);
+    const handleNoop = useCallback(() => {}, []);
+
     if (!mainHydrated) {
         return (
             <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
@@ -85,10 +90,6 @@ export default function AptitudeWorkspace({
             </div>
         );
     }
-
-    const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
-    const handleToggleSidebar = useCallback(() => setIsSidebarOpen(true), []);
-    const handleClosePoints = useCallback(() => setIsPointsModalOpen(false), []);
 
     return (
         <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
@@ -104,8 +105,8 @@ export default function AptitudeWorkspace({
             />
 
             <WorkspaceHeader
-                onSubmit={useCallback(() => {}, [])}
-                onRun={useCallback(() => {}, [])}
+                onSubmit={handleNoop}
+                onRun={handleNoop}
                 isSubmitting={false}
                 isRunning={false}
                 nextProblemSlug={nextProblemSlug}

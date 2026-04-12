@@ -338,7 +338,7 @@ export async function getContestDetail(contestId: string) {
                     isSubmitted: participation?.sectionProgress.find(progress => progress.sectionId === s.id)?.isSubmitted || false,
                 })),
                 hasStarted,
-                hasEnded: now > contest.endTime,
+                hasEnded: now > effectiveEndTime,
                 canManage: isAdmin || isCreator,
                 hasAcceptedRules: participation?.acceptedRules || false,
                 isFinished: participation?.isFinished || false,
@@ -558,29 +558,12 @@ export async function finishContestAction(contestId: string) {
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     try {
-        await prisma.contestParticipation.upsert({
-            where: {
-                userId_contestId: {
-                    userId: session.user.id,
-                    contestId: contestId
-                }
-            },
-            update: {
-                isFinished: true,
-                finishedAt: new Date()
-            },
-            create: {
-                userId: session.user.id,
-                contestId: contestId,
-                acceptedRules: true,
-                isFinished: true,
-                finishedAt: new Date()
-            }
-        });
+        await ContestService.finishSession(session.user.id, contestId);
         revalidatePath(`/contest/${contestId}`);
         revalidatePath(`/problems`);
         return { success: true };
     } catch (error) {
+        console.error("Failed to finish contest:", error);
         return { success: false, error: "Failed to finish contest" };
     }
 }

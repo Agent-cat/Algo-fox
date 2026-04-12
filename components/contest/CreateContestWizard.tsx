@@ -272,8 +272,11 @@ export default function CreateContestWizard({
         }
     }, [title, setValue]);
 
-    // Set initial sections if editing
+    const isInitializedRef = useRef(false);
+    // Set initial sections if editing or first load
     useEffect(() => {
+        if (isInitializedRef.current) return;
+
         if (isEditing && initialData?.sections) {
             const mappedSections = initialData.sections.map((sec: any) => ({
                 id: sec.id || `sec-${Date.now()}-${Math.random()}`,
@@ -292,13 +295,16 @@ export default function CreateContestWizard({
             if (mappedSections.length > 0) {
                 setSections(mappedSections);
                 setActiveSectionId(mappedSections[0].id);
+                setValue("sections", mappedSections);
+                isInitializedRef.current = true;
             }
-            setValue("sections", mappedSections);
-        } else if (!isEditing) {
+        } else if (!isEditing && sections.length > 0) {
             // First time load: active section is the default one
             setActiveSectionId(sections[0].id);
+            setValue("sections", sections);
+            isInitializedRef.current = true;
         }
-    }, [isEditing, initialData, setValue]);
+    }, [isEditing, initialData, setValue, sections, setActiveSectionId]);
 
     // Set AM/PM for start/end times based on initialData
     useEffect(() => {
@@ -772,7 +778,7 @@ export default function CreateContestWizard({
                                             <input
                                                 type="number"
                                                 min="1"
-                                                {...register("durationMinutes", { valueAsNumber: true })}
+                                                {...register("durationMinutes", { setValueAs: v => v === '' ? undefined : Number(v) })}
                                                 placeholder="Total allowed time..."
                                                 className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-mono"
                                             />

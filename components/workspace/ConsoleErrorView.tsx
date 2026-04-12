@@ -29,6 +29,8 @@ export const ConsoleErrorView = React.memo(({
     errorDetails,
     results
 }: ConsoleErrorViewProps) => {
+    const hasErrors = Boolean(errorDetails?.message) || (results?.some(r => r.errorMessage) ?? false);
+
     return (
         <motion.div
             key="console"
@@ -41,7 +43,7 @@ export const ConsoleErrorView = React.memo(({
             {/* Error Header */}
             <div className="flex items-center gap-2 text-lg font-semibold tracking-tight text-red-500">
                 <AlertCircle className="w-5 h-5 stroke-[2.5px]" />
-                <span>{errorDetails?.type || "Execution Error"}</span>
+                <span>{errorDetails?.type || (hasErrors ? "Execution Error" : "Results Cleared")}</span>
             </div>
 
             {/* Error Message - Terminal Box */}
@@ -50,13 +52,21 @@ export const ConsoleErrorView = React.memo(({
                     Console Output
                 </div>
                 <div className="w-full bg-[#0d0d0d] border border-red-500/20 rounded-lg p-5 font-mono text-sm text-red-50/90 whitespace-pre-wrap overflow-x-auto leading-relaxed shadow-lg shadow-red-500/5 min-h-[120px]">
-                    {errorDetails?.message || "An unknown error occurred during execution."}
-                    {(!errorDetails && results) && results.filter(r => r.errorMessage).map((r, i) => (
-                        <div key={i} className="mt-4 first:mt-0">
-                            <div className="text-[10px] text-gray-500 mb-1">// Case {r.index + 1}</div>
-                            {r.errorMessage}
+                    {!hasErrors ? (
+                        <div className="h-full flex items-center justify-center text-gray-600 italic">
+                            No errors reported.
                         </div>
-                    ))}
+                    ) : (
+                        <>
+                            {errorDetails?.message}
+                            {results?.filter(r => r.errorMessage).map((r, i) => (
+                                <div key={i} className="mt-4 first:mt-0">
+                                    <div className="text-[10px] text-gray-500 mb-1">// Case {r.index + 1}</div>
+                                    <span className="text-red-400">{r.errorMessage}</span>
+                                </div>
+                            ))}
+                        </>
+                    )}
                 </div>
             </div>
         </motion.div>

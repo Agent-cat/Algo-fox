@@ -61,8 +61,22 @@ export default function ContestNavigationGuard({
             const href = anchor.getAttribute("href");
             if (!href || href === "#" || href.startsWith("javascript:")) return;
 
+            // Resolve anchor.href which is already absolute relative to the document
+            let targetPath = "";
+            try {
+                const url = new URL(anchor.href);
+                // Only care about same-origin paths; external links are blocked by default if not in allowedPaths
+                if (url.origin !== window.location.origin) {
+                    targetPath = anchor.href; // Keep full URL for external checks
+                } else {
+                    targetPath = url.pathname;
+                }
+            } catch (e) {
+                targetPath = href;
+            }
+
             // Use ref to check current allowed paths without re-attaching listener
-            const isAllowed = pathsRef.current.some(path => href.startsWith(path));
+            const isAllowed = pathsRef.current.some(path => targetPath.startsWith(path));
             if (!isAllowed) {
                 e.preventDefault();
                 e.stopPropagation();

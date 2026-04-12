@@ -1,4 +1,4 @@
-import { useState, useCallback, MutableRefObject } from "react";
+import { useState, useCallback, MutableRefObject, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Problem } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -40,6 +40,17 @@ export function useWorkspaceSubmission({
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
     const [submissionResults, setSubmissionResults] = useState<any[]>([]);
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+    const eventSourceRef = useRef<EventSource | null>(null);
+
+    // Cleanup EventSource on unmount to prevent leaks
+    useEffect(() => {
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
+        };
+    }, []);
 
     const handleSubmission = useCallback(async (mode: "RUN" | "SUBMIT") => {
         const currentCode = codeRef.current;
@@ -107,10 +118,13 @@ export function useWorkspaceSubmission({
             setSubmissionStatus(null);
 
             // Connect to SSE
+            if (eventSourceRef.current) eventSourceRef.current.close();
             const eventSource = new EventSource(`/api/sse/submission/${submissionId}`);
+            eventSourceRef.current = eventSource;
 
             eventSource.onmessage = (event) => {
-                const payload = JSON.parse(event.data);
+                try {
+                    const payload = JSON.parse(event.data);
 
                 if (payload.type === "CASE_UPDATE") {
                     setSubmissionResults(prev => {
@@ -172,7 +186,10 @@ export function useWorkspaceSubmission({
                            toast.error(`Result: ${payload.data.status}`);
                       }
                 }
-            };
+            } catch (e) {
+                console.error("Failed to parse SSE message:", e);
+            }
+        };
 
             eventSource.onerror = (err) => {
                 console.error("SSE Error:", err);
