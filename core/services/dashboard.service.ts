@@ -13,9 +13,8 @@ export class DashboardService {
             // GETTING CACHE FROM REDIS
             const cached = await redis.get(cacheKey);
             if (cached) {
-                // RETURNING THE CACHE IF CACHED
-
-                return safeJsonParse(cached, null);
+                const parsed = safeJsonParse(cached, null);
+                if (parsed) return parsed;
             }
         } catch (error) {
             // REDIS ERROR --> CONTINUE WITHOUT CACHE

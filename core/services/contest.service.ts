@@ -4,6 +4,16 @@ import bcrypt from "bcryptjs";
 
 export class ContestService {
     /**
+     * Helper to normalize strings into URL-safe slugs
+     */
+    static normalizeSlug(value: string): string {
+        return value
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    /**
      * Get a contest by its ID or Slug
      */
     static async getContest(identifier: string) {
@@ -564,9 +574,15 @@ export class ContestService {
                 where: { id: contestId },
                 data: {
                     title: data.title,
-                    slug: data.slug?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") ||
-                          data.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") ||
-                          "untitled",
+                    slug: (() => {
+                        const normalized = data.slug ? ContestService.normalizeSlug(data.slug) :
+                                         data.title ? ContestService.normalizeSlug(data.title) : "";
+
+                        if (!normalized || normalized === "untitled") {
+                            return `untitled-${Date.now()}`;
+                        }
+                        return normalized;
+                    })(),
                     description: data.description,
                     startTime: data.startTime,
                     endTime: data.endTime,

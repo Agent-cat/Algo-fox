@@ -24,7 +24,8 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                return safeJsonParse(cached, { problems: [] as any[], total: 0 });
+                const parsed = safeJsonParse(cached, null);
+                if (parsed) return parsed;
             }
         } catch (error) {
             console.error("Redis get error:", error);
@@ -313,7 +314,8 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                return safeJsonParse(cached, null);
+                const parsed = safeJsonParse(cached, null);
+                if (parsed) return parsed;
             }
         } catch (error) {
             console.error("Redis get error:", error);

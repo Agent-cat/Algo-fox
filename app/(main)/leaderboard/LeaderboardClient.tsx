@@ -48,8 +48,11 @@ export default function LeaderboardPage() {
                 refresh: force
             });
             if (data) {
-                setLeaderboard(data.entries);
-                setTotalEntries(data.total);
+                setLeaderboard(data.entries || []);
+                setTotalEntries(data.total || 0);
+            } else {
+                setLeaderboard([]);
+                setTotalEntries(0);
             }
         } catch (error) {
             console.error("Failed to fetch leaderboard", error);

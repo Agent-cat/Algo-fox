@@ -11,7 +11,7 @@ export const size = {
 
 export const contentType = "image/png";
 
-export default async function Image({ params }: { params: { id: string } }) {
+export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const stats = await getUserProfile(id);
 
@@ -92,7 +92,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                         border: "4px solid #f97316"
                     }}
                 >
-                    {stats.name?.[0]}
+                    {(stats.name?.trim()?.[0] || '?').toUpperCase()}
                 </div>
             )}
 
@@ -109,7 +109,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", background: "#262626", padding: "20px 40px", borderRadius: "16px", minWidth: "200px" }}>
                 <span style={{ fontSize: 18, color: "#f97316", textTransform: "uppercase" }}>Achievements</span>
-                <span style={{ fontSize: 48, fontWeight: "bold" }}>{stats.goldBadges + stats.silverBadges + stats.bronzeBadges}</span>
+                <span style={{ fontSize: 48, fontWeight: "bold" }}>{(stats.goldBadges ?? 0) + (stats.silverBadges ?? 0) + (stats.bronzeBadges ?? 0)}</span>
             </div>
         </div>
 

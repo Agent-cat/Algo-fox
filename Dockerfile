@@ -48,9 +48,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-# All required secrets (DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET, etc.)
-# MUST be supplied at runtime (e.g. via k8s secrets or docker run -e).
-# To keep Redis features disabled, leave REDIS_URL as "DISABLED".
+# Required secrets (supplied at runtime)
+# - DATABASE_URL
+# - BETTER_AUTH_SECRET
+
+# Optional / Feature flags
+# REDIS_URL: Set to a valid Redis URL to enable caching features.
+# To disable Redis features, set REDIS_URL="DISABLED".
 ENV REDIS_URL="DISABLED"
 
 # Security: add system user for better security

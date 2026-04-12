@@ -26,8 +26,8 @@ export class CategoryService {
 
             const cached = await redis.get(cacheKey);
             if (cached) {
-
-                categories = safeJsonParse(cached, { categories: [] }).categories;
+                const parsed = safeJsonParse(cached, { categories: [] });
+                categories = Array.isArray(parsed?.categories) ? parsed.categories : [];
             } else {
                 categories = await prisma.category.findMany({
                     where: {

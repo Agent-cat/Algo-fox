@@ -54,7 +54,10 @@ export class LeaderboardService {
             if (!forceRefresh) {
                 const cached = await redis.get(cacheKey);
                 if (cached) {
-                    return safeJsonParse(cached, { entries: [] as LeaderboardEntry[], total: 0 });
+                    const parsed = safeJsonParse(cached, { entries: [] as LeaderboardEntry[], total: 0 });
+                    if (parsed.entries.length > 0 || parsed.total > 0) {
+                        return parsed;
+                    }
                 }
             }
         } catch (error) {
