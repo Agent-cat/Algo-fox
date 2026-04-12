@@ -48,8 +48,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-# Redis URL should be supplied at runtime (e.g. via k8s secrets or docker run)
-ENV REDIS_URL=""
+# All required secrets (DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET, etc.)
+# MUST be supplied at runtime (e.g. via k8s secrets or docker run -e).
+# To keep Redis features disabled, leave REDIS_URL as "DISABLED".
+ENV REDIS_URL="DISABLED"
 
 # Security: add system user for better security
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs

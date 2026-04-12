@@ -179,8 +179,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
     const handleContestBlocked = useCallback((reason: string) => {
         toast.error(`Contest blocked: ${reason}`);
-        router.push(`/contest/${contestId}`);
-    }, [contestId, router]);
+        router.push(`/contest/${contest?.slug || contestId}`);
+    }, [contest?.slug, contestId, router]);
 
     const fileTabsNode = useMemo(() => {
         if (!codeFiles.isLoaded || contestId) return null;
@@ -205,10 +205,13 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     if (result.participation.sessionId && result.participation.acceptedRules) {
                         setContestSessionId(result.participation.sessionId);
                         setContestModeActive(true);
-                    } else if (!result.participation.isFinished && !result.participation.isBlocked) {
-                        setShowEntryModal(true);
                     } else if (result.participation.isBlocked) {
-                        handleContestBlocked("Security violation or manual block.");
+                        handleContestBlocked(result.participation.blockReason || "Security violation or manual block.");
+                    } else if (result.participation.isFinished) {
+                        toast.info("Contest already submitted or session expired.");
+                        router.push(`/contest/${contest?.slug || contestId}`);
+                    } else if (!result.participation.acceptedRules || !result.participation.sessionId) {
+                        setShowEntryModal(true);
                     }
                 } else {
                     setShowEntryModal(true);

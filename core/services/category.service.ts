@@ -1,4 +1,5 @@
 
+import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import { ProblemDomain, Difficulty } from "@prisma/client";
 import redis from "@/lib/redis";
@@ -26,7 +27,7 @@ export class CategoryService {
             const cached = await redis.get(cacheKey);
             if (cached) {
 
-                categories = JSON.parse(cached).categories;
+                categories = safeJsonParse(cached, { categories: [] }).categories;
             } else {
                 categories = await prisma.category.findMany({
                     where: {
@@ -109,11 +110,10 @@ export class CategoryService {
 
             const cached = await redis.get(cacheKey);
             if (cached) {
-
-                // RETURNING THE CACHE IF CACHED
-
-
-                return JSON.parse(cached);
+                const category = safeJsonParse(cached, null);
+                if (category) {
+                    return { success: true, category };
+                }
             }
 
             // GETTING CATEGORY FROM DATABASE IF NOT CACHED
@@ -201,7 +201,9 @@ export class CategoryService {
                 const cached = await redis.get(cacheKey);
                 if (cached) {
 
-                    const parsed = JSON.parse(cached);
+                    const parsed = safeJsonParse<any>(cached, null);
+                    if (!parsed || !parsed.problems) return { problems: [], totalPages: 0, currentPage: page, total: 0 };
+
                     // IF USER IS AUTHENTICATED, WE NEED TO CHECK SOLVED STATUS
                     if (userId) {
                         const problemIds = parsed.problems.map((p: any) => p.id);

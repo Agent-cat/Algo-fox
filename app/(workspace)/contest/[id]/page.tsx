@@ -13,6 +13,27 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+export async function generateMetadata({ params }: PageProps) {
+    const { id } = await params;
+    const res = await getContestDetail(id);
+
+    if (!res.success || !res.contest) {
+        return {
+            title: "Contest Not Found",
+        };
+    }
+
+    return {
+        title: res.contest.title,
+        description: res.contest.description || `Join ${res.contest.title} on Algo-fox and solve exciting problems.`,
+        openGraph: {
+            title: res.contest.title,
+            description: res.contest.description || `Join ${res.contest.title} on Algo-fox and solve exciting problems.`,
+            type: "article",
+        },
+    };
+}
+
 async function ContestDetailContent({ params }: { params: Promise<{ id: string }> }) {
     "use cache: private";
     cacheLife("minutes");

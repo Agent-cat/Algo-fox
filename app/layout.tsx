@@ -22,8 +22,59 @@ const geistMono = Geist_Mono({
 import { StreakProvider } from "@/context/StreakContext";
 
 export const metadata: Metadata = {
-  title: "Algo-fox",
-  description: "A comprehensive platform to practice and master DSA and SQL.",
+  metadataBase: new URL("https://algofox.in"),
+  title: {
+    default: "Algo-fox",
+    template: "%s | Algo-fox",
+  },
+  description: "A comprehensive platform to practice and master Data Structures, Algorithms, and SQL. Join contests, track your streak, and improve your coding skills.",
+  keywords: ["DSA", "SQL", "Coding Practice", "Programming Contests", "Algo-fox", "Data Structures", "Algorithms"],
+  authors: [{ name: "Algo-fox Team" }],
+  creator: "Algo-fox",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://algofox.in",
+    siteName: "Algo-fox",
+    title: "Algo-fox - Master DSA and SQL",
+    description: "Master Data Structures, Algorithms, and SQL with Algo-fox. Practice, compete, and grow.",
+    images: [
+      {
+        url: "/Hero-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Algo-fox Hero Image",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Algo-fox - Master DSA and SQL",
+    description: "Master Data Structures, Algorithms, and SQL with Algo-fox. Practice, compete, and grow.",
+    images: ["/Hero-image.png"],
+    creator: "@algofox",
+  },
+  icons: {
+    icon: "/icons/icon-512x512.png",
+    apple: "/icons/icon-512x512.png",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Algo-fox",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#f97316", // Tailwind orange-500
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

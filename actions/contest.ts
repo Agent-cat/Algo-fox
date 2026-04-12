@@ -558,10 +558,12 @@ export async function finishContestAction(contestId: string) {
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     try {
-        await ContestService.finishSession(session.user.id, contestId);
-        revalidatePath(`/contest/${contestId}`);
-        revalidatePath(`/problems`);
-        return { success: true };
+        const result = await ContestService.finishSession(session.user.id, contestId);
+        if (result.success) {
+            revalidatePath(`/contest/${contestId}`);
+            revalidatePath(`/problems`);
+        }
+        return result;
     } catch (error) {
         console.error("Failed to finish contest:", error);
         return { success: false, error: "Failed to finish contest" };
@@ -748,6 +750,7 @@ export async function getParticipationStatus(contestId: string) {
                 isBlocked: true,
                 totalViolations: true,
                 sessionId: true,
+                blockReason: true,
                 tempBlockedUntil: true,
                 permanentlyBlocked: true
             }

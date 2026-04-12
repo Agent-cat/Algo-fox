@@ -47,8 +47,10 @@ export default function LeaderboardPage() {
                 search: debouncedSearch,
                 refresh: force
             });
-            setLeaderboard(data.entries);
-            setTotalEntries(data.total);
+            if (data) {
+                setLeaderboard(data.entries);
+                setTotalEntries(data.total);
+            }
         } catch (error) {
             console.error("Failed to fetch leaderboard", error);
             toast.error("Failed to fetch rankings");

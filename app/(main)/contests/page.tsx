@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -46,6 +47,11 @@ async function ContestsDataWrapper({ searchParams }: { searchParams: Promise<{ p
     />
   );
 }
+
+export const metadata: Metadata = {
+  title: "Contest Arenas",
+  description: "Browse and join active and upcoming coding contests on Algo-fox. Compete with others and climb the leaderboard.",
+};
 
 export default function StudentContestsPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
   return (

@@ -1,4 +1,4 @@
-
+import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import redis from "@/lib/redis";
 
@@ -15,7 +15,7 @@ export class DashboardService {
             if (cached) {
                 // RETURNING THE CACHE IF CACHED
 
-                return JSON.parse(cached);
+                return safeJsonParse(cached, null);
             }
         } catch (error) {
             // REDIS ERROR --> CONTINUE WITHOUT CACHE

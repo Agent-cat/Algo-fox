@@ -14,6 +14,27 @@ interface ProfilePageProps {
     params: Promise<{ id: string }>;
 }
 
+export async function generateMetadata({ params }: ProfilePageProps) {
+    const { id } = await params;
+    const stats = await getUserProfile(id);
+
+    if (!stats) {
+        return {
+            title: "User Not Found",
+        };
+    }
+
+    return {
+        title: `${stats.name}'s Profile`,
+        description: stats.bio || `Check out ${stats.name}'s coding progress, achievements, and solved problems on Algo-fox.`,
+        openGraph: {
+            title: `${stats.name}'s Profile`,
+            description: stats.bio || `Check out ${stats.name}'s coding progress, achievements, and solved problems on Algo-fox.`,
+            images: stats.image ? [stats.image] : [],
+        },
+    };
+}
+
 async function ProfileContent({ params }: ProfilePageProps) {
     const { id } = await params;
     const stats = await getUserProfile(id);

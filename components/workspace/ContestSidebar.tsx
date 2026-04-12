@@ -34,7 +34,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
         if (activeSectionTarget && activeSectionTarget !== activeSectionId) {
             setActiveSectionId(activeSectionTarget);
         }
-    }, [activeSectionTarget, activeSectionId]);
+    }, [activeSectionTarget]);
 
     const isParallel = contest.mode === "PARALLEL";
 
@@ -84,7 +84,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                 router.push(`/contest/${contest.id}`);
                 toast.success("Contest ended successfully");
             } else {
-                toast.error(res.error || "Failed to end contest");
+                toast.error((res as any).error || "Failed to end contest");
                 setIsEnding(false);
             }
         } catch (err) {

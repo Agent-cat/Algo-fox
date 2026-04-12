@@ -23,32 +23,43 @@ export async function checkCodeChefUser(handle: string, ignoreCache = false) {
             let data = { data: d };
 
             // Heatmap data extraction
-            let heatMapDataCursour1 =
-                data.data.search("var userDailySubmissionsStats =") +
-                "var userDailySubmissionsStats =".length;
-            let heatMapDataCursour2 = data.data.search("'#js-heatmap") - 34;
-            let heatDataString = data.data.substring(
-                heatMapDataCursour1,
-                heatMapDataCursour2
-            );
-
+            const heatmapToken = "var userDailySubmissionsStats =";
+            const heatmapIndex = data.data.search(heatmapToken);
             let headMapData = null;
-            try {
-                 headMapData = JSON.parse(heatDataString);
-            } catch (e) {
-                console.log("Error parsing heatmap data", e);
+
+            if (heatmapIndex !== -1) {
+                const heatMapDataCursour1 = heatmapIndex + heatmapToken.length;
+                const heatMapDataCursour2 = data.data.search("'#js-heatmap") - 34;
+
+                if (heatMapDataCursour2 > heatMapDataCursour1) {
+                    const heatDataString = data.data.substring(
+                        heatMapDataCursour1,
+                        heatMapDataCursour2
+                    );
+                    try {
+                         headMapData = JSON.parse(heatDataString);
+                    } catch (e) {
+                        console.log("Error parsing heatmap data", e);
+                    }
+                }
             }
 
             // Rating data extraction
-            let allRating =
-                data.data.search("var all_rating = ") + "var all_rating = ".length;
-            let allRating2 = data.data.search("var current_user_rating =") - 6;
-
+            const ratingToken = "var all_rating = ";
+            const allRatingIndex = data.data.search(ratingToken);
             let ratingData = null;
-            try {
-                 ratingData = JSON.parse(data.data.substring(allRating, allRating2));
-            } catch (e) {
-                console.log("Error parsing rating data", e);
+
+            if (allRatingIndex !== -1) {
+                const allRating = allRatingIndex + ratingToken.length;
+                const allRating2 = data.data.search("var current_user_rating =") - 6;
+
+                if (allRating2 > allRating) {
+                    try {
+                         ratingData = JSON.parse(data.data.substring(allRating, allRating2));
+                    } catch (e) {
+                        console.log("Error parsing rating data", e);
+                    }
+                }
             }
 
             let dom = new JSDOM(data.data);
@@ -177,8 +188,14 @@ export async function checkCodeforcesUser(handle: string, ignoreCache = false) {
         ]);
 
         if (userInfoRes.ok && userStatusRes.ok) {
-            const userData = await userInfoRes.json();
-            const statusData = await userStatusRes.json();
+            let userData, statusData;
+            try {
+                userData = await userInfoRes.json();
+                statusData = await userStatusRes.json();
+            } catch (jsonErr) {
+                console.error("Codeforces JSON parse error:", jsonErr);
+                return { success: false, status: 500 };
+            }
 
             if (userData.status === "OK" && userData.result.length > 0) {
                 const user = userData.result[0];
@@ -328,7 +345,13 @@ export async function checkLeetCodeUser(handle: string, ignoreCache = false) {
             ...fetchOptions
         });
 
-        const contestData = await contestRes.json();
+        let contestData;
+        try {
+            contestData = await contestRes.json();
+        } catch (jsonErr) {
+            console.error("LeetCode JSON parse error:", jsonErr);
+            return { success: false, status: 500 };
+        }
         const contestStats = contestData.data?.userContestRanking;
         const contestHistory = contestData.data?.userContestRankingHistory?.filter((c: any) => c.attended);
 
@@ -388,7 +411,13 @@ export async function verifyLeetCodeOwnership(handle: string, verificationCode: 
             return { success: false, error: "Failed to fetch LeetCode profile" };
         }
 
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            console.error("LeetCode verification JSON parse error:", jsonErr);
+            return { success: false, error: "Failed to parse LeetCode response" };
+        }
         const matchedUser = data?.data?.matchedUser;
 
         if (!matchedUser) {
@@ -433,7 +462,13 @@ export async function checkGitHubUser(handle: string) {
             next: { revalidate: 3600 }
         });
         if (res.ok) {
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                console.error("GitHub JSON parse error:", jsonErr);
+                return { success: false, status: 500 };
+            }
             return {
                 success: true,
                 status: 200,

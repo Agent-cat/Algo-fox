@@ -61,8 +61,12 @@ async function main() {
                     let effectiveEnd: Date | null = null;
                     if (contest.durationMinutes) {
                         const calculatedEnd = new Date(started.getTime() + contest.durationMinutes * 60 * 1000);
-                        // Cap at contest.endTime
-                        effectiveEnd = calculatedEnd.getTime() < contest.endTime.getTime() ? calculatedEnd : contest.endTime;
+                        // Cap at contest.endTime if it exists
+                        if (contest.endTime) {
+                            effectiveEnd = calculatedEnd.getTime() < contest.endTime.getTime() ? calculatedEnd : contest.endTime;
+                        } else {
+                            effectiveEnd = calculatedEnd;
+                        }
                     } else {
                         effectiveEnd = contest.endTime;
                     }

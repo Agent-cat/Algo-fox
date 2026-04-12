@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import { ProblemDomain } from "@prisma/client";
 import ProblemsList from "./_components/ProblemsList";
@@ -9,6 +10,11 @@ async function ProblemsContent() {
 
   return <ProblemsList allocatedDomains={allocatedDomains} />;
 }
+
+export const metadata: Metadata = {
+  title: "Practice Problems",
+  description: "Master Data Structures, Algorithms, and SQL with our curated list of practice problems across different domains.",
+};
 
 export default async function ProblemsSelectionPage() {
   return (

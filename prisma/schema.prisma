@@ -497,6 +497,7 @@ model ContestParticipation {
   permanentlyBlocked  Boolean                       @default(false)
   unblockedBy         String?
   unblockedAt         DateTime?
+  blockReason         String?
   createdAt           DateTime                      @default(now())
   updatedAt           DateTime                      @updatedAt
   ipAddress           String?

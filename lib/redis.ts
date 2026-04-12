@@ -4,7 +4,7 @@ import IORedis from "ioredis";
 // dedicated connection. Sharing a single connection causes head-of-line blocking because
 // BullMQ's SUBSCRIBE/BRPOP commands block the connection for other commands.
 export function createRedisConnection(overrides: Record<string, any> = {}): IORedis {
-    const redisUrl = process.env.REDIS_URL;
+    const redisUrl = process.env.REDIS_URL && process.env.REDIS_URL !== "DISABLED" ? process.env.REDIS_URL : null;
 
     const options: any = {
         maxRetriesPerRequest: null, // Required for BullMQ; safe for general use

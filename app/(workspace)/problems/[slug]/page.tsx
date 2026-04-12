@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${problem.title} | Algofox`,
+    title: problem.title,
     description: problem.description.slice(0, 160),
   };
 }

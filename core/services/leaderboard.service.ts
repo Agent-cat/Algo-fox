@@ -1,4 +1,4 @@
-
+import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import { SubmissionResult, Prisma } from "@prisma/client";
 import redis from "@/lib/redis";
@@ -54,7 +54,7 @@ export class LeaderboardService {
             if (!forceRefresh) {
                 const cached = await redis.get(cacheKey);
                 if (cached) {
-                    return JSON.parse(cached);
+                    return safeJsonParse(cached, { entries: [] as LeaderboardEntry[], total: 0 });
                 }
             }
         } catch (error) {
@@ -101,7 +101,6 @@ export class LeaderboardService {
         });
 
         // OPTIMIZATION: Use raw SQL aggregation to get difficulty counts instead of fetching all submissions
-        // This prevents fetching thousands of submission records into memory
         const userIds = users.map(u => u.id);
         const statsByUser = userIds.length > 0
             ? await prisma.$queryRaw<Array<{ userId: string; difficulty: string; count: bigint }>>`
@@ -118,7 +117,6 @@ export class LeaderboardService {
             `
             : [];
 
-        // OPTIMIZATION: Build a map for O(1) difficulty count lookup instead of iterating for each user
         const statsByUserMap = new Map<string, Map<string, number>>();
         for (const stat of statsByUser) {
             if (!statsByUserMap.has(stat.userId)) {
@@ -156,7 +154,6 @@ export class LeaderboardService {
             };
         });
 
-        // 3. Get total count for pagination
         const totalCount = await prisma.user.count({
             where: {
                 role: 'STUDENT',
@@ -176,7 +173,6 @@ export class LeaderboardService {
             total: totalCount
         };
 
-        // Cache the leaderboard in Redis
         try {
             await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
         } catch (error) {

@@ -564,7 +564,9 @@ export class ContestService {
                 where: { id: contestId },
                 data: {
                     title: data.title,
-                    slug: data.slug?.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                    slug: data.slug?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") ||
+                          data.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") ||
+                          "untitled",
                     description: data.description,
                     startTime: data.startTime,
                     endTime: data.endTime,

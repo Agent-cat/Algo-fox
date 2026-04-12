@@ -1,4 +1,4 @@
-
+import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import redis from "@/lib/redis";
@@ -24,8 +24,7 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-
-                return JSON.parse(cached);
+                return safeJsonParse(cached, { problems: [] as any[], total: 0 });
             }
         } catch (error) {
             console.error("Redis get error:", error);
@@ -314,8 +313,7 @@ export class ProblemService {
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-
-                return JSON.parse(cached);
+                return safeJsonParse(cached, null);
             }
         } catch (error) {
             console.error("Redis get error:", error);
