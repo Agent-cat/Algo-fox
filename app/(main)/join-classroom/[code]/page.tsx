@@ -25,7 +25,7 @@ async function JoinClassroomContent({ params }: { params: Promise<{ code: string
 
     if (!res.success || !res.classroom) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-6 text-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#121212] p-6 text-center">
                 <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-12 max-w-xl w-full shadow-sm flex flex-col items-center">
                     <div className="w-20 h-20 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] flex items-center justify-center mb-8">
                         <School className="w-10 h-10 text-gray-300 dark:text-gray-600" />
@@ -61,7 +61,7 @@ async function JoinClassroomContent({ params }: { params: Promise<{ code: string
 export default function JoinClassroomPage({ params }: PageProps) {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-4">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#121212] p-4">
                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
             </div>
         }>

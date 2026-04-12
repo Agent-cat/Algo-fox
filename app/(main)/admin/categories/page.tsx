@@ -88,7 +88,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#0a0a0a] transition-colors">
+    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212] transition-colors">
       <div className="max-w-6xl mx-auto ml-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>

@@ -73,7 +73,17 @@ const contestWithProblemsSchema = z.object({
     scoring: z.string().optional(),
     isProtected: z.boolean().default(true),
     targetEmails: z.array(z.string()).default([]),
-    problems: z.array(z.any()), // Full problem data objects
+    mode: z.enum(["SEQUENTIAL", "PARALLEL"]).default("PARALLEL"),
+    durationMinutes: z.number().int().min(1).optional().nullable(),
+    sections: z.array(
+        z.object({
+            title: z.string(),
+            description: z.string().optional(),
+            order: z.number().int(),
+            durationMinutes: z.number().int().min(1).optional().nullable(),
+            problems: z.array(z.any()), // Full problem data objects or strings
+        })
+    ).min(1, "Contest must have at least one section"),
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
     isIPRestricted: z.boolean().default(false),
@@ -148,18 +158,20 @@ async function getContestData(contestId: string) {
     return prisma.contest.findUnique({
         where: { id: contestId },
         include: {
-            _count: {
-                select: { problems: true },
-            },
-            problems: {
+            sections: {
                 include: {
-                    problem: {
-                        select: {
-                            id: true,
-                            title: true,
-                            difficulty: true,
-                            slug: true,
+                    problems: {
+                        include: {
+                            problem: {
+                                select: {
+                                    id: true,
+                                    title: true,
+                                    difficulty: true,
+                                    slug: true,
+                                },
+                            },
                         },
+                        orderBy: { order: "asc" },
                     },
                 },
                 orderBy: { order: "asc" },
@@ -185,13 +197,16 @@ export async function getContestDetail(contestId: string) {
             getContestData(contestId),
             currentUser
                 ? prisma.contestParticipation.findUnique({
-                      where: {
-                          userId_contestId: {
-                              userId: currentUser.id,
-                              contestId: contestId
-                          }
+                  where: {
+                      userId_contestId: {
+                          userId: currentUser.id,
+                          contestId: contestId
                       }
-                  })
+                  },
+                  include: {
+                      sectionProgress: true
+                  }
+              })
                 : null
         ]);
 
@@ -244,10 +259,38 @@ export async function getContestDetail(contestId: string) {
         const canSeeProblems = (hasStarted || isAdmin || isCreator) && (participation?.acceptedRules || isCreator || isAdmin);
         const requiresPassword = !!contest.contestPassword;
 
-        // REFACTORED: Use consolidated method from ContestService
-        // This ensures randomization logic is in one place, not split between action and service
-        const visibleProblems = ContestService.determineVisibleProblems(
-            canSeeProblems ? contest.problems : [],
+        // Reconstruct a flat problem array dynamically masking future sections
+        let visibleProblems: any[] = [];
+        let activeSectionId = participation?.currentSectionId || null;
+
+        if (contest.sections) {
+            for (const section of contest.sections) {
+                let showProblems = true;
+
+                if (participation && contest.mode === "SEQUENTIAL") {
+                    const sectionState = participation.sectionProgress.find(s => s.sectionId === section.id);
+                    // Hide if not unlocked yet
+                    if (!sectionState || !sectionState.isUnlocked) {
+                        showProblems = false;
+                    }
+                }
+
+                // If allowed, append them with their sectionId binding
+                if (showProblems) {
+                    const mappedProblems = section.problems.map(p => ({
+                        ...p,
+                        sectionId: section.id,
+                        sectionTitle: section.title,
+                        isLocked: participation?.sectionProgress.find(s => s.sectionId === section.id)?.isSubmitted || false
+                    }));
+                    visibleProblems.push(...mappedProblems);
+                }
+            }
+        }
+
+        // Apply service-level logic for deterministic randomization if needed
+        visibleProblems = ContestService.determineVisibleProblems(
+            canSeeProblems ? visibleProblems : [],
             contestId,
             currentUser?.id || null,
             {
@@ -276,13 +319,23 @@ export async function getContestDetail(contestId: string) {
             solvedSubmissions.forEach(s => solvedProblemIds.add(s.problemId));
         }
 
+        const effectiveEndTime = participation?.effectiveEndTime || contest.endTime;
+
         return {
             success: true,
             contest: {
                 ...contest,
+                endTime: effectiveEndTime,
                 problems: visibleProblems.map(vp => ({
                     ...vp,
                     isSolved: solvedProblemIds.has(vp.problem.id)
+                })),
+                sections: contest.sections.map(s => ({
+                    id: s.id,
+                    title: s.title,
+                    order: s.order,
+                    isUnlocked: participation?.sectionProgress.find(progress => progress.sectionId === s.id)?.isUnlocked || false,
+                    isSubmitted: participation?.sectionProgress.find(progress => progress.sectionId === s.id)?.isSubmitted || false,
                 })),
                 hasStarted,
                 hasEnded: now > contest.endTime,
@@ -413,13 +466,18 @@ export async function getContestForEdit(contestId: string) {
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
             include: {
-                problems: {
+                sections: {
                     include: {
-                        problem: {
+                        problems: {
                             include: {
-                                testCases: true,
-                                tags: true
-                            }
+                                problem: {
+                                    include: {
+                                        testCases: true,
+                                        tags: true
+                                    }
+                                }
+                            },
+                            orderBy: { order: "asc" }
                         }
                     },
                     orderBy: { order: "asc" }
@@ -619,6 +677,28 @@ export async function startContestSession(contestId: string, password?: string) 
     } catch (error) {
         console.error("Failed to start contest session:", error);
         return { success: false, error: "Failed to start contest session" };
+    }
+}
+
+/**
+ * Submit a contest section and unlock the next sequence
+ */
+export async function submitContestSectionAction(contestId: string, sectionId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+
+    try {
+        const result = await ContestService.submitSection(session.user.id, contestId, sectionId);
+        if (result.success) {
+            revalidatePath(`/contest/${contestId}`);
+        }
+        return result;
+    } catch (error) {
+        console.error("Failed to submit contest section:", error);
+        return { success: false, error: "Failed to submit section" };
     }
 }
 

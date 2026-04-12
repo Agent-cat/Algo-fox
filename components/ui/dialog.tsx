@@ -16,19 +16,19 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-100 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => onOpenChange(false)}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-100 bg-black/40 backdrop-blur-md"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="z-50 w-full max-w-lg rounded-xl bg-white dark:bg-[#141414] p-6 shadow-xl border border-gray-100 dark:border-[#262626]\"
+            className="z-100 w-full max-w-lg rounded-xl bg-white dark:bg-[#141414] p-6 shadow-xl border border-gray-100 dark:border-[#262626]"
           >
             {children}
           </motion.div>

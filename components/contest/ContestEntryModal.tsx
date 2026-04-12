@@ -103,7 +103,8 @@ export default function ContestEntryModal({
     try {
       const result = await startContestSession(contestId, password);
       if (!result.success) {
-        toast.error(result.error || "Could not start session");
+        const error = (result as any).error || "Could not start session";
+        toast.error(String(error));
         setIsLoading(false);
         return;
       }
@@ -111,7 +112,9 @@ export default function ContestEntryModal({
       // Important: Call onStart FIRST so parent state updates,
       // but wrap fullscreen in a micro-task or the browser might cancel it
       // during the DOM re-render of the parent.
-      onStart(result.sessionId!);
+      if ("sessionId" in result) {
+        onStart(result.sessionId);
+      }
 
       setTimeout(async () => {
         try {
@@ -133,7 +136,7 @@ export default function ContestEntryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-`9999` flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md transition-opacity"
@@ -145,7 +148,7 @@ export default function ContestEntryModal({
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white dark:bg-[#0a0a0a] w-full max-w-3xl rounded-none shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-[#121212] w-full max-w-3xl rounded-none shadow-2xl border border-gray-100 dark:border-[#262626] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Progress / Navigation Header */}
         <div className="px-8 pt-8 flex items-center justify-between">

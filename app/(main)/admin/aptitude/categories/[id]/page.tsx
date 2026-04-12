@@ -323,7 +323,7 @@ function AptitudeCategoryProblemsContent() {
 export default function AptitudeCategoryProblemsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     }>

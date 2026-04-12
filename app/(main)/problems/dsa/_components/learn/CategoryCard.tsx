@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, CheckCircle2, Download } from "lucide-react";
+import { Plus, Minus, CheckCircle2, Download, Folder, FolderOpen } from "lucide-react";
 import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
 import { getCategoryProblems } from "@/actions/category.action";
 import { Difficulty, Problem } from "@prisma/client";
@@ -158,7 +158,7 @@ export default function CategoryCard({
           "w-full transition-all group flex",
           isSubCategory
             ? "bg-transparent border-none py-1.5 hover:bg-gray-100/70 dark:hover:bg-white/4 rounded-lg group/sub"
-            : "bg-white dark:bg-[#121212] border border-gray-200/80 dark:border-white/5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/2 shadow-sm hover:shadow-md"
+            : "bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border border-gray-200/50 dark:border-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/2 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
         )}
       >
         <motion.button
@@ -169,10 +169,24 @@ export default function CategoryCard({
         >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-gray-400 font-medium text-sm min-w-[1.2rem]">{displayOrder || "•"}</span>
-            <h3 className={`font-medium transition-colors ${
-              isSubCategory ? "text-xs md:text-[13px] text-gray-500 dark:text-gray-300 group-hover/sub:text-gray-900 dark:group-hover/sub:text-white" : "text-sm md:text-base text-gray-700 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white"
-            }`}>
+            <div className="w-6 flex justify-center shrink-0">
+              <motion.div
+                initial={false}
+                animate={{ scale: isExpanded ? 1.1 : 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                {isExpanded ? (
+                  <FolderOpen className={cn("text-orange-500 dark:text-orange-400 shrink-0", isSubCategory ? "w-3.5 h-3.5" : "w-4.5 h-4.5")} />
+                ) : (
+                  <Folder className={cn("text-gray-400 dark:text-gray-500 shrink-0", isSubCategory ? "w-3.5 h-3.5" : "w-4.5 h-4.5")} />
+                )}
+              </motion.div>
+            </div>
+            <span className="text-gray-400 font-bold text-xs md:text-sm min-w-6 tabular-nums text-center">{displayOrder ? `${displayOrder}${!isSubCategory ? "." : ""}` : "•"}</span>
+            <h3 className={cn(
+              "font-semibold transition-colors tracking-tight",
+              isSubCategory ? "text-xs md:text-[13px] text-gray-500 dark:text-gray-400 group-hover/sub:text-gray-900 dark:group-hover/sub:text-white" : "text-sm md:text-[15px] text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
+            )}>
               {name}
             </h3>
             {isCompleted && (
@@ -193,10 +207,10 @@ export default function CategoryCard({
               </span>
               <div className="flex-1 bg-gray-100 dark:bg-[#1f1f1f] h-3.5 rounded-sm overflow-hidden relative">
                 <motion.div
-                  className="h-full bg-[#E94E24]"
+                  className="h-full bg-linear-to-r from-orange-500 to-orange-400 shadow-[0_0_8px_rgba(233,78,36,0.3)]"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercentage}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
             </div>
@@ -239,7 +253,7 @@ export default function CategoryCard({
             className="overflow-hidden"
           >
             <div className={cn(
-              "mt-1.5 ml-3 pl-5 border-l-2 border-orange-500/20 dark:border-orange-500/15 space-y-2",
+              "mt-1.5 ml-1 pl-2.5 border-l-2 border-orange-500/20 dark:border-orange-500/15 space-y-2",
               !isSubCategory && "pb-4 mb-2"
             )}>
               {/* Render Sub-categories first if they exist */}

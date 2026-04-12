@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import { FilePlus, X, Pencil, Check, FileCode2 } from "lucide-react";
 import { CodeFile } from "@/lib/db";
 import CustomTooltip from "../ui/CustomTooltip";
@@ -13,14 +13,14 @@ interface CodeFileTabsProps {
     onRemove: (fileId: string) => void;
 }
 
-export default function CodeFileTabs({
+const CodeFileTabs = memo(({
     files,
     activeFileId,
     onSelect,
     onAdd,
     onRename,
     onRemove,
-}: CodeFileTabsProps) {
+}: CodeFileTabsProps) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editValue, setEditValue] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
@@ -186,4 +186,6 @@ export default function CodeFileTabs({
             </CustomTooltip>
         </div>
     );
-}
+});
+
+export default CodeFileTabs;

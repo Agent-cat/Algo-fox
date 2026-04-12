@@ -86,13 +86,17 @@ export default function AptitudeWorkspace({
         );
     }
 
+    const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
+    const handleToggleSidebar = useCallback(() => setIsSidebarOpen(true), []);
+    const handleClosePoints = useCallback(() => setIsPointsModalOpen(false), []);
+
     return (
         <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
             <ProblemTour />
 
             <ProblemSidebar
                 isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
+                onClose={handleCloseSidebar}
                 currentProblemId={problem.id}
                 domain={problem.domain}
                 problemType={problem.type}
@@ -100,20 +104,20 @@ export default function AptitudeWorkspace({
             />
 
             <WorkspaceHeader
-                onSubmit={() => {}} // Not used in aptitude the same way
-                onRun={() => {}}    // Not used in aptitude
+                onSubmit={useCallback(() => {}, [])}
+                onRun={useCallback(() => {}, [])}
                 isSubmitting={false}
                 isRunning={false}
                 nextProblemSlug={nextProblemSlug}
                 prevProblemSlug={prevProblemSlug}
                 domain={problem.domain}
                 type={problem.type}
-                onToggleSidebar={() => setIsSidebarOpen(true)}
+                onToggleSidebar={handleToggleSidebar}
             />
 
             <PointsCelebration
                 isOpen={isPointsModalOpen}
-                onClose={() => setIsPointsModalOpen(false)}
+                onClose={handleClosePoints}
                 points={pointsGained}
             />
 
@@ -168,20 +172,34 @@ export default function AptitudeWorkspace({
                     border-radius: 4px;
                     transition: background-color 0.25s ease;
                 }
+                .gutter:hover {
+                    background-color: rgba(234, 88, 12, 0.2) !important;
+                }
+                .gutter:active {
+                    background-color: rgba(234, 88, 12, 0.35) !important;
+                }
                 .gutter:hover::after {
-                    background: rgba(249, 115, 22, 0.25);
+                    background: #ea580c !important;
+                    box-shadow: 0 0 8px rgba(234, 88, 12, 0.4);
                 }
                 .gutter:active::after {
-                    background: rgba(249, 115, 22, 0.4);
+                    background: #c2410c !important;
                 }
                 .dark .gutter {
                     background-color: transparent;
                 }
+                .dark .gutter:hover {
+                    background-color: rgba(234, 88, 12, 0.15) !important;
+                }
+                .dark .gutter:active {
+                    background-color: rgba(234, 88, 12, 0.3) !important;
+                }
                 .dark .gutter:hover::after {
-                    background: rgba(249, 115, 22, 0.2);
+                    background: #ea580c !important;
+                    box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);
                 }
                 .dark .gutter:active::after {
-                    background: rgba(249, 115, 22, 0.35);
+                    background: #f97316 !important;
                 }
                 .gutter.gutter-horizontal {
                     cursor: col-resize;

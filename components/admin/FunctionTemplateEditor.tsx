@@ -97,7 +97,7 @@ export default function FunctionTemplateEditor({
                         type="button"
                         onClick={() => onUseFunctionTemplateChange(false)}
                         className={`flex-1 px-4 py-3 rounded-[3px] text-sm font-bold transition-all ${!useFunctionTemplate
-                            ? "bg-white dark:bg-[#0a0a0a] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
+                            ? "bg-white dark:bg-[#121212] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
                             : "bg-transparent text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                     >
@@ -110,7 +110,7 @@ export default function FunctionTemplateEditor({
                         type="button"
                         onClick={() => onUseFunctionTemplateChange(true)}
                         className={`flex-1 px-4 py-3 rounded-[3px] text-sm font-bold transition-all ${useFunctionTemplate
-                            ? "bg-white dark:bg-[#0a0a0a] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
+                            ? "bg-white dark:bg-[#121212] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
                             : "bg-transparent text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                     >

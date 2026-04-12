@@ -205,7 +205,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                                 onClick={() => setSelectedDate(day)}
                                 className={`
                                     relative min-h-[100px] lg:min-h-[120px] p-2 transition-colors cursor-pointer flex flex-col gap-1
-                                    ${!isCurrentMonth ? "bg-gray-50 dark:bg-[#0a0a0a] text-gray-400 dark:text-gray-800" : "bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-[#161616] text-gray-500 dark:text-gray-400"}
+                                    ${!isCurrentMonth ? "bg-gray-50 dark:bg-[#121212] text-gray-400 dark:text-gray-800" : "bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-[#161616] text-gray-500 dark:text-gray-400"}
                                     ${isSelected ? "bg-orange-50/50 dark:bg-[#161616] ring-1 ring-orange-500 inset-0 z-0" : ""}
                                 `}
                             >

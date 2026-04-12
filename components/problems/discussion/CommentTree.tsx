@@ -101,7 +101,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
             </div>
 
             {/* Sticky Bottom Input */}
-            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-t border-gray-200 dark:border-[#262626] p-4 -mx-6 -mb-6">
+            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-t border-gray-200 dark:border-[#262626] p-4 -mx-6 -mb-6">
                 {session?.user ? (
                     <CommentInput problemId={problemId} onSuccess={handleRefetch} compact />
                 ) : (

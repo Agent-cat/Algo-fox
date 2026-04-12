@@ -56,7 +56,7 @@ function SignInContent() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -67,7 +67,7 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="absolute top-8 left-8">
           <Link href="/" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors font-medium">
@@ -138,7 +138,7 @@ function SignInContent() {
 export default function SignIn() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>

@@ -304,7 +304,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 100 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-5xl bg-white dark:bg-[#0a0a0a] rounded-4xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[90vh]"
+                            className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-4xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[90vh]"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">

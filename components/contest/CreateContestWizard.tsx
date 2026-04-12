@@ -44,11 +44,20 @@ const contestSchema = z.object({
     scoring: z.string().optional(),
     isProtected: z.boolean().default(true),
     targetEmails: z.string().optional(), // We'll parse this as array on submit
-    problems: z.array(z.object({
+    mode: z.enum(["SEQUENTIAL", "PARALLEL"]).default("PARALLEL"),
+    durationMinutes: z.number().int().min(1).optional().nullable(),
+    sections: z.array(z.object({
         id: z.string(),
-        title: z.string(),
-        domain: z.enum(["DSA", "SQL"]),
-    })).optional(),
+        title: z.string().min(1, "Section title required"),
+        description: z.string().optional(),
+        order: z.number(),
+        durationMinutes: z.number().int().min(1).optional().nullable(),
+        problems: z.array(z.object({
+            id: z.string(),
+            title: z.string(),
+            domain: z.enum(["DSA", "SQL"]),
+        })).optional()
+    })).min(1, "At least one section is required"),
     contestPassword: z.string().optional(),
     randomizeQuestions: z.boolean().default(false),
     isIPRestricted: z.boolean().default(false),
@@ -62,6 +71,15 @@ interface ContestProblem {
     title: string;
     domain: "DSA" | "SQL";
     data: any; // Full problem data
+}
+
+interface ContestSection {
+    id: string;
+    title: string;
+    description?: string;
+    order: number;
+    durationMinutes?: number | null;
+    problems: ContestProblem[];
 }
 
 function MarkdownEditor({ label, name, register, watch, setValue, placeholder }: any) {
@@ -141,7 +159,16 @@ export default function CreateContestWizard({
     const [isLoading, setIsLoading] = useState(false);
     const [institutionId, setInstitutionId] = useState<string | null>(initialInstitutionId || initialData?.institutionId || null);
     const [classrooms, setClassrooms] = useState<any[]>([]);
-    const [contestProblems, setContestProblems] = useState<ContestProblem[]>([]);
+
+    // Core section state replacing flat problems
+    const [sections, setSections] = useState<ContestSection[]>([{
+        id: `sec-${Date.now()}`,
+        title: "Main Section",
+        order: 0,
+        problems: []
+    }]);
+
+    const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
     const [showProblemForm, setShowProblemForm] = useState<"DSA" | "SQL" | null>(null);
     const [isCreatingProblem, setIsCreatingProblem] = useState(false);
     const [isSlugAvailable, setIsSlugAvailable] = useState<boolean | null>(null);
@@ -173,7 +200,9 @@ export default function CreateContestWizard({
             scoring: initialData?.scoring || "",
             isProtected: initialData?.isProtected !== undefined ? initialData.isProtected : true,
             targetEmails: initialData?.targetEmails?.join(", ") || "",
-            problems: [], // We'll set this via useEffect
+            mode: initialData?.mode || "PARALLEL",
+            durationMinutes: initialData?.durationMinutes || null,
+            sections: [], // Initialized via useEffect sync
             contestPassword: "", // Start empty in edit mode to avoid showing hashes
             randomizeQuestions: initialData?.randomizeQuestions || false,
             isIPRestricted: initialData?.isIPRestricted || false,
@@ -243,17 +272,31 @@ export default function CreateContestWizard({
         }
     }, [title, setValue]);
 
-    // Set initial problems if editing
+    // Set initial sections if editing
     useEffect(() => {
-        if (isEditing && initialData?.problems) {
-            const mappedProblems = initialData.problems.map((cp: any) => ({
-                id: cp.problem.id,
-                title: cp.problem.title,
-                domain: cp.problem.domain,
-                data: cp.problem, // Store full problem data
+        if (isEditing && initialData?.sections) {
+            const mappedSections = initialData.sections.map((sec: any) => ({
+                id: sec.id || `sec-${Date.now()}-${Math.random()}`,
+                title: sec.title,
+                description: sec.description || "",
+                order: sec.order,
+                durationMinutes: sec.durationMinutes || null,
+                problems: (sec.problems || []).map((cp: any) => ({
+                    id: cp.problem.id,
+                    title: cp.problem.title,
+                    domain: cp.problem.domain,
+                    data: cp.problem,
+                }))
             }));
-            setContestProblems(mappedProblems);
-            setValue("problems", mappedProblems.map((p: any) => ({ id: p.id, title: p.title, domain: p.domain })));
+
+            if (mappedSections.length > 0) {
+                setSections(mappedSections);
+                setActiveSectionId(mappedSections[0].id);
+            }
+            setValue("sections", mappedSections);
+        } else if (!isEditing) {
+            // First time load: active section is the default one
+            setActiveSectionId(sections[0].id);
         }
     }, [isEditing, initialData, setValue]);
 
@@ -270,9 +313,13 @@ export default function CreateContestWizard({
     }, [initialData, setValue]);
 
     const handleProblemSubmit = async (data: any, domain: "DSA" | "SQL") => {
+        if (!activeSectionId) {
+            toast.error("Please select a section first");
+            return;
+        }
+
         setIsCreatingProblem(true);
         try {
-            // Create a temporary problem object (will be saved when contest is created)
             const problemId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const newProblem: ContestProblem = {
                 id: problemId,
@@ -280,8 +327,15 @@ export default function CreateContestWizard({
                 domain,
                 data: { ...data, domain },
             };
-            setContestProblems(prev => [...prev, newProblem]);
-            setValue("problems", [...contestProblems, newProblem].map(p => ({ id: p.id, title: p.title, domain: p.domain })));
+
+            const updatedSections = sections.map(sec =>
+                sec.id === activeSectionId
+                    ? { ...sec, problems: [...sec.problems, newProblem] }
+                    : sec
+            );
+
+            setSections(updatedSections);
+            setValue("sections", updatedSections);
             setShowProblemForm(null);
             toast.success(`${domain} problem added successfully!`);
         } catch (error) {
@@ -291,10 +345,14 @@ export default function CreateContestWizard({
         }
     };
 
-    const removeProblem = (problemId: string) => {
-        const updated = contestProblems.filter(p => p.id !== problemId);
-        setContestProblems(updated);
-        setValue("problems", updated.map(p => ({ id: p.id, title: p.title, domain: p.domain })));
+    const removeProblem = (sectionId: string, problemId: string) => {
+        const updatedSections = sections.map(sec =>
+            sec.id === sectionId
+                ? { ...sec, problems: sec.problems.filter(p => p.id !== problemId) }
+                : sec
+        );
+        setSections(updatedSections);
+        setValue("sections", updatedSections);
     };
 
     const onInvalid = (errors: any) => {
@@ -305,9 +363,9 @@ export default function CreateContestWizard({
     };
 
     const onSubmit = async (formData: FormData) => {
-        // Validate problems
-        if (contestProblems.length === 0) {
-            toast.error("Please add at least one problem");
+        // Validate sections and problems
+        if (sections.length === 0 || sections.some(s => s.problems.length === 0)) {
+            toast.error("Every section must contain at least one problem");
             setActiveTab("Challenges");
             return;
         }
@@ -353,7 +411,13 @@ export default function CreateContestWizard({
                 endTime: finalEndTime,
                 institutionId: formData.visibility !== "PUBLIC" ? currentInstitutionId : null,
                 targetEmails: emailArray,
-                problems: contestProblems.map(p => p.data),
+                sections: sections.map(sec => ({
+                    title: sec.title.trim() || 'Untitled Section',
+                    description: sec.description || undefined,
+                    order: sec.order,
+                    durationMinutes: sec.durationMinutes ? parseInt(sec.durationMinutes.toString()) : null,
+                    problems: sec.problems.map(p => p.data),
+                })),
                 isIPRestricted: formData.isIPRestricted,
                 allowedIPs: formData.allowedIPs ? formData.allowedIPs.split(",").map(ip => ip.trim()).filter(ip => ip.length > 0) : [],
             };
@@ -545,61 +609,117 @@ export default function CreateContestWizard({
             case "Challenges":
                 return (
                     <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Challenges</h3>
-                            <p className="text-sm text-gray-500 mb-6">Add the problems that will be part of this contest.</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Sections & Challenges</h3>
+                                <p className="text-sm text-gray-500 max-w-xl">Group your contest problems into sections. {watch("mode") === "SEQUENTIAL" && <span className="text-orange-500 font-semibold">Sequential Mode active: Participants must submit sections in order without returning.</span>}</p>
+                            </div>
                             <button
                                 type="button"
-                                onClick={() => setShowProblemForm("DSA")}
-                                className="flex flex-col items-center justify-center p-8 bg-white dark:bg-[#1a1a1a] border-2 border-dashed border-gray-200 dark:border-[#333] hover:border-orange-500 rounded-2xl transition-all group"
+                                onClick={() => setSections([...sections, { id: `sec-${Date.now()}`, title: `Section ${String.fromCharCode(65 + sections.length)}`, order: sections.length, problems: [] }])}
+                                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg flex items-center gap-2 text-sm transition-colors"
                             >
-                                <div className="p-3 bg-orange-100 dark:bg-orange-500/10 text-orange-600 rounded-xl mb-3 group-hover:scale-110 transition-transform">
-                                    <Code className="w-6 h-6" />
-                                </div>
-                                <span className="font-semibold text-gray-900 dark:text-white">Add DSA Problem</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowProblemForm("SQL")}
-                                className="flex flex-col items-center justify-center p-8 bg-white dark:bg-[#1a1a1a] border-2 border-dashed border-gray-200 dark:border-[#333] hover:border-blue-500 rounded-2xl transition-all group"
-                            >
-                                <div className="p-3 bg-blue-100 dark:bg-blue-500/10 text-blue-600 rounded-xl mb-3 group-hover:scale-110 transition-transform">
-                                    <Database className="w-6 h-6" />
-                                </div>
-                                <span className="font-semibold text-gray-900 dark:text-white">Add SQL Problem</span>
+                                <Plus className="w-4 h-4" /> Add Section
                             </button>
                         </div>
 
-                        {contestProblems.length > 0 && (
-                            <div className="space-y-3 mt-6">
-                                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Added Problems ({contestProblems.length})</h4>
-                                <div className="space-y-2">
-                                    {contestProblems.map((problem, index) => (
-                                        <div key={problem.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl group/item">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#333] rounded-lg text-sm font-bold text-gray-500">
-                                                    {index + 1}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-gray-900 dark:text-white">{problem.title}</p>
-                                                    <p className={`text-xs font-bold ${problem.domain === 'DSA' ? 'text-orange-500' : 'text-blue-500'}`}>{problem.domain}</p>
-                                                </div>
+                        <div className="space-y-8">
+                            {sections.map((sec, sIdx) => (
+                                <div key={sec.id} className="border border-gray-200 dark:border-[#333] rounded-xl p-5 sm:p-6 bg-white dark:bg-[#1a1a1a] shadow-sm relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+
+                                    {/* Section Header Controls */}
+                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1 block">Section Title <span className="text-red-500">*</span></label>
+                                                <input
+                                                    value={sec.title}
+                                                    onChange={e => { const updated = [...sections]; updated[sIdx].title = e.target.value; setSections(updated); setValue("sections", updated); }}
+                                                    className="w-full px-3 py-2 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-[#444] rounded-[5px] focus:outline-none focus:border-blue-500 font-semibold text-gray-900 dark:text-white h-[42px]"
+                                                    placeholder="Section Name (e.g., Aptitude)"
+                                                />
                                             </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2 ">
+                                                    Duration (Mins) <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded font-normal text-[9px]">Optional</span>
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    value={sec.durationMinutes || ""}
+                                                    onChange={e => { const updated = [...sections]; updated[sIdx].durationMinutes = e.target.value ? parseInt(e.target.value) : null; setSections(updated); setValue("sections", updated); }}
+                                                    className="w-full sm:w-[150px] px-3 py-2 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-[#444] rounded-[5px] focus:outline-none focus:border-blue-500 font-mono text-gray-900 dark:text-white h-[42px]"
+                                                    placeholder="Unlimited"
+                                                />
+                                            </div>
+                                        </div>
+                                        {sections.length > 1 && (
                                             <button
                                                 type="button"
-                                                onClick={() => removeProblem(problem.id)}
-                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
+                                                onClick={() => { const updated = sections.filter(s => s.id !== sec.id); setSections(updated); setValue("sections", updated); }}
+                                                className="self-end sm:self-start p-2 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 dark:bg-black/20 dark:hover:bg-red-500/10 rounded-lg transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-900 h-[42px]"
                                             >
                                                 <X className="w-5 h-5" />
                                             </button>
+                                        )}
+                                    </div>
+
+                                    {/* Action Triggers */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("DSA"); }}
+                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#111] border border-dashed border-gray-300 dark:border-[#444] hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-xl transition-all group max-h-[140px]"
+                                        >
+                                            <div className="p-2 bg-orange-100 dark:bg-orange-500/10 text-orange-600 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                                                <Code className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-semibold text-gray-900 dark:text-white text-sm">Add DSA</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("SQL"); }}
+                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#111] border border-dashed border-gray-300 dark:border-[#444] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/5 rounded-xl transition-all group max-h-[140px]"
+                                        >
+                                            <div className="p-2 bg-blue-100 dark:bg-blue-500/10 text-blue-600 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                                                <Database className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-semibold text-gray-900 dark:text-white text-sm">Add SQL</span>
+                                        </button>
+                                    </div>
+
+                                    {/* Problems Rendering scoped to loop */}
+                                    {sec.problems.length > 0 && (
+                                        <div className="space-y-3 mt-6">
+                                            <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Attached Problems ({sec.problems.length})</h4>
+                                            <div className="space-y-2">
+                                                {sec.problems.map((problem, index) => (
+                                                    <div key={problem.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-lg group/item hover:border-blue-300 dark:hover:border-[#444] transition-colors">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-7 h-7 flex items-center justify-center bg-white dark:bg-black/50 border border-gray-200 dark:border-[#333] rounded-md text-xs font-bold text-gray-500">
+                                                                {index + 1}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight mb-1">{problem.title}</p>
+                                                                <p className={`text-[10px] uppercase font-bold tracking-wider ${problem.domain === 'DSA' ? 'text-orange-500' : 'text-blue-500'}`}>{problem.domain}</p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeProblem(sec.id, problem.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-all"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
-                            </div>
-                        )}
+                            ))}
+                        </div>
                     </div>
                 );
             case "Settings":
@@ -628,6 +748,40 @@ export default function CreateContestWizard({
                                 </div>
 
                                 <div className="space-y-4">
+                                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-[#333] rounded-xl flex flex-col gap-4">
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5 block  items-center gap-2">
+                                                Topology Mode <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-500/10 text-blue-600 rounded text-[10px] uppercase font-bold">Important</span>
+                                            </label>
+                                            <select
+                                                {...register("mode")}
+                                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold text-gray-800 dark:text-gray-200"
+                                            >
+                                                <option value="PARALLEL">Parallel (All Sections Open)</option>
+                                                <option value="SEQUENTIAL">Sequential (Must complete in order)</option>
+                                            </select>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Sequential mode locks users into one section at a time.
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5 block  items-center gap-2">
+                                                Global Duration <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded text-[10px] uppercase font-bold">Minutes</span>
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                {...register("durationMinutes", { valueAsNumber: true })}
+                                                placeholder="Total allowed time..."
+                                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-mono"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Leave blank to allow users to work until the global End Time completes.
+                                            </p>
+                                        </div>
+                                    </div>
+
                                     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-[#333] rounded-xl">
                                         <div className="space-y-0.5">
                                             <p className="text-sm font-semibold text-gray-900 dark:text-white">Randomize Questions</p>
@@ -793,7 +947,7 @@ export default function CreateContestWizard({
                             onClick={() => setActiveTab(tab)}
                             className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
                                 activeTab === tab
-                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#0a0a0a]"
+                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#121212]"
                                 : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                         >

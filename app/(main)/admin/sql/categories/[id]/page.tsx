@@ -132,7 +132,7 @@ function SqlCategoryProblemsContent() {
 
   if (isLoading && !category) {
     return (
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -141,7 +141,7 @@ function SqlCategoryProblemsContent() {
   // --- INLINE FORM VIEWS ---
   if (mode === "add-problem") {
     return (
-      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#0a0a0a]">
+      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#121212]">
         <div className="max-w-6xl mx-auto px-8 pt-10 pb-6 flex items-center gap-4">
           <button
             onClick={() => setMode("list")}
@@ -171,7 +171,7 @@ function SqlCategoryProblemsContent() {
 
   if (mode === "add-concept") {
     return (
-      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#0a0a0a]">
+      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#121212]">
         <div className="max-w-6xl mx-auto px-8 pt-10 pb-6 flex items-center gap-4">
           <button
             onClick={() => setMode("list")}
@@ -198,7 +198,7 @@ function SqlCategoryProblemsContent() {
 
   // --- LIST VIEW ---
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212]">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/admin/sql/categories"

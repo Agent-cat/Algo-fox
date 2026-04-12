@@ -115,7 +115,7 @@ export default function ContestParticipantsPage() {
     const flaggedCount = participants.filter(p => p.isFlagged && !p.isBlocked).length;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#121212]">
             {/* Header */}
             <div className="bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626] sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-4 py-4">

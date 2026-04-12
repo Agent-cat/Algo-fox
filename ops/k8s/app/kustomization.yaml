@@ -5,8 +5,6 @@ resources:
   - namespace.yaml
   - secrets.yaml
   - config.yaml
-  - postgres.yaml
-  - redis.yaml
   - app.yaml
   - app-hpa.yaml
   - ingress.yaml

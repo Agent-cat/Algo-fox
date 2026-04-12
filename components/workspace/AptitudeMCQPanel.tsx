@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Check, X, Info, Trophy, LayoutList, RotateCcw, ArrowRight } from "lucide-react";
@@ -16,7 +16,7 @@ interface AptitudeMCQPanelProps {
     nextProblemSlug?: string | null;
 }
 
-export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug }: AptitudeMCQPanelProps) {
+const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug }: AptitudeMCQPanelProps) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [isLoading, setIsLoading] = useState(false);
@@ -226,4 +226,6 @@ export default function AptitudeMCQPanel({ problem, isSolved, onSolved, onReveal
             </div>
         </div>
     );
-}
+});
+
+export default AptitudeMCQPanel;

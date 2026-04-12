@@ -113,7 +113,7 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                     <input
                         {...register("title")}
                         placeholder="e.g. Introduction to Arrays"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#0a0a0a]"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#121212]"
                     />
                     {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
                 </div>
@@ -123,7 +123,7 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                     <input
                         {...register("slug")}
                         placeholder="e.g. intro-arrays"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#0a0a0a]"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] focus:border-orange-500 dark:focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium text-gray-900 dark:text-white bg-white dark:bg-[#121212]"
                     />
                     {errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
                 </div>
@@ -142,19 +142,19 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
 
                     <div className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden shadow-sm">
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#333]">
-                             <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
+                             <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
                                 <button type="button" onClick={() => insertMarkdown("bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 font-bold hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Bold">B</button>
                                 <button type="button" onClick={() => insertMarkdown("italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 italic hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Italic">i</button>
                             </div>
-                            <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
+                            <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
                                 <button type="button" onClick={() => insertMarkdown("h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 font-bold hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Heading 2"><span className="text-[10px]">H2</span></button>
                                 <button type="button" onClick={() => insertMarkdown("h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 font-bold hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Heading 3"><span className="text-[10px]">H3</span></button>
                             </div>
-                            <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
+                            <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
                                 <button type="button" onClick={() => insertMarkdown("list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Bullet List"><List className="w-3.5 h-3.5" /></button>
                                 <button type="button" onClick={() => insertMarkdown("code")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Code Block"><Code2 className="w-3.5 h-3.5" /></button>
                             </div>
-                            <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
+                            <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-md p-0.5">
                                 <button type="button" onClick={() => insertMarkdown("link")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-sm transition-colors" title="Link"><Plus className="w-3.5 h-3.5 rotate-45" /></button>
                             </div>
                         </div>
@@ -168,10 +168,10 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                                 }}
                                 rows={16}
                                 placeholder="# Introduction..."
-                                className="w-full px-4 py-3 bg-white dark:bg-[#0a0a0a] focus:outline-none transition-all font-mono text-sm leading-relaxed text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 resize-none min-h-[400px]"
+                                className="w-full px-4 py-3 bg-white dark:bg-[#121212] focus:outline-none transition-all font-mono text-sm leading-relaxed text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-600 resize-none min-h-[400px]"
                             />
                         ) : (
-                            <div className="px-6 py-6 min-h-[400px] bg-white dark:bg-[#0a0a0a] prose prose-sm dark:prose-invert max-w-none prose-pre:bg-[#1a1a2e] prose-headings:mb-4">
+                            <div className="px-6 py-6 min-h-[400px] bg-white dark:bg-[#121212] prose prose-sm dark:prose-invert max-w-none prose-pre:bg-[#1a1a2e] prose-headings:mb-4">
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
                                     components={{

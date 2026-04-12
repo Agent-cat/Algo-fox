@@ -33,7 +33,7 @@ async function AssignmentContent({ id }: { id: string }) {
 
 export default async function AssignmentDetailPage(props: { params: Promise<{ id: string }> }) {
     return (
-        <div className="min-h-screen bg-gray-50/30 dark:bg-[#0a0a0a] pt-24 pb-12">
+        <div className="min-h-screen bg-gray-50/30 dark:bg-[#121212] pt-24 pb-12">
             <Suspense fallback={
                 <div className="flex items-center justify-center py-24">
                     <Loader2 className="w-8 h-8 animate-spin text-orange-500" />

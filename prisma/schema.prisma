@@ -121,35 +121,36 @@ model Verification {
 }
 
 model Problem {
-  id                  String                    @id @default(cuid())
-  title               String
-  description         String
-  hidden              Boolean                   @default(true)
-  slug                String                    @unique
-  score               Int
-  solved              Int?                      @default(0)
-  difficulty          Difficulty                @default(EASY)
-  type                ProblemType               @default(PRACTICE)
-  domain              ProblemDomain             @default(DSA)
-  hiddenQuery         String?
-  useFunctionTemplate Boolean                   @default(false)
-  solution            String?
-  isMcq               Boolean                   @default(false)
-  options             Json?
-  answer              String?
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime                  @updatedAt
-  userId              String?
-  assignments         AssignmentProblem[]
-  categoryProblems    CategoryProblem[]
-  comments            Comment[]
-  user                User?                     @relation(fields: [userId], references: [id])
-  functionTemplates   ProblemFunctionTemplate[]
-  testCases           ProblemTestCase[]
-  submissions         Submission[]
-  solvedBy            UserProblemSolved[]
-  contestProblems     ContestProblem[]
-  tags                Tag[]                     @relation("ProblemToTag")
+  id                     String                    @id @default(cuid())
+  title                  String
+  description            String
+  hidden                 Boolean                   @default(true)
+  slug                   String                    @unique
+  score                  Int
+  solved                 Int?                      @default(0)
+  difficulty             Difficulty                @default(EASY)
+  type                   ProblemType               @default(PRACTICE)
+  domain                 ProblemDomain             @default(DSA)
+  hiddenQuery            String?
+  useFunctionTemplate    Boolean                   @default(false)
+  solution               String?
+  isMcq                  Boolean                   @default(false)
+  options                Json?
+  answer                 String?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  userId                 String?
+  assignments            AssignmentProblem[]
+  categoryProblems       CategoryProblem[]
+  comments               Comment[]
+  user                   User?                     @relation(fields: [userId], references: [id])
+  functionTemplates      ProblemFunctionTemplate[]
+  testCases              ProblemTestCase[]
+  submissions            Submission[]
+  solvedBy               UserProblemSolved[]
+  contestProblems        ContestProblem[]
+  contestSectionProblems ContestSectionProblem[]
+  tags                   Tag[]                     @relation("ProblemToTag")
 
   @@index([createdAt])
   @@index([domain, type, hidden, difficulty, createdAt])
@@ -244,7 +245,6 @@ model Submission {
   @@index([contestId, createdAt])
   @@index([contestId, userId, status]) // For leaderboard groupBy queries
 }
-
 
 model TestCase {
   id               String         @id @default(cuid())
@@ -356,38 +356,43 @@ model Classroom {
 }
 
 model Contest {
-  id                 String                 @id @default(cuid())
-  title              String
-  slug               String                 @unique
-  description        String?
-  startTime          DateTime
-  endTime            DateTime
-  backgroundImage    String?
-  prizes             String?
-  rules              String?
-  hidden             Boolean                @default(false)
-  isFinalized        Boolean                @default(false)
-  contestPassword    String?
-  randomizeQuestions Boolean                @default(false)
-  visibility         ContestVisibility      @default(PUBLIC)
-  institutionId      String?
-  classroomId        String?
-  creatorId          String
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  isProtected        Boolean                @default(true)
-  ogImage            String?
-  scoring            String?
-  targetEmails       String[]               @default([])
-  useOgImage         Boolean                @default(false)
-  allowedIPs         String[]               @default([])
-  isIPRestricted     Boolean                @default(false)
-  submissions        Submission[]
-  classroom          Classroom?             @relation(fields: [classroomId], references: [id], onDelete: Cascade)
-  creator            User                   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  institution        Institution?           @relation(fields: [institutionId], references: [id], onDelete: Cascade)
-  participants       ContestParticipation[]
-  problems           ContestProblem[]
+  id                   String                 @id @default(cuid())
+  title                String
+  slug                 String                 @unique
+  description          String?
+  startTime            DateTime
+  endTime              DateTime
+  durationMinutes      Int?
+  mode                 ContestMode            @default(PARALLEL)
+  allowSectionSubmit   Boolean                @default(true)
+  strictSectionLocking Boolean                @default(false)
+  backgroundImage      String?
+  prizes               String?
+  rules                String?
+  hidden               Boolean                @default(false)
+  isFinalized          Boolean                @default(false)
+  contestPassword      String?
+  randomizeQuestions   Boolean                @default(false)
+  visibility           ContestVisibility      @default(PUBLIC)
+  institutionId        String?
+  classroomId          String?
+  creatorId            String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  isProtected          Boolean                @default(true)
+  ogImage              String?
+  scoring              String?
+  targetEmails         String[]               @default([])
+  useOgImage           Boolean                @default(false)
+  allowedIPs           String[]               @default([])
+  isIPRestricted       Boolean                @default(false)
+  submissions          Submission[]
+  classroom            Classroom?             @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  creator              User                   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  institution          Institution?           @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  participants         ContestParticipation[]
+  problems             ContestProblem[]
+  sections             ContestSection[]
 
   @@index([institutionId])
   @@index([classroomId])
@@ -413,34 +418,90 @@ model ContestProblem {
   @@map("contest_problem")
 }
 
+model ContestSection {
+  id              String   @id @default(cuid())
+  contestId       String
+  title           String
+  description     String?
+  order           Int
+  durationMinutes Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  contest        Contest                       @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problems       ContestSectionProblem[]
+  participations ContestParticipationSection[]
+
+  @@unique([contestId, order])
+  @@map("contest_section")
+}
+
+model ContestSectionProblem {
+  id        String   @id @default(cuid())
+  sectionId String
+  problemId String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  section ContestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  problem Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, problemId])
+  @@index([sectionId, order])
+  @@map("contest_section_problem")
+}
+
+model ContestParticipationSection {
+  id              String    @id @default(cuid())
+  participationId String
+  sectionId       String
+  startedAt       DateTime?
+  submittedAt     DateTime?
+  isUnlocked      Boolean   @default(false)
+  isSubmitted     Boolean   @default(false)
+  lockedAt        DateTime?
+
+  participation ContestParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
+  section       ContestSection       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([participationId, sectionId])
+  @@map("contest_participation_section")
+}
+
 model ContestParticipation {
-  id                  String             @id @default(cuid())
+  id                  String                        @id @default(cuid())
   userId              String
   contestId           String
-  acceptedRules       Boolean            @default(false)
-  isFinished          Boolean            @default(false)
+  acceptedRules       Boolean                       @default(false)
+  isFinished          Boolean                       @default(false)
   finishedAt          DateTime?
+  finishReason        FinishReason?
+  startedAt           DateTime?
+  effectiveEndTime    DateTime?
+  currentSectionId    String?
   sessionId           String?
   sessionStartedAt    DateTime?
-  tabSwitchCount      Int                @default(0)
-  fullscreenExitCount Int                @default(0)
-  copyPasteCount      Int                @default(0)
-  devToolsCount       Int                @default(0)
-  keyboardCount       Int                @default(0)
-  navigationCount     Int                @default(0)
-  totalViolations     Int                @default(0)
-  isFlagged           Boolean            @default(false)
-  isBlocked           Boolean            @default(false)
+  tabSwitchCount      Int                           @default(0)
+  fullscreenExitCount Int                           @default(0)
+  copyPasteCount      Int                           @default(0)
+  devToolsCount       Int                           @default(0)
+  keyboardCount       Int                           @default(0)
+  navigationCount     Int                           @default(0)
+  totalViolations     Int                           @default(0)
+  isFlagged           Boolean                       @default(false)
+  isBlocked           Boolean                       @default(false)
   tempBlockedUntil    DateTime?
-  permanentlyBlocked  Boolean            @default(false)
+  permanentlyBlocked  Boolean                       @default(false)
   unblockedBy         String?
   unblockedAt         DateTime?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @updatedAt
   ipAddress           String?
-  contest             Contest            @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest             Contest                       @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  user                User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
   violations          ContestViolation[]
+  sectionProgress     ContestParticipationSection[]
 
   @@unique([userId, contestId])
   @@index([contestId])
@@ -625,6 +686,18 @@ enum ViolationType {
 enum VoteType {
   UP
   DOWN
+}
+
+enum ContestMode {
+  SEQUENTIAL
+  PARALLEL
+}
+
+enum FinishReason {
+  SUBMITTED_MANUALLY
+  TIME_EXPIRED
+  ADMIN_TERMINATED
+  SYSTEM_AUTO
 }
 
 model DailyStreak {

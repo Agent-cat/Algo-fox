@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 export default function InvitePage({ params }: { params: Promise<{ code: string }> }) {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-4">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#121212] p-4">
                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
             </div>
         }>
@@ -25,7 +25,7 @@ async function InviteContent({ params }: { params: Promise<{ code: string }> }) 
     if (!success || !invite) {
         if (error === "Invite expired" || error === "Invite limit reached" || error === "Invite is deactivated") {
              return (
-                <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-4">
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#121212] p-4">
                     <div className="max-w-md w-full bg-white dark:bg-[#141414] rounded-3xl p-8 text-center border border-gray-100 dark:border-[#262626] shadow-xl">
                         <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-500">
                             <span className="text-2xl font-bold">!</span>
@@ -44,7 +44,7 @@ async function InviteContent({ params }: { params: Promise<{ code: string }> }) 
     });
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-4 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#121212] p-4 relative overflow-hidden">
             {/* Background decorations */}
             <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-orange-50/50 dark:from-orange-900/10 to-transparent pointer-events-none" />
 

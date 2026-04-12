@@ -8,7 +8,7 @@ import { Suspense } from "react";
 
 function CreateSqlProblemContent() {
     return (
-        <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#0a0a0a]">
+        <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#121212]">
             {/* Page header */}
             <div className="max-w-6xl mx-auto px-8 pt-10 pb-6 flex items-center gap-4">
                 <Link
@@ -44,7 +44,7 @@ function CreateSqlProblemContent() {
 export default function CreateSqlProblemPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a]">
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#121212]">
                 <div className="animate-spin rounded-full h-10 w-10 border-2 border-orange-500 border-t-transparent" />
             </div>
         }>

@@ -385,7 +385,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                             disabled={!isClickable && !isActive}
                             className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
                                 isActive
-                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#0a0a0a]"
+                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#121212]"
                                 : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                         >
@@ -476,7 +476,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             </div>
                                             <div className="pt-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
-                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#0a0a0a] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
+                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#121212] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
                                                     {watch("answer") || "Select correct option using radio button"}
                                                 </div>
                                             </div>
@@ -598,15 +598,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 {/* Enhanced Toolbar */}
                                 <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
                                     <div className="flex items-center gap-1">
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
                                             <button type="button" onClick={() => insertMarkdown("description", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
                                             <button type="button" onClick={() => insertMarkdown("description", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
                                                 <List className="w-3.5 h-3.5" />
                                             </button>
@@ -614,7 +614,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <Code2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button
                                                 type="button"
                                                 onClick={() => descriptionFileInputRef.current?.click()}
@@ -701,15 +701,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 {/* Enhanced Toolbar */}
                                 <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
                                     <div className="flex items-center gap-1">
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
                                             <button type="button" onClick={() => insertMarkdown("solution", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
                                             <button type="button" onClick={() => insertMarkdown("solution", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
                                                 <List className="w-3.5 h-3.5" />
                                             </button>
@@ -717,7 +717,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <Code2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button
                                                 type="button"
                                                 onClick={() => solutionFileInputRef.current?.click()}
@@ -826,7 +826,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.input` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"nums = [2,7,11,15]\ntarget = 9"}
                                                 />
                                             </div>
@@ -835,7 +835,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.output` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"[0, 1]"}
                                                 />
                                             </div>

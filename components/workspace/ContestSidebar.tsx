@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LayoutGrid, List, LogOut, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { finishContestAction } from "@/actions/contest";
+import { finishContestAction, submitContestSectionAction } from "@/actions/contest";
 import { toast } from "sonner";
+import { ContestEndModal } from "./ContestEndModal";
 
 interface ContestSidebarProps {
     isOpen: boolean;
@@ -22,6 +23,17 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
     const [showEndModal, setShowEndModal] = useState(false);
     const [endConfirmText, setEndConfirmText] = useState("");
     const [isEnding, setIsEnding] = useState(false);
+    const [isSubmittingSection, setIsSubmittingSection] = useState(false);
+
+    // Active Section UI state
+    const activeSectionTarget = contest.sections?.find((s: any) => s.isUnlocked && !s.isSubmitted)?.id || contest.sections?.[0]?.id;
+    const [activeSectionId, setActiveSectionId] = useState<string>(activeSectionTarget);
+
+    const isParallel = contest.mode === "PARALLEL";
+
+    const currentSection = contest.sections?.find((s: any) => s.id === activeSectionId);
+    const displayedProblems = contest.problems?.filter((p: any) => !p.sectionId || p.sectionId === activeSectionId) || [];
+
 
     const progressPercent = contest.problems.length ? (solvedProblemIds.length / contest.problems.length) * 100 : 0;
 
@@ -75,6 +87,30 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
         setShowEndModal(false);
     };
 
+    const handleSectionSubmit = async () => {
+        if (!currentSection || isSubmittingSection) return;
+        setIsSubmittingSection(true);
+        try {
+            const res = await submitContestSectionAction(contest.id, currentSection.id);
+            if (res.success) {
+                toast.success(`${currentSection.title} submitted successfully`);
+                // Auto-refresh the page to load next section if sequential
+                if (!isParallel) {
+                    window.location.reload();
+                } else {
+                    router.refresh(); // Soft refresh
+                }
+            } else {
+                // @ts-ignore
+                toast.error(res.error || "Failed to submit section");
+            }
+        } catch (err) {
+            toast.error("Error submitting section");
+        } finally {
+            setIsSubmittingSection(false);
+        }
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -113,11 +149,43 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                            <div className="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-[0.2em]">Problems Selection</div>
+                            {/* Section Switcher for Parallel Mode */}
+                            {contest.sections && contest.sections.length > 1 && isParallel && (
+                                <div className="mb-6 space-y-2">
+                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Sections</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {contest.sections.map((sec: any) => (
+                                            <button
+                                                key={sec.id}
+                                                onClick={() => setActiveSectionId(sec.id)}
+                                                className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors ${
+                                                    activeSectionId === sec.id
+                                                    ? "bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/30"
+                                                    : "bg-gray-50 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-[#333]"
+                                                }`}
+                                            >
+                                                {sec.title}
+                                                {sec.isSubmitted && " 🔒"}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {currentSection && !isParallel && (
+                                <div className="mb-4 text-center p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626]">
+                                    <div className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{currentSection.title}</div>
+                                </div>
+                            )}
+
+                            <div className="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-[0.2em]">Challenges</div>
                             <div className="grid grid-cols-4 gap-4 justify-items-center">
-                                {contest.problems.map((cp: any, index: number) => {
+                                {displayedProblems.length === 0 && (
+                                    <div className="col-span-4 text-xs text-gray-500">No problems available in this section.</div>
+                                )}
+                                {displayedProblems.map((cp: any, index: number) => {
                                     const isCurrent = cp.problem.id === currentProblemId;
-                                    const isSolved = solvedProblemIds.includes(cp.problem.id);
+                                    const isSolved = solvedProblemIds.includes(cp.problem.id) || cp.isLocked;
 
                                     return (
                                         <Link
@@ -126,16 +194,19 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                                             onClick={(e) => {
                                                 if (isSolved) {
                                                     e.preventDefault();
-                                                    toast.success("Problem Solved!", { description: "You have already completed this challenge." });
+                                                    if (cp.isLocked) {
+                                                        toast.error("Section Locked", { description: "This section has been submitted." });
+                                                    } else {
+                                                        toast.success("Problem Solved!", { description: "You have already completed this challenge." });
+                                                    }
                                                 }
-                                                // Automatic close on selection for better UX in mobile/small desktops
                                                 if (!isSolved) onClose();
                                             }}
                                             className={`
                                                 w-full aspect-square flex flex-col items-center justify-center rounded-2xl border-2 text-sm font-black transition-all transform active:scale-90 relative
                                                 ${isCurrent ? 'ring-4 ring-orange-500/20 border-orange-500 dark:border-orange-500 scale-105 z-10' : ''}
                                                 ${getStatusColor(cp.problem.id)}
-                                                ${isSolved ? 'cursor-not-allowed opacity-90' : 'cursor-pointer hover:shadow-lg'}
+                                                ${isSolved ? 'cursor-not-allowed opacity-90 grayscale' : 'cursor-pointer hover:shadow-lg'}
                                             `}
                                         >
                                             {index + 1}
@@ -144,6 +215,17 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                                     );
                                 })}
                             </div>
+
+                            {/* Sequential Section Submission */}
+                            {currentSection && !currentSection.isSubmitted && displayedProblems.length > 0 && (
+                                <button
+                                    onClick={handleSectionSubmit}
+                                    disabled={isSubmittingSection}
+                                    className="mt-8 w-full py-3 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 rounded-xl font-black uppercase text-xs tracking-widest transition-colors flex items-center justify-center gap-2"
+                                >
+                                    {isSubmittingSection ? "Submitting..." : `Submit Section`}
+                                </button>
+                            )}
                         </div>
 
                         <div className="p-6 space-y-6 bg-gray-50/50 dark:bg-[#111] border-t border-gray-100/10 dark:border-white/5">
@@ -172,54 +254,14 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             </button>
                         </div>
 
-                        {/* End Contest Confirmation Modal */}
-                        {showEndModal && (
-                            <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    className="bg-[#fafafa] dark:bg-[#121212] rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-100 dark:border-white/5"
-                                >
-                                    <div className="flex items-center gap-4 mb-6 text-red-600 dark:text-red-500">
-                                        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-                                            <ShieldAlert className="w-7 h-7" />
-                                        </div>
-                                        <h3 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white leading-none">End Contest?</h3>
-                                    </div>
-
-                                    <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-                                        Are you sure you want to finalize your submission? You will <strong className="text-gray-900 dark:text-gray-100">permanently</strong> lose the ability to submit more solutions for this arena.
-                                        <br /><br />
-                                        Type <span className="font-mono font-black text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/5 px-2 py-0.5 rounded">end</span> below to confirm.
-                                    </p>
-
-                                    <input
-                                        type="text"
-                                        placeholder="Type 'end' to confirm"
-                                        value={endConfirmText}
-                                        onChange={(e) => setEndConfirmText(e.target.value)}
-                                        className="w-full px-6 py-4 border rounded-xl mb-8 bg-gray-50 dark:bg-[#111] border-gray-200 dark:border-[#262626] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#1a1a1a] focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest text-lg placeholder:normal-case placeholder:tracking-normal placeholder:text-sm"
-                                        autoFocus
-                                    />
-
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
-                                            className="flex-1 px-6 py-4 border rounded-xl font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] border-gray-200 dark:border-[#262626] transition-all active:scale-95"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            onClick={confirmEndContest}
-                                            disabled={endConfirmText.toLowerCase() !== "end" || isEnding}
-                                            className="flex-1 px-6 py-4 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-red-500/30 active:scale-95"
-                                        >
-                                            {isEnding ? "ENDING..." : "FINALIZE"}
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            </div>
-                        )}
+                        <ContestEndModal
+                            isOpen={showEndModal}
+                            onClose={() => { setShowEndModal(false); setEndConfirmText(""); }}
+                            onConfirm={confirmEndContest}
+                            confirmText={endConfirmText}
+                            setConfirmText={setEndConfirmText}
+                            isEnding={isEnding}
+                        />
                     </motion.div>
                 </>
             )}

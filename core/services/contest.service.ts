@@ -445,58 +445,77 @@ export class ContestService {
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted || false,
                     allowedIPs: data.allowedIPs || [],
+                    mode: data.mode || "PARALLEL",
+                    durationMinutes: data.durationMinutes || null,
                 }
             });
 
-            if (data.problems && data.problems.length > 0) {
-                // If problems are just IDs
-                if (typeof data.problems[0] === 'string') {
-                    await tx.contestProblem.createMany({
-                        data: data.problems.map((problemId: string, index: number) => ({
-                            contestId: contest.id,
-                            problemId,
-                            order: index,
-                        }))
-                    });
-                } else {
-                    // Full problem objects (for createContestWithProblems)
-                    const createdProblems = await Promise.all(
-                        data.problems.map((p: any, i: number) =>
-                            tx.problem.create({
-                                data: {
-                                    title: p.title,
-                                    description: p.description,
-                                    difficulty: p.difficulty,
-                                    slug: `${contest.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`,
-                                    score: p.score || 10,
-                                    domain: p.domain,
-                                    type: "CONTEST",
-                                    hidden: true,
-                                    testCases: {
-                                        create: (p.testCases || []).map((tc: any) => ({
-                                            input: tc.input,
-                                            output: tc.output,
-                                            hidden: tc.hidden || false
-                                        }))
-                                    },
-                                    tags: {
-                                        connectOrCreate: (p.tags || []).map((t: string) => ({
-                                            where: { name: t },
-                                            create: { name: t, slug: t.toLowerCase().replace(/\s+/g, '-') }
-                                        }))
-                                    }
-                                }
-                            })
-                        )
-                    );
+            if (data.sections && data.sections.length > 0) {
+                // Loop over sections
+                for (let sIndex = 0; sIndex < data.sections.length; sIndex++) {
+                    const sec = data.sections[sIndex];
 
-                    await tx.contestProblem.createMany({
-                        data: createdProblems.map((problem, i) => ({
+                    const actualSection = await tx.contestSection.create({
+                        data: {
                             contestId: contest.id,
-                            problemId: problem.id,
-                            order: i,
-                        }))
+                            title: sec.title,
+                            description: sec.description || null,
+                            order: sec.order || sIndex,
+                            durationMinutes: sec.durationMinutes || null,
+                        }
                     });
+
+                    if (sec.problems && sec.problems.length > 0) {
+                        // Check if it's strings (existing problem IDs) or objects (new problems)
+                        if (typeof sec.problems[0] === 'string') {
+                            await tx.contestSectionProblem.createMany({
+                                data: sec.problems.map((problemId: string, index: number) => ({
+                                    sectionId: actualSection.id,
+                                    problemId,
+                                    order: index,
+                                }))
+                            });
+                        } else {
+                    // Full problem objects
+                            const createdProblems = await Promise.all(
+                                sec.problems.map((p: any, i: number) =>
+                                    tx.problem.create({
+                                        data: {
+                                            title: p.title,
+                                            description: p.description,
+                                            difficulty: p.difficulty || "EASY",
+                                            slug: `${contest.slug}-${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}-${i}`,
+                                            score: p.score || 10,
+                                            domain: p.domain,
+                                            type: "CONTEST",
+                                            hidden: true,
+                                            testCases: {
+                                                create: (p.testCases || []).map((tc: any) => ({
+                                                    input: tc.input,
+                                                    output: tc.output,
+                                                    hidden: tc.hidden || false
+                                                }))
+                                            },
+                                            tags: {
+                                                connectOrCreate: (p.tags || []).map((t: string) => ({
+                                                    where: { name: t },
+                                                    create: { name: t, slug: t.toLowerCase().replace(/[^a-z0-9]+/g, '-') }
+                                                }))
+                                            }
+                                        }
+                                    })
+                                )
+                            );
+
+                            await tx.contestSectionProblem.createMany({
+                                data: createdProblems.map((problem, i) => ({
+                                    sectionId: actualSection.id,
+                                    problemId: problem.id,
+                                    order: i,
+                                }))
+                            });
+                        }
+                    }
                 }
             }
 
@@ -538,73 +557,94 @@ export class ContestService {
                     randomizeQuestions: data.randomizeQuestions || false,
                     isIPRestricted: data.isIPRestricted,
                     allowedIPs: data.allowedIPs,
+                    mode: data.mode || "PARALLEL",
+                    durationMinutes: data.durationMinutes || null,
                 }
             });
 
-            if (data.problems) {
-                // Delete existing contest problems links
-                await tx.contestProblem.deleteMany({
+            if (data.sections) {
+                // Delete existing sections completely (this cascades to ContestSectionProblem)
+                await tx.contestSection.deleteMany({
                     where: { contestId }
                 });
 
-                // Re-create links/problems
-                for (let i = 0; i < data.problems.length; i++) {
-                    const p = data.problems[i];
-                    let problemId = p.id;
+                // Re-create sections
+                for (let sIndex = 0; sIndex < data.sections.length; sIndex++) {
+                    const sec = data.sections[sIndex];
 
-                    if (!p.id || p.id.startsWith("temp-")) {
-                        const uniqueSlug = `${contest.slug}-${p.slug || p.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`;
-                        const newProblem = await tx.problem.create({
-                            data: {
-                                title: p.title,
-                                description: p.description,
-                                difficulty: p.difficulty,
-                                slug: uniqueSlug,
-                                score: p.score || 10,
-                                domain: p.domain,
-                                type: "CONTEST",
-                                hidden: true,
-                                testCases: {
-                                    create: (p.testCases || []).map((tc: any) => ({
-                                        input: tc.input,
-                                        output: tc.output,
-                                        hidden: tc.hidden || false,
-                                    })),
-                                },
+                    const actualSection = await tx.contestSection.create({
+                        data: {
+                            contestId: contest.id,
+                            title: sec.title,
+                            description: sec.description || null,
+                            order: sec.order || sIndex,
+                            durationMinutes: sec.durationMinutes || null,
+                        }
+                    });
+
+                    // Re-create links/problems
+                    if (sec.problems) {
+                        for (let i = 0; i < sec.problems.length; i++) {
+                            const p = sec.problems[i];
+                            let problemId = typeof p === 'string' ? p : p.id;
+
+                            if (typeof p !== 'string') {
+                                if (!p.id || p.id.startsWith("temp-")) {
+                                    const uniqueSlug = `${contest.slug}-${p.slug || p.title?.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`;
+                                    const newProblem = await tx.problem.create({
+                                        data: {
+                                            title: p.title,
+                                            description: p.description,
+                                            difficulty: p.difficulty || "EASY",
+                                            slug: uniqueSlug,
+                                            score: p.score || 10,
+                                            domain: p.domain,
+                                            type: "CONTEST",
+                                            hidden: true,
+                                            testCases: {
+                                                create: (p.testCases || []).map((tc: any) => ({
+                                                    input: tc.input,
+                                                    output: tc.output,
+                                                    hidden: tc.hidden || false,
+                                                })),
+                                            },
+                                        }
+                                    });
+                                    problemId = newProblem.id;
+                                } else if (p.isModified) {
+                                    const existingProblem = await tx.problem.findUnique({ where: { id: p.id } });
+                                    if (existingProblem && existingProblem.type === "CONTEST") {
+                                        await tx.problem.update({
+                                            where: { id: p.id },
+                                            data: {
+                                                title: p.title,
+                                                description: p.description,
+                                                difficulty: p.difficulty,
+                                                score: p.score || 10,
+                                                domain: p.domain,
+                                                testCases: {
+                                                    deleteMany: {},
+                                                    create: (p.testCases || []).map((tc: any) => ({
+                                                        input: tc.input,
+                                                        output: tc.output,
+                                                        hidden: tc.hidden || false,
+                                                    })),
+                                                },
+                                            }
+                                        });
+                                    }
+                                }
                             }
-                        });
-                        problemId = newProblem.id;
-                    } else if (p.isModified) {
-                        const existingProblem = await tx.problem.findUnique({ where: { id: p.id } });
-                        if (existingProblem && existingProblem.type === "CONTEST") {
-                            await tx.problem.update({
-                                where: { id: p.id },
+
+                            await tx.contestSectionProblem.create({
                                 data: {
-                                    title: p.title,
-                                    description: p.description,
-                                    difficulty: p.difficulty,
-                                    score: p.score || 10,
-                                    domain: p.domain,
-                                    testCases: {
-                                        deleteMany: {},
-                                        create: (p.testCases || []).map((tc: any) => ({
-                                            input: tc.input,
-                                            output: tc.output,
-                                            hidden: tc.hidden || false,
-                                        })),
-                                    },
+                                    sectionId: actualSection.id,
+                                    problemId,
+                                    order: i,
                                 }
                             });
                         }
                     }
-
-                    await tx.contestProblem.create({
-                        data: {
-                            contestId,
-                            problemId,
-                            order: i,
-                        }
-                    });
                 }
             }
 
@@ -658,7 +698,14 @@ export class ContestService {
 
         const contest = await prisma.contest.findUnique({
             where: { id: contestId },
-            select: { startTime: true, endTime: true, contestPassword: true }
+            select: {
+                startTime: true,
+                endTime: true,
+                contestPassword: true,
+                durationMinutes: true,
+                mode: true,
+                sections: { orderBy: { order: "asc" }, select: { id: true } }
+            }
         });
 
         if (!contest) return { success: false, error: "Contest not found" };
@@ -685,13 +732,117 @@ export class ContestService {
             ipHistory = `${existing.ipAddress}, ${clientIP}`;
         }
 
-        const participation = await prisma.contestParticipation.upsert({
-            where: { userId_contestId: { userId, contestId } },
-            update: { sessionId, sessionStartedAt: now, acceptedRules: true, ipAddress: ipHistory },
-            create: { userId, contestId, sessionId, sessionStartedAt: now, acceptedRules: true, ipAddress: clientIP }
-        });
+        const effectiveEndTime = contest.durationMinutes
+            ? new Date(Math.min(contest.endTime.getTime(), now.getTime() + contest.durationMinutes * 60 * 1000))
+            : contest.endTime;
 
-        return { success: true, sessionId, participationId: participation.id };
+        return await prisma.$transaction(async (tx) => {
+            const participation = await tx.contestParticipation.upsert({
+                where: { userId_contestId: { userId, contestId } },
+                update: {
+                    sessionId,
+                    sessionStartedAt: now,
+                    acceptedRules: true,
+                    ipAddress: ipHistory,
+                    // DO NOT overwrite existing startedAt / effectiveEndTime on reconnect
+                },
+                create: {
+                    userId,
+                    contestId,
+                    sessionId,
+                    sessionStartedAt: now,
+                    startedAt: now,
+                    effectiveEndTime,
+                    acceptedRules: true,
+                    ipAddress: clientIP,
+                    currentSectionId: contest.sections.length > 0 ? contest.sections[0].id : null
+                }
+            });
+
+            // If it's a first-time start, initialize the section states
+            if (!existing && contest.sections.length > 0) {
+                if (contest.mode === "SEQUENTIAL") {
+                    await tx.contestParticipationSection.create({
+                        data: {
+                            participationId: participation.id,
+                            sectionId: contest.sections[0].id,
+                            isUnlocked: true,
+                            startedAt: now
+                        }
+                    });
+                } else if (contest.mode === "PARALLEL") {
+                    await tx.contestParticipationSection.createMany({
+                        data: contest.sections.map(s => ({
+                            participationId: participation.id,
+                            sectionId: s.id,
+                            isUnlocked: true,
+                            startedAt: now
+                        }))
+                    });
+                }
+            }
+
+            return { success: true, sessionId, participationId: participation.id };
+        });
+    }
+
+    /**
+     * Submit a section and unlock the next section if sequential
+     */
+    static async submitSection(userId: string, contestId: string, sectionId: string) {
+        const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            include: { sections: { orderBy: { order: "asc" } } }
+        });
+        if (!contest) return { success: false, error: "Contest not found" };
+
+        const participation = await prisma.contestParticipation.findUnique({
+            where: { userId_contestId: { userId, contestId } }
+        });
+        if (!participation) return { success: false, error: "No participation" };
+
+        const now = new Date();
+        if (participation.effectiveEndTime && now > participation.effectiveEndTime) {
+            // Lazy evaluate time expiration
+            await prisma.contestParticipation.update({
+                where: { id: participation.id },
+                data: { isFinished: true, finishedAt: now, finishReason: "TIME_EXPIRED" }
+            });
+            return { success: false, error: "Time expired" };
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            // Lock current section
+            await tx.contestParticipationSection.update({
+                where: { participationId_sectionId: { participationId: participation.id, sectionId } },
+                data: { isSubmitted: true, submittedAt: now, lockedAt: now }
+            });
+
+            // If sequential, unlock next
+            if (contest.mode === "SEQUENTIAL") {
+                const currentIdx = contest.sections.findIndex(s => s.id === sectionId);
+                if (currentIdx !== -1 && currentIdx < contest.sections.length - 1) {
+                    const nextSection = contest.sections[currentIdx + 1];
+                    await tx.contestParticipationSection.upsert({
+                        where: { participationId_sectionId: { participationId: participation.id, sectionId: nextSection.id } },
+                        update: { isUnlocked: true, startedAt: now },
+                        create: { participationId: participation.id, sectionId: nextSection.id, isUnlocked: true, startedAt: now }
+                    });
+
+                    await tx.contestParticipation.update({
+                        where: { id: participation.id },
+                        data: { currentSectionId: nextSection.id }
+                    });
+                } else if (currentIdx === contest.sections.length - 1) {
+                    // Last section submitted, finish contest
+                    await tx.contestParticipation.update({
+                        where: { id: participation.id },
+                        data: { isFinished: true, finishedAt: now, finishReason: "SUBMITTED_MANUALLY" }
+                    });
+                }
+            }
+            return { success: true };
+        });
     }
 
     /**

@@ -23,86 +23,77 @@ export default function ContestNavigationGuard({
     const pathname = usePathname();
     const initialPath = useRef(pathname);
 
+    const pathsRef = useRef(allowedPaths);
+    useEffect(() => {
+        pathsRef.current = allowedPaths;
+    }, [allowedPaths]);
+
+    // 1. INITIAL MOUNT & POPSTATE LOCKING
     useEffect(() => {
         if (!contestId) return;
 
-        // =============================================
-        // 1. BLOCK BROWSER BACK/FORWARD
-        // =============================================
-        // Push current state to prevent back navigation
-        const pushState = () => {
-            window.history.pushState(null, "", window.location.href);
+        const pushLockState = () => {
+            try {
+                // Skip if already locked to prevent browser throttling (SecurityError fix)
+                if (window.history.state?.locked) return;
+                window.history.pushState({ locked: true }, "", window.location.href);
+            } catch (e) {
+                // Silently handle throttling
+            }
         };
 
-        pushState();
+        // Initial lock
+        pushLockState();
 
         const handlePopState = (e: PopStateEvent) => {
             e.preventDefault();
-            pushState();
-
-            // Show toast for navigation attempt
+            pushLockState();
             toast.error("Navigation blocked", {
                 description: "Browser back/forward is disabled during the contest.",
                 duration: 3000,
             });
         };
 
-        window.addEventListener("popstate", handlePopState);
-
-        // =============================================
-        // 2. INTERCEPT LINK CLICKS
-        // =============================================
         const handleLinkClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const anchor = target.closest("a");
+            const anchor = (e.target as HTMLElement).closest("a");
+            if (!anchor) return;
 
-            if (anchor) {
-                const href = anchor.getAttribute("href");
+            const href = anchor.getAttribute("href");
+            if (!href || href === "#" || href.startsWith("javascript:")) return;
 
-                // Check if navigation is to an allowed path
-                // Ignore hash links, empty links, or javascript:void, or disabled links
-                if (href &&
-                    href !== "#" &&
-                    href.trim() !== "" &&
-                    !href.startsWith("javascript:") &&
-                    !allowedPaths.some(path => href.startsWith(path))) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    toast.error("Navigation blocked", {
-                        description: `You cannot navigate away during the contest.`,
-                        duration: 3000,
-                    });
-
-                    return false;
-                }
+            // Use ref to check current allowed paths without re-attaching listener
+            const isAllowed = pathsRef.current.some(path => href.startsWith(path));
+            if (!isAllowed) {
+                e.preventDefault();
+                e.stopPropagation();
+                toast.error("Navigation blocked", {
+                    description: "You cannot navigate away during the contest.",
+                    duration: 3000,
+                });
             }
         };
 
+        window.addEventListener("popstate", handlePopState);
         document.addEventListener("click", handleLinkClick, true);
-
-        // =============================================
-        // 3. MONITOR PATH CHANGES
-        // =============================================
-        // If path changes unexpectedly, redirect back
-        if (pathname !== initialPath.current) {
-            const isAllowed = allowedPaths.some(path => pathname?.startsWith(path));
-
-            if (!isAllowed) {
-                toast.error("Navigation blocked", {
-                    description: "You've been redirected back to the contest.",
-                    duration: 3000,
-                });
-
-                // Redirect back to contest
-                router.replace(initialPath.current || "/");
-            }
-        }
 
         return () => {
             window.removeEventListener("popstate", handlePopState);
             document.removeEventListener("click", handleLinkClick, true);
         };
+    }, [contestId]); // Only depends on contestId now
+
+    // 2. MONITOR PATH CHANGES
+    useEffect(() => {
+        if (!contestId || pathname === initialPath.current) return;
+
+        const isAllowed = allowedPaths.some(path => pathname?.startsWith(path));
+        if (!isAllowed) {
+            toast.error("Navigation blocked", {
+                description: "You've been redirected back to the contest.",
+                duration: 3000,
+            });
+            router.replace(initialPath.current || "/");
+        }
     }, [contestId, pathname, allowedPaths, router]);
 
     // This component doesn't render anything

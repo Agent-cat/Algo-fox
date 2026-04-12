@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Folder, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,23 +53,25 @@ function CategoryItem({
 
     return (
         <div className={cn(
-            "rounded-2xl transition-all duration-300",
+            "transition-all duration-300",
             level === 0
-                ? "mb-4 border border-gray-100/60 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]"
-                : "ml-5 border-l border-gray-200 dark:border-white/10 mt-1.5"
+                ? "mb-4 border border-gray-100/60 dark:border-white/5 bg-white/40 dark:bg-[#121212]/40 backdrop-blur-sm shadow-[0_2px_8px_-2px_rgba(0,0,0,0.03)] rounded-2xl"
+                : "ml-3 border-l-2 border-gray-200/50 dark:border-white/5 mt-1"
         )}>
             <button
                 onClick={() => onToggleCategory(category.id)}
                 className={cn(
-                    "w-full flex items-center justify-between transition-all text-left group px-4 py-3.5",
+                    "w-full flex items-center justify-between transition-all text-left group",
+                    level === 0 ? "px-4 py-3" : "pl-3 pr-4 py-2.5",
                     isExpanded && level === 0 ? "bg-orange-50/30 dark:bg-orange-500/3" : "hover:bg-gray-50/50 dark:hover:bg-white/1"
                 )}
             >
                 <div className="flex items-center gap-3.5 flex-1 overflow-hidden">
-                    <div className={cn(
-                        "w-2 h-2 rounded-full transition-all duration-500",
-                        isExpanded ? "bg-orange-500 scale-125 shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gray-300 dark:bg-gray-700"
-                    )} />
+                    {isExpanded ? (
+                        <FolderOpen className={cn("shrink-0 transition-all duration-300 text-orange-500", level === 0 ? "w-4 h-4" : "w-3.5 h-3.5")} />
+                    ) : (
+                        <Folder className={cn("shrink-0 transition-all duration-300 text-gray-400 dark:text-gray-500", level === 0 ? "w-4 h-4" : "w-3.5 h-3.5")} />
+                    )}
                     <span className={cn(
                         "font-bold tracking-tight truncate transition-colors duration-300",
                         level === 0 ? "text-[15px]" : "text-sm",
@@ -85,7 +87,7 @@ function CategoryItem({
                         </span>
                     )}
                     <ChevronDown className={cn(
-                        "w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-500",
+                        "w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-500 transform",
                         isExpanded && "rotate-180 text-orange-500"
                     )} />
                 </div>
@@ -101,8 +103,8 @@ function CategoryItem({
                         className="overflow-hidden"
                     >
                         <div className={cn(
-                           "transition-all bg-[#fafafa] dark:bg-[#121212]",
-                           level === 0 ? "px-3 pb-3 pt-1" : "px-2 pb-2 pt-1"
+                           "transition-all",
+                           level === 0 ? "px-3 pb-3 pt-1 bg-[#fafafa] dark:bg-[#121212]" : "pb-1 pt-1"
                         )}>
                             {/* Render Sub-categories first */}
                             {category.children && category.children.length > 0 && (
@@ -142,16 +144,16 @@ function CategoryItem({
                                                 className={cn(
                                                     "group/prob flex items-center justify-between p-2.5 rounded-xl text-[13px] transition-all border border-transparent duration-300",
                                                     isCurrent
-                                                        ? "bg-orange-50/60 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/40 dark:border-orange-500/20 shadow-sm"
-                                                        : "hover:bg-gray-100/80 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                                        ? "bg-orange-50/60 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/40 dark:border-orange-500/20 shadow-[0_2px_10px_-4px_rgba(249,115,22,0.15)]"
+                                                        : "hover:bg-white dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:shadow-sm"
                                                 )}
                                             >
                                                 <div className="flex items-center gap-3 overflow-hidden">
                                                     <div className="w-5 flex justify-center shrink-0">
                                                         {isSolved ? (
-                                                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                                                         ) : (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-[#1e1e1e]" />
+                                                            <div className={cn("w-1.5 h-1.5 rounded-full", level === 0 ? "bg-gray-200 dark:bg-[#1e1e1e]" : "bg-gray-300/60 dark:bg-white/10")} />
                                                         )}
                                                     </div>
                                                     <span className={cn(

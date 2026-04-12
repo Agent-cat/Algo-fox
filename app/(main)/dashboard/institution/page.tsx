@@ -23,7 +23,7 @@ async function DashboardData() {
 
     if (!["INSTITUTION_MANAGER", "ADMIN"].includes(currentUser.role)) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 text-center px-6 bg-white dark:bg-[#0a0a0a]">
+            <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 text-center px-6 bg-white dark:bg-[#121212]">
                 Unauthorized. Only Institution Managers or Admins can access this page.
             </div>
         );
@@ -33,7 +33,7 @@ async function DashboardData() {
 
     if (!institutionId) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 gap-4 bg-white dark:bg-[#0a0a0a]">
+            <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 gap-4 bg-white dark:bg-[#121212]">
                 <Building2 className="w-12 h-12 text-gray-300 dark:text-gray-600" />
                 <div className="text-center md:max-w-md px-6">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">No Institution Assigned</h2>
@@ -67,7 +67,7 @@ async function DashboardData() {
 export default function InstitutionDashboard() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+            <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
             </div>
         }>

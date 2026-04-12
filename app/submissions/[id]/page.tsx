@@ -154,7 +154,7 @@ async function SubmissionContent({ params }: PageProps) {
                     {/* MAIN CONTENT AREA */}
                     <div className="flex-1 space-y-12 w-full">
                         {/* SOURCE CODE SECTION */}
-                        <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-lg overflow-hidden shadow-sm">
+                        <section className="bg-white dark:bg-[#121212] border border-gray-100 dark:border-[#1a1a1a] rounded-lg overflow-hidden shadow-sm">
                             <div className="px-6 py-3 border-b border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between bg-gray-50/30 dark:bg-white/1">
                                 <h2 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2">
                                     <Terminal className="w-3.5 h-3.5" />
