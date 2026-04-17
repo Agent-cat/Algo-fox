@@ -128,13 +128,13 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                         >
                             <motion.div variants={staggerContainer} initial="hidden" animate="visible">
                                 <motion.div variants={staggerItem} className="flex items-center gap-3 flex-wrap mb-4">
-                                    <h1 className={`font-bold text-gray-900 dark:text-gray-100 tracking-tight ${domain === "APTITUDE" ? "text-4xl md:text-5xl font-black" : "text-2xl"}`}>
+                                    <h1 className={`font-bold text-gray-900 dark:text-gray-100 tracking-tight ${domain === "APTITUDE" ? "text-4xl md:text-5xl font-black" : "text-3xl"}`}>
                                         {problem.title}
                                     </h1>
                                     {isSolved && (
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                                            <CheckCircle className="w-4 h-4" />
-                                            <span className="text-xs font-semibold">Solved</span>
+                                        <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                                            <CheckCircle className="w-3.5 h-3.5" />
+                                            <span className="text-[12px] font-bold">Solved</span>
                                         </div>
                                     )}
                                 </motion.div>

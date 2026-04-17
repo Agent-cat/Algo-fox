@@ -155,8 +155,13 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
  */
 async function getContestData(contestId: string) {
     // Removed cache directives to ensure live data for IP checks
-    return prisma.contest.findUnique({
-        where: { id: contestId },
+    return prisma.contest.findFirst({
+        where: {
+            OR: [
+                { id: contestId },
+                { slug: contestId }
+            ]
+        },
         include: {
             sections: {
                 include: {

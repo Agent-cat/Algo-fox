@@ -57,38 +57,41 @@ const getDifficultyConfig = (difficulty: string) => {
 export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProblemSlug, router }: ProblemMetadataProps) => {
     const diffConfig = getDifficultyConfig(problem.difficulty);
 
+    const formatDifficulty = (difficulty: string) => {
+        return difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+    };
+
     return (
-        <motion.div variants={staggerItem} className="flex items-center gap-2 flex-wrap">
+        <motion.div variants={staggerItem} className="flex items-center gap-3 flex-wrap">
             {/* Difficulty Badge */}
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-[11px] uppercase tracking-wider ${diffConfig.bg} ${diffConfig.text} ${diffConfig.border}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${diffConfig.dot} animate-pulse`} />
-                {problem.difficulty}
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[12px] font-bold ${diffConfig.bg} ${diffConfig.text} ${diffConfig.border}`}>
+                <span className={`w-2 h-2 rounded-full ${diffConfig.dot}`} />
+                {formatDifficulty(problem.difficulty)}
             </div>
 
-            {/* Points Badge */}
+            {/* Points */}
             {(typeof problem.points === 'number' || typeof problem.score === 'number') && (
-                <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] text-gray-600 dark:text-gray-400 text-[11px] font-bold uppercase tracking-wider">
+                <div className="flex items-center text-gray-500 dark:text-gray-400 text-[13px] font-medium">
                     {problem.points ?? problem.score ?? 0} pts
                 </div>
             )}
 
-            {/* Tags */}
-            {problem.tags?.map((tag) => (
-                <div
-                    key={tag.slug}
-                    className="px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-[#0d0d0d] border border-gray-100/50 dark:border-[#1a1a1a] text-gray-500 dark:text-gray-500 text-[11px] font-medium hover:text-orange-500 dark:hover:text-orange-500 transition-colors cursor-default"
-                >
-                    {tag.name}
-                </div>
-            ))}
-
-            {/* Solved Status */}
-            {isSolved && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[11px] font-bold uppercase tracking-wider">
-                    <CheckCircle className="w-3 h-3" />
-                    Solved
-                </div>
+            {/* Separator if tags exist */}
+            {problem.tags && problem.tags.length > 0 && (
+                <div className="w-px h-4 bg-gray-200 dark:bg-[#262626]" />
             )}
+
+            {/* Tags */}
+            <div className="flex items-center gap-2">
+                {problem.tags?.map((tag) => (
+                    <div
+                        key={tag.slug}
+                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
+                    >
+                        {tag.name.toLowerCase()}
+                    </div>
+                ))}
+            </div>
 
             {/* Next Problem Shortcut */}
             {nextProblemSlug && (

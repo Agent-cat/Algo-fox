@@ -80,12 +80,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const router = useRouter();
     const pathname = usePathname();
 
-    // Slug protection: Ensure URL contest slug matches contest object
     useEffect(() => {
-        if (contestId && contest?.slug && !pathname.includes(`/contest/${contest.slug}/problems/`)) {
-            router.replace(`/contest/${contest.slug}/problems/${problem.slug}?contestId=${contestId}`);
-        }
-    }, [contestId, contest?.slug, pathname, problem.slug, router]);
+        setIsSolvedState(isSolved);
+    }, [isSolved]);
 
     const [languageId, setLanguageId] = useState<number>(() => getStoredLanguageId(problem.domain as string));
     const [code, setCode] = useState<string>(() => {
@@ -390,8 +387,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             if (codeFiles.files.length > 1 && codeFiles.activeFileId) handleRemoveFile(codeFiles.activeFileId);
             else if (codeFiles.files.length === 1) toast.error("Cannot delete the last remaining file");
         },
-        onNextProblem: () => router.push(`/problems/${nextProblemSlug}`),
-        onPrevProblem: () => router.push(`/problems/${prevProblemSlug}`),
+        onNextProblem: () => router.push(`/problems/${nextProblemSlug}${contestId ? `?contestId=${contestId}` : ''}`),
+        onPrevProblem: () => router.push(`/problems/${prevProblemSlug}${contestId ? `?contestId=${contestId}` : ''}`),
         isRunning,
         isSubmitting,
         nextProblemSlug,

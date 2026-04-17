@@ -160,9 +160,42 @@ async function ProblemContentWithParams({
           </div>
         </div>
         <div className="hidden md:block">
-          <AptitudeWorkspaceClientWrapper
+        <AptitudeWorkspaceClientWrapper
+          problem={problem}
+          isSolved={isSolved}
+          contestId={contestData?.id || contestId}
+          contest={contestData}
+          solvedProblemIds={solvedProblemIds}
+          nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
+          prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
+        />
+      </div>
+    </>
+  );
+}
+  if (problem.domain === "DSA" || problem.domain === "SQL" || problem.domain === "WEBDEV" || problem.domain === "OOPS") {
+    return (
+      <>
+        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid opacity-30" />
+          <div className="relative z-10 space-y-6">
+            <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
+              <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
+              <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
+                For the best coding experience, please open this problem on a desktop or laptop device.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:block">
+          <WorkspaceClientWrapper
             problem={problem}
             isSolved={isSolved}
+            contestId={contestData?.id || contestId}
+            contest={contestData}
             solvedProblemIds={solvedProblemIds}
             nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
             prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
@@ -173,33 +206,9 @@ async function ProblemContentWithParams({
   }
 
   return (
-    <>
-      <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="relative z-10 space-y-6">
-          <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
-            <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
-            <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
-              For the best coding experience, please open this problem on a desktop or laptop device.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="hidden md:block">
-        <WorkspaceClientWrapper
-          problem={problem}
-          isSolved={isSolved}
-          contestId={contestId}
-          contest={contestData}
-          solvedProblemIds={solvedProblemIds}
-          nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
-          prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
-        />
-      </div>
-    </>
+    <div className="min-h-screen flex items-center justify-center">
+      <p>Domain not supported</p>
+    </div>
   );
 }
 
@@ -231,13 +240,9 @@ export async function generateStaticParams() {
     const problems = await prisma.problem.findMany({
       where: { hidden: false },
       select: { slug: true },
-      orderBy: { createdAt: 'desc' },
-      take: 50, // PRE-RENDER TOP 50 PROBLEMS
+      orderBy: { createdAt: "desc" },
+      take: 50,
     });
-
-    if (problems.length === 0) {
-       return [];
-    }
 
     return problems.map((p) => ({
       slug: p.slug,
@@ -247,3 +252,4 @@ export async function generateStaticParams() {
     return [];
   }
 }
+
