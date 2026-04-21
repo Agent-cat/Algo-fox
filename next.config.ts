@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'algofox-vishnu.s3.ap-south-2.amazonaws.com',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 30,
