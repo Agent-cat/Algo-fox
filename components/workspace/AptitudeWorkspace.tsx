@@ -27,6 +27,11 @@ interface AptitudeWorkspaceProps {
     solvedProblemIds?: string[];
     nextProblemSlug?: string | null;
     prevProblemSlug?: string | null;
+    courseId?: string | null;
+    courseName?: string | null;
+    courseSlug?: string | null;
+    totalCourseProblems?: number;
+    currentCourseProblemIndex?: number;
 }
 
 export default function AptitudeWorkspace({
@@ -34,7 +39,12 @@ export default function AptitudeWorkspace({
     isSolved: initialIsSolved,
     solvedProblemIds = [],
     nextProblemSlug,
-    prevProblemSlug
+    prevProblemSlug,
+    courseId,
+    courseName,
+    courseSlug,
+    totalCourseProblems = 0,
+    currentCourseProblemIndex = -1
 }: AptitudeWorkspaceProps) {
     const router = useRouter();
     const [isSolved, setIsSolved] = useState(initialIsSolved);
@@ -102,6 +112,7 @@ export default function AptitudeWorkspace({
                 domain={problem.domain}
                 problemType={problem.type}
                 solvedProblemIds={solvedIds}
+                courseId={courseId}
             />
 
             <WorkspaceHeader
@@ -113,6 +124,10 @@ export default function AptitudeWorkspace({
                 prevProblemSlug={prevProblemSlug}
                 domain={problem.domain}
                 type={problem.type}
+                courseId={courseId}
+                courseSlug={courseSlug}
+                totalCourseProblems={totalCourseProblems}
+                currentCourseProblemIndex={currentCourseProblemIndex}
                 onToggleSidebar={handleToggleSidebar}
             />
 

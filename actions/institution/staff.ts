@@ -67,7 +67,7 @@ export async function addStaffMember(data: z.infer<typeof staffSchema>) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0].message };
     }
-    console.error("Failed to add staff member:", error);
+     console.error("Failed to add staff member:", error);
     return { success: false, error: "Failed to add staff member" };
   }
 }
@@ -125,7 +125,7 @@ export async function getInstitutionStaff(institutionId: string) {
     const staff = await fetchStaff();
     return { success: true, staff };
   } catch (error) {
-    console.error("Failed to fetch institution staff:", error);
+     console.error("Failed to fetch institution staff:", error);
     return { success: false, error: "Failed to fetch staff" };
   }
 }
@@ -190,7 +190,7 @@ export async function getInstitutionStatsAction(institutionId: string) {
 
     return { success: true, stats };
   } catch (error) {
-    console.error("Failed to fetch institution stats:", error);
+     console.error("Failed to fetch institution stats:", error);
     return { success: false, error: "Failed to fetch stats" };
   }
 }
@@ -239,7 +239,7 @@ export async function deleteStaffMember(userId: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to remove staff member:", error);
+     console.error("Failed to remove staff member:", error);
     return { success: false, error: "Failed to remove member" };
   }
 }
@@ -329,7 +329,7 @@ export async function getInstitutionUsers(
           }
       };
     } catch (error) {
-      console.error(`Failed to fetch institution ${role}s:`, error);
+       console.error(`Failed to fetch institution ${role}s:`, error);
       return { success: false, error: "Failed to fetch users" };
     }
   }

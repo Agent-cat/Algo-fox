@@ -52,7 +52,7 @@ export default function CreateCategoryPage() {
         // Let's allow any for now, but usually it's 1-level deep.
         setParentCategories(res.categories || []);
       } catch (error) {
-        console.error("Failed to fetch parent categories:", error);
+         console.error("Failed to fetch parent categories:", error);
       } finally {
         setIsParentsLoading(false);
       }
@@ -110,7 +110,7 @@ export default function CreateCategoryPage() {
         toast.error(res.error || "Failed to create category");
       }
     } catch (error) {
-      console.error("Failed to create category:", error);
+       console.error("Failed to create category:", error);
       toast.error("Failed to create category");
     } finally {
       setIsSubmitting(false);

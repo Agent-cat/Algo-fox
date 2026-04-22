@@ -222,7 +222,7 @@ export async function GET(req: NextRequest) {
         }
 
     } catch (error) {
-        console.error("Progress export error:", error);
+         console.error("Progress export error:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

@@ -57,6 +57,7 @@ interface CodeEditorProps {
   /** Optional file tabs bar to render above the toolbar */
   fileTabs?: React.ReactNode;
   highlightLine?: number | null;
+  allowedLanguages?: string[];
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -76,6 +77,7 @@ const CodeEditor = memo(({
   userId = "",
   fileTabs,
   highlightLine,
+  allowedLanguages,
 }: CodeEditorProps) => {
   // Get system theme
   const { resolvedTheme } = useTheme();
@@ -84,11 +86,21 @@ const CodeEditor = memo(({
   const effectiveTheme =
     settings?.theme || (resolvedTheme === "dark" ? "vs-dark" : "vs-light");
 
-  // Filter languages based on domain: SQL problems only show SQL language
-  const availableLanguages =
-    domain === "SQL"
-      ? LANGUAGES.filter((lang) => lang.id === SQL_LANGUAGE_ID)
-      : LANGUAGES.filter((lang) => lang.id !== SQL_LANGUAGE_ID);
+  // Filter languages based on domain and allowed languages
+  const availableLanguages = React.useMemo(() => {
+    let langs = LANGUAGES;
+    if (domain === "SQL") {
+      langs = LANGUAGES.filter((lang) => lang.id === SQL_LANGUAGE_ID);
+    } else {
+      langs = LANGUAGES.filter((lang) => lang.id !== SQL_LANGUAGE_ID);
+    }
+
+    if (allowedLanguages && allowedLanguages.length > 0) {
+      langs = langs.filter(l => allowedLanguages.includes(l.name));
+    }
+
+    return langs;
+  }, [domain, allowedLanguages]);
 
   // For SQL problems, default to SQL language
   const effectiveLanguageId =
@@ -165,7 +177,7 @@ const CodeEditor = memo(({
         ]);
       }
     } catch (err) {
-      console.debug("Highlight error:", err);
+       console.debug("Highlight error:", err);
     }
   }, []);
 
@@ -359,7 +371,7 @@ const CodeEditor = memo(({
         }
       } catch (err) {
         isProgrammaticSetRef.current = false;
-        console.debug("setValue on file switch (safe to ignore):", err);
+         console.debug("setValue on file switch (safe to ignore):", err);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -387,7 +399,7 @@ const CodeEditor = memo(({
               editor.setValue("");
             }
           } catch (error) {
-            console.debug("setValue error (safe to ignore):", error);
+             console.debug("setValue error (safe to ignore):", error);
           }
         }
         if (onChange) onChange("");
@@ -402,7 +414,7 @@ const CodeEditor = memo(({
               editor.setValue(langBoilerplate);
             }
           } catch (error) {
-            console.debug("setValue error (safe to ignore):", error);
+             console.debug("setValue error (safe to ignore):", error);
           }
         }
         if (onChange) onChange(langBoilerplate);
@@ -461,7 +473,7 @@ const CodeEditor = memo(({
                 }
               }
             } catch (error) {
-              console.debug("setValue error (safe to ignore):", error);
+               console.debug("setValue error (safe to ignore):", error);
             }
           }
           if (onChange) onChange(codeToSet);
@@ -469,7 +481,7 @@ const CodeEditor = memo(({
         // If NO saved code, we implicitly stick with the boilerplate we already showed.
         // No need to "clear" it unless it's SQL maybe?
       } catch (error) {
-        console.error("Failed to load code draft:", error);
+         console.error("Failed to load code draft:", error);
         // On error, we just keep the boilerplate.
       } finally {
         if (isMounted && !cancelled) {
@@ -506,7 +518,7 @@ const CodeEditor = memo(({
           new Promise((resolve) => setTimeout(resolve, 500)),
         ]);
       } catch (err) {
-        console.error("Autosave failed:", err);
+         console.error("Autosave failed:", err);
       } finally {
         setIsSaving(false);
       }
@@ -613,7 +625,7 @@ const CodeEditor = memo(({
           }
         } catch (error) {
           // Editor might be disposed, ignore
-          console.debug("Editor setValue error (safe to ignore):", error);
+           console.debug("Editor setValue error (safe to ignore):", error);
         }
       }
 
@@ -622,7 +634,7 @@ const CodeEditor = memo(({
         applyHighlightLine(editor, highlightLine);
       }
     } catch (error) {
-      console.debug("Editor mount error (safe to ignore):", error);
+       console.debug("Editor mount error (safe to ignore):", error);
       // Retry mounting if we haven't exceeded max retries
       if (mountRetryRef.current < MAX_RETRIES && isMounted) {
         mountRetryRef.current++;
@@ -695,7 +707,7 @@ const CodeEditor = memo(({
           editor.getAction("editor.action.formatDocument")?.run();
         }
       } catch (error) {
-        console.debug("Format error (safe to ignore):", error);
+         console.debug("Format error (safe to ignore):", error);
       }
     }
   }, []);
@@ -715,7 +727,7 @@ const CodeEditor = memo(({
           editor.setValue(resetCode);
         }
       } catch (error) {
-        console.debug("Reset error (safe to ignore):", error);
+         console.debug("Reset error (safe to ignore):", error);
       }
     }
 

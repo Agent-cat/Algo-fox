@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Calendar, CheckCircle2, ChevronRight, BarChart2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { CreateAssignmentModal } from "./CreateAssignmentModal";
@@ -9,44 +9,54 @@ import { AssignmentAnalyticsView } from "./AssignmentAnalyticsView";
 import Link from "next/link";
 import { toast } from "sonner";
 
+interface Assignment {
+    id: string;
+    title: string;
+    description: string | null;
+    dueDate: string | Date | null;
+    _count: {
+        problems: number;
+    };
+}
+
 interface AssignmentsTabProps {
     classroomId: string;
     isTeacher: boolean;
 }
 
 export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) {
-    const [assignments, setAssignments] = useState<any[]>([]);
+    const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
 
     // Initial load uses cached version
-    const fetchAssignments = async () => {
+    const fetchAssignments = useCallback(async () => {
         try {
             const result = await getClassroomAssignments(classroomId);
             // Handle new paginated return type
-            setAssignments(result.assignments || []);
+            setAssignments((result as any).assignments || []);
         } catch (error) {
-            console.error("Failed to fetch assignments", error);
+             console.error("Failed to fetch assignments", error);
             toast.error("Failed to load assignments");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [classroomId]);
 
     // Refresh uses uncached version for fresh data
-    const refreshAssignments = async () => {
+    const refreshAssignments = useCallback(async () => {
         try {
             const data = await refreshClassroomAssignments(classroomId);
             setAssignments(data);
         } catch (error) {
-            console.error("Failed to refresh assignments", error);
+             console.error("Failed to refresh assignments", error);
         }
-    };
+    }, [classroomId]);
 
     useEffect(() => {
         fetchAssignments();
-    }, [classroomId]);
+    }, [fetchAssignments]);
 
     if (selectedAssignmentId && isTeacher) {
         return (

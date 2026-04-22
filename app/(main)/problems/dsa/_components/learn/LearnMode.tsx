@@ -24,6 +24,8 @@ interface LearnModeProps {
   isLoading: boolean;
   userRole?: string;
   domain: string;
+  courseId?: string;
+  isEnrolled?: boolean;
 }
 
 interface TreeCategory extends Category {
@@ -31,7 +33,7 @@ interface TreeCategory extends Category {
   displayOrder?: string;
 }
 
-export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain }: LearnModeProps) {
+export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain, courseId, isEnrolled }: LearnModeProps) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
 
@@ -145,6 +147,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading, user
               subCategories={category.children}
               userRole={userRole}
               domain={domain}
+              courseId={courseId}
+              isEnrolled={isEnrolled}
             />
           ))
         ) : (

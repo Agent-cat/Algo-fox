@@ -13,7 +13,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Application Error:', error);
+     console.error('Application Error:', error);
   }, [error]);
 
   if (error.message?.toLowerCase().includes("banned")) {

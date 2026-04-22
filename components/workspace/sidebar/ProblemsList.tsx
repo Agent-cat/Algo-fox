@@ -22,6 +22,7 @@ interface ProblemsListProps {
     isSearchMode?: boolean;
     searchTerm?: string;
     isSearching?: boolean;
+    courseId?: string | null;
 }
 
 export function ProblemsList({
@@ -33,7 +34,8 @@ export function ProblemsList({
     onLoadMore,
     isSearchMode = false,
     searchTerm = "",
-    isSearching = false
+    isSearching = false,
+    courseId = null
 }: ProblemsListProps) {
 
     if (isSearchMode && searchTerm && isSearching) {
@@ -61,7 +63,7 @@ export function ProblemsList({
                 return (
                     <Link
                         key={prob.id}
-                        href={`/problems/${prob.slug}`}
+                        href={`/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
                         className={cn(
                             "group flex items-center gap-4 p-3.5 rounded-xl transition-all duration-300 border relative overflow-hidden",
                             isCurrent

@@ -10,6 +10,13 @@ import { toast } from "sonner";
 import { createAssignment } from "@/actions/assignment";
 import { searchProblems } from "@/actions/problems";
 
+interface Problem {
+    id: string;
+    title: string;
+    difficulty: string;
+    domain: string;
+}
+
 interface CreateAssignmentModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -26,9 +33,9 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
 
     // Problem Selection
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Problem[]>([]);
     const [isSearching, setIsSearching] = useState(false);
-    const [selectedProblems, setSelectedProblems] = useState<any[]>([]);
+    const [selectedProblems, setSelectedProblems] = useState<Problem[]>([]);
 
     const handleSearch = async (term: string) => {
         setSearchQuery(term);
@@ -40,11 +47,11 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
         setIsSearching(true);
         try {
             const results = await searchProblems(term);
-            const problems = results.problems || [];
+            const problems = (results.problems as Problem[]) || [];
 
             // Filter out already selected
             const selectedIds = new Set(selectedProblems.map(p => p.id));
-            setSearchResults(problems.filter((p: any) => !selectedIds.has(p.id)));
+            setSearchResults(problems.filter((p) => !selectedIds.has(p.id)));
         } catch (error) {
             console.error("Search failed", error);
         } finally {
@@ -52,7 +59,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
         }
     };
 
-    const addProblem = (problem: any) => {
+    const addProblem = (problem: Problem) => {
         if (selectedProblems.some(p => p.id === problem.id)) return;
         setSelectedProblems([...selectedProblems, problem]);
         setSearchResults(searchResults.filter(p => p.id !== problem.id));
@@ -88,7 +95,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
             } else {
                 toast.error(res.error || "Failed to create assignment");
             }
-        } catch (error) {
+        } catch {
             toast.error("Something went wrong");
         } finally {
             setIsSubmitting(false);

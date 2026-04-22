@@ -7,12 +7,19 @@ import {
   AlertTriangle,
   ShieldX,
   Monitor,
-  Eye,
   Lock,
   Ban,
   Clock,
 } from "lucide-react";
 import { logContestViolation, getParticipationStatus } from "@/actions/contest";
+
+interface Participation {
+  totalViolations: number;
+  isFlagged: boolean;
+  permanentlyBlocked: boolean;
+  tempBlockedUntil: string | null;
+  isBlocked: boolean;
+}
 
 interface ContestProtectionProps {
   contestId: string;
@@ -31,7 +38,6 @@ interface ViolationState {
 }
 
 const MAX_WARNINGS = 6;
-const FLAG_THRESHOLD = 3;
 
 // Blocked keyboard shortcuts
 const BLOCKED_SHORTCUTS = [
@@ -179,12 +185,12 @@ export default function ContestProtection({
           }
         }
       } catch (error) {
-        console.error("Failed to log violation:", error);
+         console.error("Failed to log violation:", error);
       } finally {
         isProcessingViolation.current = false;
       }
     },
-    [contestId, canLogViolation, onAutoSubmit, onBlocked]
+    [contestId, canLogViolation, onBlocked]
   );
 
   // Check for existing block status on mount (persists across refresh)
@@ -194,10 +200,10 @@ export default function ContestProtection({
     const checkBlockStatus = async () => {
       const result = await getParticipationStatus(contestId);
       if (result.success && result.participation) {
-        const p = result.participation as any;
+        const p = result.participation as unknown as Participation;
 
         // ALWAYS sync the violation counts and flags
-        const newViolationState = {
+        const newViolationState: ViolationState = {
           total: p.totalViolations || 0,
           isFlagged: p.isFlagged || false,
           isBlocked: false,
@@ -295,7 +301,7 @@ export default function ContestProtection({
         }
       };
     } catch (e) {
-      console.warn("BroadcastChannel not supported");
+       console.warn("BroadcastChannel not supported");
     }
 
     // =============================================

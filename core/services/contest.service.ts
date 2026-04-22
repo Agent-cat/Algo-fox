@@ -990,10 +990,16 @@ export class ContestService {
     /**
      * Get the top 50 participants for a contest
      */
+    /**
+     * Get the top 50 participants for a contest.
+     * FIX: Pass pageSize:50 directly so the DB query is limited from the start.
+     * Previously called getLeaderboard() without pageSize → loaded ALL participants → sliced top 50 in JS.
+     * This was O(N) DB reads + O(N) memory for large contests.
+     */
     static async getTopParticipants(contestId: string) {
-        const leaderboard = await this.getLeaderboard(contestId);
+        const leaderboard = await this.getLeaderboard(contestId, { page: 1, pageSize: 50 });
         if (!leaderboard) return [];
-        return leaderboard.students.slice(0, 50);
+        return leaderboard.students;
     }
 
     /**

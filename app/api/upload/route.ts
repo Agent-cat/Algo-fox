@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, url });
   } catch (err: any) {
-    console.error("Error uploading to S3:", err);
+     console.error("Error uploading to S3:", err);
     return NextResponse.json({ success: false, error: err.message || "Upload failed" }, { status: 500 });
   }
 }

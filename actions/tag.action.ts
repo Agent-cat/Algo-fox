@@ -21,7 +21,7 @@ export async function searchTags(query: string) {
 
         return { success: true, tags };
     } catch (error) {
-        console.error("Failed to search tags:", error);
+         console.error("Failed to search tags:", error);
         return { success: false, error: "Failed to search tags" };
     }
 }
@@ -43,7 +43,7 @@ export async function getAllTags(domain?: ProblemDomain) {
 
         return { success: true, tags };
     } catch (error) {
-        console.error("Failed to get all tags:", error);
+         console.error("Failed to get all tags:", error);
         return { success: false, error: "Failed to get all tags" };
     }
 }
@@ -68,7 +68,7 @@ export async function createTag(name: string) {
 
         return { success: true, tag };
     } catch (error) {
-        console.error("Failed to create tag:", error);
+         console.error("Failed to create tag:", error);
         return { success: false, error: "Failed to create tag" };
     }
 }

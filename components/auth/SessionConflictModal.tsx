@@ -38,7 +38,7 @@ export function SessionConflictModal() {
         setIsOpen(false);
       }
     } catch (e) {
-      console.error("Failed to check session conflict", e);
+        console.error("Failed to check session conflict", e);
     }
   };
 

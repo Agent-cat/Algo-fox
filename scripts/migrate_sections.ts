@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log("Starting Section architecture data migration...");
+     console.log("Starting Section architecture data migration...");
 
     // 1. Fetch all existing contests that don't have sections
     const contests = await prisma.contest.findMany({
@@ -11,10 +11,10 @@ async function main() {
         include: { problems: true } // The deprecated relation
     });
 
-    console.log(`Found ${contests.length} legacy contests to migrate.`);
+     console.log(`Found ${contests.length} legacy contests to migrate.`);
 
     for (const contest of contests) {
-        console.log(`Migrating Contest: ${contest.title} (${contest.id})`);
+         console.log(`Migrating Contest: ${contest.title} (${contest.id})`);
 
         // Use transaction to ensure consistency
         await prisma.$transaction(async (tx) => {
@@ -82,15 +82,15 @@ async function main() {
                 }
             }
         });
-        console.log(`✅ Completed: ${contest.title}`);
+         console.log(`✅ Completed: ${contest.title}`);
     }
 
-    console.log("Migration finished safely! You can now use the new architecture.");
+     console.log("Migration finished safely! You can now use the new architecture.");
 }
 
 main()
     .catch((e) => {
-        console.error("Migration failed:", e);
+         console.error("Migration failed:", e);
         process.exit(1);
     })
     .finally(() => prisma.$disconnect());

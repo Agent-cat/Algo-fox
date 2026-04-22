@@ -176,20 +176,16 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                                     remarkPlugins={[remarkGfm]}
                                     components={{
                                         table: ({ children }) => (
-                                            <div className="my-6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#262626]">
-                                                <div className="overflow-x-auto text-left">
-                                                    <table className="w-full border-collapse text-sm">{children}</table>
-                                                </div>
-                                            </div>
+                                            <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
                                         ),
                                         thead: ({ children }) => (
                                             <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
                                         ),
                                         th: ({ children }) => (
-                                            <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle">{children}</th>
+                                            <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle border border-gray-200 dark:border-[#262626]">{children}</th>
                                         ),
                                         td: ({ children }) => (
-                                            <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle">{children}</td>
+                                            <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] tabular-nums font-mono text-[13px] align-middle">{children}</td>
                                         ),
                                         tr: ({ node, ...props }) => <tr className="border-b border-gray-100/80 dark:border-white/5 transition-colors dark:hover:bg-white/2" {...props} />,
                                     }}

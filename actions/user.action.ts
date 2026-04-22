@@ -82,7 +82,7 @@ export async function completeOnboarding(data: {
             const redis = (await import("@/lib/redis")).default;
             await redis.del(`dashboard:stats:${userId}`);
         } catch (error) {
-            console.error("Failed to invalidate dashboard redis cache:", error);
+             console.error("Failed to invalidate dashboard redis cache:", error);
         }
 
         revalidatePath("/dashboard");
@@ -155,7 +155,7 @@ export async function syncUserProfile(): Promise<{ success: boolean; error?: str
             await redis.del(`dashboard:stats:${userId}`);
             await redis.del(`user-score-${userId}`);
         } catch (error) {
-            console.error("Failed to invalidate redis cache during sync:", error);
+             console.error("Failed to invalidate redis cache during sync:", error);
         }
 
         // Revalidate Next.js cache
@@ -166,7 +166,7 @@ export async function syncUserProfile(): Promise<{ success: boolean; error?: str
 
         return { success: true };
     } catch (error) {
-        console.error("Sync failed:", error);
+         console.error("Sync failed:", error);
         return { success: false, error: "Failed to sync profile" };
     }
 }

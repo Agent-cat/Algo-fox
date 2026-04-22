@@ -11,20 +11,41 @@ import { CheckCircle2, Circle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { markConceptAsCompleted } from "@/actions/submission.action";
 import { useRouter } from "next/navigation";
-import BackButton from "@/components/BackButton";
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import { remarkSolutionDirective } from "@/lib/markdown-plugins";
 import { preprocessMarkdown } from "@/lib/markdown-utils";
 import { PointsCelebration } from "../shared/PointsCelebration";
+import WorkspaceHeader from "../workspace/WorkspaceHeader";
+import { WorkspaceSidebars } from "../workspace/WorkspaceSidebars";
 // Removed static highlight.js import to allow custom adaptive styling
 
 interface ConceptViewerProps {
     problem: Problem & { tags?: { name: string; slug: string }[] };
     isSolved: boolean;
+    courseId?: string | null;
+    courseSlug?: string | null;
+    totalCourseProblems?: number;
+    currentCourseProblemIndex?: number;
+    nextProblemSlug?: string | null;
+    prevProblemSlug?: string | null;
+    solvedIds?: string[];
+    courseName?: string | null;
 }
 
-export default function ConceptViewer({ problem, isSolved: initialIsSolved }: ConceptViewerProps) {
+export default function ConceptViewer({
+    problem,
+    isSolved: initialIsSolved,
+    courseId,
+    courseSlug,
+    totalCourseProblems = 0,
+    currentCourseProblemIndex = -1,
+    nextProblemSlug,
+    prevProblemSlug,
+    solvedIds = [],
+    courseName
+}: ConceptViewerProps) {
     const [isSolved, setIsSolved] = useState(initialIsSolved);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
     const [pointsGained, setPointsGained] = useState(0);
@@ -47,7 +68,7 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                 toast.error(res.error || "Failed to mark as completed");
             }
         } catch (error) {
-            console.error(error);
+             console.error(error);
             toast.error("Something went wrong");
         } finally {
             setIsLoading(false);
@@ -55,20 +76,37 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
     };
 
     return (
-        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#121212] pt-6 pb-20">
-            <PointsCelebration
-                isOpen={isPointsModalOpen}
-                onClose={() => setIsPointsModalOpen(false)}
-                points={pointsGained}
+        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#121212] flex flex-col">
+            <WorkspaceSidebars
+                isSidebarOpen={isSidebarOpen}
+                handleCloseSidebar={() => setIsSidebarOpen(false)}
+                problem={problem}
+                solvedIds={solvedIds}
+                courseId={courseId}
+                courseName={courseName}
             />
-            <div className="w-full max-w-none px-4 md:px-8">
-                {/* Back Button */}
-                <div className="mb-4">
-                    <BackButton />
-                </div>
-
-                {/* Main Content Card */}
-                <div className="bg-white dark:bg-[#141414] rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden">
+            <WorkspaceHeader
+                onSubmit={() => {}}
+                onRun={() => {}}
+                isSubmitting={false}
+                isRunning={false}
+                courseId={courseId}
+                courseSlug={courseSlug}
+                totalCourseProblems={totalCourseProblems}
+                currentCourseProblemIndex={currentCourseProblemIndex}
+                nextProblemSlug={nextProblemSlug}
+                prevProblemSlug={prevProblemSlug}
+                type="CONCEPT"
+                domain={problem.domain}
+                onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
+            <div className="flex-1 overflow-y-auto pb-20 pt-6">
+                <PointsCelebration
+                    isOpen={isPointsModalOpen}
+                    onClose={() => setIsPointsModalOpen(false)}
+                    points={pointsGained}
+                />
+                <div className="w-full max-w-none px-4 md:px-8">
                     {/* Header */}
                     <div className="px-6 py-6 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#141414]">
                         <div className="flex flex-col gap-3">
@@ -114,21 +152,17 @@ export default function ConceptViewer({ problem, isSolved: initialIsSolved }: Co
                                 rehypePlugins={[rehypeRaw]}
                                  components={{
                                     'solution-group': SolutionCodeGroup,
-                                    table: ({ children, ...props }) => (
-                                        <div className="my-6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#262626]">
-                                            <div className="overflow-x-auto text-left">
-                                                <table className="w-full border-collapse text-sm" {...props}>{children}</table>
-                                            </div>
-                                        </div>
+                                    table: ({ children }) => (
+                                        <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
                                     ),
                                     thead: ({ children, ...props }) => (
                                         <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono" {...props}>{children}</thead>
                                     ),
                                     th: ({ children, ...props }) => (
-                                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle" {...props}>{children}</th>
+                                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle border border-gray-200 dark:border-[#262626]" {...props}>{children}</th>
                                     ),
                                     td: ({ children, ...props }) => (
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle" {...props}>{children}</td>
+                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] tabular-nums font-mono text-[13px] align-middle" {...props}>{children}</td>
                                     ),
                                     tr: ({ children, ...props }) => (
                                         <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150" {...props}>{children}</tr>

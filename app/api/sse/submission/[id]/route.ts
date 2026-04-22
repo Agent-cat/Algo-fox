@@ -106,7 +106,7 @@ export async function GET(
                     controller.close();
                     subscriber.quit().catch(err => {
                         if (process.env.NODE_ENV !== "production") {
-                            console.warn("[SSE] Error closing subscriber:", err);
+                             console.warn("[SSE] Error closing subscriber:", err);
                         }
                     });
                 }, 5 * 60 * 1000); // 5 minute timeout
@@ -125,14 +125,14 @@ export async function GET(
                             controller.close();
                             subscriber.quit().catch(err => {
                                 if (process.env.NODE_ENV !== "production") {
-                                    console.warn("[SSE] Error closing subscriber:", err);
+                                     console.warn("[SSE] Error closing subscriber:", err);
                                 }
                             });
                         }
                     } catch (error) {
                         // OPTIMIZATION: Add error handling to prevent stream crashes
                         if (process.env.NODE_ENV !== "production") {
-                            console.error("[SSE] Message parsing error:", error);
+                             console.error("[SSE] Message parsing error:", error);
                         }
                         clearTimeout(timeoutHandle);
                         controller.close();
@@ -143,7 +143,7 @@ export async function GET(
 
             subscriber.on("error", (error) => {
                 if (process.env.NODE_ENV !== "production") {
-                    console.error("[SSE] Redis subscriber error:", error);
+                     console.error("[SSE] Redis subscriber error:", error);
                 }
                 clearTimeout(timeoutHandle);
                 controller.close();

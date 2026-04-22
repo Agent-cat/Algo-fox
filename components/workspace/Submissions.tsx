@@ -60,7 +60,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
             setHasMore(data.length === PAGE_SIZE);
         } catch (error) {
-            console.error("Failed to load submissions", error);
+             console.error("Failed to load submissions", error);
         } finally {
             setLoading(false);
             setLoadingMore(false);

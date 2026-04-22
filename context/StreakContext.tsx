@@ -19,7 +19,6 @@ interface StreakContextType {
 const StreakContext = createContext<StreakContextType | undefined>(undefined);
 
 export function StreakProvider({ children }: { children: React.ReactNode }) {
-  const { data: session } = authClient.useSession();
   const [streak, setStreak] = useState(0);
   const [isFlying, setIsFlying] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
@@ -28,31 +27,6 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
   const [isStreakEndedOpen, setIsStreakEndedOpen] = useState(false);
   const [lastStreakBeforeReset, setLastStreakBeforeReset] = useState(0);
   const badgeRef = useRef<HTMLDivElement>(null);
-
-  // Sync with session when it loads
-  useEffect(() => {
-    if (session?.user) {
-      const serverStreak = (session.user as any).currentStreak || 0;
-      const streakKey = `algofox_last_streak_${session.user.id}`;
-
-      try {
-        const lastStreakStr = localStorage.getItem(streakKey);
-        const lastStreak = lastStreakStr !== null ? parseInt(lastStreakStr, 10) : null;
-
-        // Detect reset
-        if (serverStreak === 0 && lastStreak !== null && lastStreak > 0) {
-          setLastStreakBeforeReset(lastStreak);
-          setIsStreakEndedOpen(true);
-        }
-
-        setStreak(serverStreak);
-        localStorage.setItem(streakKey, serverStreak.toString());
-      } catch (error) {
-        console.warn("Storage access denied:", error);
-        setStreak(serverStreak);
-      }
-    }
-  }, [session]);
 
   const triggerFlight = useCallback((startPos: { x: number; y: number }, newValue: number) => {
     setFlightStart(startPos);
@@ -80,6 +54,13 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StreakContext.Provider value={{ streak, setStreak, triggerFlight, badgeRef, isPulsing, isFlying }}>
+      <Suspense fallback={null}>
+        <StreakSync
+          setStreak={setStreak}
+          setLastStreakBeforeReset={setLastStreakBeforeReset}
+          setIsStreakEndedOpen={setIsStreakEndedOpen}
+        />
+      </Suspense>
       {children}
       <AnimatePresence>
         {isFlying && (
@@ -99,6 +80,39 @@ export function StreakProvider({ children }: { children: React.ReactNode }) {
     </StreakContext.Provider>
   );
 }
+
+function StreakSync({ setStreak, setLastStreakBeforeReset, setIsStreakEndedOpen }: any) {
+  const { data: session } = authClient.useSession();
+
+  // Sync with session when it loads
+  useEffect(() => {
+    if (session?.user) {
+      const serverStreak = (session.user as any).currentStreak || 0;
+      const streakKey = `algofox_last_streak_${session.user.id}`;
+
+      try {
+        const lastStreakStr = localStorage.getItem(streakKey);
+        const lastStreak = lastStreakStr !== null ? parseInt(lastStreakStr, 10) : null;
+
+        // Detect reset
+        if (serverStreak === 0 && lastStreak !== null && lastStreak > 0) {
+          setLastStreakBeforeReset(lastStreak);
+          setIsStreakEndedOpen(true);
+        }
+
+        setStreak(serverStreak);
+        localStorage.setItem(streakKey, serverStreak.toString());
+      } catch (error) {
+         console.warn("Storage access denied:", error);
+        setStreak(serverStreak);
+      }
+    }
+  }, [session, setStreak, setLastStreakBeforeReset, setIsStreakEndedOpen]);
+
+  return null;
+}
+
+import { Suspense } from "react";
 
 export const useStreak = () => {
   const context = useContext(StreakContext);

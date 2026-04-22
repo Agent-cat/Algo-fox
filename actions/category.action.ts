@@ -8,7 +8,7 @@ import { revalidatePath, updateTag, cacheTag, cacheLife, revalidateTag } from "n
 
 // GETTING ALL CATEGORIES
 
-export async function getCategories(domain: ProblemDomain = "DSA") {
+export async function getCategories(domain: ProblemDomain = "DSA", courseId?: string) {
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
 
@@ -17,9 +17,9 @@ export async function getCategories(domain: ProblemDomain = "DSA") {
   });
   const userId = session?.user?.id;
 
-  cacheTag(`categories-${domain}${userId ? `-user-${userId}` : ''}`, 'categories-list');
+  cacheTag(`categories-${domain}${courseId ? `-course-${courseId}` : ''}${userId ? `-user-${userId}` : ''}`, 'categories-list');
 
-  return CategoryService.getCategories(domain, userId);
+  return CategoryService.getCategories(domain, userId, courseId);
 }
 
 // GETTING A CATEGORY BY SLUG

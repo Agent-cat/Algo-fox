@@ -65,7 +65,7 @@ export default function DsaProblemsClient({
                     setCategories(res.categories);
                     setHasFetchedCategories(true);
                 } catch (error) {
-                    console.error("Failed to fetch categories:", error);
+                     console.error("Failed to fetch categories:", error);
                 } finally {
                     setIsCategoriesLoading(false);
                 }
@@ -121,7 +121,12 @@ export default function DsaProblemsClient({
                         placeholder={mode === "practice" ? "Search problems..." : "Search categories..."}
                         className="w-full md:flex-1"
                     />
-                    <ModeToggle mode={mode} onModeChange={setMode} />
+                    <ModeToggle
+                        mode={mode}
+                        onModeChange={setMode}
+                        practiceLabel="Practice"
+                        learnLabel="Learn"
+                    />
                 </motion.div>
 
                 {/* Content */}

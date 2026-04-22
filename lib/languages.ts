@@ -17,7 +17,7 @@ const input = fs.readFileSync(0, "utf8").trim().split(/\\s+/);
 
 // write your code here
 
-console.log();`
+ console.log();`
     },
 
     {

@@ -57,7 +57,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                         }, 1000);
                     }
                 } catch (error) {
-                    console.error("Failed to mark as completed:", error);
+                     console.error("Failed to mark as completed:", error);
                 } finally {
                     setIsLoading(false);
                 }

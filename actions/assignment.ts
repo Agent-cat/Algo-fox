@@ -137,7 +137,7 @@ export async function createAssignment(
 
         return { success: true, assignmentId: assignment.id };
     } catch (error) {
-        console.error("Create assignment error:", error);
+         console.error("Create assignment error:", error);
         return { success: false, error: "Failed to create assignment" };
     }
 }

@@ -37,7 +37,7 @@ export default function AptitudeClient({
                     setCategories(res.categories);
                     setHasFetchedCategories(true);
                 } catch (error) {
-                    console.error("Failed to fetch categories:", error);
+                     console.error("Failed to fetch categories:", error);
                 } finally {
                     setIsCategoriesLoading(false);
                 }

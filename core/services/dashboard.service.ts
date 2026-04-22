@@ -18,7 +18,7 @@ export class DashboardService {
             }
         } catch (error) {
             // REDIS ERROR --> CONTINUE WITHOUT CACHE
-            console.error('Redis get error:', error);
+             console.error('Redis get error:', error);
         }
 
         // FETCHING USER DATA (LITE)
@@ -254,7 +254,7 @@ export class DashboardService {
         try {
             await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(result));
         } catch (error) {
-            console.error('Redis set error:', error);
+             console.error('Redis set error:', error);
         }
 
         return result;

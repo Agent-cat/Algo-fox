@@ -151,7 +151,7 @@ export function useWorkspaceSubmission({
                      if (payload.data.status === "ACCEPTED") {
                          if (mode === "SUBMIT" && currentEditorSettings.enableCorrectSound) {
                              const audio = new Audio('/submission.mp3');
-                             audio.play().catch(e => console.error("Failed to play audio:", e));
+                             audio.play().catch(e => {});
                          }
 
                          const desc = `Time: ${payload.data.time?.toFixed(3) || 0}s | Memory: ${payload.data.memory || 0}KB`;
@@ -181,25 +181,25 @@ export function useWorkspaceSubmission({
                      } else {
                            if (mode === "SUBMIT" && currentEditorSettings.enableWrongSound) {
                                const audio = new Audio('/faaah.mp3');
-                               audio.play().catch(e => console.error("Failed to play audio:", e));
+                               audio.play().catch(e => {});
                            }
                            toast.error(`Result: ${payload.data.status}`);
                       }
                 }
             } catch (e) {
-                console.error("Failed to parse SSE message:", e);
+                 console.error("Failed to parse SSE message:", e);
             }
         };
 
             eventSource.onerror = (err) => {
-                console.error("SSE Error:", err);
+                 console.error("SSE Error:", err);
                 eventSource.close();
                 if (mode === "RUN") setIsRunning(false);
                 else setIsSubmitting(false);
             };
 
         } catch (error) {
-            console.error(error);
+             console.error(error);
             toast.error("Something went wrong");
             if (mode === "RUN") setIsRunning(false);
             else setIsSubmitting(false);

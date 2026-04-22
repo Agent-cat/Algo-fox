@@ -118,15 +118,15 @@ export default function ContestEntryModal({
           return;
       }
 
-      onStart((result as any).sessionId);
+      onStart((result as { sessionId: string }).sessionId);
 
       setTimeout(async () => {
         try {
           if (!document.fullscreenElement) {
             await document.documentElement.requestFullscreen();
           }
-        } catch (e) {
-          console.warn("Fullscreen failed", e);
+        } catch (err) {
+           console.warn("Fullscreen failed", err);
         }
       }, 100);
 
@@ -158,20 +158,6 @@ export default function ContestEntryModal({
         <div className="px-8 pt-8 flex items-center justify-between">
           <div className="flex gap-2">
             {[1, 2, 3].map((i) => {
-               // Calculate current step index
-               let currentStepIdx = 0;
-               if (requiresPassword) {
-                 if (step === "PASSWORD") currentStepIdx = 1;
-                 if (step === "RULES") currentStepIdx = 2;
-                 if (step === "CONFIRM") currentStepIdx = 3;
-               } else {
-                 if (step === "RULES") currentStepIdx = 1; // Actually step 1 visually
-                 if (step === "CONFIRM") currentStepIdx = 2;
-               }
-               // Normalizing because map index is simple
-               // If requiresPassword: Steps are Pass(1), Rules(2), Confirm(3)
-               // If not: Rules(1), Confirm(2) -> effectively 2 steps visually
-
                const totalSteps = requiresPassword ? 3 : 2;
                if (i > totalSteps) return null;
 
@@ -215,7 +201,7 @@ export default function ContestEntryModal({
                 <div className="w-12 h-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-none flex items-center justify-center mb-6">
                     <Lock className="w-6 h-6 text-gray-900 dark:text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Private Contest</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{contestTitle}</h2>
                 <p className="text-gray-500 dark:text-gray-400">Enter the access code to join.</p>
               </div>
 

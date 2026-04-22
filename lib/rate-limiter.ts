@@ -156,14 +156,16 @@ class RateLimiter {
   }
 }
 
-// Singleton instance
-let rateLimiter: RateLimiter;
+// Declare global singleton to survive HMR
+declare global {
+  var rate_limiter_fox: RateLimiter | undefined;
+}
 
 export function getRateLimiter(): RateLimiter {
-  if (!rateLimiter) {
-    rateLimiter = new RateLimiter();
+  if (!globalThis.rate_limiter_fox) {
+    globalThis.rate_limiter_fox = new RateLimiter();
   }
-  return rateLimiter;
+  return globalThis.rate_limiter_fox;
 }
 
 // Common rate limit configurations
@@ -187,7 +189,7 @@ export const RATE_LIMIT_CONFIGS = {
   // Moderate for general API endpoints
   API_GENERAL: {
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 1000, // Significant increase to avoid prefetch/navigation lockouts
+    maxRequests: 5000, // Significant increase to avoid prefetch/navigation lockouts in 4,000 user env
     keyPrefix: 'api-general',
   },
   // Stricter for submission endpoints

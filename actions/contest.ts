@@ -50,7 +50,7 @@ export async function deleteContest(id: string) {
         revalidatePath("/contests");
         return { success: true };
     } catch (error) {
-        console.error("Failed to delete contest:", error);
+         console.error("Failed to delete contest:", error);
         return { success: false, error: "Failed to delete contest" };
     }
 }
@@ -109,6 +109,29 @@ export async function checkContestSlug(slug: string) {
 /**
  * Fetches contests visible to the current user with pagination.
  */
+/**
+ * Fetches contests visible to the current user with pagination.
+ * NOTE: "use cache" must be applied to a pure function with explicit args — NOT inside
+ * the action directly, because async function closures that capture outer variables
+ * (like currentUser) will cause the first user's data to be served to everyone.
+ */
+async function fetchContestsForUser(params: {
+    userId?: string;
+    email?: string;
+    role?: string;
+    institutionId?: string | null;
+    page: number;
+    pageSize: number;
+    status?: "active" | "past";
+}) {
+    "use cache";
+    // Tag both a shared tag (for admin flush) and a user-specific tag (for targeted invalidation)
+    cacheTag("contests");
+    cacheTag(`contests-user-${params.userId ?? "guest"}`);
+    cacheLife("contests");
+    return ContestService.getVisibleContests(params);
+}
+
 export async function getVisibleContests(params: { page?: number; pageSize?: number; status?: "active" | "past" } = {}) {
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -117,12 +140,8 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
     const { page = 1, pageSize = 12, status } = params;
     const currentUser = session?.user as any;
 
-    async function fetchContestsCached() {
-        "use cache";
-        cacheLife("contests");
-        cacheTag("contests");
-
-        return ContestService.getVisibleContests({
+    try {
+        const result = await fetchContestsForUser({
             userId: currentUser?.id,
             email: currentUser?.email,
             role: currentUser?.role,
@@ -131,13 +150,9 @@ export async function getVisibleContests(params: { page?: number; pageSize?: num
             pageSize,
             status
         });
-    }
-
-    try {
-        const result = await fetchContestsCached();
         return { success: true, ...result };
     } catch (error) {
-        console.error("Failed to fetch contests:", error);
+         console.error("Failed to fetch contests:", error);
         return { success: false, error: "Failed to fetch contests" };
     }
 }
@@ -353,7 +368,7 @@ export async function getContestDetail(contestId: string) {
             }
         };
     } catch (error) {
-        console.error("Failed to fetch contest detail:", error);
+         console.error("Failed to fetch contest detail:", error);
         return { success: false, error: "Failed to fetch contest" };
     }
 }
@@ -416,7 +431,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
         revalidateTag("contests", "max");
         return { success: true, contestId: contest.id };
     } catch (error: any) {
-        console.error("Failed to create contest:", error);
+         console.error("Failed to create contest:", error);
         // Return clearer error messages
         let errorMessage = "Failed to create contest";
         if (error instanceof z.ZodError) {
@@ -455,7 +470,7 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
         revalidateTag("contests", "max");
         return { success: true, contestId: contest.id };
     } catch (error) {
-        console.error("Failed to create contest with problems:", error);
+         console.error("Failed to create contest with problems:", error);
         return { success: false, error: "Failed to create contest" };
     }
 }
@@ -499,7 +514,7 @@ export async function getContestForEdit(contestId: string) {
 
         return { success: true, contest };
     } catch (error) {
-        console.error("Failed to fetch contest for edit:", error);
+         console.error("Failed to fetch contest for edit:", error);
         return { success: false, error: "Failed to fetch contest" };
     }
 }
@@ -537,7 +552,7 @@ export async function updateContestWithProblems(contestId: string, data: z.infer
         revalidateTag(`contest-${contestId}`, "max");
         return { success: true, contestId };
     } catch (error) {
-        console.error("Failed to update contest:", error);
+         console.error("Failed to update contest:", error);
         return { success: false, error: "Failed to update contest" };
     }
 }
@@ -550,7 +565,7 @@ export async function getInstitutionalClassrooms(institutionId: string) {
         });
         return { success: true, classrooms };
     } catch (error) {
-        console.error("Failed to fetch classrooms:", error);
+         console.error("Failed to fetch classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
     }
 }
@@ -570,7 +585,7 @@ export async function finishContestAction(contestId: string) {
         }
         return result;
     } catch (error) {
-        console.error("Failed to finish contest:", error);
+         console.error("Failed to finish contest:", error);
         return { success: false, error: "Failed to finish contest" };
     }
 }
@@ -597,7 +612,7 @@ export async function finalizeContest(contestId: string) {
 
         return { success: true as const, message: "Contest finalized and badges awarded!" };
     } catch (error) {
-        console.error("Failed to finalize contest:", error);
+         console.error("Failed to finalize contest:", error);
         return { success: false as const, error: "Failed to finalize contest" };
     }
 }
@@ -640,7 +655,7 @@ export async function verifyContestPassword(contestId: string, password?: string
 
         return { success: true };
     } catch (error) {
-        console.error("Failed to verify contest password:", error);
+         console.error("Failed to verify contest password:", error);
         return { success: false, error: "Failed to verify password" };
     }
 }
@@ -665,7 +680,7 @@ export async function startContestSession(contestId: string, password?: string) 
         revalidatePath(`/contest/${contestId}`);
         return result;
     } catch (error) {
-        console.error("Failed to start contest session:", error);
+         console.error("Failed to start contest session:", error);
         return { success: false, error: "Failed to start contest session" };
     }
 }
@@ -687,7 +702,7 @@ export async function submitContestSectionAction(contestId: string, sectionId: s
         }
         return result;
     } catch (error) {
-        console.error("Failed to submit contest section:", error);
+         console.error("Failed to submit contest section:", error);
         return { success: false, error: "Failed to submit section" };
     }
 }
@@ -725,7 +740,7 @@ export async function logContestViolation(
             permanentlyBlocked: result.permanentlyBlocked
         };
     } catch (error) {
-        console.error("Failed to log violation:", error);
+         console.error("Failed to log violation:", error);
         return { success: false, error: "Failed to log violation" };
     }
 }
@@ -857,7 +872,7 @@ export async function getContestParticipants(contestId: string) {
 
         return { success: true, participants };
     } catch (error) {
-        console.error("Failed to get participants:", error);
+         console.error("Failed to get participants:", error);
         return { success: false, error: "Failed to get participants" };
     }
 }
@@ -920,7 +935,7 @@ export async function unblockParticipant(contestId: string, userId: string) {
         revalidatePath(`/dashboard/contests/${contestId}/participants`);
         return { success: true };
     } catch (error) {
-        console.error("Failed to unblock participant:", error);
+         console.error("Failed to unblock participant:", error);
         return { success: false, error: "Failed to unblock participant" };
     }
 }
@@ -987,12 +1002,19 @@ export async function getParticipantViolations(contestId: string, userId: string
  */
 export async function getContestLeaderboard(contestId: string, params: { page?: number; pageSize?: number } = {}) {
     const { page = 1, pageSize = 50 } = params;
-    // Dynamic content - removed specialized cache to ensure IP checks are always live
-    cacheTag(`leaderboard-${contestId}`)
-    // @ts-ignore
-    cacheLife("leaderboard")
+
+    // Wrap inside a dedicated cached function so cacheTag/cacheLife actually take effect.
+    // Calling these directives in a regular server action has no effect.
+    async function fetchLeaderboard(p: number, ps: number) {
+        "use cache";
+        cacheTag(`leaderboard-${contestId}`);
+        // @ts-ignore
+        cacheLife("leaderboard");
+        return ContestService.getLeaderboard(contestId, { page: p, pageSize: ps });
+    }
+
     try {
-        const result = await ContestService.getLeaderboard(contestId, { page, pageSize });
+        const result = await fetchLeaderboard(page, pageSize);
 
         if (!result) {
             return { success: false, error: "Contest not found" };
@@ -1003,7 +1025,7 @@ export async function getContestLeaderboard(contestId: string, params: { page?: 
             ...result
         };
     } catch (error) {
-        console.error("Leaderboard error:", error);
+         console.error("Leaderboard error:", error);
         return { success: false, error: "Failed to generate leaderboard" };
     }
 }

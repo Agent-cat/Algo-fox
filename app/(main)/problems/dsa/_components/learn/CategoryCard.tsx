@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, CheckCircle2, Download, Folder, FolderOpen } from "lucide-react";
+import { Plus, Minus, CheckCircle2, Download, Folder, FolderOpen, Lock } from "lucide-react";
 import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
 import { getCategoryProblems } from "@/actions/category.action";
 import { Difficulty, Problem } from "@prisma/client";
@@ -24,6 +24,8 @@ interface CategoryCardProps {
   isSubCategory?: boolean;
   userRole?: string;
   domain: string;
+  courseId?: string;
+  isEnrolled?: boolean;
 }
 
 export default function CategoryCard({
@@ -36,7 +38,9 @@ export default function CategoryCard({
   subCategories = [],
   isSubCategory = false,
   userRole,
-  domain
+  domain,
+  courseId,
+  isEnrolled = false
 }: CategoryCardProps) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
@@ -87,7 +91,7 @@ export default function CategoryCard({
       setPage(pageNum);
       setHasMore(res.problems.length > 0 && pageNum < res.totalPages);
     } catch (error) {
-      console.error("Failed to load category problems:", error);
+       console.error("Failed to load category problems:", error);
     } finally {
       setIsLoading(false);
       setIsInitialLoad(false);
@@ -272,6 +276,8 @@ export default function CategoryCard({
                       isSubCategory={true}
                       userRole={userRole}
                       domain={domain}
+                      courseId={courseId}
+                      isEnrolled={isEnrolled}
                     />
                   ))}
                 </div>
@@ -286,48 +292,72 @@ export default function CategoryCard({
               ) : (
                 <>
                   <div className="space-y-1">
-                    {problems.map((problem, index) => (
-                      <motion.div
-                        key={problem.id}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.03, duration: 0.2 }}
-                      >
-                        <Link
-                          href={`/problems/${problem.slug}`}
-                          className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/4 transition-all group/item border border-transparent hover:border-gray-200 dark:hover:border-white/5"
+                    {problems.map((problem, index) => {
+                      const isLocked = !!courseId && !isEnrolled;
+
+                      const ProblemWrapper = (isLocked ? "div" : Link) as any;
+                      const accessibilityProps = isLocked ? {} : { href: `/problems/${problem.slug}${courseId ? `?courseId=${courseId}` : ""}` };
+
+                      return (
+                        <motion.div
+                          key={problem.id}
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.03, duration: 0.2 }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 flex justify-center">
-                              {problem.isSolved ? (
-                                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                              ) : (
-                                <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700 group-hover/item:bg-orange-500/50 transition-colors" />
+                          {/* @ts-ignore */}
+                          <ProblemWrapper
+                            {...accessibilityProps}
+                            className={cn(
+                              "grid grid-cols-[1fr_110px_60px] md:grid-cols-[1fr_200px_120px] items-center py-3 px-4 rounded-xl transition-all group/item border border-transparent",
+                              isLocked
+                                ? "cursor-not-allowed opacity-70 bg-gray-50/50 dark:bg-white/2"
+                                : "hover:bg-gray-100 dark:hover:bg-white/4 hover:border-gray-200 dark:hover:border-white/5"
+                            )}
+                          >
+                            {/* Title Column */}
+                            <div className="flex items-center gap-4 overflow-hidden">
+                              <div className="w-5 flex justify-center shrink-0">
+                                {isLocked ? (
+                                  <Lock className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
+                                ) : problem.isSolved ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                ) : (
+                                  <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700 group-hover/item:bg-orange-500/50 transition-colors" />
+                                )}
+                              </div>
+                              <span className={cn(
+                                "text-sm md:text-[15px] font-bold transition-colors truncate tracking-tight",
+                                isLocked ? "text-gray-400 dark:text-gray-500" : "text-gray-900 dark:text-gray-100 group-hover/item:text-orange-600 dark:group-hover/item:text-orange-500"
+                              )}>
+                                {problem.title}
+                              </span>
+                            </div>
+
+                            {/* Difficulty Column - Perfectly Centered */}
+                            <div className="flex justify-center">
+                              <span
+                                className={cn(
+                                  "text-[11px] font-black uppercase tracking-[0.15em]",
+                                  getDifficultyColor(problem.difficulty)
+                                )}
+                              >
+                                {problem.difficulty}
+                              </span>
+                            </div>
+
+                            {/* Acceptance Column - Right Aligned */}
+                            <div className="flex justify-end">
+                              {problem.difficulty !== "CONCEPT" && (
+                                <span className="text-sm font-bold text-gray-400 dark:text-gray-500 tabular-nums">
+                                  {problem.acceptance.toFixed(1)}%
+                                </span>
                               )}
                             </div>
-                            <span className="text-base font-semibold text-gray-800 dark:text-gray-200 group-hover/item:text-gray-900 dark:group-hover/item:text-white transition-colors">
-                              {problem.title}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-6">
-                            <span
-                              className={cn(
-                                "text-[11px] font-black uppercase tracking-widest",
-                                getDifficultyColor(problem.difficulty)
-                              )}
-                            >
-                              {problem.difficulty}
-                            </span>
-                            {problem.difficulty !== "CONCEPT" && (
-                              <span className="text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums min-w-16 text-right">
-                                {problem.acceptance.toFixed(1)}%
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                          </ProblemWrapper>
+                        </motion.div>
+                      );
+                    })}
                   </div>
 
                   {/* Infinite Scroll Trigger */}
@@ -339,8 +369,6 @@ export default function CategoryCard({
                       {isLoading && <LoadingSpinner size="sm" message="Loading more..." />}
                     </div>
                   )}
-
-                  {/* End of list indicator removed as requested */}
                 </>
               )}
             </div>

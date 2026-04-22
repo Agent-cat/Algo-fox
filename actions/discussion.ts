@@ -140,7 +140,7 @@ export async function postComment(problemId: string, content: string, parentId?:
             }
         };
     } catch (error) {
-        console.error("Failed to post comment:", error);
+         console.error("Failed to post comment:", error);
         return { success: false, error: "Failed to post comment" };
     }
 }
@@ -230,7 +230,7 @@ export async function voteComment(commentId: string, problemId: string, type: "U
         revalidateTag(`comments-${problemId}`, "max");
         return { success: true };
     } catch (error) {
-        console.error("Failed to vote:", error);
+         console.error("Failed to vote:", error);
         return { success: false, error: "Failed to vote" };
     }
 }

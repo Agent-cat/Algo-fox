@@ -7,6 +7,7 @@ import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
 import FocusBlur from "@/components/FocusBlur";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,33 +87,39 @@ export default function RootLayout({
         className={` ${geistSans.variable} ${geistMono.variable} antialiased select-none bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100`}
       >
         <ThemeProvider>
-          <StreakProvider>
-            <NetworkStatus />
-            <DevToolsBlocker />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: "var(--toast-bg)",
-                  color: "var(--toast-color)",
-                  border: "1px solid var(--toast-border)",
-                },
-                classNames: {
-                  toast:
-                    "group toast group-[.toaster]:bg-white dark:group-[.toaster]:bg-[#1a1a1a] group-[.toaster]:text-gray-900 dark:group-[.toaster]:text-gray-100 group-[.toaster]:border-orange-500 group-[.toaster]:shadow-lg",
-                  description:
-                    "group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400",
-                  actionButton:
-                    "group-[.toast]:bg-orange-500 group-[.toast]:text-white",
-                  cancelButton:
-                    "group-[.toast]:bg-gray-100 dark:group-[.toast]:bg-[#262626] group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400",
-                },
-              }}
-            />
-            <SessionConflictModal />
-            <FocusBlur />
-            {children}
-          </StreakProvider>
+          <Suspense fallback={
+            <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
+               <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
+            <StreakProvider>
+              <NetworkStatus />
+              <DevToolsBlocker />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  style: {
+                    background: "var(--toast-bg)",
+                    color: "var(--toast-color)",
+                    border: "1px solid var(--toast-border)",
+                  },
+                  classNames: {
+                    toast:
+                      "group toast group-[.toaster]:bg-white dark:group-[.toaster]:bg-[#1a1a1a] group-[.toaster]:text-gray-900 dark:group-[.toaster]:text-gray-100 group-[.toaster]:border-orange-500 group-[.toaster]:shadow-lg",
+                    description:
+                      "group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400",
+                    actionButton:
+                      "group-[.toast]:bg-orange-500 group-[.toast]:text-white",
+                    cancelButton:
+                      "group-[.toast]:bg-gray-100 dark:group-[.toast]:bg-[#262626] group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400",
+                  },
+                }}
+              />
+              <SessionConflictModal />
+              <FocusBlur />
+              {children}
+            </StreakProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

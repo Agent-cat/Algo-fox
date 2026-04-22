@@ -18,7 +18,7 @@ import { cacheLife } from "next/cache";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ contestId?: string }>;
+  searchParams: Promise<{ contestId?: string; courseId?: string }>;
 }
 
 // GENERATING METADATA FOR THE PROBLEM PAGE (SEO)
@@ -44,12 +44,12 @@ async function ProblemContentWithParams({
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ contestId?: string }>;
+  searchParams: Promise<{ contestId?: string; courseId?: string }>;
 }) {
   "use cache: private";
   cacheLife("minutes"); // Fix: Use explicit built-in profile for nested cache compliance
   const { slug } = await params;
-  const { contestId } = await searchParams;
+  const { contestId, courseId } = await searchParams;
 
   // Parallelize core data fetching
   const [problem, session] = await Promise.all([
@@ -60,6 +60,32 @@ async function ProblemContentWithParams({
   if (!problem) {
     return notFound();
   }
+
+  // Resolve course context
+  const rawCourseId = typeof courseId === 'string' ? courseId : Array.isArray(courseId) ? courseId[0] : undefined;
+
+  // Security Check: If course context provided, ensure user is enrolled or is admin
+  if (rawCourseId) {
+    const isEnrolled = session?.user ? await prisma.userCourseEnrollment.findUnique({
+      where: { userId_courseId: { userId: session.user.id, courseId: rawCourseId } }
+    }) : null;
+
+    if (!isEnrolled && session?.user?.role !== 'ADMIN') {
+        const course = await prisma.course.findUnique({
+            where: { id: rawCourseId },
+            select: { slug: true }
+        });
+        if (course) {
+            return redirect(`/courses/${course.slug}`);
+        }
+    }
+  }
+
+  // Find the course context detail
+  const courseContext = (problem as any).categoryProblems?.find((cp: any) => cp.category?.courseId === rawCourseId || cp.category?.courseId);
+  const activeCourseId = rawCourseId || courseContext?.category?.courseId || null;
+  const courseName = courseContext?.category?.course?.title || null;
+  const courseSlug = courseContext?.category?.course?.slug || null;
 
   let isSolved = false;
   let contestData = null;
@@ -136,9 +162,45 @@ async function ProblemContentWithParams({
     }
   }
 
+  let totalCourseProblems = 0;
+  let currentCourseProblemIndex = -1;
+  if (activeCourseId) {
+    const courseProblems = await prisma.categoryProblem.findMany({
+      where: {
+        category: { courseId: activeCourseId }
+      },
+      orderBy: [
+        { category: { order: 'asc' } },
+        { order: 'asc' }
+      ],
+      select: { problemId: true }
+    });
+    totalCourseProblems = courseProblems.length;
+    currentCourseProblemIndex = courseProblems.findIndex(cp => cp.problemId === problem.id);
+  }
+
+  // NAVIGATION CONTEXT: Check if we are in a course
+  const NavigationPromises = [
+    getNextProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id),
+    getPreviousProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id)
+  ];
+
+  const [nextProblemSlug, prevProblemSlug] = await Promise.all(NavigationPromises);
+
   if (problem.difficulty === "CONCEPT") {
     return (
-      <ConceptViewer problem={problem} isSolved={isSolved} />
+      <ConceptViewer
+        problem={problem}
+        isSolved={isSolved}
+        courseId={activeCourseId}
+        courseSlug={courseSlug}
+        totalCourseProblems={totalCourseProblems}
+        currentCourseProblemIndex={currentCourseProblemIndex}
+        nextProblemSlug={nextProblemSlug}
+        prevProblemSlug={prevProblemSlug}
+        solvedIds={Array.from(solvedProblemIds)}
+        courseName={courseName}
+      />
     );
   }
 
@@ -166,8 +228,13 @@ async function ProblemContentWithParams({
           contestId={contestData?.id || contestId}
           contest={contestData}
           solvedProblemIds={solvedProblemIds}
-          nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
-          prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
+          nextProblemSlug={nextProblemSlug}
+          prevProblemSlug={prevProblemSlug}
+          courseId={activeCourseId}
+          courseName={courseName}
+          courseSlug={courseSlug}
+          totalCourseProblems={totalCourseProblems}
+          currentCourseProblemIndex={currentCourseProblemIndex}
         />
       </div>
     </>
@@ -197,8 +264,13 @@ async function ProblemContentWithParams({
             contestId={contestData?.id || contestId}
             contest={contestData}
             solvedProblemIds={solvedProblemIds}
-            nextProblemSlug={await getNextProblem(problem.createdAt, problem.domain, problem.type)}
-            prevProblemSlug={await getPreviousProblem(problem.createdAt, problem.domain, problem.type)}
+            nextProblemSlug={nextProblemSlug}
+            prevProblemSlug={prevProblemSlug}
+            courseId={activeCourseId}
+            courseName={courseName}
+            courseSlug={courseSlug}
+            totalCourseProblems={totalCourseProblems}
+            currentCourseProblemIndex={currentCourseProblemIndex}
           />
         </div>
       </>
@@ -248,7 +320,7 @@ export async function generateStaticParams() {
       slug: p.slug,
     }));
   } catch (error) {
-    console.error("Error generating static params for problems:", error);
+     console.error("Error generating static params for problems:", error);
     return [];
   }
 }

@@ -7,9 +7,16 @@ type Mode = "practice" | "learn";
 interface ModeToggleProps {
   mode: Mode;
   onModeChange: (mode: Mode) => void;
+  practiceLabel?: string;
+  learnLabel?: string;
 }
 
-export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
+export default function ModeToggle({
+  mode,
+  onModeChange,
+  practiceLabel = "My Learning",
+  learnLabel = "Explore"
+}: ModeToggleProps) {
   return (
     <div className="flex justify-center">
       <div className="relative inline-flex items-center bg-gray-100 dark:bg-[#1a1a1a] rounded-lg p-1">
@@ -26,7 +33,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
               style={{ zIndex: -1 }}
             />
           )}
-          Practice
+          {practiceLabel}
         </button>
         <button
           onClick={() => onModeChange("learn")}
@@ -41,7 +48,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
               style={{ zIndex: -1 }}
             />
           )}
-          Learn
+          {learnLabel}
         </button>
       </div>
     </div>

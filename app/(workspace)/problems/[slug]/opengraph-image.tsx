@@ -148,7 +148,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
       }
     );
   } catch (error) {
-    console.error("[OG Error]", error);
+     console.error("[OG Error]", error);
     return new ImageResponse(
       (
         <div

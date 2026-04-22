@@ -56,7 +56,7 @@ function SqlCategoryProblemsContent() {
         toast.error(res.error || "Failed to load category");
       }
     } catch (error) {
-      console.error("Failed to fetch category:", error);
+       console.error("Failed to fetch category:", error);
       toast.error("Failed to load category");
     }
   };
@@ -67,7 +67,7 @@ function SqlCategoryProblemsContent() {
       const res = await getCategoryProblems(categoryId, 1, 100);
       setProblems(res.problems);
     } catch (error) {
-      console.error("Failed to fetch problems:", error);
+       console.error("Failed to fetch problems:", error);
       toast.error("Failed to load problems");
     } finally {
       setIsLoading(false);

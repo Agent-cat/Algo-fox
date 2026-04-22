@@ -19,6 +19,8 @@ interface ProblemSidebarProps {
   domain?: ProblemDomain;
   problemType?: ProblemType;
   solvedProblemIds: string[];
+  courseId?: string | null;
+  courseName?: string | null;
 }
 
 interface ProblemSimple {
@@ -42,7 +44,9 @@ export default function ProblemSidebar({
   currentProblemId,
   domain = "DSA",
   problemType,
-  solvedProblemIds
+  solvedProblemIds,
+  courseId,
+  courseName
 }: ProblemSidebarProps) {
   // PERFORMANCE: Use a Set for O(1) lookups of solved problem IDs
   const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
@@ -88,7 +92,7 @@ export default function ProblemSidebar({
              })));
           }
         } catch (error) {
-          console.error("Search failed", error);
+           console.error("Search failed", error);
         } finally {
           setIsSearching(false);
         }
@@ -111,14 +115,16 @@ export default function ProblemSidebar({
 
     loadProblems(1);
     loadCategories();
-  }, [domain]); // Re-run when domain changes
+  }, [domain, courseId]); // Re-run when domain or courseId changes
 
-  // Sync active tab if problem type changes
+  // Sync active tab if problem type or courseId changes
   useEffect(() => {
-    if (problemType) {
+    if (courseId) {
+        setActiveTab("learn");
+    } else if (problemType) {
         setActiveTab(problemType === "LEARN" ? "learn" : "problems");
     }
-  }, [problemType]);
+  }, [problemType, courseId]);
 
   const loadProblems = async (pageNum: number) => {
     if (isLoadingProblems) return;
@@ -140,7 +146,7 @@ export default function ProblemSidebar({
         setPage(pageNum);
       }
     } catch (error) {
-      console.error("Failed to load problems", error);
+       console.error("Failed to load problems", error);
     } finally {
       setIsLoadingProblems(false);
     }
@@ -150,7 +156,7 @@ export default function ProblemSidebar({
     if (loadingCategories) return;
     setLoadingCategories(true);
     try {
-      const res = await getCategories(domain);
+      const res = await getCategories(domain, courseId || undefined);
       if (res && res.categories) {
         const cats = res.categories as CategorySimple[];
 
@@ -172,7 +178,7 @@ export default function ProblemSidebar({
         setCategories(roots);
       }
     } catch (error) {
-      console.error("Failed to load categories", error);
+       console.error("Failed to load categories", error);
     } finally {
       setLoadingCategories(false);
     }
@@ -199,7 +205,7 @@ export default function ProblemSidebar({
           }));
         }
       } catch (error) {
-        console.error("Failed to load category problems", error);
+         console.error("Failed to load category problems", error);
       } finally {
         setLoadingCategoryProblems(null);
       }
@@ -249,45 +255,53 @@ export default function ProblemSidebar({
 
               {/* Navigation & Search Container */}
               <div className="px-6 py-4 space-y-4 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-100/10 dark:border-white/5">
-                {/* Tabs with sliding indicator */}
-                <div className="relative flex p-1.5 gap-1 bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-[#262626] overflow-hidden">
-                  {/* Sliding Background */}
-                  <motion.div
-                    className="absolute inset-y-1.5 bg-white dark:bg-[#2c2c2c] rounded-lg shadow-md ring-1 ring-black/5 dark:ring-white/5 z-0"
-                    initial={false}
-                    animate={{
-                      x: activeTab === "problems" ? 0 : "100%",
-                      width: "calc(50% - 6px)"
-                    }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    style={{ left: activeTab === "problems" ? "4px" : "2px" }}
-                  />
+                {courseName && (
+                  <div className="px-3 py-2 rounded-lg bg-orange-500/5 border border-orange-500/10 mb-2">
+                    <p className="text-[10px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-0.5">Course</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{courseName}</p>
+                  </div>
+                )}
+                {/* Tabs with sliding indicator - HIDDEN IF IN COURSE CONTEXT */}
+                {!courseId && (
+                  <div className="relative flex p-1.5 gap-1 bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-[#262626] overflow-hidden">
+                    {/* Sliding Background */}
+                    <motion.div
+                      className="absolute inset-y-1.5 bg-white dark:bg-[#2c2c2c] rounded-lg shadow-md ring-1 ring-black/5 dark:ring-white/5 z-0"
+                      initial={false}
+                      animate={{
+                        x: activeTab === "problems" ? 0 : "100%",
+                        width: "calc(50% - 6px)"
+                      }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      style={{ left: activeTab === "problems" ? "4px" : "2px" }}
+                    />
 
-                  <button
-                    onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
-                    className={cn(
-                      "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
-                      activeTab === "problems"
-                        ? "text-gray-900 dark:text-white"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                    )}
-                  >
-                    <List className="w-4 h-4" />
-                    Practice
-                  </button>
-                  <button
-                    onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
-                    className={cn(
-                      "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
-                      activeTab === "learn"
-                        ? "text-gray-900 dark:text-white"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                    )}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    Learn
-                  </button>
-                </div>
+                    <button
+                      onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
+                      className={cn(
+                        "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
+                        activeTab === "problems"
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                      )}
+                    >
+                      <List className="w-4 h-4" />
+                      Practice
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
+                      className={cn(
+                        "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
+                        activeTab === "learn"
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                      )}
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Learn
+                    </button>
+                  </div>
+                )}
 
                 {/* Search Bar section */}
                 <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
@@ -314,6 +328,7 @@ export default function ProblemSidebar({
                             isSearchMode={true}
                             searchTerm={searchTerm}
                             isSearching={isSearching}
+                            courseId={courseId}
                        />
                     ) : activeTab === "problems" ? (
                        <ProblemsList
@@ -323,6 +338,7 @@ export default function ProblemSidebar({
                             isLoading={isLoadingProblems}
                             hasMore={hasMore}
                             onLoadMore={() => loadProblems(page + 1)}
+                            courseId={courseId}
                        />
                     ) : (
                        <CategoriesList
@@ -334,6 +350,7 @@ export default function ProblemSidebar({
                             solvedSet={solvedSet}
                             currentProblemId={currentProblemId}
                             onToggleCategory={toggleCategory}
+                            courseId={courseId}
                        />
                     )}
                   </motion.div>

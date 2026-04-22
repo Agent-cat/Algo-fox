@@ -27,7 +27,7 @@ export function usePersistentSplit(storageKey: string, defaultSizes: number[]) {
                 }
             }
         } catch (error) {
-            console.error(`Failed to load layout for ${storageKey}:`, error);
+             console.error(`Failed to load layout for ${storageKey}:`, error);
         }
     }, [storageKey, defaultSizes.length]);
 
@@ -37,7 +37,7 @@ export function usePersistentSplit(storageKey: string, defaultSizes: number[]) {
         try {
             localStorage.setItem(storageKey, JSON.stringify(newSizes));
         } catch (error) {
-            console.error(`Failed to save layout for ${storageKey}:`, error);
+             console.error(`Failed to save layout for ${storageKey}:`, error);
         }
     }, [storageKey]);
 

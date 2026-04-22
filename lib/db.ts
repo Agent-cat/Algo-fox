@@ -75,15 +75,15 @@ function getDB(): AlgoFoxDB {
                 error.message?.includes('primary key') ||
                 error.message?.includes('Not yet support for changing primary key')
             ) {
-                console.warn('Database schema migration failed, recreating database...');
+                 console.warn('Database schema migration failed, recreating database...');
                 try {
                     await Dexie.delete(DB_NAME);
                     window.location.reload();
                 } catch (deleteError) {
-                    console.error('Failed to recreate database:', deleteError);
+                     console.error('Failed to recreate database:', deleteError);
                 }
             } else {
-                console.error('Failed to open database:', error);
+                 console.error('Failed to open database:', error);
             }
         });
     }
@@ -128,7 +128,7 @@ export async function saveCodeDraft(
 
         await db.codeDrafts.put({ id, problemId, languageId, code, updatedAt: now });
     } catch (error: any) {
-        console.error('Failed to save code draft:', error);
+         console.error('Failed to save code draft:', error);
     }
 }
 
@@ -150,7 +150,7 @@ export async function getCodeDraft(
         // Note: Expiration check removed to keep code stored as requested
         return draft.code;
     } catch (error: any) {
-        console.error('Failed to get code draft:', error);
+         console.error('Failed to get code draft:', error);
         return null;
     }
 }
@@ -178,7 +178,7 @@ export async function getCodeFiles(
 
         return files.sort((a, b) => a.order - b.order);
     } catch (error) {
-        console.error('Failed to get code files:', error);
+         console.error('Failed to get code files:', error);
         return [];
     }
 }
@@ -197,7 +197,7 @@ export async function getActiveFileId(
         const meta = await db.codeFilesMeta.get(metaKey(effectiveUserId, problemId, languageId));
         return meta?.activeFileId ?? null;
     } catch (error) {
-        console.error('Failed to get active file id:', error);
+         console.error('Failed to get active file id:', error);
         return null;
     }
 }
@@ -216,7 +216,7 @@ export function setActiveFileId(
     const id = metaKey(effectiveUserId, problemId, languageId);
     db.codeFilesMeta
         .put({ id, userId: effectiveUserId, problemId, languageId, activeFileId, updatedAt: Date.now() })
-        .catch((error) => console.error('Failed to set active file id:', error));
+        .catch((error) =>   console.error('Failed to set active file id:', error));
 }
 
 /** Create a new code file */
@@ -251,7 +251,7 @@ export async function createCodeFile(
         await db.codeFiles.put(newFile);
         return newFile;
     } catch (error) {
-        console.error('Failed to create code file:', error);
+         console.error('Failed to create code file:', error);
         return null;
     }
 }
@@ -271,7 +271,7 @@ export function updateCodeFileContent(
     const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .update(id, { code, updatedAt: Date.now() })
-        .catch((error) => console.error('Failed to update code file content:', error));
+        .catch((error) =>  console.error('Failed to update code file content:', error));
 }
 
 /** Rename a file */
@@ -289,7 +289,7 @@ export function renameCodeFile(
     const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .update(id, { name, updatedAt: Date.now() })
-        .catch((error) => console.error('Failed to rename code file:', error));
+        .catch((error) =>  console.error('Failed to rename code file:', error));
 }
 
 /** Delete a file */
@@ -306,5 +306,5 @@ export function deleteCodeFile(
     const id = fileKey(effectiveUserId, problemId, languageId, fileId);
     db.codeFiles
         .delete(id)
-        .catch((error) => console.error('Failed to delete code file:', error));
+        .catch((error) =>  console.error('Failed to delete code file:', error));
 }

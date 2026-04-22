@@ -23,7 +23,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
             const data = await getProblemComments(problemId, session?.user?.id);
             setComments(data);
         } catch (error) {
-            console.error("Failed to fetch comments", error);
+             console.error("Failed to fetch comments", error);
         } finally {
             setIsLoading(false);
         }

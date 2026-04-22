@@ -24,9 +24,22 @@ const nextConfig: NextConfig = {
   reactStrictMode: true, // Re-enabled: BullMQ worker is now guarded by a globalThis singleton
 
   compress: true,
-
   poweredByHeader: false,
   cacheComponents: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+    optimizePackageImports: [
+      '@aws-sdk/client-s3',
+      'framer-motion',
+      'highlight.js',
+      '@tanstack/react-table',
+      'react-markdown',
+      'zod',
+      'xlsx'
+    ],
+  },
   cacheHandlers: {
     default: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-local.js"),
     remote: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-redis.js"),

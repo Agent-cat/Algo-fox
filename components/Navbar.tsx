@@ -80,8 +80,8 @@ export default function Navbar() {
                                     <Link href="/contests" className={navLinkClass("/contests")}>
                                         Contests
                                     </Link>
-                                    <Link href="/leaderboard" className={navLinkClass("/leaderboard")}>
-                                        Leaderboard
+                                    <Link href="/courses" className={navLinkClass("/courses")}>
+                                        Courses
                                     </Link>
 
                                     <div className="flex items-center gap-4">
@@ -119,11 +119,14 @@ export default function Navbar() {
                                                             My Dashboard
                                                         </Link>
                                                         <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                        My Classrooms
-                                                    </Link>
-                                                    <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                        My Assignments
-                                                    </Link>
+                                                            My Classrooms
+                                                        </Link>
+                                                        <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            My Assignments
+                                                        </Link>
+                                                        <Link href="/leaderboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            Leaderboard
+                                                        </Link>
 
                                                     {/* Role-specific management links */}
                                                     {(canManage || isInstitutionManager) && (
@@ -237,8 +240,8 @@ export default function Navbar() {
                                 <Link href="/contests" className={`text-base font-medium ${isActive("/contests") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
                                     Contests
                                 </Link>
-                                <Link href="/leaderboard" className={`text-base font-medium ${isActive("/leaderboard") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
-                                    Leaderboard
+                                <Link href="/courses" className={`text-base font-medium ${isActive("/courses") ? "text-orange-600" : "text-gray-800 hover:text-orange-600"}`}>
+                                    Courses
                                 </Link>
 
                                 <div className="my-2 border-t border-gray-100" />
@@ -248,6 +251,9 @@ export default function Navbar() {
                                 </Link>
                                 <Link href="/dashboard/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
                                     My Classrooms
+                                </Link>
+                                <Link href="/leaderboard" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                    Leaderboard
                                 </Link>
 
                                 {/* Role-specific Links */}

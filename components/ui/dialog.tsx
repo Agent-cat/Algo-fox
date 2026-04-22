@@ -5,36 +5,50 @@ import { X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { createPortal } from "react-dom"
 
 interface DialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   children: React.ReactNode
+  className?: string
 }
 
-export function Dialog({ open, onOpenChange, children }: DialogProps) {
-  return (
+export function Dialog({ open, onOpenChange, children, className }: DialogProps) {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => onOpenChange(false)}
-            className="fixed inset-0 z-100 bg-black/40 backdrop-blur-md"
+            className="fixed inset-0 z-9999 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="z-100 w-full max-w-lg rounded-xl bg-white dark:bg-[#141414] p-6 shadow-xl border border-gray-100 dark:border-[#262626]"
+            className={cn(
+              "z-9999 w-full rounded-2xl bg-white dark:bg-[#0f0f0f] shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden",
+              className || "max-w-lg p-6"
+            )}
           >
             {children}
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
 

@@ -28,6 +28,7 @@ interface CategoriesListProps {
     solvedSet: Set<string>;
     currentProblemId: string;
     onToggleCategory: (categoryId: string) => void;
+    courseId?: string | null;
 }
 
 function CategoryItem({
@@ -38,6 +39,7 @@ function CategoryItem({
     solvedSet,
     currentProblemId,
     onToggleCategory,
+    courseId,
     level = 0
 }: {
     category: CategorySimple;
@@ -47,6 +49,7 @@ function CategoryItem({
     solvedSet: Set<string>;
     currentProblemId: string;
     onToggleCategory: (categoryId: string) => void;
+    courseId?: string | null;
     level?: number;
 }) {
     const isExpanded = expandedCategories.includes(category.id);
@@ -119,6 +122,7 @@ function CategoryItem({
                                             solvedSet={solvedSet}
                                             currentProblemId={currentProblemId}
                                             onToggleCategory={onToggleCategory}
+                                            courseId={courseId}
                                             level={level + 1}
                                         />
                                     ))}
@@ -140,7 +144,7 @@ function CategoryItem({
                                         return (
                                             <Link
                                                 key={prob.id}
-                                                href={`/problems/${prob.slug}`}
+                                                href={`/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
                                                 className={cn(
                                                     "group/prob flex items-center justify-between p-2.5 rounded-xl text-[13px] transition-all border border-transparent duration-300",
                                                     isCurrent
@@ -200,7 +204,8 @@ export function CategoriesList({
     loadingCategoryProblems,
     solvedSet,
     currentProblemId,
-    onToggleCategory
+    onToggleCategory,
+    courseId
 }: CategoriesListProps) {
 
     if (loadingCategories) {
@@ -224,6 +229,7 @@ export function CategoriesList({
                     solvedSet={solvedSet}
                     currentProblemId={currentProblemId}
                     onToggleCategory={onToggleCategory}
+                    courseId={courseId}
                     level={0}
                 />
             ))}

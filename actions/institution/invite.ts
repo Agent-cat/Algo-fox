@@ -267,7 +267,7 @@ export async function acceptInvite(code: string) {
             onboardingCompleted
         };
      } catch (error: any) {
-         console.error("Accept invite error:", error);
+        console.error("Accept invite error:", error);
          return { success: false, error: error.message || "Failed to accept invite" };
      }
 }

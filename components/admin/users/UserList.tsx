@@ -1,20 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import UserActions from "./UserActions";
 import { format } from "date-fns";
 import { getInstitutions } from "@/actions/admin/institution";
 import { getFilteredUsers } from "@/actions/admin/user.action";
 import { Role } from "@prisma/client";
-import { Filter, X } from "lucide-react";
+interface User {
+    id: string;
+    name: string | null;
+    email: string | null;
+    role: Role;
+    banned: boolean;
+    createdAt: string | Date;
+    institutionId: string | null;
+}
 
 export default function UserList() {
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
@@ -35,7 +43,7 @@ export default function UserList() {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         setLoading(true);
         try {
             const res = await getFilteredUsers({
@@ -47,33 +55,34 @@ export default function UserList() {
             });
 
             if (res) {
-                setUsers(res.users);
+                setUsers(res.users as User[]);
                 setTotal(res.total || 0);
             }
         } catch (err) {
-            console.error("Failed to fetch users", err);
+             console.error("Failed to fetch users", err);
         } finally {
             setLoading(false);
         }
-    };
-    const fetchInstitutions = async () => {
+    }, [page, limit, debouncedSearch, selectedRoles, selectedInstitutionId]);
+
+    const fetchInstitutions = useCallback(async () => {
         const res = await getInstitutions();
         if (res.success && res.institutions) {
             const instMap: Record<string, string> = {};
-            res.institutions.forEach((inst: any) => {
+            (res.institutions as { id: string; name: string }[]).forEach((inst) => {
                 instMap[inst.id] = inst.name;
             });
             setInstitutions(instMap);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchUsers();
-    }, [page, limit, debouncedSearch, selectedRoles, selectedInstitutionId]);
+    }, [fetchUsers]);
 
     useEffect(() => {
         fetchInstitutions();
-    }, []);
+    }, [fetchInstitutions]);
 
     const totalPages = Math.ceil(total / limit);
 

@@ -73,7 +73,7 @@ export default function PracticeClient({
                 const result = await searchProblems(searchTerm, type, domain);
                 setSearchResults(result.problems);
             } catch (error) {
-                console.error("Search failed:", error);
+                 console.error("Search failed:", error);
                 setSearchResults([]);
             } finally {
                 setIsSearching(false);
@@ -104,7 +104,7 @@ export default function PracticeClient({
                 setHasMore(false);
             }
         } catch (error) {
-            console.error("Failed to load more problems", error);
+             console.error("Failed to load more problems", error);
         } finally {
             setIsLoading(false);
         }

@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
         const result = await recalculateUserScore();
         return NextResponse.json(result, { status: 200 });
     } catch (error: any) {
-        console.error("Error recalculating user score:", error);
+         console.error("Error recalculating user score:", error);
         return NextResponse.json(
             { error: error.message || "Failed to recalculate score" },
             { status: 500 }

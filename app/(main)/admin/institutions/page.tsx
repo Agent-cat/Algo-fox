@@ -34,7 +34,7 @@ export default function InstitutionsPage() {
                 toast.error(res.error || "Failed to load institutions");
             }
         } catch (error) {
-            console.error("Failed to fetch institutions:", error);
+             console.error("Failed to fetch institutions:", error);
             toast.error("Failed to load institutions");
         } finally {
             setIsLoading(false);
@@ -66,7 +66,7 @@ export default function InstitutionsPage() {
                 toast.error(res.error || "Failed to delete institution");
             }
         } catch (error) {
-            console.error("Delete error:", error);
+             console.error("Delete error:", error);
             toast.error("An unexpected error occurred");
         }
     };

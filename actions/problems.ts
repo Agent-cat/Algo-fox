@@ -149,21 +149,21 @@ export async function getProblemById(id: string) {
 
 // NAVIGATION ACTIONS
 
-export async function getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+export async function getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
     "use cache: private";
     cacheLife({ stale: 300, revalidate: 300 });
-    return ProblemService.getNextProblem(currentCreatedAt, domain, type);
+    return ProblemService.getNextProblem(currentCreatedAt, domain, type, courseId, currentProblemId);
 }
 
-export async function getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+export async function getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
     "use cache: private";
     cacheLife({ stale: 300, revalidate: 300 });
-    return ProblemService.getPreviousProblem(currentCreatedAt, domain, type);
+    return ProblemService.getPreviousProblem(currentCreatedAt, domain, type, courseId, currentProblemId);
 }
 
-export async function getRandomProblem(domain: ProblemDomain, type: ProblemType) {
+export async function getRandomProblem(domain: ProblemDomain, type: ProblemType, courseId?: string) {
     // No cache for random
-    return ProblemService.getRandomProblem(domain, type);
+    return ProblemService.getRandomProblem(domain, type, courseId);
 }
 
 

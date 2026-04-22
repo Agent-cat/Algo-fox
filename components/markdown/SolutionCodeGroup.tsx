@@ -95,7 +95,7 @@ export default function SolutionCodeGroup({ title = "Solution", children }: Solu
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy", err);
+       console.error("Failed to copy", err);
     }
   };
 

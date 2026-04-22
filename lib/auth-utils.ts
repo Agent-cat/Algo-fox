@@ -42,7 +42,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       institutionId: (session.user as any).institutionId,
     };
   } catch (error) {
-    console.error('Error getting current user:', error);
+     console.error('Error getting current user:', error);
     return null;
   }
 }

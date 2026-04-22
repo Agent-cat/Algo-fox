@@ -29,6 +29,14 @@ export function createRedisConnection(overrides: Record<string, any> = {}): IORe
     return conn;
 }
 
-// Default singleton for non-BullMQ usage (rate limiter, cache utils, leaderboard, etc.)
-const redis = createRedisConnection();
+declare global {
+    var redis_fox_singleton: IORedis | undefined;
+}
+
+const redis = globalThis.redis_fox_singleton ?? createRedisConnection();
+
+if (process.env.NODE_ENV !== "production") {
+    globalThis.redis_fox_singleton = redis;
+}
+
 export default redis;

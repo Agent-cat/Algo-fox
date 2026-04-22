@@ -3,7 +3,7 @@ export function safeJsonParse<T>(data: string | null | undefined, fallback: T): 
   try {
     return JSON.parse(data) as T;
   } catch (error) {
-    console.error("[JSON] Parse error:", error, "Data length:", data.length);
+     console.error("[JSON] Parse error:", error, "Data length:", data.length);
     return null;
   }
 }

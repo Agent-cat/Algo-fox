@@ -55,7 +55,7 @@ function CategoryProblemsContent() {
         toast.error(res.error || "Failed to load category");
       }
     } catch (error) {
-      console.error("Failed to fetch category:", error);
+       console.error("Failed to fetch category:", error);
       toast.error("Failed to load category");
     }
   };
@@ -66,7 +66,7 @@ function CategoryProblemsContent() {
       const res = await getCategoryProblems(categoryId, 1, 100);
       setProblems(res.problems);
     } catch (error) {
-      console.error("Failed to fetch problems:", error);
+       console.error("Failed to fetch problems:", error);
       toast.error("Failed to load problems");
     } finally {
       setIsLoading(false);
@@ -82,7 +82,7 @@ function CategoryProblemsContent() {
       const available = res.problems.filter((p: any) => !inCategory.has(p.id));
       setAvailableProblems(available);
     } catch (error) {
-      console.error("Failed to fetch available problems:", error);
+       console.error("Failed to fetch available problems:", error);
       toast.error("Failed to load available problems");
     } finally {
       setIsLoadingAvailable(false);

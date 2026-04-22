@@ -128,9 +128,9 @@ export default function DevToolsBlocker() {
       devtools = false;
       console.log(element);
       console.clear();
-    }, 1000);
+    }, 3000);
 
-    const checkResizeInterval = setInterval(checkDevToolsResize, 500);
+    const checkResizeInterval = setInterval(checkDevToolsResize, 4000);
 
     // 7. Aggressive Debugger Loop (using Function to persist through minifiers after build)
     const runDebugger = setInterval(() => {
@@ -140,7 +140,7 @@ export default function DevToolsBlocker() {
         if (performance.now() - start > 100) {
             triggerReload();
         }
-    }, 100);
+    }, 5000);
 
     let debuggerTimeoutId: NodeJS.Timeout;
     const debuggerLoop = () => {
@@ -149,7 +149,7 @@ export default function DevToolsBlocker() {
         if (performance.now() - start > 100) {
             triggerReload();
         }
-        debuggerTimeoutId = setTimeout(debuggerLoop, 50);
+        debuggerTimeoutId = setTimeout(debuggerLoop, 5000);
     };
     debuggerLoop();
 

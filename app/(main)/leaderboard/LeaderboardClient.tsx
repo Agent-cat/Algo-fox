@@ -55,7 +55,7 @@ export default function LeaderboardPage() {
                 setTotalEntries(0);
             }
         } catch (error) {
-            console.error("Failed to fetch leaderboard", error);
+             console.error("Failed to fetch leaderboard", error);
             toast.error("Failed to fetch rankings");
         } finally {
             setIsLoading(false);

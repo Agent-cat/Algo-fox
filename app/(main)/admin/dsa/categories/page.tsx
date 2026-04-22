@@ -58,7 +58,7 @@ export default function DsaAdminCategoriesPage() {
 
       setCategories(flatten(roots));
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
+       console.error("Failed to fetch categories:", error);
       toast.error("Failed to load categories");
     } finally {
       setIsLoading(false);

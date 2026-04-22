@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
                 clientIP &&
                 validation.participation.ipAddress !== clientIP) {
                 // Log suspicious activity for audit trail
-                console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);
+                 console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);
                 // Note: We allow submission but log it - admins can review suspicious activity
             }
         }
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ submissionId: submission.id }, { status: 201 });
 
     } catch (error) {
-        console.error("Submission API Error:", error);
+         console.error("Submission API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

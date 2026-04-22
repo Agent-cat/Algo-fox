@@ -18,6 +18,8 @@ interface WorkspaceSidebarsProps {
     problem: any;
     solvedIds: string[];
     contest?: any;
+    courseId?: string | null;
+    courseName?: string | null;
 }
 
 export const WorkspaceSidebars = React.memo(({
@@ -26,7 +28,9 @@ export const WorkspaceSidebars = React.memo(({
     handleCloseSidebar,
     problem,
     solvedIds,
-    contest
+    contest,
+    courseId,
+    courseName
 }: WorkspaceSidebarsProps) => {
     if (!problem) return null;
 
@@ -39,6 +43,8 @@ export const WorkspaceSidebars = React.memo(({
                 domain={problem.domain}
                 problemType={problem.type}
                 solvedProblemIds={solvedIds}
+                courseId={courseId}
+                courseName={courseName}
             />
         );
     }

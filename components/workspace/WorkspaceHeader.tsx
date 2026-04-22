@@ -36,11 +36,15 @@ interface WorkspaceHeaderProps {
   isSubmitting: boolean;
   isRunning: boolean;
   contestId?: string;
+  courseId?: string | null;
+  courseSlug?: string | null;
   endTime?: string | Date;
   nextProblemSlug?: string | null;
   prevProblemSlug?: string | null;
   domain?: ProblemDomain;
-  type?: ProblemType;
+  type?: ProblemType | "CONCEPT";
+  totalCourseProblems?: number;
+  currentCourseProblemIndex?: number;
   onToggleSidebar?: () => void;
 }
 
@@ -50,11 +54,15 @@ const WorkspaceHeader = memo(({
   isSubmitting,
   isRunning,
   contestId,
+  courseId,
+  courseSlug,
   endTime,
   nextProblemSlug,
   prevProblemSlug,
   domain,
   type,
+  totalCourseProblems = 0,
+  currentCourseProblemIndex = -1,
   onToggleSidebar
 }: WorkspaceHeaderProps) => {
   const { data: session, isPending } = authClient.useSession();
@@ -87,6 +95,65 @@ const WorkspaceHeader = memo(({
         },
       },
     });
+  };
+
+  const getProblemListUrl = () => {
+    if (courseSlug) return `/courses/${courseSlug}`;
+    if (courseId) return `/courses/${courseId}`; // Fallback
+    if (domain === "SQL") return "/problems/sql";
+    if (domain === "APTITUDE") return "/problems/aptitude";
+    return "/problems/dsa";
+  };
+
+  const getNextUrl = () => {
+    if (!nextProblemSlug) return "#";
+    return `/problems/${nextProblemSlug}${courseId ? `?courseId=${courseId}` : ''}`;
+  };
+
+  const getPrevUrl = () => {
+    if (!prevProblemSlug) return "#";
+    return `/problems/${prevProblemSlug}${courseId ? `?courseId=${courseId}` : ''}`;
+  };
+
+  const CourseProgress = () => {
+    if (totalCourseProblems <= 0) return null;
+
+    return (
+      <div className="flex items-center gap-3 w-[260px] lg:w-[480px] px-2 group/nav shrink-0">
+        <button
+          onClick={() => prevProblemSlug && router.push(getPrevUrl())}
+          disabled={!prevProblemSlug}
+          className="flex items-center gap-1.5 p-1 text-gray-400 hover:text-orange-500 transition-colors disabled:opacity-10 shrink-0 group"
+        >
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">prev</span>
+        </button>
+
+        <div className="flex-1 flex gap-1 h-2 items-center">
+          {Array.from({ length: totalCourseProblems }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-full flex-1 rounded-sm transition-all duration-300 ${
+                i === currentCourseProblemIndex
+                  ? 'bg-orange-500'
+                  : i < currentCourseProblemIndex
+                    ? 'bg-orange-500/40'
+                    : 'bg-gray-300 dark:bg-[#333]'
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => nextProblemSlug && router.push(getNextUrl())}
+          disabled={!nextProblemSlug}
+          className="flex items-center gap-1.5 p-1 text-gray-400 hover:text-orange-500 transition-colors disabled:opacity-10 shrink-0 group"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">next</span>
+          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -142,72 +209,77 @@ const WorkspaceHeader = memo(({
           >
             {/* NAVIGATION_BUTTON_ALREADY_MOVED_UP */}
             <Link
-              href={
-                domain === "SQL" ? "/problems/sql" :
-                domain === "APTITUDE" ? "/problems/aptitude" :
-                "/problems/dsa"
-              }
+              href={getProblemListUrl()}
               className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-[#141414]"
             >
-              <span className="sr-only">List</span>
-              Problem List
+              {courseId ? "Course Home" : "Problem List"}
             </Link>
-            <span className="text-gray-200 dark:text-gray-700 select-none">|</span>
+            {courseId && (
+              <>
+                <div className="h-4 w-px bg-gray-200 dark:bg-gray-800 mx-1" />
+                <ThemeToggleButton />
+              </>
+            )}
+            {!courseId && (
+              <>
+                <span className="text-gray-200 dark:text-gray-700 select-none">|</span>
+                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#141414] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
+                  <CustomTooltip content="Previous Problem" shortcut="Alt+ArrowLeft" side="bottom">
+                    <motion.button
+                      className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                      disabled={!prevProblemSlug}
+                      onClick={() => prevProblemSlug && router.push(getPrevUrl())}
+                      whileHover={prevProblemSlug ? { scale: 1.1 } : {}}
+                      whileTap={prevProblemSlug ? { scale: 0.9 } : {}}
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </motion.button>
+                  </CustomTooltip>
+                  <CustomTooltip content="Next Problem" shortcut="Alt+ArrowRight" side="bottom">
+                    <motion.button
+                      className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                      disabled={!nextProblemSlug}
+                      onClick={() => nextProblemSlug && router.push(getNextUrl())}
+                      whileHover={nextProblemSlug ? { scale: 1.1 } : {}}
+                      whileTap={nextProblemSlug ? { scale: 0.9 } : {}}
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </motion.button>
+                  </CustomTooltip>
+                </div>
+              </>
+            )}
 
-            {/* Navigation buttons */}
-            <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#141414] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
-              <CustomTooltip content="Previous Problem" shortcut="Alt+ArrowLeft" side="bottom">
+            {!courseId && (
+              <CustomTooltip content="Random Problem" side="bottom">
                 <motion.button
-                  className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-                  disabled={!prevProblemSlug}
-                  onClick={() => prevProblemSlug && router.push(`/problems/${prevProblemSlug}`)}
-                  whileHover={prevProblemSlug ? { scale: 1.1 } : {}}
-                  whileTap={prevProblemSlug ? { scale: 0.9 } : {}}
+                  onClick={() => {
+                    if (domain && type && type !== "CONCEPT") {
+                      startRandomizing(async () => {
+                        const slug = await getRandomProblem(domain, type, courseId || undefined);
+                        if (slug) router.push(`/problems/${slug}${courseId ? `?courseId=${courseId}` : ''}`);
+                        else toast.error("No other problems found");
+                      });
+                    }
+                  }}
+                  disabled={isRandomizing}
+                  className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
+                  whileHover={{ scale: 1.08, rotate: 45 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 >
-                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
                 </motion.button>
               </CustomTooltip>
-              <CustomTooltip content="Next Problem" shortcut="Alt+ArrowRight" side="bottom">
-                <motion.button
-                  className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-                  disabled={!nextProblemSlug}
-                  onClick={() => nextProblemSlug && router.push(`/problems/${nextProblemSlug}`)}
-                  whileHover={nextProblemSlug ? { scale: 1.1 } : {}}
-                  whileTap={nextProblemSlug ? { scale: 0.9 } : {}}
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </motion.button>
-              </CustomTooltip>
-            </div>
-
-            <CustomTooltip content="Random Problem" side="bottom">
-              <motion.button
-                onClick={() => {
-                  if (domain && type) {
-                    startRandomizing(async () => {
-                      const slug = await getRandomProblem(domain, type);
-                      if (slug) router.push(`/problems/${slug}`);
-                      else toast.error("No other problems found");
-                    });
-                  }
-                }}
-                disabled={isRandomizing}
-                className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
-                whileHover={{ scale: 1.08, rotate: 45 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              >
-                <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
-              </motion.button>
-            </CustomTooltip>
+            )}
           </motion.div>
         )}
       </div>
 
-      {/* CENTER: ACTIONS */}
-      <div className={`flex items-center gap-2 ${contestId ? 'flex-1 justify-center' : ''}`}>
-        {domain !== "APTITUDE" && (
-          <>
+      {/* CENTER: PROGRESS OR ACTIONS */}
+      <div className="flex-1 flex justify-center items-center px-4">
+        {!contestId && domain !== "APTITUDE" && type?.toString().toUpperCase() !== "CONCEPT" && domain?.toString().toUpperCase() !== "CONCEPT" && (
+          <div className="flex items-center gap-2">
             <CustomTooltip content="Run your code" shortcut="Ctrl+Enter" side="bottom">
               <motion.button
                 id="run-button"
@@ -223,14 +295,9 @@ const WorkspaceHeader = memo(({
                 disabled={isRunning || isSubmitting}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
               >
                 {isRunning ? (
-                  <motion.div
-                    className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-600 rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                  />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <Play className="w-3.5 h-3.5 fill-current" />
                 )}
@@ -243,24 +310,19 @@ const WorkspaceHeader = memo(({
                 id="submit-button"
                 onClick={onSubmit}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                whileHover={{ y: -1, boxShadow: "0 8px 20px -4px rgba(249, 115, 22, 0.3)" }}
+                className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 transition-colors"
+                whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
               >
                 {isSubmitting ? (
-                  <motion.div
-                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                  />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Send className="w-3.5 h-3.5" />
                 )}
                 {isSubmitting ? 'Submitting...' : 'Submit'}
               </motion.button>
             </CustomTooltip>
-          </>
+          </div>
         )}
 
         {contestId && endTime && (
@@ -268,88 +330,92 @@ const WorkspaceHeader = memo(({
         )}
       </div>
 
-      {/* RIGHT: USER / SETTINGS */}
+      {/* RIGHT: USER OR COURSE ACTIONS */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3 justify-end' : ''}`}>
-        {!contestId && (
-          <>
-            <ThemeToggleButton />
-
-            {session ? (
-              <div className="flex items-center gap-3">
-                <div className="relative" ref={profileRef}>
-                  <motion.button
-                    onClick={() => setProfileOpen(!isProfileOpen)}
-                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden md:block">
-                      {session.user.name}
-                    </span>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
+        {courseId ? (
+          <div className="flex items-center gap-0">
+            <CourseProgress />
+          </div>
+        ) : (
+          !contestId && (
+            <>
+              <ThemeToggleButton />
+              {session ? (
+                <div className="flex items-center gap-3">
+                  <div className="relative" ref={profileRef}>
+                    <motion.button
+                      onClick={() => setProfileOpen(!isProfileOpen)}
+                      className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                      whileTap={{ scale: 0.97 }}
                     >
-                      {session.user.image ? (
-                        <img
-                          src={session.user.image}
-                          alt={session.user.name || "User"}
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        session.user.name?.charAt(0).toUpperCase()
-                      )}
-                    </motion.div>
-                  </motion.button>
-
-                  <AnimatePresence>
-                    {isProfileOpen && (
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden md:block">
+                        {session.user.name}
+                      </span>
                       <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="absolute right-0 top-full mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
+                        whileHover={{ scale: 1.05 }}
+                        className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
                       >
-                        {(session.user as any).role === "ADMIN" && (
+                        {session.user.image ? (
+                          <img
+                            src={session.user.image}
+                            alt={session.user.name || "User"}
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          session.user.name?.charAt(0).toUpperCase()
+                        )}
+                      </motion.div>
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {isProfileOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                          className="absolute right-0 top-full mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
+                        >
+                          {(session.user as any).role === "ADMIN" && (
+                            <Link
+                              href="/admin"
+                              className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
+                              onClick={() => setProfileOpen(false)}
+                            >
+                              Admin Panel
+                            </Link>
+                          )}
                           <Link
-                            href="/admin"
+                            href="/dashboard"
                             className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                             onClick={() => setProfileOpen(false)}
                           >
-                            Admin Panel
+                            Dashboard
                           </Link>
-                        )}
-                        <Link
-                          href="/dashboard"
-                          className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          Dashboard
-                        </Link>
-                        <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
-                        <button
-                          onClick={handleSignOut}
-                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                        >
-                          Sign Out
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                          <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
+                          <button
+                            onClick={handleSignOut}
+                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                          >
+                            Sign Out
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <StreakBadge />
+                  <UserPoints className="hidden md:flex" />
                 </div>
-                <StreakBadge />
-                <UserPoints className="hidden md:flex" />
-              </div>
-            ) : (
-              <Link
-                href="/signin"
-                className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                Sign In
-              </Link>
-            )}
-          </>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Sign In
+                </Link>
+              )}
+            </>
+          )
         )}
         {contestId && (
           <motion.div

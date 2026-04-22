@@ -362,7 +362,7 @@ export default function CreateContestWizard({
     };
 
     const onInvalid = (errors: any) => {
-        console.error("Form errors:", errors);
+         console.error("Form errors:", errors);
         const firstErrorPath = Object.keys(errors)[0];
         const firstError = errors[firstErrorPath];
         toast.error(`Please fix errors in ${firstErrorPath}: ${firstError?.message || 'Invalid input'}`);

@@ -33,7 +33,7 @@ async function getFromCache<T>(key: string): Promise<T | null> {
     if (!data) return null;
     return JSON.parse(data) as T;
   } catch (error) {
-    console.error("[Cache] Get error:", error);
+     console.error("[Cache] Get error:", error);
     return null;
   }
 }
@@ -49,7 +49,7 @@ async function setInCache<T>(
   try {
     await redis.setex(key, ttlSeconds, JSON.stringify(data));
   } catch (error) {
-    console.error("[Cache] Set error:", error);
+     console.error("[Cache] Set error:", error);
   }
 }
 
@@ -60,7 +60,7 @@ export async function deleteFromCache(key: string): Promise<void> {
   try {
     await redis.del(key);
   } catch (error) {
-    console.error("[Cache] Delete error:", error);
+     console.error("[Cache] Delete error:", error);
   }
 }
 

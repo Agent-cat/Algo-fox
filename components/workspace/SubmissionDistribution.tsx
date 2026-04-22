@@ -28,7 +28,7 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
                 const items = type === 'runtime' ? data.runtimes : data.memories;
                 setDistribution(items);
             } catch (error) {
-                console.error("Failed to load distribution", error);
+                 console.error("Failed to load distribution", error);
             } finally {
                 setLoading(false);
             }

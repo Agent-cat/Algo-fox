@@ -64,6 +64,7 @@ model User {
   currentStreak         Int                    @default(0)
   longestStreak         Int                    @default(0)
   lastStreakDate        DateTime?
+  courseEnrollments     UserCourseEnrollment[]
 
   @@index([collegeId])
   @@index([collegeId, totalScore])
@@ -131,6 +132,7 @@ model Problem {
   difficulty             Difficulty                @default(EASY)
   type                   ProblemType               @default(PRACTICE)
   domain                 ProblemDomain             @default(DSA)
+  allowedLanguages       String[]                  @default([])
   hiddenQuery            String?
   useFunctionTemplate    Boolean                   @default(false)
   solution               String?
@@ -151,7 +153,10 @@ model Problem {
   contestProblems        ContestProblem[]
   contestSectionProblems ContestSectionProblem[]
   tags                   Tag[]                     @relation("ProblemToTag")
+  courseId               String?
+  course                 Course?                   @relation("CourseProblems", fields: [courseId], references: [id], onDelete: Cascade)
 
+  @@index([courseId])
   @@index([createdAt])
   @@index([domain, type, hidden, difficulty, createdAt])
   @@index([domain, type, hidden, createdAt])
@@ -273,6 +278,8 @@ model Category {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   parentId         String?
+  courseId         String?
+  course           Course?           @relation("CourseModules", fields: [courseId], references: [id], onDelete: Cascade)
   parent           Category?         @relation("SubCategories", fields: [parentId], references: [id])
   children         Category[]        @relation("SubCategories")
   categoryProblems CategoryProblem[]
@@ -640,6 +647,7 @@ enum ProblemDomain {
   APTITUDE
   OOPS
   WEBDEV
+  REACT
 }
 
 enum SubmissionMode {
@@ -711,4 +719,42 @@ model DailyStreak {
 
   @@unique([userId, date])
   @@index([userId])
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique
+  description String
+  image       String?
+  difficulty  Difficulty   @default(EASY)
+  tags        String[]     @default([])
+  duration    String?      // e.g., "10 hours"
+  isPublished Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  domain      ProblemDomain @default(DSA)
+  modules     Category[]   @relation("CourseModules")
+  problems    Problem[]    @relation("CourseProblems")
+  enrollments UserCourseEnrollment[]
+
+  @@index([slug])
+  @@index([domain])
+}
+
+model UserCourseEnrollment {
+  id          String    @id @default(cuid())
+  userId      String
+  courseId    String
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+  progress    Float     @default(0) // 0 to 100
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
 }

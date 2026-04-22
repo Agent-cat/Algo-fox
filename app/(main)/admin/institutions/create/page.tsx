@@ -55,7 +55,7 @@ export default function CreateInstitutionPage() {
         toast.error(res.error || "Failed to create institution");
       }
     } catch (error) {
-      console.error("Creation error:", error);
+       console.error("Creation error:", error);
       toast.error("An unexpected error occurred");
     }
   };

@@ -7,6 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
+interface StudentAnalytics {
+    student: {
+        id: string;
+        name: string | null;
+        email: string | null;
+        image: string | null;
+    };
+    completedCount: number;
+    totalCount: number;
+    completionPercentage: number;
+    hasCompletedAll: boolean;
+}
+
 interface AssignmentAnalyticsViewProps {
     assignmentId: string;
     classroomId: string;
@@ -14,7 +27,7 @@ interface AssignmentAnalyticsViewProps {
 }
 
 export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: AssignmentAnalyticsViewProps) {
-    const [analytics, setAnalytics] = useState<any[]>([]);
+    const [analytics, setAnalytics] = useState<StudentAnalytics[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -23,15 +36,15 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
             try {
                 const result = await getTeacherAssignmentAnalytics(assignmentId, classroomId);
                 // Handle new paginated return type
-                if (result && 'analytics' in result) {
-                    setAnalytics(result.analytics || []);
+                if (result && typeof result === 'object' && 'analytics' in result) {
+                    setAnalytics((result as { analytics: StudentAnalytics[] }).analytics || []);
                 } else if (Array.isArray(result)) {
-                    setAnalytics(result);
+                    setAnalytics(result as StudentAnalytics[]);
                 } else {
                     setAnalytics([]);
                 }
             } catch (error) {
-                console.error("Failed to fetch analytics", error);
+                 console.error("Failed to fetch analytics", error);
             } finally {
                 setIsLoading(false);
             }

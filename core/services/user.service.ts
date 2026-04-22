@@ -21,7 +21,7 @@ export class UserService {
                 return parseInt(cached, 10);
             }
         } catch (error) {
-            console.error("Redis get error:", error);
+             console.error("Redis get error:", error);
         }
 
         const user = await prisma.user.findUnique({
@@ -34,7 +34,7 @@ export class UserService {
         try {
             await redis.setex(cacheKey, CACHE_TTL, score.toString());
         } catch (error) {
-            console.error("Redis set error:", error);
+             console.error("Redis set error:", error);
         }
 
         return score;
@@ -84,12 +84,12 @@ export class UserService {
             try {
                 await redis.del(`user-score-${userId}`);
             } catch (error) {
-                console.error("Failed to invalidate user score cache:", error);
+                 console.error("Failed to invalidate user score cache:", error);
             }
 
             return { success: true, newScore: totalScore };
         } catch (error) {
-            console.error("Failed to recalculate user score:", error);
+             console.error("Failed to recalculate user score:", error);
             throw new Error("Failed to recalculate user score");
         }
     }
@@ -133,12 +133,12 @@ export class UserService {
             try {
                 await redis.del(`dashboard:stats:${userId}`);
             } catch (error) {
-                console.error("Failed to invalidate dashboard cache:", error);
+                 console.error("Failed to invalidate dashboard cache:", error);
             }
 
             return { success: true };
         } catch (error) {
-            console.error("Failed to complete onboarding:", error);
+             console.error("Failed to complete onboarding:", error);
             return { success: false, error: "Failed to complete onboarding" };
         }
     }
@@ -203,12 +203,12 @@ export class UserService {
             try {
                 await redis.del(`dashboard:stats:${userId}`);
             } catch (error) {
-                console.error("Failed to invalidate dashboard redis cache:", error);
+                 console.error("Failed to invalidate dashboard redis cache:", error);
             }
 
             return { success: true };
         } catch (error) {
-            console.error("Failed to update user info in service:", error);
+             console.error("Failed to update user info in service:", error);
             return { success: false, error: "Failed to update profile" };
         }
     }

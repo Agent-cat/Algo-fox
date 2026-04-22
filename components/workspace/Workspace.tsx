@@ -7,7 +7,7 @@ import Split from 'react-split';
 
 import { Problem, ProblemTestCase, ProblemDomain, ProblemType } from '@prisma/client';
 import { authClient } from '@/lib/auth-client';
-import { DEFAULT_LANGUAGE_ID, getLanguageById } from '@/lib/languages';
+import { DEFAULT_LANGUAGE_ID, getLanguageById, LANGUAGES } from '@/lib/languages';
 import { usePersistentSplit } from '@/hooks/use-layout';
 import { useCodeFiles } from '@/hooks/use-code-files';
 
@@ -51,6 +51,11 @@ interface WorkspaceProps {
     solvedProblemIds?: string[];
     nextProblemSlug?: string | null;
     prevProblemSlug?: string | null;
+    courseId?: string | null;
+    courseName?: string | null;
+    courseSlug?: string | null;
+    totalCourseProblems?: number;
+    currentCourseProblemIndex?: number;
 }
 
 const LANGUAGE_STORAGE_KEY = 'algofox_selected_language';
@@ -70,12 +75,12 @@ function getStoredLanguageId(domain?: string): number {
             }
         }
     } catch (e) {
-        console.error('Failed to read language from localStorage', e);
+         console.error('Failed to read language from localStorage', e);
     }
     return domain === "SQL" ? SQL_LANGUAGE_ID : DEFAULT_LANGUAGE_ID;
 }
 
-export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug }: WorkspaceProps) {
+export default function Workspace({ problem, isSolved, contestId, contest, solvedProblemIds = [], nextProblemSlug, prevProblemSlug, courseId, courseName, courseSlug, totalCourseProblems = 0, currentCourseProblemIndex = -1 }: WorkspaceProps) {
     const { data: session } = authClient.useSession();
     const router = useRouter();
     const pathname = usePathname();
@@ -84,7 +89,16 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         setIsSolvedState(isSolved);
     }, [isSolved]);
 
-    const [languageId, setLanguageId] = useState<number>(() => getStoredLanguageId(problem.domain as string));
+    const [languageId, setLanguageId] = useState<number>(() => {
+        const stored = getStoredLanguageId(problem.domain as string);
+        if (problem.allowedLanguages && problem.allowedLanguages.length > 0) {
+            const allowedIds = LANGUAGES.filter(l => problem.allowedLanguages!.includes(l.name)).map(l => l.id);
+            if (!allowedIds.includes(stored)) {
+                return allowedIds[0];
+            }
+        }
+        return stored;
+    });
     const [code, setCode] = useState<string>(() => {
         if (typeof window === 'undefined') return '// Write your code here';
         const isSql = (problem.domain as string) === 'SQL';
@@ -214,7 +228,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     setShowEntryModal(true);
                 }
             } catch (err) {
-                console.error("Failed to check participation:", err);
+                 console.error("Failed to check participation:", err);
                 toast.error("Failed to verify contest participation. Please refresh.");
             }
         };
@@ -235,7 +249,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         try {
             localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguageId.toString());
         } catch (e) {
-            console.error('Failed to save language to localStorage', e);
+             console.error('Failed to save language to localStorage', e);
         }
     }, [problem.domain]);
 
@@ -244,7 +258,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             const stored = localStorage.getItem('algofox_editor_settings');
             if (stored) setEditorSettings(JSON.parse(stored));
         } catch (e) {
-            console.error('Failed to load editor settings', e);
+             console.error('Failed to load editor settings', e);
         }
     }, []);
 
@@ -257,7 +271,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             const current = JSON.parse(localStorage.getItem('algofox_editor_settings') || '{}');
             localStorage.setItem('algofox_editor_settings', JSON.stringify({ ...current, ...newSettings }));
         } catch (e) {
-            console.error('Failed to save editor settings', e);
+             console.error('Failed to save editor settings', e);
         }
     }, []);
 
@@ -387,8 +401,22 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
             if (codeFiles.files.length > 1 && codeFiles.activeFileId) handleRemoveFile(codeFiles.activeFileId);
             else if (codeFiles.files.length === 1) toast.error("Cannot delete the last remaining file");
         },
-        onNextProblem: () => router.push(`/problems/${nextProblemSlug}${contestId ? `?contestId=${contestId}` : ''}`),
-        onPrevProblem: () => router.push(`/problems/${prevProblemSlug}${contestId ? `?contestId=${contestId}` : ''}`),
+        onNextProblem: () => {
+             const baseUrl = `/problems/${nextProblemSlug}`;
+             const params = new URLSearchParams();
+             if (contestId) params.append("contestId", contestId);
+             if (courseId) params.append("courseId", courseId);
+             const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+             router.push(url);
+        },
+        onPrevProblem: () => {
+             const baseUrl = `/problems/${prevProblemSlug}`;
+             const params = new URLSearchParams();
+             if (contestId) params.append("contestId", contestId);
+             if (courseId) params.append("courseId", courseId);
+             const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+             router.push(url);
+        },
         isRunning,
         isSubmitting,
         nextProblemSlug,
@@ -432,6 +460,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 problem={problem}
                 solvedIds={solvedIds}
                 contest={contest}
+                courseId={courseId}
+                courseName={courseName}
             />
             <WorkspaceHeader
                 onSubmit={handleSubmitAction}
@@ -439,6 +469,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 isSubmitting={isSubmitting}
                 isRunning={isRunning}
                 contestId={contestId}
+                courseId={courseId}
+                courseSlug={courseSlug}
+                totalCourseProblems={totalCourseProblems}
+                currentCourseProblemIndex={currentCourseProblemIndex}
                 endTime={contest?.endTime}
                 nextProblemSlug={nextProblemSlug}
                 prevProblemSlug={prevProblemSlug}
@@ -477,6 +511,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                     userId={session?.user?.id || ""}
                                     fileTabs={fileTabsNode}
                                     highlightLine={highlightLine}
+                                    allowedLanguages={problem.allowedLanguages}
                                 />
                             </div>
                             <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">

@@ -61,7 +61,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 });
             }
         } catch (error) {
-            console.error("Fetch error:", error);
+             console.error("Fetch error:", error);
             toast.error("Failed to load institution data");
         } finally {
             setIsLoading(false);
@@ -82,7 +82,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 const res = await searchUsersByEmail(debouncedSearch);
                 if (res.success) setSuggestions(res.users || []);
             } catch (error) {
-                console.error("Search error:", error);
+                 console.error("Search error:", error);
             }
         };
         fetchSuggestions();
@@ -98,7 +98,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 toast.error(res.error || "Failed to update institution");
             }
         } catch (error) {
-            console.error("Update error:", error);
+             console.error("Update error:", error);
             toast.error("An unexpected error occurred");
         }
     };
@@ -116,7 +116,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 toast.error(res.error || "Failed to assign manager");
             }
         } catch (error) {
-            console.error("Assign error:", error);
+             console.error("Assign error:", error);
             toast.error("Failed to assign manager");
         } finally {
             setIsAssigning(false);
@@ -135,7 +135,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 toast.error(res.error || "Failed to remove manager");
             }
         } catch (error) {
-            console.error("Remove manager error:", error);
+             console.error("Remove manager error:", error);
             toast.error("Protocol failure during removal");
         }
     };
@@ -150,7 +150,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 setTotalUsers(res.total || 0);
             }
         } catch (error) {
-            console.error("Fetch users error:", error);
+             console.error("Fetch users error:", error);
             toast.error("Failed to load users");
         } finally {
             setUsersLoading(false);
@@ -177,7 +177,7 @@ export default function InstitutionDetailPage({ params }: { params: Promise<{ id
                 toast.error(res.error || "Failed to remove user");
             }
         } catch (error) {
-            console.error("Remove user error:", error);
+             console.error("Remove user error:", error);
             toast.error("Failed to remove user");
         }
     };

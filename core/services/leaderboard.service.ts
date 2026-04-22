@@ -62,7 +62,7 @@ export class LeaderboardService {
             }
         } catch (error) {
             // Redis error - continue without cache
-            console.error('Redis get error:', error);
+             console.error('Redis get error:', error);
         }
 
         // 1. Calculate skip

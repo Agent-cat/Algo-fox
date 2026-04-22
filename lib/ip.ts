@@ -72,7 +72,7 @@ export async function getVerifiedClientIP(): Promise<string | null> {
 
         // Basic validation: ensure it looks like an IP
         if (!isValidIP(clientIP)) {
-            console.warn(`[Security] Invalid IP format detected: ${clientIP}`);
+             console.warn(`[Security] Invalid IP format detected: ${clientIP}`);
             return null;
         }
 
@@ -80,7 +80,7 @@ export async function getVerifiedClientIP(): Promise<string | null> {
     }
 
     // If we can't verify the IP through a trusted source, return null
-    console.warn("[Security] Unable to extract verified client IP");
+     console.warn("[Security] Unable to extract verified client IP");
     return null;
 }
 

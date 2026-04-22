@@ -41,7 +41,7 @@ function EditDsaCategoryContent() {
       // Filter out the current category to prevent self-parenting
       setParentCategories(res.categories?.filter((cat: any) => cat.id !== categoryId) || []);
     } catch (error) {
-      console.error("Failed to fetch parent categories:", error);
+       console.error("Failed to fetch parent categories:", error);
     } finally {
       setIsParentsLoading(false);
     }
@@ -63,7 +63,7 @@ function EditDsaCategoryContent() {
         toast.error(res.error || "Failed to load category");
       }
     } catch (error) {
-      console.error("Failed to fetch category:", error);
+       console.error("Failed to fetch category:", error);
       toast.error("Failed to load category");
     } finally {
       setIsLoading(false);
@@ -92,7 +92,7 @@ function EditDsaCategoryContent() {
         toast.error(res.error || "Failed to update category");
       }
     } catch (error) {
-      console.error("Failed to update category:", error);
+       console.error("Failed to update category:", error);
       toast.error("Failed to update category");
     } finally {
       setIsSubmitting(false);

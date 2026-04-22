@@ -18,7 +18,7 @@ export async function getCourseAllocations() {
     });
     return { success: true, allocations };
   } catch (error) {
-    console.error("Error fetching course allocations:", error);
+     console.error("Error fetching course allocations:", error);
     return { success: false, error: "Failed to fetch course allocations" };
   }
 }
@@ -82,7 +82,7 @@ export async function getUserAllocatedCourses() {
       isPrivileged: false,
     };
   } catch (error) {
-    console.error("Error fetching user allocated courses:", error);
+     console.error("Error fetching user allocated courses:", error);
     return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[] };
   }
 }
@@ -122,7 +122,7 @@ export async function updateYearAllocations(year: number, domains: ProblemDomain
 
     return { success: true };
   } catch (error) {
-    console.error("Error updating year allocations:", error);
+     console.error("Error updating year allocations:", error);
     return { success: false, error: "Failed to update allocations" };
   }
 }

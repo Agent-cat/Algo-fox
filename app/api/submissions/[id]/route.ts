@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             testCases: submission.testCases
         });
     } catch (error) {
-        console.error("Submission Poll Error:", error);
+         console.error("Submission Poll Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

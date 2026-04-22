@@ -3,23 +3,24 @@ import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import { ProblemDomain, Difficulty } from "@prisma/client";
 import redis from "@/lib/redis";
+import { scanAndDelete } from "@/lib/redis-utils";
 
 const CACHE_TTL = 300; // 5 minutes
 
 // CACHE KEY HELPERS
-const getCategoriesCacheKey = (domain?: ProblemDomain) =>
-    domain ? `categories:${domain}:all` : "categories:all";
+const getCategoriesCacheKey = (domain: ProblemDomain, courseId?: string) =>
+    `categories:${domain}:${courseId ? `course:${courseId}` : "global"}`;
+
 const getCategoryCacheKey = (slug: string) => `category:${slug}`;
 const getCategoryProblemsCacheKey = (categoryId: string, page: number) =>
     `category:${categoryId}:problems:page:${page}`;
 
 export class CategoryService {
     // GETTING ALL CATEGORIES
-    static async getCategories(domain: ProblemDomain = "DSA", userId?: string) {
+    static async getCategories(domain: ProblemDomain = "DSA", userId?: string, courseId?: string) {
         try {
             // ONLY CACHING THE BASE CATEGORIES STRUCTURE, NOT USER-SPECIFIC SOLVED COUNTS
-
-            const cacheKey = getCategoriesCacheKey(domain);
+            const cacheKey = getCategoriesCacheKey(domain, courseId);
             let categories: any[];
 
             // GETTING CACHE FOR BASE CATEGORIES
@@ -29,10 +30,15 @@ export class CategoryService {
                 const parsed = safeJsonParse(cached, { categories: [] });
                 categories = Array.isArray(parsed?.categories) ? parsed.categories : [];
             } else {
+                const where: any = { domain };
+                if (courseId) {
+                    where.courseId = courseId;
+                } else {
+                    where.courseId = null;
+                }
+
                 categories = await prisma.category.findMany({
-                    where: {
-                        domain
-                    },
+                    where,
                     orderBy: { order: "asc" },
                     select: {
                         id: true,
@@ -42,6 +48,7 @@ export class CategoryService {
                         order: true,
                         domain: true,
                         parentId: true,
+                        courseId: true,
                         _count: {
                             select: { categoryProblems: true }
                         }
@@ -96,7 +103,7 @@ export class CategoryService {
 
             return { categories };
         } catch (error) {
-            console.error("Failed to fetch categories:", error);
+             console.error("Failed to fetch categories:", error);
             return { categories: [] };
         }
     }
@@ -147,7 +154,7 @@ export class CategoryService {
 
             return { success: true, category: category };
         } catch (error) {
-            console.error("Failed to fetch category:", error);
+             console.error("Failed to fetch category:", error);
             return { success: false, error: "Failed to fetch category: " + error };
         }
     }
@@ -178,7 +185,7 @@ export class CategoryService {
 
             return { success: true, category };
         } catch (error) {
-            console.error("Failed to fetch category:", error);
+             console.error("Failed to fetch category:", error);
             return { success: false, error: "Failed to fetch category" };
         }
     }
@@ -283,7 +290,7 @@ export class CategoryService {
 
             return result;
         } catch (error) {
-            console.error("Failed to fetch category problems:", error);
+             console.error("Failed to fetch category problems:", error);
             return { problems: [], totalPages: 0, currentPage: page, total: 0 };
         }
     }
@@ -312,15 +319,14 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE
-
-            await redis.del(getCategoriesCacheKey());
-            await redis.del(getCategoriesCacheKey(category.domain));
-
-            // RETURNING THE SUCCESS AND THE CATEGORY
+            await redis.del(getCategoriesCacheKey("DSA"));
+            await redis.del(getCategoriesCacheKey("SQL"));
+            await redis.del(getCategoriesCacheKey("APTITUDE"));
+            await redis.del(getCategoryCacheKey(category.slug));
             return { success: true, category: category };
 
         } catch (error: any) {
-            console.error("Failed to create category:", error);
+             console.error("Failed to create category:", error);
             return {
                 success: false,
                 error: error.code === "P2002" ? "Slug already exists" : "Failed to create category"
@@ -337,13 +343,14 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE
-
-            await redis.del(getCategoriesCacheKey());
+            await redis.del(getCategoriesCacheKey("DSA"));
+            await redis.del(getCategoriesCacheKey("SQL"));
+            await redis.del(getCategoriesCacheKey("APTITUDE"));
             await redis.del(getCategoryCacheKey(category.slug));
 
             return { success: true, category };
         } catch (error) {
-            console.error("Failed to update category:", error);
+             console.error("Failed to update category:", error);
             return { success: false, error: "Failed to update category" };
         }
     }
@@ -361,16 +368,14 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE
-
-            await redis.del(getCategoriesCacheKey());
-            // INVALIDATING THE CACHE FOR THE CATEGORY IF IT EXISTS
             if (category) {
                 await redis.del(getCategoryCacheKey(category.slug));
+                await redis.del(getCategoriesCacheKey(category.domain));
             }
 
             return { success: true, slug: category?.slug, category };
         } catch (error) {
-            console.error("Failed to delete category:", error);
+             console.error("Failed to delete category:", error);
             return { success: false, error: "Failed to delete category" };
         }
     }
@@ -417,17 +422,13 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE FOR THE CATEGORY PROBLEMS
-            const cachePattern = `category:${categoryId}:problems:*`;
-            const keys = await redis.keys(cachePattern);
-            if (keys.length > 0) {
-                await redis.del(...keys);
-            }
+            await scanAndDelete(`category:${categoryId}:problems:*`);
             await redis.del(getCategoryCacheKey(categoryProblem.category.slug));
             await redis.del(getCategoriesCacheKey(category.domain));
 
             return { success: true, categoryProblem };
         } catch (error: any) {
-            console.error("Failed to add problem to category:", error);
+             console.error("Failed to add problem to category:", error);
             if (error.code === "P2002") {
                 return { success: false, error: "Problem already in category" };
             }
@@ -454,16 +455,11 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE FOR THE CATEGORY PROBLEMS
-
-            const cachePattern = `category:${categoryId}:problems:*`;
-            const keys = await redis.keys(cachePattern);
-            if (keys.length > 0) {
-                await redis.del(...keys);
-            }
+            await scanAndDelete(`category:${categoryId}:problems:*`);
 
             return { success: true };
         } catch (error) {
-            console.error("Failed to remove problem from category:", error);
+             console.error("Failed to remove problem from category:", error);
             return { success: false, error: "Failed to remove problem from category" };
         }
     }
@@ -532,24 +528,19 @@ export class CategoryService {
             });
 
             // INVALIDATING THE CACHE
-            const cachePattern = `category:${categoryId}:problems:*`;
-            const keys = await redis.keys(cachePattern);
-            if (keys.length > 0) {
-                await redis.del(...keys);
-            }
+            await scanAndDelete(`category:${categoryId}:problems:*`);
             await redis.del(getCategoryCacheKey(category.slug));
             await redis.del(getCategoriesCacheKey(category.domain));
 
             // INVALIDATING PROBLEM CACHES
-            const problemCachePattern = "problems:*";
-            const problemKeys = await redis.keys(problemCachePattern);
-            if (problemKeys.length > 0) {
-                await redis.del(...problemKeys);
-            }
+            await Promise.all([
+                scanAndDelete("problems:list:*"),
+                scanAndDelete("problems:search:*"),
+            ]);
 
             return { success: true, problem };
         } catch (error: any) {
-            console.error("Failed to create problem and add to category:", error);
+             console.error("Failed to create problem and add to category:", error);
             if (error.code === "P2002") {
                 return { success: false, error: "Problem slug already exists" };
             }

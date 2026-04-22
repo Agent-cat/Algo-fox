@@ -21,7 +21,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
                 const score = await getUserScore();
                 setPoints(score);
             } catch (error) {
-                console.error("Failed to fetch user points:", error);
+                 console.error("Failed to fetch user points:", error);
                 setPoints(0);
             } finally {
                 setIsLoading(false);
@@ -38,7 +38,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
                 const score = await getUserScore();
                 setPoints(score);
             } catch (error) {
-                console.error("Failed to refresh user points:", error);
+                 console.error("Failed to refresh user points:", error);
             }
         };
 
@@ -47,7 +47,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
                 const score = await getUserScore();
                 setPoints(score);
             } catch (error) {
-                console.error("Failed to refresh user points:", error);
+                 console.error("Failed to refresh user points:", error);
             }
         };
 

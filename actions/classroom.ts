@@ -94,7 +94,7 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
         if (error instanceof z.ZodError) {
             return { success: false, error: error.issues[0].message };
         }
-        console.error("Failed to create classroom:", error);
+         console.error("Failed to create classroom:", error);
         return { success: false, error: "Failed to create classroom" };
     }
 }
@@ -180,7 +180,7 @@ export async function joinClassroom(code: string) {
 
         return { success: true, message: `Successfully joined ${classroom.name}` };
     } catch (error) {
-        console.error("Failed to join classroom:", error);
+         console.error("Failed to join classroom:", error);
         return { success: false, error: "Failed to join classroom" };
     }
 }
@@ -232,7 +232,7 @@ export async function getClassroomByCode(code: string) {
             isEnrolled: !!isEnrolled
         };
     } catch (error) {
-        console.error("Failed to fetch classroom by code:", error);
+         console.error("Failed to fetch classroom by code:", error);
         return { success: false, error: "Failed to fetch classroom" };
     }
 }
@@ -271,7 +271,7 @@ export async function getTeacherClassrooms() {
         const classrooms = await fetchClassrooms();
         return { success: true, classrooms };
     } catch (error) {
-        console.error("Failed to fetch teacher classrooms:", error);
+         console.error("Failed to fetch teacher classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
     }
 }
@@ -315,7 +315,7 @@ export async function getStudentClassrooms() {
         const classrooms = await fetchClassrooms();
         return { success: true, classrooms };
     } catch (error) {
-        console.error("Failed to fetch student classrooms:", error);
+         console.error("Failed to fetch student classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
     }
 }
@@ -427,7 +427,7 @@ export async function getClassroomWithStudents(
             }
         };
     } catch (error) {
-        console.error("Failed to fetch classroom detail:", error);
+         console.error("Failed to fetch classroom detail:", error);
         return { success: false, error: "Failed to fetch classroom" };
     }
 }
@@ -538,7 +538,7 @@ export async function getClassroomLiveTracking(classroomId: string) {
             ...data
         };
     } catch (error) {
-        console.error("Failed to fetch live tracking:", error);
+         console.error("Failed to fetch live tracking:", error);
         return { success: false, error: "Failed to fetch tracking data" };
     }
 }
@@ -605,7 +605,7 @@ export async function getInstitutionClassrooms(page: number = 1, limit: number =
             }
         };
     } catch (error) {
-        console.error("Failed to fetch institution classrooms:", error);
+         console.error("Failed to fetch institution classrooms:", error);
         return { success: false, error: "Failed to fetch classrooms" };
     }
 }
@@ -657,7 +657,7 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
 
         return { success: true };
     } catch (error) {
-        console.error("Failed to remove student:", error);
+         console.error("Failed to remove student:", error);
         return { success: false, error: "Failed to remove student" };
     }
 }
@@ -797,7 +797,7 @@ export async function getClassroomContestPerformance(classroomId: string) {
 
         return { success: true, data: finalData };
     } catch (error) {
-        console.error("Failed to generate classroom performance report:", error);
+         console.error("Failed to generate classroom performance report:", error);
         return { success: false, error: "Internal server error" };
     }
 }

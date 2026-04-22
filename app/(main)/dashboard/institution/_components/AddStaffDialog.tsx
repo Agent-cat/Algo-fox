@@ -58,7 +58,7 @@ export function AddStaffDialog({ isOpen, onClose, institutionId, onSuccess }: Ad
                 toast.error(res.error || "Failed to add staff member");
             }
         } catch (error) {
-            console.error("Add staff error:", error);
+             console.error("Add staff error:", error);
             toast.error("Failed to add staff member");
         } finally {
             setIsSubmitting(false);

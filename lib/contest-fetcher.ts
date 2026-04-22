@@ -56,7 +56,7 @@ async function fetchCodeForces(options?: FetchOptions): Promise<Contest[]> {
 
         return contests;
     } catch (e) {
-        console.warn("CodeForces fetch failed:", e);
+         console.warn("CodeForces fetch failed:", e);
         return [];
     }
 }
@@ -111,7 +111,7 @@ async function fetchLeetCode(options?: FetchOptions): Promise<Contest[]> {
             };
         });
     } catch (e) {
-        console.warn("LeetCode fetch failed:", e);
+         console.warn("LeetCode fetch failed:", e);
         return [];
     }
 }
@@ -159,7 +159,7 @@ async function fetchCodeChef(options?: FetchOptions): Promise<Contest[]> {
         });
 
     } catch (e) {
-        console.warn("CodeChef fetch failed:", e);
+         console.warn("CodeChef fetch failed:", e);
         return [];
     }
 }
@@ -194,7 +194,7 @@ export async function fetchExternalContests(options?: FetchOptions) {
     return contests;
 
   } catch (error) {
-    console.error("Unexpected error in fetchExternalContests:", error);
+     console.error("Unexpected error in fetchExternalContests:", error);
     return [];
   }
 }

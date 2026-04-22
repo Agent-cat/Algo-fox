@@ -2,6 +2,7 @@ import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
 import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import redis from "@/lib/redis";
+import { scanAndDelete } from "@/lib/redis-utils";
 
 const CACHE_TTL = 300; // 5 minutes
 const PROBLEM_CACHE_TTL = 3600; // 1 hour
@@ -9,8 +10,12 @@ const PROBLEM_CACHE_TTL = 3600; // 1 hour
 // CACHE KEY HELPERS
 const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = [], sortBy: string = 'newest') =>
     `problems:list:${domain}:${type}:page:${page}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}:sort:${sortBy}`;
-const getAdminProblemsCacheKey = (domain: string | undefined, page: number) =>
-    `admin:problems:${domain || 'all'}:page:${page}`;
+const getAdminProblemsCacheKey = (
+    domain: string | undefined,
+    page: number,
+    excludeDifficulty?: Difficulty,
+    type?: ProblemType
+) => `admin:problems:${domain || 'all'}:page:${page}:diff:${excludeDifficulty || 'all'}:type:${type || 'all'}`;
 const getProblemCacheKey = (slug: string) => `problem:${slug}`;
 
 export class ProblemService {
@@ -168,21 +173,14 @@ export class ProblemService {
         excludeDifficulty?: Difficulty,
         type?: ProblemType
     ) {
-        const cacheKey = getAdminProblemsCacheKey(domain, page);
-        // Note: cache key doesn't include excludeDifficulty which could be an issue if we vary it often,
-        // but for now only one usage pattern exists per page.
-        // Ideally we should append it to cache key but let's keep it simple as per plan.
+        // Cache key now includes ALL filter params to prevent stale data across different filter combinations
+        const cacheKey = getAdminProblemsCacheKey(domain, page, excludeDifficulty, type);
 
         try {
             const cached = await redis.get(cacheKey);
             if (cached) {
-                // If we have cached data, we might need to filter it manually if the cache key doesn't support variations
-                // But for now let's assume cache key strategy needs update if we want perfect caching.
-                // However, user just wants filtering. Let's bypass cache if we have specific filter or update cache key.
-                // Actually, let's just proceed with fetching fresh if we use filters or rely on the query.
-                // Given the current cache implementation is simple, let's just do the query.
-
-                // return JSON.parse(cached); // Disabling cache return for filtered requests for safety or we update key
+                const parsed = safeJsonParse(cached, null);
+                if (parsed) return parsed;
             }
         } catch (error) {
             console.error("Redis get error:", error);
@@ -239,48 +237,53 @@ export class ProblemService {
     }
 
     // SEARCHING FOR PROBLEMS
+    // Short-lived cache (30s) for search results to reduce DB load on repeated/concurrent identical searches.
     static async searchProblems(
         term: string,
         type: ProblemType = "PRACTICE",
         domain: ProblemDomain = "DSA",
         userId?: string
     ) {
-        const problems = await prisma.problem.findMany({
-            where: {
-                type,
-                domain,
-                hidden: false,
-                title: {
-                    contains: term,
-                    mode: 'insensitive'
-                }
-            },
-            take: 10,
-            orderBy: { createdAt: 'desc' },
-            select: {
-                id: true,
-                title: true,
-                slug: true,
-                difficulty: true,
-                score: true,
-                solved: true,
-                createdAt: true,
-                type: true,
-                _count: {
-                    select: { submissions: true }
+        const SEARCH_CACHE_TTL = 30;
+        const searchCacheKey = `problems:search:${domain}:${type}:${term.toLowerCase().trim()}`;
+
+        let problems: any[] | null = null;
+        try {
+            const cached = await redis.get(searchCacheKey);
+            if (cached) problems = safeJsonParse(cached, null);
+        } catch { /* non-fatal */ }
+
+        if (!problems) {
+            problems = await prisma.problem.findMany({
+                where: {
+                    type,
+                    domain,
+                    hidden: false,
+                    title: { contains: term, mode: 'insensitive' }
                 },
-                tags: {
-                    select: {
-                        name: true,
-                        slug: true
-                    }
+                take: 10,
+                orderBy: { createdAt: 'desc' },
+                select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    difficulty: true,
+                    score: true,
+                    solved: true,
+                    createdAt: true,
+                    type: true,
+                    _count: { select: { submissions: true } },
+                    tags: { select: { name: true, slug: true } }
                 }
-            }
-        });
+            });
+            try {
+                await redis.setex(searchCacheKey, SEARCH_CACHE_TTL, JSON.stringify(problems));
+            } catch { /* non-fatal */ }
+        }
 
         let solvedSet = new Set<string>();
         if (userId && problems.length > 0) {
-            const problemIds = problems.map(p => p.id);
+            const problemIds = problems.map((p: any) => p.id);
             const solvedSubmissions = await prisma.submission.findMany({
                 where: {
                     userId,
@@ -294,15 +297,13 @@ export class ProblemService {
             solvedSet = new Set(solvedSubmissions.map(s => s.problemId));
         }
 
-        const problemsWithStats = problems.map((p) => {
-            return {
-                ...p,
-                isSolved: solvedSet.has(p.id),
-                acceptance: p._count.submissions > 0
-                    ? ((p.solved || 0) / p._count.submissions) * 100
-                    : 0,
-            };
-        });
+        const problemsWithStats = problems.map((p: any) => ({
+            ...p,
+            isSolved: solvedSet.has(p.id),
+            acceptance: p._count.submissions > 0
+                ? ((p.solved || 0) / p._count.submissions) * 100
+                : 0,
+        }));
 
         return { problems: problemsWithStats };
     }
@@ -330,7 +331,11 @@ export class ProblemService {
                 functionTemplates: true, // Include for DSA function template boilerplates
                 categoryProblems: {
                     include: {
-                        category: true
+                        category: {
+                            include: {
+                                course: true
+                            }
+                        }
                     }
                 }
             }
@@ -363,7 +368,11 @@ export class ProblemService {
                     functionTemplates: true,
                     categoryProblems: {
                         include: {
-                            category: true
+                            category: {
+                                include: {
+                                    course: true
+                                }
+                            }
                         }
                     }
                 }
@@ -376,23 +385,23 @@ export class ProblemService {
     }
 
     // GETTING NEXT PROBLEM
-    static async getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+    // OPTIMIZATION: Course problem ordering is cached in Redis (15min TTL) to avoid
+    // full course traversal on every next/prev navigation click.
+    static async getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
         try {
-            const nextProblem = await prisma.problem.findFirst({
-                where: {
-                    domain,
-                    type,
-                    hidden: false,
-                    createdAt: {
-                        lt: currentCreatedAt
-                    }
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                },
-                select: {
-                    slug: true
+            if (courseId && currentProblemId) {
+                const courseProblems = await this.getCachedCourseProblems(courseId);
+                const currentIndex = courseProblems.findIndex(cp => cp.id === currentProblemId);
+                if (currentIndex !== -1 && currentIndex < courseProblems.length - 1) {
+                    return courseProblems[currentIndex + 1].slug;
                 }
+                return null; // End of course
+            }
+
+            const nextProblem = await prisma.problem.findFirst({
+                where: { domain, type, hidden: false, createdAt: { lt: currentCreatedAt } },
+                orderBy: { createdAt: 'desc' },
+                select: { slug: true }
             });
             return nextProblem?.slug || null;
         } catch (error) {
@@ -402,23 +411,21 @@ export class ProblemService {
     }
 
     // GETTING PREVIOUS PROBLEM
-    static async getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType) {
+    static async getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
         try {
-            const prevProblem = await prisma.problem.findFirst({
-                where: {
-                    domain,
-                    type,
-                    hidden: false,
-                    createdAt: {
-                        gt: currentCreatedAt
-                    }
-                },
-                orderBy: {
-                    createdAt: 'asc'
-                },
-                select: {
-                    slug: true
+            if (courseId && currentProblemId) {
+                const courseProblems = await this.getCachedCourseProblems(courseId);
+                const currentIndex = courseProblems.findIndex(cp => cp.id === currentProblemId);
+                if (currentIndex > 0) {
+                    return courseProblems[currentIndex - 1].slug;
                 }
+                return null; // Beginning of course
+            }
+
+            const prevProblem = await prisma.problem.findFirst({
+                where: { domain, type, hidden: false, createdAt: { gt: currentCreatedAt } },
+                orderBy: { createdAt: 'asc' },
+                select: { slug: true }
             });
             return prevProblem?.slug || null;
         } catch (error) {
@@ -427,12 +434,60 @@ export class ProblemService {
         }
     }
 
+    /**
+     * Cached ordered problem list for a course (used by getNextProblem/getPreviousProblem).
+     * TTL: 15 minutes. Cache key pattern: course:{courseId}:ordered-problems
+     * Invalidation: covered by scanAndDelete("problems:list:*") and course update actions.
+     */
+    private static async getCachedCourseProblems(courseId: string): Promise<{ id: string; slug: string }[]> {
+        const cacheKey = `course:${courseId}:ordered-problems`;
+        const COURSE_PROBLEMS_TTL = 900; // 15 minutes
+        try {
+            const cached = await redis.get(cacheKey);
+            if (cached) {
+                const parsed = safeJsonParse<{ id: string; slug: string }[] | null>(cached, null);
+                if (parsed) return parsed;
+            }
+        } catch { /* non-fatal */ }
+
+        const rows = await prisma.categoryProblem.findMany({
+            where: { category: { courseId } },
+            orderBy: [
+                { category: { order: 'asc' } },
+                { order: 'asc' }
+            ],
+            select: { problem: { select: { id: true, slug: true } } }
+        });
+        const problems = rows.map(r => r.problem);
+
+        try {
+            await redis.setex(cacheKey, COURSE_PROBLEMS_TTL, JSON.stringify(problems));
+        } catch { /* non-fatal */ }
+
+        return problems;
+    }
+
     // GETTING RANDOM PROBLEM
     // OPTIMIZATION: Use keyset pagination instead of OFFSET-based random selection
     // OFFSET-based random is O(n) - with 10000 problems and random offset=5000, scans 5000 rows
     // Keyset pagination with index is O(1) - single index lookup
-    static async getRandomProblem(domain: ProblemDomain, type: ProblemType) {
+    static async getRandomProblem(domain: ProblemDomain, type: ProblemType, courseId?: string) {
         try {
+            if (courseId) {
+                const courseProblems = await prisma.categoryProblem.findMany({
+                    where: {
+                        category: { courseId }
+                    },
+                    select: {
+                        problem: { select: { slug: true } }
+                    }
+                });
+
+                if (courseProblems.length === 0) return null;
+                const randomIndex = Math.floor(Math.random() * courseProblems.length);
+                return courseProblems[randomIndex].problem.slug;
+            }
+
             // Step 1: Find the ID range of problems in this domain/type
             const [minIdRecord, maxIdRecord] = await Promise.all([
                 prisma.problem.findFirst({
@@ -504,6 +559,9 @@ export class ProblemService {
         options?: any;
         answer?: string | null;
         categoryId?: string | null;
+        courseId?: string | null;
+        type?: ProblemType;
+        allowedLanguages?: string[];
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -516,12 +574,14 @@ export class ProblemService {
                     hidden: data.hidden,
                     hiddenQuery: data.hiddenQuery || null,
                     domain: data.domain || "DSA",
-                    type: data.categoryId ? "LEARN" : "PRACTICE",
+                    type: data.type || (data.categoryId ? "LEARN" : "PRACTICE"),
                     useFunctionTemplate: data.useFunctionTemplate || false,
                     solution: data.solution || null,
                     isMcq: data.isMcq || false,
                     options: data.options || null,
                     answer: data.answer || null,
+                    courseId: data.courseId || null,
+                    allowedLanguages: data.allowedLanguages || [],
                     testCases: {
                         create: data.testCases.map(tc => ({
                             input: tc.input,
@@ -559,14 +619,17 @@ export class ProblemService {
         }
     }
 
-    // UPDATING A PROBLEM
+    // UPDATING A PROBLEM - Force reload to pick up new Prisma Client
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, tags, functionTemplates, options, categoryId, ...problemData } = data;
+            const { testCases, tags, functionTemplates, options, categoryId, type, ...problemData } = data;
 
             const updateData: any = { ...problemData };
             if (options) {
                 updateData.options = options;
+            }
+            if (type) {
+                updateData.type = type;
             }
             if (testCases) {
                 updateData.testCases = {
@@ -599,7 +662,7 @@ export class ProblemService {
             }
 
             if (data.categoryId !== undefined) {
-                updateData.type = data.categoryId ? "LEARN" : "PRACTICE";
+                if (!type) updateData.type = data.categoryId ? "LEARN" : "PRACTICE";
                 updateData.categoryProblems = {
                     deleteMany: {}, // Remove from all existing categories
                     create: data.categoryId ? [{
@@ -652,15 +715,12 @@ export class ProblemService {
     }
 
     private static async invalidateProblemCaches() {
-        const cachePattern = "problems:list:*";
-        const keys = await redis.keys(cachePattern);
-        if (keys.length > 0) {
-            await redis.del(...keys);
-        }
-        const adminCachePattern = "admin:problems:*";
-        const adminKeys = await redis.keys(adminCachePattern);
-        if (adminKeys.length > 0) {
-            await redis.del(...adminKeys);
-        }
+        // Use SCAN-based deletion to avoid blocking Redis event loop.
+        // redis.keys() is O(N) and blocks during execution; scanAndDelete() iterates in batches of 100.
+        await Promise.all([
+            scanAndDelete("problems:list:*"),
+            scanAndDelete("admin:problems:*"),
+            scanAndDelete("problems:search:*"),
+        ]);
     }
 }

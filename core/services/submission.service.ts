@@ -4,6 +4,7 @@ import { getLanguageById } from "@/lib/languages";
 import { getPointsForDifficulty } from "@/lib/points";
 import { revalidateTag, updateTag } from "next/cache";
 import redis from "@/lib/redis";
+import { CourseService } from "./course.service";
 
 const JUDGE0_URL = process.env.JUDGE0_URL || "http://localhost:2358";
 
@@ -375,7 +376,25 @@ export class SubmissionService {
             }
         }
 
-        // 2. Next.js cache tag invalidation
+        // 2. Course Progress Updates
+        try {
+            const enrollments = await prisma.userCourseEnrollment.findMany({
+                where: { userId },
+                select: { courseId: true, course: { select: { slug: true } } }
+            });
+
+            for (const enrollment of enrollments) {
+                await CourseService.updateCourseProgress(userId, enrollment.courseId);
+                // Also invalidate the specific course detail page
+                try {
+                    revalidateTag(`course-${enrollment.course.slug}`, "max");
+                } catch (e) {}
+            }
+        } catch (error) {
+            console.error("Failed to update course progress after solve:", error);
+        }
+
+        // 3. Next.js cache tag invalidation
         const tagsToRevalidate = [
             'categories-list',
             `categories-DSA-user-${userId}`,

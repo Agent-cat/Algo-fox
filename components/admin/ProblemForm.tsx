@@ -16,6 +16,7 @@ import FunctionTemplateEditor, { FunctionTemplate } from "./FunctionTemplateEdit
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getCategories } from "@/actions/category.action";
+import { LANGUAGES } from "@/lib/languages";
 
 // FUNCTION TEMPLATE SCHEMA
 const functionTemplateSchema = z.object({
@@ -45,6 +46,7 @@ const formSchema = z.object({
     options: z.array(z.string()).optional(),
     answer: z.string().optional(),
     categoryId: z.string().optional(),
+    allowedLanguages: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -82,20 +84,16 @@ function MarkdownPreview({ content, placeholder }: { content: string; placeholde
                 remarkPlugins={[remarkGfm]}
                 components={{
                     table: ({ children }) => (
-                        <div className="my-6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#262626]">
-                            <div className="overflow-x-auto text-left">
-                                <table className="w-full border-collapse text-sm">{children}</table>
-                            </div>
-                        </div>
+                        <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
                     ),
                     thead: ({ children }) => (
                         <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
                     ),
                     th: ({ children }) => (
-                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle">{children}</th>
+                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle border border-gray-200 dark:border-[#262626]">{children}</th>
                     ),
                     td: ({ children }) => (
-                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border-t border-gray-100/80 dark:border-white/5 tabular-nums font-mono text-[13px] align-middle">{children}</td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] tabular-nums font-mono text-[13px] align-middle">{children}</td>
                     ),
                     tr: ({ children }) => (
                         <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
@@ -112,6 +110,7 @@ const DIFFICULTY_OPTIONS = [
     { value: "EASY", label: "Easy", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30" },
     { value: "MEDIUM", label: "Medium", color: "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30" },
     { value: "HARD", label: "Hard", color: "text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30" },
+    { value: "CONCEPT", label: "Concept", color: "text-orange-600 bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30" },
 ];
 
 export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath, slugPrefix = "/problems/" }: ProblemFormProps) {
@@ -212,7 +211,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const router = useRouter();
     const isDSA = domain === "DSA";
     const isAptitude = domain === "APTITUDE";
-    const totalSteps = isDSA ? 5 : isAptitude ? 3 : 4;
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -232,6 +230,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             options: (initialData as any)?.options || ["", "", "", ""],
             answer: (initialData as any)?.answer || "",
             categoryId: (initialData as any)?.categoryId || "",
+            allowedLanguages: (initialData as any)?.allowedLanguages || [],
         }
     });
 
@@ -246,26 +245,34 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const solutionValue = watch("solution") || "";
     const titleValue = watch("title") || "";
 
-    const steps = isDSA
+    const isConcept = difficultyValue === "CONCEPT";
+    const totalSteps = isConcept ? 2 : (isDSA ? 5 : isAptitude ? 3 : 4);
+
+    const steps = isConcept
         ? [
             { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
-            { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
-            { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
-            { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
-            { id: 5, name: "Templates", icon: Braces, desc: "Starter code" },
+            { id: 2, name: "Content", icon: BookOpen, desc: "Conceptual Note" },
         ]
-        : isAptitude
+        : isDSA
             ? [
                 { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
                 { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
                 { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
-            ]
-            : [
-                { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
-                { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
-                { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
                 { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
-            ];
+                { id: 5, name: "Templates", icon: Braces, desc: "Starter code" },
+            ]
+            : isAptitude
+                ? [
+                    { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
+                    { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
+                    { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
+                ]
+                : [
+                    { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
+                    { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
+                    { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
+                    { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
+                ];
 
     const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         e?.preventDefault();
@@ -273,8 +280,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         let isValid = false;
         if (currentStep === 1) isValid = await trigger(["title", "slug", "difficulty"]);
         else if (currentStep === 2) isValid = await trigger(["description"]);
-        else if (currentStep === 3) isValid = await trigger(["solution"]);
-        else if (currentStep === 4 && !isAptitude) isValid = await trigger(["testCases"]);
+        else if (currentStep === 3 && !isConcept) isValid = await trigger(["solution"]);
+        else if (currentStep === 4 && !isAptitude && !isConcept) isValid = await trigger(["testCases"]);
         else isValid = true;
         if (isValid && currentStep < totalSteps) {
             setCurrentStep(prev => prev + 1);
@@ -306,13 +313,14 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
             tags: selectedTags.map(t => t.slug),
-            useFunctionTemplate: isDSA ? useFunctionTemplate : false,
-            functionTemplates: isDSA && useFunctionTemplate ? functionTemplates : [],
+            useFunctionTemplate: isDSA && !isConcept ? useFunctionTemplate : false,
+            functionTemplates: isDSA && useFunctionTemplate && !isConcept ? functionTemplates : [],
             isMcq: data.isMcq,
             options: data.isMcq ? data.options?.filter(o => o.trim() !== "") : [],
             answer: data.isMcq ? data.answer : null,
-            testCases: isAptitude ? [] : data.testCases,
+            testCases: (isAptitude || isConcept) ? [] : data.testCases,
             categoryId: data.categoryId || null,
+            allowedLanguages: data.allowedLanguages || [],
         };
         const res = await onSubmit(submissionData);
         if (res.success) {
@@ -356,7 +364,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                 toast.error(result.error || "Upload failed");
             }
         } catch (err) {
-            console.error("Upload error:", err);
+             console.error("Upload error:", err);
             toast.error("Upload failed");
         } finally {
             setIsUploading(false);
@@ -501,6 +509,42 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                         </select>
                                         <p className="mt-1 text-[10px] text-gray-400">Linking this will show it in "Learn" mode for {domain}.</p>
                                     </div>
+                                    {/* Allowed Languages */}
+                                    {isDSA && !isConcept && (
+                                        <div className="pt-4">
+                                            <label className={labelCls}>Allowed Languages</label>
+                                            <p className="text-[11px] text-gray-400 mb-3">If none selected, all languages are allowed.</p>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {LANGUAGES.filter(l => l.name !== "SQL").map((lang) => {
+                                                    const isSelected = watch("allowedLanguages")?.includes(lang.name);
+                                                    return (
+                                                        <button
+                                                            key={lang.id}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const current = watch("allowedLanguages") || [];
+                                                                if (isSelected) {
+                                                                    setValue("allowedLanguages", current.filter(l => l !== lang.name));
+                                                                } else {
+                                                                    setValue("allowedLanguages", [...current, lang.name]);
+                                                                }
+                                                            }}
+                                                            className={`
+                                                                flex items-center gap-2 px-3 py-2 rounded-[3px] border text-[11px] font-bold transition-all
+                                                                ${isSelected
+                                                                    ? "border-[#26bd58] bg-emerald-50 dark:bg-emerald-500/10 text-[#26bd58]"
+                                                                    : "border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-[#444]"
+                                                                }
+                                                            `}
+                                                        >
+                                                            {isSelected ? <Check className="w-3 h-3" /> : <div className="w-3 h-3" />}
+                                                            {lang.name}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Right col */}

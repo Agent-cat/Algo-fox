@@ -19,7 +19,7 @@ export async function getInstitutions() {
         const institutions = await InstitutionService.getInstitutions();
         return { success: true, institutions };
     } catch (error) {
-        console.error("Failed to fetch institutions:", error);
+         console.error("Failed to fetch institutions:", error);
         return { success: false, error: "Failed to fetch institutions" };
     }
 }
@@ -30,7 +30,7 @@ export async function getInstitutionById(id: string) {
         if (!institution) return { success: false, error: "Institution not found" };
         return { success: true, institution };
     } catch (error) {
-        console.error("Failed to fetch institution:", error);
+         console.error("Failed to fetch institution:", error);
         return { success: false, error: "Failed to fetch institution" };
     }
 }
@@ -57,7 +57,7 @@ export async function createInstitutionAction(data: z.infer<typeof institutionSc
         if (error instanceof z.ZodError) {
             return { success: false, error: error.issues[0].message };
         }
-        console.error("Failed to create institution:", error);
+         console.error("Failed to create institution:", error);
         return { success: false, error: "Failed to create institution" };
     }
 }
@@ -78,7 +78,7 @@ export async function updateInstitutionAction(id: string, data: z.infer<typeof u
         if (error instanceof z.ZodError) {
             return { success: false, error: error.issues[0].message };
         }
-        console.error("Failed to update institution:", error);
+         console.error("Failed to update institution:", error);
         return { success: false, error: "Failed to update institution" };
     }
 }
@@ -109,7 +109,7 @@ export async function assignInstitutionManager(email: string, institutionId: str
 
         return { success: true, data: updatedUser };
     } catch (error) {
-        console.error("Failed to assign institution manager:", error);
+         console.error("Failed to assign institution manager:", error);
         return { success: false, error: "Failed to assign institution manager" };
     }
 }
@@ -134,7 +134,7 @@ export async function searchUsersByEmail(query: string) {
 
         return { success: true, users };
     } catch (error) {
-        console.error("Failed to search users:", error);
+         console.error("Failed to search users:", error);
         return { success: false, error: "Failed to search users" };
     }
 }
@@ -158,7 +158,7 @@ export async function removeInstitutionManager(userId: string, institutionId: st
 
         return { success: true };
     } catch (error) {
-        console.error("Failed to remove manager:", error);
+         console.error("Failed to remove manager:", error);
         return { success: false, error: "Failed to remove administrative access" };
     }
 }
@@ -179,7 +179,7 @@ export async function deleteInstitutionAction(id: string) {
         revalidatePath("/admin/institutions");
         return { success: true };
     } catch (error) {
-        console.error("Failed to delete institution:", error);
+         console.error("Failed to delete institution:", error);
         return { success: false, error: "Failed to delete institution. Ensure it has no active classrooms." };
     }
 }
@@ -220,7 +220,7 @@ export async function getInstitutionUsers(institutionId: string, page: number = 
 
         return { success: true, users, total };
     } catch (error) {
-        console.error("Failed to fetch institution users:", error);
+         console.error("Failed to fetch institution users:", error);
         return { success: false, error: "Failed to fetch institution users" };
     }
 }
@@ -249,7 +249,7 @@ export async function removeUserFromInstitution(userId: string) {
 
         return { success: true };
     } catch (error) {
-        console.error("Failed to remove user from institution:", error);
+         console.error("Failed to remove user from institution:", error);
         return { success: false, error: "Failed to remove user from institution" };
     }
 }

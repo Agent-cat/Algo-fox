@@ -68,7 +68,7 @@ export default function DownloadProgressModal({
                 }
             }
         } catch (error) {
-            console.error("Error fetching classrooms:", error);
+             console.error("Error fetching classrooms:", error);
             toast.error("Failed to fetch classrooms.");
         } finally {
             setIsLoadingClasses(false);
@@ -138,7 +138,7 @@ export default function DownloadProgressModal({
             toast.success("Download started successfully!");
             onClose();
         } catch (error: any) {
-            console.error("Download error:", error);
+             console.error("Download error:", error);
             toast.error(error.message || "An error occurred while downloading.");
         } finally {
             setIsDownloading(false);

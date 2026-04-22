@@ -61,7 +61,7 @@ export async function withDDoSProtection(
       if (securityInfo.threatScore) {
         const score = parseInt(securityInfo.threatScore);
         if (score > 80) {
-          console.warn(`[DDoS] Blocked request from ${clientIp} (threat score: ${score})`);
+           console.warn(`[DDoS] Blocked request from ${clientIp} (threat score: ${score})`);
           return NextResponse.json(
             { error: 'Request blocked for security reasons' },
             { status: 403 }
@@ -71,7 +71,7 @@ export async function withDDoSProtection(
 
       // Log suspicious activity
       if (securityInfo.isBot) {
-        console.info(`[DDoS] Suspected bot detected from ${clientIp}`);
+         console.info(`[DDoS] Suspected bot detected from ${clientIp}`);
       }
     }
 
@@ -90,7 +90,7 @@ export async function withDDoSProtection(
       responseHeaders.set('X-RateLimit-Reset', Math.ceil(result.resetTime / 1000).toString());
 
       if (!result.allowed) {
-        console.warn(`[RateLimit] Rate limit exceeded for ${rateLimitKey}`);
+         console.warn(`[RateLimit] Rate limit exceeded for ${rateLimitKey}`);
         responseHeaders.set('Retry-After', result.retryAfter!.toString());
 
         return NextResponse.json(
