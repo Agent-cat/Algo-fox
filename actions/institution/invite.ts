@@ -215,7 +215,11 @@ export async function acceptInvite(code: string) {
         const session = await auth.api.getSession({ headers: await headers() });
         if (!session?.user) return { success: false, error: "Unauthorized" };
 
-        const user = session.user;
+        const user = session.user as any;
+
+        if ((user.role as string) === "USER") {
+            return { success: false, error: "Subscription required to join institutions." };
+        }
 
         // Transaction to ensure atomicity
         const result = await prisma.$transaction(async (tx) => {

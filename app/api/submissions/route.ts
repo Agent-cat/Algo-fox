@@ -55,6 +55,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // ROLE CHECK: Only non-USER roles can submit
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { role: true }
+        });
+
+        if (!user || (user.role as string) === "USER") {
+            return NextResponse.json({ error: "Subscription required to run or submit problems" }, { status: 403 });
+        }
+
         // Get and verify client IP for contest submissions (security)
         const clientIP = await getVerifiedClientIP();
 

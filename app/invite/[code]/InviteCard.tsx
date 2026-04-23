@@ -9,7 +9,7 @@ import Link from "next/link";
 
 interface InviteCardProps {
     invite: {
-        role: "ADMIN" | "INSTITUTION_MANAGER" | "TEACHER" | "CONTEST_MANAGER" | "STUDENT";
+        role: "ADMIN" | "INSTITUTION_MANAGER" | "TEACHER" | "CONTEST_MANAGER" | "STUDENT" | "USER";
         institutionName: string;
         institutionLogo: string | null;
         institutionId: string;

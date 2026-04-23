@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getStudentAssignments } from "@/actions/assignment";
 import { MyAssignmentsList } from "@/components/assignments/MyAssignmentsList";
+import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -19,6 +20,15 @@ async function AssignmentsContent() {
 
     if (!session?.user) {
         redirect("/login");
+    }
+
+    if ((session.user as any).role === "USER") {
+        return (
+            <SubscriptionOverlay
+                title="Unlock Assignments"
+                description="View and solve your assigned tasks."
+            />
+        );
     }
 
     const { assignments } = await getStudentAssignments();

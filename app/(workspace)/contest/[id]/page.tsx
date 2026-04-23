@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { getContestDetail } from "@/actions/contest";
 import ContestDetails from "@/components/contest/ContestDetails";
+import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -49,6 +50,18 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
     }
 
     const userRole = (session.user as any).role;
+
+    if (userRole === "USER") {
+        return (
+            <div className="pt-20">
+                <SubscriptionOverlay
+                    title="Enter Contest"
+                    description="Join the competition and solve problems."
+                />
+            </div>
+        );
+    }
+
     const allowedRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER"];
     const isAdminOrInstructor = allowedRoles.includes(userRole);
     const backLink = isAdminOrInstructor ? "/dashboard/contests" : "/contests";

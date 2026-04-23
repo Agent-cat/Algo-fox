@@ -28,7 +28,7 @@ export const auth = betterAuth({
       role: {
         type: "string",
         required: false,
-        defaultValue: "STUDENT",
+        defaultValue: "USER",
       },
       institutionId: {
         type: "string",
@@ -52,7 +52,7 @@ export const auth = betterAuth({
   plugins: [
     admin({
       adminRoles: ["ADMIN"],
-      defaultRole: "STUDENT",
+      defaultRole: "USER",
       adminUserIds: ["jvp0LDpaCm0Y2VpUVP75vCNQnDioEdpm"], // vishnu
     }),
   ],

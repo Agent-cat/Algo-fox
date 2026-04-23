@@ -1,5 +1,6 @@
 import { getClassroomWithStudents } from "@/actions/classroom";
 import { ClassroomDashboard } from "@/components/classroom/ClassroomDashboard";
+import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -23,6 +24,15 @@ async function ClassroomDetailContent({ params }: { params: Promise<{ id: string
 
     if (!session?.user) {
         redirect("/signin");
+    }
+
+    if ((session.user as any).role === "USER") {
+        return (
+            <SubscriptionOverlay
+                title="Unlock Classroom"
+                description="Access your course materials and students."
+            />
+        );
     }
 
     const res = await getClassroomWithStudents(id);

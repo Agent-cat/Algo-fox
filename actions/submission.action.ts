@@ -67,6 +67,10 @@ export async function markConceptAsCompleted(problemId: string) {
         return { success: false, error: "Unauthorized" };
     }
 
+    if (((session.user as any).role as string) === "USER") {
+        return { success: false, error: "Subscription required to complete problems" };
+    }
+
     const userId = session.user.id;
 
     try {
@@ -77,7 +81,7 @@ export async function markConceptAsCompleted(problemId: string) {
         const result = await SubmissionService.incrementProblemSolved(problemId, userId, submission.id);
 
         after(async () => {
-             
+
              revalidateTag(`problem-${problemId}`, 'max');
              revalidateTag(`user-submissions-${userId}`, 'max');
              revalidateTag(`problem-submissions-${userId}-${problemId}`, 'max');

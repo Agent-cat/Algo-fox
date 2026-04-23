@@ -11,6 +11,7 @@ import AptitudeMCQPanel from './AptitudeMCQPanel';
 import ProblemTour from '../tour/ProblemTour';
 import { PointsCelebration } from '../shared/PointsCelebration';
 import dynamic from 'next/dynamic';
+import { authClient } from '@/lib/auth-client';
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null,
@@ -46,6 +47,7 @@ export default function AptitudeWorkspace({
     totalCourseProblems = 0,
     currentCourseProblemIndex = -1
 }: AptitudeWorkspaceProps) {
+    const { data: session } = authClient.useSession();
     const router = useRouter();
     const [isSolved, setIsSolved] = useState(initialIsSolved);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -165,6 +167,7 @@ export default function AptitudeWorkspace({
                             onSolved={handleSolved}
                             onRevealSolution={handleRevealSolution}
                             nextProblemSlug={nextProblemSlug}
+                            userRole={(session?.user as any)?.role}
                         />
                     </div>
                 </Split>

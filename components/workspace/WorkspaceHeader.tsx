@@ -15,7 +15,8 @@ import {
   Play,
   Menu,
   List,
-  Loader2
+  Loader2,
+  Lock
 } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -280,7 +281,11 @@ const WorkspaceHeader = memo(({
       <div className="flex-1 flex justify-center items-center px-4">
         {!contestId && domain !== "APTITUDE" && type?.toString().toUpperCase() !== "CONCEPT" && domain?.toString().toUpperCase() !== "CONCEPT" && (
           <div className="flex items-center gap-2">
-            <CustomTooltip content="Run your code" shortcut="Ctrl+Enter" side="bottom">
+            <CustomTooltip
+              content={session?.user?.role === "USER" ? "Subscription Required to Run Code" : "Run your code"}
+              shortcut={session?.user?.role === "USER" ? undefined : "Ctrl+Enter"}
+              side="bottom"
+            >
               <motion.button
                 id="run-button"
                 className={`
@@ -290,14 +295,17 @@ const WorkspaceHeader = memo(({
                   transition-colors duration-200 disabled:opacity-50
                   border border-gray-200/80 dark:border-[#262626]
                   ${contestId ? 'shadow-sm' : ''}
+                  ${session?.user?.role === "USER" ? 'cursor-not-allowed border-orange-500/20 shadow-orange-500/5' : ''}
                 `}
-                onClick={onRun}
+                onClick={session?.user?.role === "USER" ? () => toast.error("Please subscribe to use this feature") : onRun}
                 disabled={isRunning || isSubmitting}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={session?.user?.role === "USER" ? {} : { y: -1 }}
+                whileTap={session?.user?.role === "USER" ? {} : { scale: 0.97 }}
               >
                 {isRunning ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : session?.user?.role === "USER" ? (
+                  <Lock className="w-3.5 h-3.5 text-orange-500" />
                 ) : (
                   <Play className="w-3.5 h-3.5 fill-current" />
                 )}
@@ -305,17 +313,27 @@ const WorkspaceHeader = memo(({
               </motion.button>
             </CustomTooltip>
 
-            <CustomTooltip content="Save & Submit" shortcut="Ctrl+Shift+Enter" side="bottom">
+            <CustomTooltip
+              content={session?.user?.role === "USER" ? "Subscription Required to Submit" : "Save & Submit"}
+              shortcut={session?.user?.role === "USER" ? undefined : "Ctrl+Shift+Enter"}
+              side="bottom"
+            >
               <motion.button
                 id="submit-button"
-                onClick={onSubmit}
+                onClick={session?.user?.role === "USER" ? () => toast.error("Please subscribe to use this feature") : onSubmit}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-7 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-black uppercase tracking-wider rounded-lg shadow-lg shadow-orange-500/20 disabled:opacity-50 transition-colors"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+                className={`flex items-center gap-2 px-7 py-2 text-sm font-black uppercase tracking-wider rounded-lg shadow-lg transition-colors ${
+                  session?.user?.role === "USER"
+                    ? 'bg-gray-100 dark:bg-[#141414] text-gray-400 dark:text-gray-600 border border-gray-200/80 dark:border-[#262626] shadow-none cursor-not-allowed'
+                    : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20'
+                }`}
+                whileHover={session?.user?.role === "USER" ? {} : { y: -1 }}
+                whileTap={session?.user?.role === "USER" ? {} : { scale: 0.96 }}
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
+                ) : session?.user?.role === "USER" ? (
+                  <Lock className="w-3.5 h-3.5" />
                 ) : (
                   <Send className="w-3.5 h-3.5" />
                 )}

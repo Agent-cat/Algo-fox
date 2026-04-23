@@ -113,7 +113,7 @@ export default function CourseDetailClient({
 
                     {/* Course Image Integration */}
                     <div className="w-full lg:w-[440px] shrink-0">
-                        <div className="relative aspect-[16/10] overflow-hidden bg-gray-50 dark:bg-[#1a1a1a] transition-colors duration-500">
+                        <div className="relative aspect-16/10 overflow-hidden bg-gray-50 dark:bg-[#1a1a1a] transition-colors duration-500">
                             {course.image ? (
                                 <Image
                                     src={course.image}

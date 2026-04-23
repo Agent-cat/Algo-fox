@@ -9,11 +9,16 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Suspense } from "react";
 
 function SignInContent() {
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -54,7 +59,7 @@ function SignInContent() {
     });
   };
 
-  if (isPending) {
+  if (!mounted || isPending) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getAssignmentDetails, getAssignmentProgress } from "@/actions/assignment";
 import { AssignmentDetailView } from "@/components/assignments/AssignmentDetailView";
+import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
@@ -17,6 +18,15 @@ async function AssignmentContent({ id }: { id: string }) {
 
     if (!session?.user) {
         redirect("/login");
+    }
+
+    if ((session.user as any).role === "USER") {
+        return (
+            <SubscriptionOverlay
+                title="Unlock Assignment"
+                description="View and solve your designated task."
+            />
+        );
     }
 
     const [assignment, progress] = await Promise.all([

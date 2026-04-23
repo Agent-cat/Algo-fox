@@ -14,6 +14,10 @@ export async function enrollInCourse(courseId: string, slug: string) {
         return { error: "You must be logged in to enroll" };
     }
 
+    if ((session.user.role as string) === "USER") {
+        return { error: "Subscription required to enroll in courses. Please upgrade your plan." };
+    }
+
     try {
         const enrollment = await CourseService.enrollUser(session.user.id, courseId);
 

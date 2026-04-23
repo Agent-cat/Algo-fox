@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getStudentClassrooms } from "@/actions/classroom";
 import { ClassroomsPageContent } from "./ClassroomsPageContent";
+import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { School } from "lucide-react";
 import { Metadata } from "next";
 
@@ -21,6 +22,16 @@ async function ClassroomsData() {
     }
 
     const role = (session.user as any).role;
+
+    if (role === "USER") {
+        return (
+            <SubscriptionOverlay
+                title="Unlock Classrooms"
+                description="Join your community and start learning."
+            />
+        );
+    }
+
     if (["CONTEST_MANAGER", "INSTITUTION_MANAGER"].includes(role)) {
         redirect("/dashboard");
     }

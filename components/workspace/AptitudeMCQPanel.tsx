@@ -3,7 +3,7 @@
 import { useState, useEffect, memo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Check, X, Info, Trophy, LayoutList, RotateCcw, ArrowRight } from "lucide-react";
+import { CheckCircle2, Check, X, Info, Trophy, LayoutList, RotateCcw, ArrowRight, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Problem } from "@prisma/client";
 import { markConceptAsCompleted } from "@/actions/submission.action";
@@ -14,9 +14,10 @@ interface AptitudeMCQPanelProps {
     onSolved: (firstSolved?: boolean, points?: number) => void;
     onRevealSolution: () => void;
     nextProblemSlug?: string | null;
+    userRole?: string;
 }
 
-const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug }: AptitudeMCQPanelProps) => {
+const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug, userRole }: AptitudeMCQPanelProps) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +39,11 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
     const handleCheckAnswer = async () => {
         if (!selectedOption) {
             toast.error("Please select an option first!");
+            return;
+        }
+
+        if (userRole === "USER") {
+            toast.error("Subscription required to submit answers");
             return;
         }
 
@@ -181,7 +187,9 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                         <button
                             onClick={handleCheckAnswer}
                             disabled={!selectedOption || status === "correct" || isLoading}
-                            className={`px-10 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm transition-all shadow-xl hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed ${
+                            className={`px-10 py-3.5 rounded-xl font-bold text-sm transition-all shadow-xl hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-2 ${
+                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-white/5 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
+                            } ${
                                 status === "correct" ? "hidden" : ""
                             }`}
                         >
@@ -190,6 +198,8 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                     <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
                                     Checking...
                                 </div>
+                            ) : userRole === "USER" ? (
+                                <><Lock className="w-4 h-4 text-orange-500" /> Check Answer</>
                             ) : "Check Answer"}
                         </button>
                     </div>

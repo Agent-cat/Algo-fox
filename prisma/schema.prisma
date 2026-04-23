@@ -23,7 +23,7 @@ model User {
   codeChefHandle        String?
   leetCodeHandle        String?
   githubHandle          String?
-  role                  Role                   @default(STUDENT)
+  role                  Role                   @default(USER)
   onboardingCompleted   Boolean                @default(false)
   bio                   String?
   year                  Int?
@@ -621,6 +621,7 @@ model TelegramChat {
 }
 
 enum Role {
+  USER
   ADMIN
   INSTITUTION_MANAGER
   CONTEST_MANAGER

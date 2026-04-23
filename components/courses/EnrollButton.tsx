@@ -59,13 +59,20 @@ export default function EnrollButton({ courseId, slug, session, course }: Enroll
         }
     };
 
+    const isUserRole = (session?.user as any)?.role === "USER";
+
     return (
         <>
             <button
-                onClick={() => setIsOpen(true)}
-                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                onClick={() => isUserRole ? router.push("/subscription") : setIsOpen(true)}
+                className={`w-full py-4 rounded-2xl font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${
+                    isUserRole
+                    ? "bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10"
+                    : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20"
+                }`}
             >
-                Enroll Now
+                {isUserRole && <ShieldCheck className="w-4 h-4" />}
+                {isUserRole ? "Premium Subscription Required" : "Enroll Now"}
             </button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen} className="max-w-[480px] p-0 shadow-2xl">

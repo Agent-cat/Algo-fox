@@ -114,6 +114,10 @@ export async function joinClassroom(code: string) {
 
     const currentUser = session.user as any;
 
+    if ((currentUser.role as string) === "USER") {
+        return { success: false, error: "Subscription required to join classrooms." };
+    }
+
     try {
 
         const classroom = await prisma.classroom.findUnique({

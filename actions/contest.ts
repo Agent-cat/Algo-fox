@@ -668,6 +668,10 @@ export async function startContestSession(contestId: string, password?: string) 
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
+    if ((session.user.role as string) === "USER") {
+        return { success: false, error: "Subscription required to enter contests." };
+    }
+
     try {
         const clientIP = await getClientIP();
         const result = await ContestService.startSession({

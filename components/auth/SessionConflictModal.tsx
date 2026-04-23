@@ -9,15 +9,28 @@ import { toast } from "sonner";
 import { ShieldAlertIcon, LogOutIcon } from "lucide-react";
 
 export function SessionConflictModal() {
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const check = async () => {
+    try {
+      const result = await checkSessionConflict();
+      if (result.conflict) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    } catch (e) {
+        console.error("Failed to check session conflict", e);
+    }
+  };
+
   useEffect(() => {
-    // Initial check
+    setMounted(true);
     check();
 
-    // Poll every 30 seconds
     const interval = setInterval(() => {
       check();
     }, 30000);
@@ -25,22 +38,7 @@ export function SessionConflictModal() {
     return () => clearInterval(interval);
   }, []);
 
-  const check = async () => {
-    // If modal is already open, no need to check (to avoid overwriting state or flickering)
-    // But maybe we want to re-check if user resolved it elsewhere?
-    // For now, let's just check.
-    try {
-      const result = await checkSessionConflict();
-      if (result.conflict) {
-        setIsOpen(true);
-      } else {
-        // If conflict resolved (e.g. user logged out from other device), we can close
-        setIsOpen(false);
-      }
-    } catch (e) {
-        console.error("Failed to check session conflict", e);
-    }
-  };
+  if (!mounted) return null;
 
   const handleLogoutOthers = async () => {
     setLoading(true);
