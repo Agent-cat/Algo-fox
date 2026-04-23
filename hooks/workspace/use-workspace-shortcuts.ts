@@ -10,6 +10,7 @@ interface useWorkspaceShortcutsProps {
     onPrevProblem: () => void;
     isRunning: boolean;
     isSubmitting: boolean;
+    disabled?: boolean;
     nextProblemSlug?: string | null;
     prevProblemSlug?: string | null;
 }
@@ -24,6 +25,7 @@ export function useWorkspaceShortcuts({
     onPrevProblem,
     isRunning,
     isSubmitting,
+    disabled,
     nextProblemSlug,
     prevProblemSlug,
 }: useWorkspaceShortcutsProps) {
@@ -37,14 +39,14 @@ export function useWorkspaceShortcuts({
             if (isInput && !e.ctrlKey && !e.altKey && !e.metaKey) return;
 
             // 1. Submit (Ctrl + Shift + Enter)
-            if (e.ctrlKey && e.shiftKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'Enter' && !isRunning && !isSubmitting && !disabled) {
                 e.preventDefault();
                 onSubmit();
                 return;
             }
 
             // 2. Run (Ctrl + Enter)
-            if (e.ctrlKey && e.key === 'Enter' && !isRunning && !isSubmitting) {
+            if (e.ctrlKey && e.key === 'Enter' && !isRunning && !isSubmitting && !disabled) {
                 e.preventDefault();
                 onRun();
                 return;
@@ -91,6 +93,7 @@ export function useWorkspaceShortcuts({
     }, [
         isRunning,
         isSubmitting,
+        disabled,
         onRun,
         onSubmit,
         onAddFile,

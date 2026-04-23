@@ -103,7 +103,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog open={isOpen} onOpenChangeAction={(open) => !open && onClose()}>
             <div className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create Assignment</DialogTitle>

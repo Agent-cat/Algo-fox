@@ -16,11 +16,13 @@ export const auth = betterAuth({
       enabled: true,
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      disableImplicitSignUp: true,
     },
     microsoft: {
       enabled: true,
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+      disableImplicitSignUp: true,
     },
   },
   user: {

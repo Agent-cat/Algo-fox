@@ -16,6 +16,7 @@ import remarkDirective from 'remark-directive';
 import { remarkMcqDirective, remarkSolutionDirective } from '@/lib/markdown-plugins';
 import { preprocessMarkdown } from '@/lib/markdown-utils';
 import { ProblemMetadata } from './ProblemMetadata';
+import { CommentTree } from '@/components/problems/discussion/CommentTree';
 
 type Tab = "description" | "solutions" | "submissions";
 
@@ -242,8 +243,9 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                             initial={{ opacity: 0, y: 8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -6 }}
+                                            className="h-full"
                                         >
-                                            Community solutions coming soon.
+                                            <CommentTree problemId={problem.id} />
                                         </motion.div>
                                     )}
                                 </AnimatePresence>

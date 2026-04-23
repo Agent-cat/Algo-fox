@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Elite Platform for DSA & SQL Mastery",
@@ -61,7 +63,11 @@ LIMIT 10;`,
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] text-black dark:text-white font-sans pt-20 relative overflow-hidden">
       {/* Animated Code Snippets Background */}
@@ -112,7 +118,7 @@ export default function Home() {
                 Explore Contests
             </Link>
             <Link
-              href="/problems"
+              href={session ? "/problems" : "/signin?callbackUrl=/problems"}
               className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all border-2 border-black dark:border-white text-center hover:scale-105 transform"
             >
               Explore Problems

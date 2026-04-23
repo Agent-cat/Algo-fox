@@ -75,7 +75,7 @@ export default function EnrollButton({ courseId, slug, session, course }: Enroll
                 {isUserRole ? "Premium Subscription Required" : "Enroll Now"}
             </button>
 
-            <Dialog open={isOpen} onOpenChange={setIsOpen} className="max-w-[480px] p-0 shadow-2xl">
+            <Dialog open={isOpen} onOpenChangeAction={setIsOpen} className="max-w-[480px] p-0 shadow-2xl">
                     <div className="relative h-44 w-full">
                         {course.image ? (
                             <Image

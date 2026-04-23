@@ -48,7 +48,7 @@ export default function DeleteCourseButton({ courseId, courseTitle, onSuccess }:
                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
             </button>
 
-            <Dialog open={isOpen} onOpenChange={(open) => !isDeleting && setIsOpen(open)}>
+            <Dialog open={isOpen} onOpenChangeAction={(open) => !isDeleting && setIsOpen(open)}>
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">Delete Course?</DialogTitle>
                         <DialogDescription className="text-gray-500 dark:text-gray-400 font-medium py-2">

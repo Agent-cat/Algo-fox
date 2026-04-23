@@ -30,6 +30,7 @@ function SignUpContent() {
         await authClient.signIn.social({
             provider,
             callbackURL: callbackUrl,
+            requestSignUp: true,
         }, {
             onSuccess: () => {
                 toast.success("Signed in successfully");
@@ -66,8 +67,8 @@ function SignUpContent() {
                 </div>
 
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold text-black mb-2">Join Algofox</h1>
-                    <p className="text-gray-600">Start your coding journey today</p>
+                    <h1 className="text-4xl font-bold text-black mb-2">Create Your Account</h1>
+                    <p className="text-gray-600">Start your coding journey with Algofox today</p>
                 </div>
 
                 {error && (

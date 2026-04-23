@@ -181,7 +181,7 @@ export default function Navbar() {
                                 ) : (
                                     <>
                                         <div className="hidden md:flex items-center gap-6 border-r border-gray-200 dark:border-[#262626] pr-4">
-                                            <Link href="/problems" className={navLinkClass("/problems")}>
+                                            <Link href="/signin?callbackUrl=/problems" className={navLinkClass("/problems")}>
                                                 Practice
                                             </Link>
                                             <Link href="/contests" className={navLinkClass("/contests")}>
@@ -298,6 +298,7 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
+                                <Link href="/signin?callbackUrl=/problems" className="text-base font-medium text-gray-800 hover:text-orange-600">Practice</Link>
                                 <Link href="/signin" className="text-base font-medium text-gray-800 hover:text-black">Sign In</Link>
                                 <Link href="/signup" className="text-base font-medium text-orange-600 hover:text-orange-700">Get Started</Link>
                             </>

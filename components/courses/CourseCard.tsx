@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Clock, ChevronRight } from "lucide-react";
+import { GraduationCap, Clock, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 interface CourseCardProps {
@@ -24,7 +24,7 @@ interface CourseCardProps {
 
 export function CourseCard({ course, enrollment }: CourseCardProps) {
     return (
-        <div className="group bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626] overflow-hidden transition-all duration-300 hover:shadow-lg flex flex-col h-full border-b-2">
+        <div className="group bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626] overflow-hidden transition-all duration-300 hover:shadow-lg flex flex-col h-full">
             {/* Image Section */}
             <div className="relative aspect-video overflow-hidden">
                 {course.image ? (
@@ -36,7 +36,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center">
-                        <BookOpen className="w-12 h-12 text-gray-300 dark:text-[#333]" />
+                        <GraduationCap className="w-12 h-12 text-gray-300 dark:text-[#333]" />
                     </div>
                 )}
             </div>
@@ -47,7 +47,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
                 </h3>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-medium">
-                    AlgoFox Team
+                    Instructor
                 </p>
 
                 <div className="mt-auto">
@@ -78,7 +78,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
                     ) : (
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                                <BookOpen className="w-4 h-4" />
+                                <GraduationCap className="w-4 h-4" />
                                 <span className="text-xs font-bold">{course._count?.modules || 0} Modules</span>
                             </div>
 
@@ -96,3 +96,4 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
         </div>
     );
 }
+

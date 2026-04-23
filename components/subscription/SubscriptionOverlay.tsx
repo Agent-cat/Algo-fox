@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Lock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogClose,
@@ -46,51 +45,45 @@ export default function SubscriptionOverlay({ title, description }: Subscription
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-modal-title"
-        className="sm:max-w-[420px] p-8 rounded-3xl border-gray-200 dark:border-white/10 shadow-2xl [&>button]:hidden"
+        className="sm:max-w-[420px] p-6 rounded-3xl border-gray-200 dark:border-white/10 shadow-2xl [&>button]:hidden"
       >
-        <DialogHeader className="items-center gap-6">
-          <div className="relative">
-            <Avatar className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center border border-orange-500/10">
-              <AvatarFallback className="bg-transparent">
-                <Lock className="w-8 h-8 text-orange-500" />
-              </AvatarFallback>
-            </Avatar>
+        <div className="flex flex-col items-center text-center p-2">
+          <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">
+            <Lock className="w-6 h-6 text-orange-600 dark:text-orange-500" />
           </div>
 
-          <div className="space-y-3 text-center">
+          <DialogHeader className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] border border-orange-200 dark:border-orange-500/10 mx-auto">
               Premium Plus
             </div>
-            <DialogTitle id="subscription-modal-title" className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+            <DialogTitle id="subscription-modal-title" className="text-xl font-bold text-center">
               {title}
             </DialogTitle>
-            <DialogDescription className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed px-2 font-medium">
+            <DialogDescription className="text-center pt-2 text-gray-500 dark:text-gray-400">
               {description}
             </DialogDescription>
-          </div>
-        </DialogHeader>
+          </DialogHeader>
 
-        <DialogFooter className="flex flex-col gap-3 sm:flex-col sm:justify-center sm:space-x-0 mt-6">
-          <Link
-            href="/subscription"
-            className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-[0.98] border-none text-base"
-            role="button"
-          >
-            Unlock Premium Now
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-
-          <DialogClose asChild>
-            <Button
-              variant="ghost"
-              className="w-full h-14 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-bold text-sm transition-colors hover:bg-transparent"
-              onClick={() => router.back()}
-              aria-label="Close subscription modal"
+          <DialogFooter className="w-full gap-2 sm:gap-0 mt-6 pt-2 flex flex-col sm:flex-row">
+            <DialogClose asChild>
+              <Button
+                variant="outline"
+                className="w-full sm:w-1/2 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 font-bold"
+                onClick={() => router.back()}
+              >
+                Not right now
+              </Button>
+            </DialogClose>
+            <Link
+              href="/subscription"
+              className="w-full sm:w-1/2 h-10 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-[0.98] border-none text-sm"
+              role="button"
             >
-              Not right now
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+              Get Premium
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

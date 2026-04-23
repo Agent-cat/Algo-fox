@@ -64,6 +64,10 @@ export function useWorkspaceSubmission({
             return;
         }
 
+        if (isRunning || isSubmitting) {
+            return;
+        }
+
         if (!currentSession?.user?.id) {
             toast.error("Please sign in to submit");
             return;

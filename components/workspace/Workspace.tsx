@@ -387,6 +387,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         }
     }, [languageId, codeFiles]);
 
+    const isUserRole = (session?.user as any)?.role === "USER";
+
     useWorkspaceShortcuts({
         onRun: handleRunAction,
         onSubmit: handleSubmitAction,
@@ -417,8 +419,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
              const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
              router.push(url);
         },
-        isRunning,
-        isSubmitting,
+        isRunning: isRunning,
+        isSubmitting: isSubmitting,
+        disabled: isUserRole,
         nextProblemSlug,
         prevProblemSlug,
     });
