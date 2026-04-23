@@ -51,9 +51,26 @@ export class CategoryService {
                         courseId: true,
                         _count: {
                             select: { categoryProblems: true }
+                        },
+                        // Include problem titles for better client-side search in Learn Mode
+                        categoryProblems: {
+                            select: {
+                                problem: {
+                                    select: {
+                                        title: true
+                                    }
+                                }
+                            }
                         }
                     }
                 });
+
+                // Map to flatten problemTitles for simpler client-side consumption
+                categories = categories.map((cat: any) => ({
+                    ...cat,
+                    problemTitles: cat.categoryProblems.map((cp: any) => cp.problem.title),
+                    categoryProblems: undefined // Remove to keep cache smaller
+                }));
 
                 // CACHING THE BASE CATEGORIES STRUCTURE IF NOT CACHED
 
@@ -360,7 +377,7 @@ export class CategoryService {
         try {
             const category = await prisma.category.findUnique({
                 where: { id },
-                select: { slug: true, domain: true }
+                select: { slug: true, domain: true, courseId: true }
             });
 
             await prisma.category.delete({

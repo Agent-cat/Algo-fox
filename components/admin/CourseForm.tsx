@@ -69,6 +69,63 @@ export default function CourseForm({ course, isEdit = false }: CourseFormProps) 
                                 className="w-full px-6 py-4 bg-gray-50 dark:bg-[#262626] border-none rounded-2xl focus:ring-2 focus:ring-orange-500 transition-all font-medium resize-none"
                             />
                         </div>
+                        <div className="space-y-2">
+                            <label htmlFor="slug" className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">URL Slug</label>
+                            <input
+                                id="slug"
+                                name="slug"
+                                type="text"
+                                defaultValue={course?.slug || ""}
+                                placeholder="dsa-fundamentals"
+                                required
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-[#262626] border-none rounded-2xl focus:ring-2 focus:ring-orange-500 transition-all font-mono text-sm"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label htmlFor="difficulty" className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Difficulty</label>
+                                <select
+                                    id="difficulty"
+                                    name="difficulty"
+                                    defaultValue={course?.difficulty || "EASY"}
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-[#262626] border-none rounded-2xl focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                                >
+                                    <option value="EASY">Easy</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HARD">Hard</option>
+                                    <option value="CONCEPT">Concept</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label htmlFor="duration" className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Duration</label>
+                                <input
+                                    id="duration"
+                                    name="duration"
+                                    type="text"
+                                    defaultValue={course?.duration || ""}
+                                    placeholder="e.g. 10 hours"
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-[#262626] border-none rounded-2xl focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="domain" className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Domain</label>
+                            <select
+                                id="domain"
+                                name="domain"
+                                defaultValue={course?.domain || "DSA"}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-[#262626] border-none rounded-2xl focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                            >
+                                <option value="DSA">DSA</option>
+                                <option value="SQL">SQL</option>
+                                <option value="APTITUDE">Aptitude</option>
+                                <option value="OOPS">OOPS</option>
+                                <option value="WEBDEV">Web Dev</option>
+                                <option value="REACT">React</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -77,22 +134,24 @@ export default function CourseForm({ course, isEdit = false }: CourseFormProps) 
                         <div className="space-y-4">
                             <label className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Settings</label>
                             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#262626] rounded-2xl border border-transparent hover:border-orange-500/20 transition-all group">
-                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Published</span>
+                                <label htmlFor="isPublished" className="text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer">Published</label>
                                 <input
+                                    id="isPublished"
                                     name="isPublished"
                                     type="checkbox"
                                     defaultChecked={course?.isPublished}
-                                    className="w-5 h-5 accent-orange-500 rounded-lg"
+                                    className="w-5 h-5 accent-orange-500 rounded-lg cursor-pointer"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Tags (Comma Separated)</label>
+                            <label htmlFor="tags" className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Tags (Comma Separated)</label>
                             <input
+                                id="tags"
                                 name="tags"
                                 type="text"
-                                defaultValue={course?.tags?.join(", ")}
+                                defaultValue={course?.tags?.join(", ") || ""}
                                 placeholder="Algo, DS, Interview"
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-[#262626] border-none rounded-xl focus:ring-2 focus:ring-orange-500 transition-all text-xs font-bold"
                             />

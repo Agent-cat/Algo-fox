@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
 
 const LiveTracking = dynamic(() => import("./LiveTracking").then(mod => mod.LiveTracking), {
     loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>,
@@ -57,6 +59,8 @@ interface ClassroomDashboardProps {
 export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashboardProps) {
     const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments' | 'performance'>('leaderboard');
     const [isCopied, setIsCopied] = useState(false);
+    const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const { data: session } = authClient.useSession();
     const isTeacher = classroom.teacher.id === currentUserId;
 
     const handleCopyLink = () => {
@@ -88,7 +92,8 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", `${classroom.name.replace(/\s+/g, '_')}_leaderboard.csv`);
+        const cleanName = classroom.name.toLowerCase().replace(/\s+/g, '-');
+        link.setAttribute("download", `algofox-${cleanName}-leaderboard.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -102,6 +107,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
                     onDownload={handleDownload}
+                    onProgressDownload={() => setIsProgressModalOpen(true)}
                     showDownload={activeTab === 'leaderboard'}
                     isTeacher={isTeacher}
                     classroomName={classroom.name}
@@ -170,6 +176,16 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                         )}
                     </AnimatePresence>
                 </div>
+
+                {isProgressModalOpen && (
+                    <DownloadProgressModal
+                        isOpen={isProgressModalOpen}
+                        onClose={() => setIsProgressModalOpen(false)}
+                        categoryTitle="All Progress"
+                        userRole={session?.user?.role || "TEACHER"}
+                        domain={(classroom.subject as any) || "DSA"}
+                    />
+                )}
             </div>
     );
 }

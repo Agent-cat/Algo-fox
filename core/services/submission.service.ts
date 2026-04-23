@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { SubmissionResult, TestCaseResult, SubmissionMode } from "@prisma/client";
 import { getLanguageById } from "@/lib/languages";
 import { getPointsForDifficulty } from "@/lib/points";
-import { revalidateTag, updateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
 import { CourseService } from "./course.service";
 
@@ -93,7 +93,7 @@ export class SubmissionService {
 
         try {
             // Only attempt invalidation, don't crash if it fails (e.g. in worker)
-            revalidateTag(`submission-${submissionId}`,"max");
+            revalidateTag(`submission-${submissionId}`,'max');
         } catch (error) {
             // Silently fail in worker context
         }
@@ -387,7 +387,7 @@ export class SubmissionService {
                 await CourseService.updateCourseProgress(userId, enrollment.courseId);
                 // Also invalidate the specific course detail page
                 try {
-                    revalidateTag(`course-${enrollment.course.slug}`, "max");
+                    revalidateTag(`course-${enrollment.course.slug}`,'max');
                 } catch (e) {}
             }
         } catch (error) {
@@ -408,7 +408,7 @@ export class SubmissionService {
 
         for (const tag of tagsToRevalidate) {
             try {
-                revalidateTag(tag, 'max');
+                revalidateTag(tag, "max");
             } catch (_err) {
                 // Non-critical — may throw outside of a request context (e.g. in BullMQ worker)
             }
@@ -490,7 +490,7 @@ export class SubmissionService {
                      // Since we are in a service/worker context, revalidateTag might be tricky if not in a server action/request
                      // But we can try just in case this service is called from a server action
                      try {
-                        revalidateTag(`classroom-${c.id}`, "max");
+                        revalidateTag(`classroom-${c.id}`,'max');
                      } catch (e) {
                          // Ignore error if outside request context
                      }

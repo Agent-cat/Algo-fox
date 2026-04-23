@@ -58,7 +58,8 @@ function EditCategoryContent() {
         // Exclude current category from being its own parent
         setParentCategories(res.categories?.filter((c: any) => c.id !== categoryId) || []);
       } catch (error) {
-         console.error("Failed to fetch parent categories:", error);
+        console.error("Failed to fetch parent categories:", error);
+        toast.error("Failed to load parent categories");
       } finally {
         setIsParentsLoading(false);
       }
@@ -90,7 +91,7 @@ function EditCategoryContent() {
         toast.error(res.error || "Failed to load category");
       }
     } catch (error) {
-       console.error("Failed to fetch category:", error);
+      console.error("Failed to fetch category:", error);
       toast.error("Failed to load category");
     } finally {
       setIsLoading(false);
@@ -117,7 +118,7 @@ function EditCategoryContent() {
         toast.error(res.error || "Failed to update category");
       }
     } catch (error) {
-       console.error("Failed to update category:", error);
+      console.error("Failed to update category:", error);
       toast.error("Failed to update category");
     } finally {
       setIsSubmitting(false);

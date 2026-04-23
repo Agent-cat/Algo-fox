@@ -167,7 +167,7 @@ export async function verifyCodeChefOwnership(handle: string, verificationCode: 
             }
         });
         revalidatePath("/dashboard/settings");
-        revalidateTag(`user-${session.user.id}`, "max");
+        revalidateTag(`user-${session.user.id}`, 'max');
         return { success: true };
     } catch (error) {
         console.error("CodeChef verification error:", error);
@@ -276,7 +276,7 @@ export async function verifyCodeforcesOwnership(handle: string, verificationCode
                     }
                 });
                 revalidatePath("/dashboard/settings"); // Revalidate settings pages
-                revalidateTag(`user-${session.user.id}`, "max"); // Invalidate user cache tag
+                revalidateTag(`user-${session.user.id}`, 'max'); // Invalidate user cache tag
                 return { success: true };
             } catch (error) {
                 console.error("Database update error:", error);
@@ -444,7 +444,7 @@ export async function verifyLeetCodeOwnership(handle: string, verificationCode: 
             }
         });
         revalidatePath("/dashboard/settings");
-        revalidateTag(`user-${session.user.id}`, "max");
+        revalidateTag(`user-${session.user.id}`, 'max');
         return { success: true };
     } catch (error) {
         console.error("LeetCode verification error:", error);

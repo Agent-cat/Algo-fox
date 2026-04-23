@@ -8,7 +8,7 @@ import { School } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata:Metadata = {
-    title: "My Classrooms | AlgoFox",
+    title: "My Classrooms",
 };
 
 async function ClassroomsData() {

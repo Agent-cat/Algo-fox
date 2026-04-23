@@ -3,8 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { revalidateTag, revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth-utils";
 
 export async function getAdminCourses() {
+    await requireAdmin();
     return await prisma.course.findMany({
         include: {
             _count: {
@@ -19,6 +21,7 @@ export async function getAdminCourses() {
 }
 
 export async function createCourse(formData: FormData) {
+    await requireAdmin();
     const title = formData.get("title")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
     const difficultyRaw = formData.get("difficulty")?.toString();
@@ -38,7 +41,16 @@ export async function createCourse(formData: FormData) {
     const tagsRaw = formData.get("tags")?.toString();
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : [];
 
-    const slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+    // Generate unique slug
+    let slug = title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+    let baseSlug = slug;
+    let suffix = 1;
+
+    while (true) {
+        const existing = await prisma.course.findUnique({ where: { slug } });
+        if (!existing) break;
+        slug = `${baseSlug}-${suffix++}`;
+    }
 
     await prisma.course.create({
         data: {
@@ -54,12 +66,13 @@ export async function createCourse(formData: FormData) {
         }
     });
 
-    revalidateTag("courses-list", "max");
+    revalidateTag("courses-list",'max');
     revalidatePath("/courses");
     redirect("/admin/courses");
 }
 
 export async function updateCourse(id: string, formData: FormData) {
+    await requireAdmin();
     const title = formData.get("title")?.toString().trim();
     const description = formData.get("description")?.toString().trim();
     const difficultyRaw = formData.get("difficulty")?.toString();
@@ -104,8 +117,8 @@ export async function updateCourse(id: string, formData: FormData) {
             }
         });
 
-        revalidateTag("courses-list", "max");
-        revalidateTag(`course-${course.slug}`, "max");
+        revalidateTag("courses-list", 'max');
+        revalidateTag(`course-${course.slug}`, 'max');
         revalidatePath("/courses");
     } catch (error: any) {
         console.error("Failed to update course:", error);
@@ -116,18 +129,20 @@ export async function updateCourse(id: string, formData: FormData) {
 }
 
 export async function deleteCourse(id: string) {
+    await requireAdmin();
     const { CourseService } = await import("@/core/services/course.service");
 
     const course = await CourseService.deleteCourse(id);
 
-    revalidateTag("courses-list", "max");
+    revalidateTag("courses-list", 'max');
     if (course?.slug) {
-        revalidateTag(`course-${course.slug}`, "max");
+        revalidateTag(`course-${course.slug}`, 'max');
     }
     revalidatePath("/courses");
 }
 
 export async function createModule(courseId: string, name: string, parentId?: string | null) {
+    await requireAdmin();
     // Get course domain
     const course = await prisma.course.findUnique({
         where: { id: courseId },
@@ -170,10 +185,11 @@ export async function createModule(courseId: string, name: string, parentId?: st
         });
     });
 
-    revalidateTag(`course-${course.slug}`, "max");
+    revalidateTag(`course-${course.slug}`,'max');
 }
 
 export async function addProblemToModule(moduleId: string, problemId: string) {
+    await requireAdmin();
     // Check if already exists
     const existing = await prisma.categoryProblem.findUnique({
         where: {
@@ -205,10 +221,11 @@ export async function addProblemToModule(moduleId: string, problemId: string) {
         where: { id: moduleId },
         include: { course: true }
     });
-    if (module?.course) revalidateTag(`course-${module.course.slug}`, "max");
+    if (module?.course) revalidateTag(`course-${module.course.slug}`,'max');
 }
 
 export async function removeProblemFromModule(moduleId: string, problemId: string) {
+    await requireAdmin();
     await prisma.categoryProblem.deleteMany({
         where: {
             categoryId: moduleId,
@@ -220,10 +237,11 @@ export async function removeProblemFromModule(moduleId: string, problemId: strin
         where: { id: moduleId },
         include: { course: true }
     });
-    if (module?.course) revalidateTag(`course-${module.course.slug}`, "max");
+    if (module?.course) revalidateTag(`course-${module.course.slug}`,'max');
 }
 
 export async function createProblemAndAddToModule(moduleId: string, data: any) {
+    await requireAdmin();
     const { ProblemService } = await import("@/core/services/problem.service");
 
     // Get the courseId for this module
@@ -249,10 +267,14 @@ export async function createProblemAndAddToModule(moduleId: string, data: any) {
     // 2. Add to module
     await addProblemToModule(moduleId, result.problem.id);
 
+    // Revalidate paths
+    revalidatePath(`/admin/courses/${module.courseId}/modules`);
+
     return result;
 }
 
 export async function updateModule(moduleId: string, name: string) {
+    await requireAdmin();
     const updated = await prisma.category.update({
         where: { id: moduleId },
         data: { name },
@@ -260,19 +282,20 @@ export async function updateModule(moduleId: string, name: string) {
     });
 
     if (updated.course) {
-        revalidateTag(`course-${updated.course.slug}`, "max");
+        revalidateTag(`course-${updated.course.slug}`, 'max');
     }
     return updated;
 }
 
 export async function deleteModule(moduleId: string) {
+    await requireAdmin();
     const deleted = await prisma.category.delete({
         where: { id: moduleId },
         include: { course: true }
     });
 
     if (deleted.course) {
-        revalidateTag(`course-${deleted.course.slug}`, "max");
+        revalidateTag(`course-${deleted.course.slug}`, 'max');
     }
     return deleted;
 }

@@ -4,7 +4,14 @@ import { CategoryService } from "@/core/services/category.service";
 import { ProblemDomain, Difficulty } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { revalidatePath, updateTag, cacheTag, cacheLife, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
+
+// GETTING ALL CATEGORIES
+
+// CACHE TAGS
+export async function getCategoriesTag(domain: ProblemDomain, courseId?: string, userId?: string) {
+  return `categories-${domain}${courseId ? `-course-${courseId}` : ''}${userId ? `-user-${userId}` : ''}`;
+};
 
 // GETTING ALL CATEGORIES
 
@@ -17,7 +24,7 @@ export async function getCategories(domain: ProblemDomain = "DSA", courseId?: st
   });
   const userId = session?.user?.id;
 
-  cacheTag(`categories-${domain}${courseId ? `-course-${courseId}` : ''}${userId ? `-user-${userId}` : ''}`, 'categories-list');
+  cacheTag(await getCategoriesTag(domain, courseId, userId), 'categories-list');
 
   return CategoryService.getCategories(domain, userId, courseId);
 }
@@ -86,11 +93,13 @@ export async function createCategory(data: {
   const result = await CategoryService.createCategory(data);
 
   if (result.success) {
-    // REVALIDATING THE PATHS
     revalidatePath("/problems/dsa");
     revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
-    updateTag('categories-list');
+    revalidateTag('categories-list', 'max');
+    if (data.domain) {
+      revalidateTag(await getCategoriesTag(data.domain), 'max');
+    }
   }
 
   return result;
@@ -111,13 +120,18 @@ export async function updateCategory(id: string, data: { name?: string; descript
   const result = await CategoryService.updateCategory(id, data);
 
   if (result.success) {
-    // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
     revalidatePath("/problems/dsa");
     revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
-    updateTag('categories-list');
+    revalidateTag('categories-list', 'max');
+    if (result.category?.domain) {
+      revalidateTag(await getCategoriesTag(result.category.domain), 'max');
+      if (result.category.courseId) {
+        revalidateTag(await getCategoriesTag(result.category.domain, result.category.courseId), 'max');
+      }
+    }
     if (data.slug) {
-      updateTag(`category-${data.slug}`);
+      revalidateTag(`category-${data.slug}`, 'max');
     }
   }
 
@@ -140,16 +154,19 @@ export async function deleteCategory(id: string) {
   const result = await CategoryService.deleteCategory(id);
 
   if (result.success) {
-    // REVALIDATING THE PATHS --> PROBLEMS AND ADMIN CATEGORIES
     revalidatePath("/problems/dsa");
     revalidatePath("/problems/sql");
     revalidatePath("/admin/categories");
-    revalidateTag('categories-list','max');
-    if (result.category?.domain) {
-      revalidateTag(`categories-${result.category.domain}`,'max');
+    revalidateTag('categories-list', 'max');
+    const category = result.category as any;
+    if (category?.domain) {
+      revalidateTag(await getCategoriesTag(category.domain), 'max');
+      if (category.courseId) {
+        revalidateTag(await getCategoriesTag(category.domain, category.courseId), 'max');
+      }
     }
     if (result.slug) {
-      revalidateTag(`category-${result.slug}`,'max');
+      revalidateTag(`category-${result.slug}`, 'max');
     }
   }
 
@@ -181,8 +198,8 @@ export async function addProblemToCategory(
     revalidatePath(`/admin/categories/${categoryId}`);
     revalidatePath(`/admin/dsa/categories/${categoryId}`);
     revalidatePath(`/admin/sql/categories/${categoryId}`);
-    updateTag(`category-${categoryId}`);
-    updateTag('categories-list');
+    revalidateTag(`category-${categoryId}`, 'max');
+    revalidateTag('categories-list', 'max');
   }
 
   return result;

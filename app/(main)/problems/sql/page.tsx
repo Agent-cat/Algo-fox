@@ -10,7 +10,7 @@ import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-    title: "SQL Problems | Algofox",
+    title: "SQL Problems",
     description: "Practice SQL problems and improve your database query skills.",
 };
 

@@ -58,14 +58,14 @@ export default function AdminCoursesPage() {
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Enrolled</span>
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300">
                                         <Users className="w-3.5 h-3.5 text-orange-500" />
-                                        {course._count.enrollments}
+                                        {course._count?.enrollments ?? 0}
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Modules</span>
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300">
                                         <BookOpen className="w-3.5 h-3.5 text-blue-500" />
-                                        {course._count.modules}
+                                        {course._count?.modules ?? 0}
                                     </div>
                                 </div>
                             </div>
@@ -78,7 +78,7 @@ export default function AdminCoursesPage() {
                             )}
                         </td>
                         <td className="px-6 py-5 text-right">
-                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                 <Link
                                     href={`/admin/courses/${course.id}/modules`}
                                     className="p-2.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition-all"

@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
         const format = url.searchParams.get("format") || "csv";
         const difficulty = url.searchParams.get("difficulty") || "ALL";
         const domain = (url.searchParams.get("domain") as any) || "DSA";
+        const courseId = url.searchParams.get("courseId");
 
         if (!classroomIdsParam) {
             return NextResponse.json({ error: "classrooms are required" }, { status: 400 });
@@ -71,7 +72,10 @@ export async function GET(req: NextRequest) {
 
         // Fetch ALL categories for hierarchy awareness
         const allCategories = await prisma.category.findMany({
-            where: { domain: domain },
+            where: {
+                domain: domain,
+                ...(courseId && { courseId })
+            },
             orderBy: { order: "asc" },
             include: {
                 categoryProblems: {
@@ -158,7 +162,8 @@ export async function GET(req: NextRequest) {
                 ];
             });
 
-            return generateResponse(headersRow, dataRows, format, `progress_${cat.name}`);
+            const cleanName = cat.name.toLowerCase().replace(/\s+/g, '-');
+            return generateResponse(headersRow, dataRows, format, `algofox-progress-${cleanName}`);
 
         } else {
             /**
@@ -218,7 +223,20 @@ export async function GET(req: NextRequest) {
                 ];
             });
 
-            return generateResponse(headersRow, dataRows, format, `${domain}_progress_all`);
+            let filename = `${domain.toLowerCase()}-progress-all`;
+            if (courseId) {
+                const course = await prisma.course.findUnique({
+                    where: { id: courseId },
+                    select: { title: true }
+                });
+                if (course) {
+                    filename = `${course.title.toLowerCase().replace(/\s+/g, '-')}-progress-all`;
+                } else {
+                    filename = `course-progress-all`;
+                }
+            }
+
+            return generateResponse(headersRow, dataRows, format, `algofox-${filename}`);
         }
 
     } catch (error) {

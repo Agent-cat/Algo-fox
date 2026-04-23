@@ -1,6 +1,6 @@
 "use client";
 import dynamic from 'next/dynamic';
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import Split from 'react-split';

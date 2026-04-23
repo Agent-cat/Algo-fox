@@ -264,11 +264,11 @@ const WorkspaceHeader = memo(({
                   }}
                   disabled={isRandomizing}
                   className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
-                  whileHover={{ scale: 1.08, rotate: 45 }}
+                  whileHover={{ scale: 1.08}}
                   whileTap={{ scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                  // transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 >
-                  <Shuffle className={`w-4 h-4 ${isRandomizing ? 'animate-spin' : ''}`} />
+                  <Shuffle className={`w-4 h-4 ${isRandomizing ? '' : ''}`} />
                 </motion.button>
               </CustomTooltip>
             )}

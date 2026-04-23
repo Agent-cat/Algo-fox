@@ -7,7 +7,7 @@ import { BarChart3, TrendingUp, Target } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Analytics | AlgoFox",
+  title: "Analytics",
   description: "Your coding progress and statistics",
 };
 

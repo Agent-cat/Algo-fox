@@ -428,7 +428,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
 
         revalidatePath("/dashboard/contests");
         revalidatePath("/contest");
-        revalidateTag("contests", "max");
+        revalidateTag("contests",'max');
         return { success: true, contestId: contest.id };
     } catch (error: any) {
          console.error("Failed to create contest:", error);
@@ -467,7 +467,7 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
         revalidatePath("/dashboard/contests");
         revalidatePath("/contests");
         revalidatePath(`/contest/${contest.id}`);
-        revalidateTag("contests", "max");
+        revalidateTag("contests",'max');
         return { success: true, contestId: contest.id };
     } catch (error) {
          console.error("Failed to create contest with problems:", error);
@@ -549,7 +549,7 @@ export async function updateContestWithProblems(contestId: string, data: z.infer
         revalidatePath("/dashboard/contests");
         revalidatePath(`/contests/${validatedData.slug}`);
         revalidatePath(`/contest/${contestId}`);
-        revalidateTag(`contest-${contestId}`, "max");
+        revalidateTag(`contest-${contestId}`,'max');
         return { success: true, contestId };
     } catch (error) {
          console.error("Failed to update contest:", error);
@@ -607,8 +607,8 @@ export async function finalizeContest(contestId: string) {
 
         revalidatePath(`/dashboard`);
         revalidatePath(`/contest/${contestId}`);
-        revalidateTag(`contest-${contestId}`, "max");
-        revalidateTag(`leaderboard-${contestId}`, "max");
+        revalidateTag(`contest-${contestId}`,'max');
+        revalidateTag(`leaderboard-${contestId}`,'max');
 
         return { success: true as const, message: "Contest finalized and badges awarded!" };
     } catch (error) {
@@ -1000,21 +1000,20 @@ export async function getParticipantViolations(contestId: string, userId: string
  * - Fetches all relevant submissions
  * - Calculates scores
  */
+
+async function fetchLeaderboard(contestId: string, page: number, pageSize: number) {
+    "use cache";
+    cacheTag(`leaderboard-${contestId}`);
+    // @ts-ignore
+    cacheLife("leaderboard");
+    return ContestService.getLeaderboard(contestId, { page, pageSize });
+}
+
 export async function getContestLeaderboard(contestId: string, params: { page?: number; pageSize?: number } = {}) {
     const { page = 1, pageSize = 50 } = params;
 
-    // Wrap inside a dedicated cached function so cacheTag/cacheLife actually take effect.
-    // Calling these directives in a regular server action has no effect.
-    async function fetchLeaderboard(p: number, ps: number) {
-        "use cache";
-        cacheTag(`leaderboard-${contestId}`);
-        // @ts-ignore
-        cacheLife("leaderboard");
-        return ContestService.getLeaderboard(contestId, { page: p, pageSize: ps });
-    }
-
     try {
-        const result = await fetchLeaderboard(page, pageSize);
+        const result = await fetchLeaderboard(contestId, page, pageSize);
 
         if (!result) {
             return { success: false, error: "Contest not found" };

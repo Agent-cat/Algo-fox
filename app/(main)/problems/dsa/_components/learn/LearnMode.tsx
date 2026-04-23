@@ -25,15 +25,17 @@ interface LearnModeProps {
   userRole?: string;
   domain: string;
   courseId?: string;
+  courseTitle?: string;
   isEnrolled?: boolean;
 }
 
 interface TreeCategory extends Category {
   children?: TreeCategory[];
   displayOrder?: string;
+  problemTitles?: string[];
 }
 
-export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain, courseId, isEnrolled }: LearnModeProps) {
+export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain, courseId, courseTitle, isEnrolled }: LearnModeProps) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
 
@@ -76,13 +78,19 @@ export default function LearnMode({ searchTerm = "", categories, isLoading, user
   // Helper to filter tree
   const filterTree = (nodes: TreeCategory[]): TreeCategory[] => {
     return nodes.reduce((acc: TreeCategory[], node) => {
-      const matches =
-        node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (node.description && node.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      const searchTermLower = searchTerm.toLowerCase();
+
+      const matchesCategory =
+        node.name.toLowerCase().includes(searchTermLower) ||
+        (node.description && node.description.toLowerCase().includes(searchTermLower));
+
+      const matchesProblems = node.problemTitles?.some((title: string) =>
+        title.toLowerCase().includes(searchTermLower)
+      );
 
       const filteredChildren = node.children ? filterTree(node.children) : [];
 
-      if (matches || filteredChildren.length > 0) {
+      if (matchesCategory || matchesProblems || filteredChildren.length > 0) {
         acc.push({
           ...node,
           children: filteredChildren
@@ -130,6 +138,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading, user
           categoryTitle="All Categories"
           userRole={userRole!}
           domain={domain}
+          courseId={courseId}
+          courseTitle={courseTitle}
         />
       )}
 
@@ -149,6 +159,8 @@ export default function LearnMode({ searchTerm = "", categories, isLoading, user
               domain={domain}
               courseId={courseId}
               isEnrolled={isEnrolled}
+              searchTerm={searchTerm}
+              problemTitles={category.problemTitles}
             />
           ))
         ) : (

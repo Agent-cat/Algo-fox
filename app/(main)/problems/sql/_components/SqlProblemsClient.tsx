@@ -45,7 +45,7 @@ export default function SqlProblemsClient({
     const mode = (searchParams.get("mode") as "practice" | "learn") || "practice";
     const [searchTerm, setSearchTerm] = useState("");
 
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    const [categories, setCategories] = useState<any[]>(initialCategories);
     const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
     const [hasFetchedCategories, setHasFetchedCategories] = useState(initialCategories.length > 0);
 

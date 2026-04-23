@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { processLogger } from "@/lib/logger";
 
 const createInviteSchema = z.object({
   institutionId: z.string(),
@@ -52,12 +53,12 @@ export async function createInvite(data: z.infer<typeof createInviteSchema>) {
     });
 
     // Invalidate cache
-    revalidateTag(`institution-invites-${institutionId}`, "max");
+    revalidateTag(`institution-invites-${institutionId}`,'max');
     revalidatePath("/dashboard/institution/invites");
 
     return { success: true, invite };
   } catch (error) {
-    console.error("Create invite error:", error);
+    processLogger.error("Create invite error", error);
     return { success: false, error: "Failed to create invite" };
   }
 }
@@ -84,12 +85,12 @@ export async function toggleInvite(id: string) {
     });
 
     // Invalidate cache
-    revalidateTag(`institution-invites-${invite.institutionId}`, "max");
+    revalidateTag(`institution-invites-${invite.institutionId}`,'max');
     revalidatePath("/dashboard/institution/invites");
 
     return { success: true };
   } catch (error) {
-    console.error("Toggle invite error:", error);
+    processLogger.error("Toggle invite error", error);
     return { success: false, error: "Failed to toggle invite" };
   }
 }
@@ -117,12 +118,12 @@ export async function deleteInvite(id: string) {
       });
 
       // Invalidate cache
-      revalidateTag(`institution-invites-${institutionId}`, "max");
+      revalidateTag(`institution-invites-${institutionId}`, 'max');
       revalidatePath("/dashboard/institution/invites");
 
       return { success: true };
     } catch (error) {
-      console.error("Delete invite error:", error);
+      processLogger.error("Delete invite error", error);
       return { success: false, error: "Failed to delete invite" };
     }
   }
@@ -157,7 +158,7 @@ export async function getInstitutionInvites(institutionId: string) {
         const invites = await fetchInvites();
         return { success: true, invites };
     } catch (error) {
-        console.error("Get invites error:", error);
+        processLogger.error("Get invites error", error);
         return { success: false, error: "Failed to get invites" };
     }
 }
@@ -204,7 +205,7 @@ export async function getInviteDetails(code: string) {
             }
         };
     } catch (error) {
-        console.error("Get invite details error:", error);
+        processLogger.error("Get invite details error", error);
         return { success: false, error: "Invalid invite" };
     }
 }
@@ -255,9 +256,9 @@ export async function acceptInvite(code: string) {
         const { invite, onboardingCompleted } = result;
 
         // Invalidate caches
-        revalidateTag(`institution-invites-${invite.institutionId}`, "max");
-        revalidateTag(`institution-stats-${invite.institutionId}`, "max");
-        revalidateTag(`institution-staff-${invite.institutionId}`, "max");
+        revalidateTag(`institution-invites-${invite.institutionId}`, 'max');
+        revalidateTag(`institution-stats-${invite.institutionId}`, 'max');
+        revalidateTag(`institution-staff-${invite.institutionId}`, 'max');
         revalidatePath("/dashboard");
         revalidatePath("/onboarding");
 
@@ -267,7 +268,7 @@ export async function acceptInvite(code: string) {
             onboardingCompleted
         };
      } catch (error: any) {
-        console.error("Accept invite error:", error);
-         return { success: false, error: error.message || "Failed to accept invite" };
+        processLogger.error("Accept invite error", error);
+        return { success: false, error: "Failed to accept invite" };
      }
 }

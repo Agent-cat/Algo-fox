@@ -18,8 +18,14 @@ export default function CreateCourseProblemPage() {
     const courseId = params.id as string;
     const moduleId = params.moduleId as string;
 
-    const [selectedDomain, setSelectedDomain] = useState<ProblemDomain>((typeParam?.toUpperCase() as ProblemDomain) || "DSA");
-    const [isConcept, setIsConcept] = useState(typeParam === "concept");
+    // Validate typeParam against ProblemDomain
+    const validDomains: string[] = ["DSA", "SQL", "APTITUDE", "CONCEPT"];
+    const upperType = typeParam?.toUpperCase() || "";
+    const isValid = validDomains.includes(upperType);
+    const initialDomain = (isValid && upperType !== "CONCEPT" ? upperType : "DSA") as ProblemDomain;
+
+    const [selectedDomain, setSelectedDomain] = useState<ProblemDomain>(initialDomain);
+    const [isConcept, setIsConcept] = useState(upperType === "CONCEPT");
     const [step, setStep] = useState(typeParam ? 2 : 1);
 
     const types = [
@@ -80,7 +86,6 @@ export default function CreateCourseProblemPage() {
             if (res.success) {
                 toast.success("Problem created and added to module");
                 router.push(`/admin/courses/${courseId}/modules`);
-                router.refresh();
                 return { success: true };
             } else {
                 toast.error(res.error || "Failed to create problem");

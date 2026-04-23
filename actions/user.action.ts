@@ -8,7 +8,7 @@ import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
 
 /**
  * Get user's total score (cached for 5 minutes)
- * Cache is invalidated when user solves a problem via updateTag
+ * Cache is invalidated when user solves a problem via revalidateTag
  */
 
 export async function getUserScore(): Promise<number> {
@@ -86,9 +86,9 @@ export async function completeOnboarding(data: {
         }
 
         revalidatePath("/dashboard");
-        revalidateTag(`user-${userId}`,'max');
-        revalidateTag(`dashboard-${userId}`,'max');
-        revalidateTag('dashboard-stats','max');
+        revalidateTag(`user-${userId}`, 'max');
+        revalidateTag(`dashboard-${userId}`, 'max');
+        revalidateTag('dashboard-stats', 'max');
     }
 
     return res;
@@ -124,10 +124,10 @@ export async function updateUserInfo(data: {
     if (res.success) {
         revalidatePath("/dashboard");
         revalidatePath("/dashboard/settings");
-        revalidateTag(`user-${userId}`,'max');
-        revalidateTag(`user-score-${userId}`,'max');
-        revalidateTag(`dashboard-${userId}`,'max');
-        revalidateTag('dashboard-stats','max');
+        revalidateTag(`user-${userId}`, 'max');
+        revalidateTag(`user-score-${userId}`, 'max');
+        revalidateTag(`dashboard-${userId}`, 'max');
+        revalidateTag('dashboard-stats', 'max');
     }
 
     return res;
@@ -160,9 +160,9 @@ export async function syncUserProfile(): Promise<{ success: boolean; error?: str
 
         // Revalidate Next.js cache
         revalidatePath("/dashboard");
-        revalidateTag(`user-${userId}`,'max');
-        revalidateTag(`user-score-${userId}`,'max');
-        revalidateTag('dashboard-stats','max');
+        revalidateTag(`user-${userId}`, 'max');
+        revalidateTag(`user-score-${userId}`, 'max');
+        revalidateTag('dashboard-stats', 'max');
 
         return { success: true };
     } catch (error) {

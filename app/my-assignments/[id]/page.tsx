@@ -7,7 +7,7 @@ import { AssignmentDetailView } from "@/components/assignments/AssignmentDetailV
 import { Loader2 } from "lucide-react";
 
 export const metadata = {
-    title: "Assignment | AlgoFox",
+    title: "Assignment",
 };
 
 async function AssignmentContent({ id }: { id: string }) {

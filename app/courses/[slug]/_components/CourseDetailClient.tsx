@@ -5,8 +5,9 @@ import LearnMode from "@/app/(main)/problems/dsa/_components/learn/LearnMode";
 import { SearchBar } from "@/app/(main)/problems/dsa/_components/shared/SearchBar";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, BarChart, Layout } from "lucide-react";
+import { CheckCircle2, BarChart, Layout, Users, Globe, Flag, GraduationCap, Lightbulb } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import EnrollButton from "@/components/courses/EnrollButton";
 
 interface CourseDetailClientProps {
@@ -42,67 +43,99 @@ export default function CourseDetailClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.35 }}
-            className="space-y-10"
+            className="space-y-12"
         >
-            {/* Refined Course Header - Matches Category Card Aesthetic */}
-            <div className="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border border-gray-200/50 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+            {/* Theme-Aware Header Card matching Navbar */}
+            <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-300 dark:border-white/10 rounded-sm relative overflow-hidden group shadow-xs">
                 {/* Technical Grid Background */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#000_1px,transparent_1px)] dark:bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none" />
+                <div
+                    className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                    style={{
+                        backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
+                        backgroundSize: '30px 30px'
+                    }}
+                />
+                <div className="absolute top-0 right-0 w-2/3 h-full bg-linear-to-l from-orange-500/5 to-transparent pointer-events-none" />
 
-                <div className="absolute top-0 right-0 p-4 opacity-[0.03] scale-125 rotate-12 group-hover:rotate-0 transition-transform duration-700 pointer-events-none">
-                   <BarChart className="w-20 h-20 text-orange-500" />
-                </div>
-
-                <div className="relative z-10 flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
-                    <div className="flex-1 space-y-3">
-                        <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                            <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-[8px] font-black uppercase tracking-widest px-2">
+                <div className="relative z-10 flex flex-col lg:flex-row gap-8 items-center lg:items-center p-8 md:p-12">
+                    <div className="flex-1 space-y-6">
+                        <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-[10px] font-black uppercase tracking-widest px-3 py-0.5 rounded-none">
                                 {course.difficulty}
                             </Badge>
-                            {course.tags.slice(0, 3).map((tag: string) => (
-                                <Badge key={tag} variant="outline" className="text-gray-400 border-gray-100 dark:border-white/5 font-bold px-2 uppercase text-[8px] tracking-widest">
-                                    {tag}
-                                </Badge>
-                            ))}
                         </div>
 
-                        <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
-                            {course.title}
-                        </h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-xl">
-                            {course.description}
-                        </p>
+                        <div className="space-y-6 text-center lg:text-left">
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">
+                                {course.title}
+                            </h1>
 
-                        {enrollment && (
-                            <div className="w-full pt-4">
-                                <div className="flex justify-between items-end mb-2 px-0.5">
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your Mastery Journey: {progress}%</span>
-                                    <span className="text-[10px] font-bold text-orange-500 tabular-nums uppercase tracking-widest">{solvedCount} / {totalProblems} Solved</span>
+                            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 py-2 border-y border-gray-100/50 dark:border-white/5">
+                                <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-extrabold uppercase text-[10px] tracking-[0.2em]">
+                                    <GraduationCap className="w-4 h-4 text-orange-500" />
+                                    <span>{modules?.length || 0} Modules</span>
                                 </div>
-                                <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden p-0.5 border border-gray-200/50 dark:border-white/5">
+                                <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-extrabold uppercase text-[10px] tracking-[0.2em]">
+                                    <Lightbulb className="w-4 h-4 text-orange-500" />
+                                    <span>{totalProblems || 0} Problems</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {enrollment ? (
+                             <div className="w-full max-w-xl pr-10 pt-2 text-left">
+                                <div className="flex justify-between items-end mb-3 px-0.5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Your Progress:</span>
+                                        <span className="text-lg font-black text-gray-900 dark:text-white tabular-nums">{progress}% completed</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tabular-nums uppercase tracking-widest">{solvedCount} / {totalProblems} Solved</span>
+                                </div>
+                                <div className="relative h-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-[#262626] group/rail">
                                     <motion.div
-                                        className="h-full bg-linear-to-r from-orange-500 to-orange-400 shadow-[0_0_12px_rgba(233,78,36,0.3)] rounded-full"
+                                        className="h-full bg-orange-500"
                                         initial={{ width: 0 }}
                                         animate={{ width: `${progress}%` }}
                                         transition={{ duration: 1.5, ease: "easeOut" }}
                                     />
+                                    {/* Completion Goal Flag - Now to the right of the bar */}
+                                    <div className="absolute -right-7 top-1/2 -translate-y-1/2 flex items-center opacity-30 dark:opacity-50 group-hover/rail:opacity-100 transition-opacity">
+                                        <Flag className="w-3.5 h-3.5 text-orange-500 fill-orange-500/20 transform rotate-12" />
+                                    </div>
                                 </div>
+                            </div>
+                        ) : (
+                            <div className="pt-4">
+                               <EnrollButton courseId={course.id} slug={course.slug} session={session} course={course} />
                             </div>
                         )}
                     </div>
 
-                    {!enrollment && (
-                        <div className="w-full md:w-64 pt-2">
-                            <EnrollButton courseId={course.id} slug={course.slug} session={session} course={course} />
+                    {/* Course Image Integration */}
+                    <div className="w-full lg:w-[440px] shrink-0">
+                        <div className="relative aspect-[16/10] overflow-hidden bg-gray-50 dark:bg-[#1a1a1a] transition-colors duration-500">
+                            {course.image ? (
+                                <Image
+                                    src={course.image}
+                                    alt={course.title}
+                                    fill
+                                    className="object-contain"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <BarChart className="w-16 h-16 text-orange-500 opacity-20" />
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-linear-to-t from-gray-900/5 dark:from-black/20 via-transparent to-transparent opacity-40 pointer-events-none" />
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
 
-            {/* Content Section (Aptitude Problems Style) - Single Column */}
+            {/* Content Section */}
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header Tools */}
-                <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 px-2">
+                <div className="flex justify-end gap-6 border-b border-gray-100 dark:border-white/5 pb-8 px-2">
                     <SearchBar
                         onSearch={handleSearch}
                         placeholder="Search modules..."
@@ -110,7 +143,7 @@ export default function CourseDetailClient({
                     />
                 </div>
 
-                {/* Learn Mode / Category Cards - Matches Aptitude Size */}
+                {/* Modules Grid */}
                 <LearnMode
                     searchTerm={searchTerm}
                     categories={modules}
@@ -118,6 +151,7 @@ export default function CourseDetailClient({
                     userRole={userRole}
                     domain={course.domain || "SQL"}
                     courseId={course.id}
+                    courseTitle={course.title}
                     isEnrolled={!!enrollment}
                 />
             </div>

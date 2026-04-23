@@ -17,8 +17,10 @@ interface DownloadProgressModalProps {
     onClose: () => void;
     categoryTitle: string;
     categoryId?: string;
-    userRole: string;
     domain: string;
+    userRole: string;
+    courseId?: string;
+    courseTitle?: string;
 }
 
 export default function DownloadProgressModal({
@@ -27,7 +29,9 @@ export default function DownloadProgressModal({
     categoryTitle,
     categoryId,
     userRole,
-    domain
+    domain,
+    courseId,
+    courseTitle
 }: DownloadProgressModalProps) {
     const [classrooms, setClassrooms] = useState<Classroom[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -104,7 +108,8 @@ export default function DownloadProgressModal({
                 mode: categoryId ? "category" : "all",
                 format: format,
                 difficulty: difficultyFilter,
-                domain: domain
+                domain: domain,
+                ...(courseId && { courseId })
             });
 
             if (categoryId) {
@@ -126,10 +131,14 @@ export default function DownloadProgressModal({
             a.href = url;
             const extension = format === "csv" ? "csv" : "xlsx";
             const dateStr = new Date().toISOString().split("T")[0];
+            const cleanCategory = categoryId ? categoryTitle.toLowerCase().replace(/\s+/g, '-') : 'all';
+            const cleanCourse = courseTitle ? courseTitle.toLowerCase().replace(/\s+/g, '-') : 'course';
             const fileNamePrefix = categoryId
-                ? `${domain}_progress_${categoryTitle.replace(/\s+/g, '_')}`
-                : `${domain}_progress_all_categories`;
-            a.download = `${fileNamePrefix}_${dateStr}.${extension}`;
+                ? `algofox-${domain.toLowerCase()}-progress-${cleanCategory}`
+                : courseId
+                    ? `algofox-${cleanCourse}-progress-all`
+                    : `algofox-${domain.toLowerCase()}-progress-all`;
+            a.download = `${fileNamePrefix}-${dateStr}.${extension}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -147,8 +156,8 @@ export default function DownloadProgressModal({
 
     if (!isOpen) return null;
 
-    const ModeName = categoryId ? "Category-wise Export" : "Global Classroom Export";
-    const TargetName = categoryId ? (categoryTitle) : "All Categories";
+    const ModeName = categoryId ? "Category-wise Export" : courseId ? "Course-wise Export" : "Global Classroom Export";
+    const TargetName = categoryId ? (categoryTitle) : courseId ? (courseTitle || "Course") : "All Categories";
 
     return (
         <AnimatePresence>
@@ -259,7 +268,7 @@ export default function DownloadProgressModal({
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                                                             selectedIds.includes(cls.id)
                                                                 ? "border-orange-500 bg-orange-500"
                                                                 : "border-gray-300 dark:border-gray-600"

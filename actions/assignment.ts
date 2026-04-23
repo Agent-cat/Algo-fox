@@ -132,8 +132,8 @@ export async function createAssignment(
         });
 
         // Revalidate classroom-specific and global assignment caches
-        revalidateTag(`assignments-classroom-${classroomId}`, "max");
-        revalidateTag('assignments-all', "max"); // Invalidate student assignments cache
+        revalidateTag(`assignments-classroom-${classroomId}`,'max');
+        revalidateTag('assignments-all','max'); // Invalidate student assignments cache
 
         return { success: true, assignmentId: assignment.id };
     } catch (error) {

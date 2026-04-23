@@ -131,7 +131,7 @@ export async function updateUserRoleAction(userId: string, role: string) {
         });
 
         // Invalidate dashboard cache
-        revalidateTag(`dashboard-${userId}`, "max");
+        revalidateTag(`dashboard-${userId}`,'max');
         await redis.del(`dashboard:stats:${userId}`);
 
         return { success: true };

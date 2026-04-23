@@ -85,8 +85,8 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
 
 
         // Invalidate relevant caches
-        revalidateTag(`teacher-classrooms-${currentUser.id}`, "max");
-        revalidateTag(`institution-classrooms-${validatedData.institutionId}`, "max");
+        revalidateTag(`teacher-classrooms-${currentUser.id}`,'max');
+        revalidateTag(`institution-classrooms-${validatedData.institutionId}`,'max');
         revalidatePath("/dashboard/institution/classrooms");
 
         return { success: true, data: classroom };
@@ -174,8 +174,8 @@ export async function joinClassroom(code: string) {
         await redis.sadd(redisKey, currentUser.id);
 
         // Invalidate caches
-        revalidateTag(`student-classrooms-${currentUser.id}`, "max");
-        revalidateTag(`classroom-${classroom.id}`, "max");
+        revalidateTag(`student-classrooms-${currentUser.id}`,'max');
+        revalidateTag(`classroom-${classroom.id}`,'max');
         revalidatePath("/dashboard/classrooms");
 
         return { success: true, message: `Successfully joined ${classroom.name}` };
@@ -457,7 +457,7 @@ export async function toggleClassroomTracking(classroomId: string, active: boole
     });
 
     await deleteFromCache(cacheKey("live-tracking", classroomId));
-    revalidateTag(`classroom-${classroomId}`, "max");
+    revalidateTag(`classroom-${classroomId}`,'max');
     revalidatePath(`/dashboard/classrooms/${classroomId}`);
     return { success: true };
 }
@@ -651,8 +651,8 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
         await redis.srem(redisKey, studentId);
 
         // Invalidate caches
-        revalidateTag(`classroom-${classroomId}`, "max");
-        revalidateTag(`student-classrooms-${studentId}`, "max");
+        revalidateTag(`classroom-${classroomId}`,'max');
+        revalidateTag(`student-classrooms-${studentId}`,'max');
         revalidatePath(`/dashboard/classrooms/${classroomId}`);
 
         return { success: true };

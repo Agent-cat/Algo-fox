@@ -6,6 +6,7 @@ interface SidebarProps {
     activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance';
     onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments' | 'performance') => void;
     onDownload: () => void;
+    onProgressDownload?: () => void;
     showDownload: boolean;
     isTeacher: boolean;
     classroomName: string;
@@ -23,6 +24,7 @@ export function ClassroomSidebar({
     activeTab,
     onTabChange,
     onDownload,
+    onProgressDownload,
     showDownload,
     isTeacher,
     classroomName,
@@ -43,7 +45,8 @@ export function ClassroomSidebar({
         ] : []),
         ...(showDownload ? [
             { type: 'header', label: 'Data Management' },
-            { id: 'download', label: 'Sync Data Export', icon: Download, type: 'action' }
+            { id: 'download', label: 'Leaderboard Export', icon: Download, type: 'action' },
+            { id: 'progress-download', label: 'Detailed Progress', icon: Trophy, type: 'progress-action' }
         ] : [])
     ];
 
@@ -135,6 +138,19 @@ export function ClassroomSidebar({
                             <button
                                 key={`action-${index}`}
                                 onClick={onDownload}
+                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                            >
+                                <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                                <span className="tracking-tight">{item.label}</span>
+                            </button>
+                        );
+                    }
+
+                    if (item.type === 'progress-action') {
+                        return (
+                            <button
+                                key={`progress-action-${index}`}
+                                onClick={onProgressDownload}
                                 className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
                             >
                                 <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />

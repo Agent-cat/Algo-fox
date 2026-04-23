@@ -57,8 +57,8 @@ export default function AptitudeAdminCategoriesPage() {
       };
 
       setCategories(flatten(roots));
-    } catch (error) {
-       console.error("Failed to fetch categories:", error);
+    } catch (error: any) {
+      console.error("Failed to fetch categories:", error?.message || String(error));
       toast.error("Failed to load categories");
     } finally {
       setIsLoading(false);

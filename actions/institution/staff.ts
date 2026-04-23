@@ -57,9 +57,9 @@ export async function addStaffMember(data: z.infer<typeof staffSchema>) {
     });
 
     // Invalidate caches
-    revalidateTag(`institution-staff-${validatedData.institutionId}`, "max");
-    revalidateTag(`institution-stats-${validatedData.institutionId}`, "max");
-    revalidateTag(`user-${targetUser.id}`, "max");
+    revalidateTag(`institution-staff-${validatedData.institutionId}`, 'max');
+    revalidateTag(`institution-stats-${validatedData.institutionId}`, 'max');
+    revalidateTag(`user-${targetUser.id}`, 'max');
     revalidatePath("/dashboard/institution");
 
     return { success: true, user: updatedUser };
@@ -232,8 +232,8 @@ export async function deleteStaffMember(userId: string) {
 
     // Invalidate caches
     if (institutionId) {
-      revalidateTag(`institution-staff-${institutionId}`, "max");
-      revalidateTag(`institution-stats-${institutionId}`, "max");
+      revalidateTag(`institution-staff-${institutionId}`, 'max');
+      revalidateTag(`institution-stats-${institutionId}`, 'max');
     }
     revalidatePath("/dashboard/institution");
 

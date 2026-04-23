@@ -77,10 +77,10 @@ export async function markConceptAsCompleted(problemId: string) {
         const result = await SubmissionService.incrementProblemSolved(problemId, userId, submission.id);
 
         after(async () => {
-             // FIXED: Add proper scope parameter to revalidateTag
-             revalidateTag(`problem-${problemId}`, "max");
-             revalidateTag(`user-submissions-${userId}`, "max");
-             revalidateTag(`problem-submissions-${userId}-${problemId}`, "max");
+             
+             revalidateTag(`problem-${problemId}`, 'max');
+             revalidateTag(`user-submissions-${userId}`, 'max');
+             revalidateTag(`problem-submissions-${userId}-${problemId}`, 'max');
         });
 
         revalidatePath("/problems");

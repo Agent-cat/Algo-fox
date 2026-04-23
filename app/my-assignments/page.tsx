@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata:Metadata = {
-    title: "My Assignments | AlgoFox",
+    title: "My Assignments",
 };
 
 async function AssignmentsContent() {

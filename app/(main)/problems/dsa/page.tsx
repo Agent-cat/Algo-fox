@@ -7,9 +7,10 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
+import { Metadata } from "next";
 
-export const metadata = {
-    title: "DSA Problems | Algofox",
+export const metadata: Metadata = {
+    title: "DSA Problems",
     description: "Practice Data Structures and Algorithms problems and improve your skills.",
 };
 

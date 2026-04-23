@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const course = await CourseService.getCourseBySlug(slug);
     if (!course) return { title: "Course Not Found" };
     return {
-        title: `${course.title} | Algo-fox`,
+        title: course.title,
         description: course.description
     };
 }
@@ -66,7 +66,9 @@ async function CourseContent({ slug }: { slug: string }) {
         solvedCount: solvedMap.get(mod.id) || 0,
         _count: {
             categoryProblems: mod.categoryProblems.length
-        }
+        },
+        // Include problem titles for better client-side search
+        problemTitles: mod.categoryProblems.map((cp: any) => cp.problem.title)
     }));
 
     // Get total solved problem IDs for the user in this course

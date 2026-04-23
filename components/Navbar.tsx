@@ -59,134 +59,146 @@ export default function Navbar() {
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-dashed border-gray-300 dark:border-[#262626]">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                <Link href="/" className="text-xl font-bold flex items-center gap-2 group">
-                    <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">
-                        A
-                    </span>
-                    <span className="tracking-tight text-gray-900 dark:text-gray-100">Algofox</span>
-                </Link>
+            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
+                <div className="flex items-center">
+                    <Link href="/" className="text-xl font-bold flex items-center gap-2 group">
+                        <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">
+                            A
+                        </span>
+                        <span className="tracking-tight text-gray-900 dark:text-gray-100">Algofox</span>
+                    </Link>
+                </div>
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-6">
+
+
+                {/* Right Desktop and Mobile Menu */}
+                <div className="flex-1 flex items-center justify-end gap-6">
+                    <div className="hidden md:flex items-center gap-4">
                     {mounted && !isPending && (
                         <>
                             {session ? (
-                                <div className="flex items-center gap-6">
-                                    {/* Main Navigation Links */}
-                                    <Link href="/problems" className={navLinkClass("/problems")}>
-                                        Practice
-                                    </Link>
-                                    <Link href="/contests" className={navLinkClass("/contests")}>
-                                        Contests
-                                    </Link>
-                                    <Link href="/courses" className={navLinkClass("/courses")}>
-                                        Courses
-                                    </Link>
-
-                                    <div className="flex items-center gap-4">
-                                        {/* User Dropdown */}
-                                        <div className="relative">
-                                            <button
-                                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
-                                            >
-                                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{session.user.name}</span>
-                                                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
-                                                    {session.user.image ? (
-                                                        <Image
-                                                            src={session.user.image}
-                                                            alt={session.user.name || "User"}
-                                                            width={32}
-                                                            height={32}
-                                                            className="w-full h-full object-cover"
-                                                            referrerPolicy="no-referrer"
-                                                        />
-                                                    ) : (
-                                                        session.user.name?.charAt(0).toUpperCase()
-                                                    )}
-                                                </div>
-                                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                                            </button>
-
-                                            {isDropdownOpen && (
-                                                <>
-                                                    {/* Backdrop */}
-                                                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                                                    <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-lg z-50 p-1">
-                                                        {/* Primary Links */}
-                                                        <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                            My Dashboard
-                                                        </Link>
-                                                        <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                            My Classrooms
-                                                        </Link>
-                                                        <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                            My Assignments
-                                                        </Link>
-                                                        <Link href="/leaderboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                            Leaderboard
-                                                        </Link>
-
-                                                    {/* Role-specific management links */}
-                                                    {(canManage || isInstitutionManager) && (
-                                                        <>
-                                                            <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
-                                                            <div className="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manage</div>
-                                                        </>
-                                                    )}
-
-                                                        {isTeacher && (
-                                                            <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                                Teacher Dashboard
-                                                            </Link>
+                                    <>
+                                        <div className="hidden md:flex items-center gap-6 border-r border-gray-200 dark:border-[#262626] pr-4">
+                                            <Link href="/problems" className={navLinkClass("/problems")}>
+                                                Practice
+                                            </Link>
+                                            <Link href="/contests" className={navLinkClass("/contests")}>
+                                                Contests
+                                            </Link>
+                                            <Link href="/courses" className={navLinkClass("/courses")}>
+                                                Courses
+                                            </Link>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative">
+                                                <button
+                                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                                                >
+                                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{session.user.name}</span>
+                                                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
+                                                        {session.user.image ? (
+                                                            <Image
+                                                                src={session.user.image}
+                                                                alt={session.user.name || "User"}
+                                                                width={32}
+                                                                height={32}
+                                                                className="w-full h-full object-cover"
+                                                                referrerPolicy="no-referrer"
+                                                            />
+                                                        ) : (
+                                                            session.user.name?.charAt(0).toUpperCase()
                                                         )}
-
-                                                        {isInstitutionManager && (
-                                                            <Link href="/dashboard/institution" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                                Institution
-                                                            </Link>
-                                                        )}
-
-                                                        {(isAdmin || isContestManager) && (
-                                                            <Link href="/dashboard/contests" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                                Contest Management
-                                                            </Link>
-                                                        )}
-
-                                                        {isAdmin && (
-                                                            <Link href="/admin" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg">
-                                                                Admin Panel
-                                                            </Link>
-                                                        )}
-
-                                                        {/* Bottom section */}
-                                                        <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
-                                                        <button
-                                                            onClick={() => { setIsDropdownOpen(false); handleSignOut(); }}
-                                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                                                        >
-                                                            Sign Out
-                                                        </button>
                                                     </div>
-                                                </>
-                                            )}
+                                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                                                </button>
+
+                                                {isDropdownOpen && (
+                                                    <>
+                                                        <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                                                        <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-lg z-50 p-1">
+                                                            <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                My Dashboard
+                                                            </Link>
+                                                            <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                My Classrooms
+                                                            </Link>
+                                                            <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                My Assignments
+                                                            </Link>
+                                                            <Link href="/leaderboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                Leaderboard
+                                                            </Link>
+
+                                                            {(canManage || isInstitutionManager) && (
+                                                                <>
+                                                                    <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
+                                                                    <div className="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manage</div>
+                                                                </>
+                                                            )}
+
+                                                            {isTeacher && (
+                                                                <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                    Teacher Dashboard
+                                                                </Link>
+                                                            )}
+
+                                                            {isInstitutionManager && (
+                                                                <Link href="/dashboard/institution" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                    Institution
+                                                                </Link>
+                                                            )}
+
+                                                            {(isAdmin || isContestManager) && (
+                                                                <Link href="/dashboard/contests" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                    Contest Management
+                                                                </Link>
+                                                            )}
+
+                                                            {isAdmin && (
+                                                                <Link href="/admin" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg">
+                                                                    Admin Panel
+                                                                </Link>
+                                                            )}
+
+                                                            <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
+                                                            <button
+                                                                onClick={() => { setIsDropdownOpen(false); handleSignOut(); }}
+                                                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                                                            >
+                                                                Sign Out
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <ThemeToggle />
+                                            <StreakBadge />
+                                            <div className="h-4 w-px bg-gray-200 dark:bg-white/10" />
+                                            <UserPoints />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="hidden md:flex items-center gap-6 border-r border-gray-200 dark:border-[#262626] pr-4">
+                                            <Link href="/problems" className={navLinkClass("/problems")}>
+                                                Practice
+                                            </Link>
+                                            <Link href="/contests" className={navLinkClass("/contests")}>
+                                                Contests
+                                            </Link>
+                                            <Link href="/courses" className={navLinkClass("/courses")}>
+                                                Courses
+                                            </Link>
                                         </div>
                                         <ThemeToggle />
-                                        <StreakBadge />
-                                        <UserPoints />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-4">
-                                    <ThemeToggle />
-                                    <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
-                                        Sign In
-                                    </Link>
-                                    <Link href="/signup" className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                                        Get Started
-                                    </Link>
-                                </div>
+                                        <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                                            Sign In
+                                        </Link>
+                                        <Link href="/signup" className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                                            Get Started
+                                        </Link>
+                                    </>
                             )}
                         </>
                     )}
@@ -204,6 +216,7 @@ export default function Navbar() {
                     </div>
                 </button>
             </div>
+        </div>
 
             {/* MOBILE MENU DROPDOWN */}
             {isMenuOpen && (

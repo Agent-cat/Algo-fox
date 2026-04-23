@@ -26,6 +26,8 @@ interface CategoryCardProps {
   domain: string;
   courseId?: string;
   isEnrolled?: boolean;
+  searchTerm?: string;
+  problemTitles?: string[];
 }
 
 export default function CategoryCard({
@@ -40,7 +42,9 @@ export default function CategoryCard({
   userRole,
   domain,
   courseId,
-  isEnrolled = false
+  isEnrolled = false,
+  searchTerm = "",
+  problemTitles = []
 }: CategoryCardProps) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
@@ -81,7 +85,9 @@ export default function CategoryCard({
     setIsLoading(true);
     try {
       const cursor = append && problems.length > 0 ? problems[problems.length - 1].id : undefined;
-      const res = await getCategoryProblems(id, pageNum, 10, cursor);
+      // Increase pageSize when searching to ensure we find the matching problem
+      const effectivePageSize = searchTerm ? 100 : 10;
+      const res = await getCategoryProblems(id, pageNum, effectivePageSize, cursor);
 
       if (append) {
         setProblems((prev) => [...prev, ...res.problems]);
@@ -94,9 +100,10 @@ export default function CategoryCard({
        console.error("Failed to load category problems:", error);
     } finally {
       setIsLoading(false);
+      setIsInitialLoad(true); // Ensure isInitialLoad is true after first load attempt
       setIsInitialLoad(false);
     }
-  }, [id, isLoading, problems]);
+  }, [id, isLoading, problems, searchTerm]);
 
   const handleToggle = () => {
     if (!isExpanded && problems.length === 0) {
@@ -136,9 +143,29 @@ export default function CategoryCard({
     };
   }, [isExpanded, hasMore, isLoading, loadMore]);
 
+  // Auto-expand on search match
+  useEffect(() => {
+    if (searchTerm) {
+      const hasMatchingProblem = problemTitles.some(title =>
+        title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      if (hasMatchingProblem && !isExpanded) {
+        setIsExpanded(true);
+        if (problems.length === 0) {
+          setIsInitialLoad(true);
+          loadProblems(1, false);
+        }
+      }
+    }
+  }, [searchTerm, problemTitles, isExpanded, problems.length, loadProblems]);
+
   const getDifficultyColor = (difficulty: Difficulty) => {
     return DIFFICULTY_COLORS[difficulty] || "text-gray-500";
   };
+
+  const filteredProblems = searchTerm
+    ? problems.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    : problems;
 
   return (
     <motion.div
@@ -167,7 +194,7 @@ export default function CategoryCard({
       >
         <motion.button
           onClick={handleToggle}
-          className="flex-1 py-3 px-4 text-left focus:outline-none"
+          className="flex-1 py-5 px-4 text-left focus:outline-none"
           whileTap={{ scale: 0.998 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
@@ -278,6 +305,8 @@ export default function CategoryCard({
                       domain={domain}
                       courseId={courseId}
                       isEnrolled={isEnrolled}
+                      searchTerm={searchTerm}
+                      problemTitles={subCat.problemTitles}
                     />
                   ))}
                 </div>
@@ -285,14 +314,14 @@ export default function CategoryCard({
 
               {isInitialLoad ? (
                 <LoadingSpinner size="md" className="py-6" />
-              ) : problems.length === 0 ? (
+              ) : filteredProblems.length === 0 ? (
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
-                  No problems in this category yet.
+                  {searchTerm ? "No matching problems found in this category." : "No problems in this category yet."}
                 </div>
               ) : (
                 <>
                   <div className="space-y-1">
-                    {problems.map((problem, index) => {
+                    {filteredProblems.map((problem, index) => {
                       const isLocked = !!courseId && !isEnrolled;
 
                       const ProblemWrapper = (isLocked ? "div" : Link) as any;

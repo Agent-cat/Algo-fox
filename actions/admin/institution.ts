@@ -4,6 +4,7 @@ import { InstitutionService } from "@/core/services/institution.service";
 import { z } from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
+import { processLogger } from "@/lib/logger";
 
 const institutionSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -19,7 +20,7 @@ export async function getInstitutions() {
         const institutions = await InstitutionService.getInstitutions();
         return { success: true, institutions };
     } catch (error) {
-         console.error("Failed to fetch institutions:", error);
+        processLogger.error("Failed to fetch institutions", error);
         return { success: false, error: "Failed to fetch institutions" };
     }
 }
@@ -30,7 +31,7 @@ export async function getInstitutionById(id: string) {
         if (!institution) return { success: false, error: "Institution not found" };
         return { success: true, institution };
     } catch (error) {
-         console.error("Failed to fetch institution:", error);
+        processLogger.error("Failed to fetch institution", error);
         return { success: false, error: "Failed to fetch institution" };
     }
 }
@@ -57,7 +58,7 @@ export async function createInstitutionAction(data: z.infer<typeof institutionSc
         if (error instanceof z.ZodError) {
             return { success: false, error: error.issues[0].message };
         }
-         console.error("Failed to create institution:", error);
+        processLogger.error("Failed to create institution", error);
         return { success: false, error: "Failed to create institution" };
     }
 }
@@ -78,7 +79,7 @@ export async function updateInstitutionAction(id: string, data: z.infer<typeof u
         if (error instanceof z.ZodError) {
             return { success: false, error: error.issues[0].message };
         }
-         console.error("Failed to update institution:", error);
+        processLogger.error("Failed to update institution", error);
         return { success: false, error: "Failed to update institution" };
     }
 }
@@ -104,12 +105,12 @@ export async function assignInstitutionManager(email: string, institutionId: str
 
         revalidatePath("/admin/users");
         revalidatePath(`/admin/institutions/${institutionId}`);
-        revalidateTag(`dashboard-${user.id}`, "max");
+        revalidateTag(`dashboard-${user.id}`, 'max');
         await redis.del(`dashboard:stats:${user.id}`);
 
         return { success: true, data: updatedUser };
     } catch (error) {
-         console.error("Failed to assign institution manager:", error);
+        processLogger.error("Failed to assign institution manager", error);
         return { success: false, error: "Failed to assign institution manager" };
     }
 }
@@ -134,7 +135,7 @@ export async function searchUsersByEmail(query: string) {
 
         return { success: true, users };
     } catch (error) {
-         console.error("Failed to search users:", error);
+        processLogger.error("Failed to search users", error);
         return { success: false, error: "Failed to search users" };
     }
 }
@@ -153,12 +154,12 @@ export async function removeInstitutionManager(userId: string, institutionId: st
         });
 
         revalidatePath(`/admin/institutions/${institutionId}`);
-        revalidateTag(`dashboard-${userId}`, "max");
+        revalidateTag(`dashboard-${userId}`,'max');
         await redis.del(`dashboard:stats:${userId}`);
 
         return { success: true };
     } catch (error) {
-         console.error("Failed to remove manager:", error);
+        processLogger.error("Failed to remove manager", error);
         return { success: false, error: "Failed to remove administrative access" };
     }
 }
@@ -179,7 +180,7 @@ export async function deleteInstitutionAction(id: string) {
         revalidatePath("/admin/institutions");
         return { success: true };
     } catch (error) {
-         console.error("Failed to delete institution:", error);
+        processLogger.error("Failed to delete institution", error);
         return { success: false, error: "Failed to delete institution. Ensure it has no active classrooms." };
     }
 }
@@ -220,7 +221,7 @@ export async function getInstitutionUsers(institutionId: string, page: number = 
 
         return { success: true, users, total };
     } catch (error) {
-         console.error("Failed to fetch institution users:", error);
+        processLogger.error("Failed to fetch institution users", error);
         return { success: false, error: "Failed to fetch institution users" };
     }
 }
@@ -238,8 +239,8 @@ export async function removeUserFromInstitution(userId: string) {
             },
         });
 
-        revalidateTag(`user-${userId}`, "max");
-        revalidateTag(`dashboard-${userId}`, "max");
+        revalidateTag(`user-${userId}`,'max');
+        revalidateTag(`dashboard-${userId}`,'max');
 
         // Clear redis if it exists
         try {
@@ -249,7 +250,7 @@ export async function removeUserFromInstitution(userId: string) {
 
         return { success: true };
     } catch (error) {
-         console.error("Failed to remove user from institution:", error);
+        processLogger.error("Failed to remove user from institution", error);
         return { success: false, error: "Failed to remove user from institution" };
     }
 }

@@ -7,9 +7,10 @@ import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import AptitudeClient from "./_components/AptitudeClient";
+import { Metadata } from "next";
 
-export const metadata = {
-    title: "Aptitude | Algofox",
+export const metadata:Metadata = {
+    title: "Aptitude",
     description: "Learn and practice aptitude questions.",
 };
 

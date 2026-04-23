@@ -7,7 +7,7 @@ import { InstitutionDashboardContent } from "./InstitutionDashboardContent";
 import { Loader2, Building2 } from "lucide-react";
 
 export const metadata = {
-    title: "Institution Dashboard | AlgoFox",
+    title: "Institution Dashboard",
 };
 
 async function DashboardData() {

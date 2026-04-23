@@ -4,7 +4,7 @@ import ModuleManager from "@/components/admin/ModuleManager";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
-export default async function CourseModulesPage({ params }: { params: { id: string } }) {
+export default async function CourseModulesPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     const course = await prisma.course.findUnique({

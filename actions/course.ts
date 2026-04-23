@@ -21,8 +21,8 @@ export async function enrollInCourse(courseId: string, slug: string) {
         await CourseService.updateCourseProgress(session.user.id, courseId);
 
         // Revalidate cache
-        revalidateTag(`course-${slug}`, "max");
-        revalidateTag("courses-list", "max");
+        revalidateTag(`course-${slug}`,'max');
+        revalidateTag("courses-list",'max');
 
         return { success: true, enrollment };
     } catch (error: any) {
