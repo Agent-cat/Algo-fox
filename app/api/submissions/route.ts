@@ -55,9 +55,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        const session = await auth.api.getSession({
+            headers: await headers()
+        });
+
+        if (!session?.user || session.user.id !== userId) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+
         // ROLE CHECK: Only non-USER roles can submit
         const user = await prisma.user.findUnique({
-            where: { id: userId },
+            where: { id: session.user.id },
             select: { role: true }
         });
 

@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
@@ -14,7 +15,7 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
     const res = await getContestDetail(id);
 
@@ -50,8 +51,9 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
     }
 
     const userRole = (session.user as any).role;
+    const privilegedRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER"];
 
-    if (userRole === "USER") {
+    if (!userRole || !privilegedRoles.includes(userRole)) {
         return (
             <div className="pt-20">
                 <SubscriptionOverlay

@@ -199,7 +199,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                     Checking...
                                 </div>
                             ) : userRole === "USER" ? (
-                                <><Lock className="w-4 h-4 text-orange-500" /> Check Answer</>
+                                <><Lock className="w-4 h-4 text-orange-500" aria-label="locked" /> Check Answer</>
                             ) : "Check Answer"}
                         </button>
                     </div>

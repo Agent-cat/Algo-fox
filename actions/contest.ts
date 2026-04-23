@@ -642,6 +642,10 @@ export async function verifyContestPassword(contestId: string, password?: string
 
         const currentUser = session.user as any;
         const isAdmin = currentUser.role === "ADMIN";
+
+        if (currentUser.role === "USER") {
+            return { success: false, error: "Subscription required to enter contests." };
+        }
         const isCreator = contest.creatorId === currentUser.id;
 
         // IP Restriction was removed to allow users but track IP instead.
@@ -668,7 +672,7 @@ export async function startContestSession(contestId: string, password?: string) 
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
-    if ((session.user.role as string) === "USER") {
+    if ((session.user as any).role === "USER") {
         return { success: false, error: "Subscription required to enter contests." };
     }
 

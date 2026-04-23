@@ -90,7 +90,9 @@ export default function SubscriptionClient() {
                     {plan.popular && <Sparkles className="w-5 h-5 text-orange-500" />}
                 </div>
                 <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-4xl font-black text-gray-900 dark:text-white">₹{plan.price}</span>
+                    <span className="text-4xl font-black text-gray-900 dark:text-white">
+                        {Number.isFinite(Number(plan.price)) ? `₹${plan.price}` : plan.price}
+                    </span>
                     {plan.period && <span className="text-gray-400 text-sm font-medium">{plan.period}</span>}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{plan.description}</p>
@@ -107,11 +109,13 @@ export default function SubscriptionClient() {
                 ))}
               </div>
 
-              <button className={`w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-[0.98] ${
+              <button
+                disabled={plan.name === "Free"}
+                className={`w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-[0.98] ${
                 plan.popular
                   ? "bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
                   : plan.name === "Free"
-                    ? "bg-gray-200 dark:bg-white/10 text-gray-400 cursor-not-allowed"
+                    ? "bg-gray-200 dark:bg-white/10 text-gray-400 cursor-not-allowed opacity-60"
                     : "bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-90"
               }`}>
                 {plan.cta}

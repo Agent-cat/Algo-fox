@@ -295,12 +295,12 @@ const WorkspaceHeader = memo(({
                   transition-colors duration-200 disabled:opacity-50
                   border border-gray-200/80 dark:border-[#262626]
                   ${contestId ? 'shadow-sm' : ''}
-                  ${session?.user?.role === "USER" ? 'cursor-not-allowed border-orange-500/20 shadow-orange-500/5' : ''}
+                  ${(isPending || session?.user?.role === "USER") ? 'cursor-not-allowed border-orange-500/20 shadow-orange-500/5' : ''}
                 `}
-                onClick={session?.user?.role === "USER" ? () => toast.error("Please subscribe to use this feature") : onRun}
-                disabled={isRunning || isSubmitting}
-                whileHover={session?.user?.role === "USER" ? {} : { y: -1 }}
-                whileTap={session?.user?.role === "USER" ? {} : { scale: 0.97 }}
+                onClick={(isPending || session?.user?.role === "USER") ? () => !isPending && toast.error("Please subscribe to use this feature") : onRun}
+                disabled={isPending || isRunning || isSubmitting}
+                whileHover={(isPending || session?.user?.role === "USER") ? {} : { y: -1 }}
+                whileTap={(isPending || session?.user?.role === "USER") ? {} : { scale: 0.97 }}
               >
                 {isRunning ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

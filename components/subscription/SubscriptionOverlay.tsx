@@ -1,9 +1,20 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Lock, Sparkles, ChevronRight, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Lock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface SubscriptionOverlayProps {
   title: string;
@@ -12,71 +23,76 @@ interface SubscriptionOverlayProps {
 
 export default function SubscriptionOverlay({ title, description }: SubscriptionOverlayProps) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        router.back();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [router]);
+
+  if (!mounted) return null;
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center p-6">
-      {/* Dimmed Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm"
-      />
-
-      {/* Clean Light/Dark Modal */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative w-full max-w-[420px] bg-white dark:bg-[#121212] border border-gray-200 dark:border-white/10 rounded-3xl p-10 text-center shadow-2xl"
+    <Dialog open={true} onOpenChangeAction={(open) => !open && router.back()}>
+      <DialogContent
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subscription-modal-title"
+        className="sm:max-w-[420px] p-8 rounded-3xl border-gray-200 dark:border-white/10 shadow-2xl [&>button]:hidden"
       >
-        {/* Close Button */}
-        <button
-            onClick={() => router.back()}
-            className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-            <X className="w-5 h-5" />
-        </button>
-
-        {/* Brand Icon */}
-        <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center border border-orange-500/10">
+        <DialogHeader className="items-center gap-6">
+          <div className="relative">
+            <Avatar className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center border border-orange-500/10">
+              <AvatarFallback className="bg-transparent">
                 <Lock className="w-8 h-8 text-orange-500" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          <div className="space-y-3 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] border border-orange-200 dark:border-orange-500/10 mx-auto">
+              Premium Plus
             </div>
-        </div>
+            <DialogTitle id="subscription-modal-title" className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+              {title}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed px-2 font-medium">
+              {description}
+            </DialogDescription>
+          </div>
+        </DialogHeader>
 
-        {/* Content Section */}
-        <div className="space-y-4 mb-10">
-            <div className="flex flex-col items-center gap-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] border border-orange-200 dark:border-orange-500/10">
+        <DialogFooter className="flex flex-col gap-3 sm:flex-col sm:justify-center sm:space-x-0 mt-6">
+          <Link
+            href="/subscription"
+            className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-[0.98] border-none text-base"
+            role="button"
+          >
+            Unlock Premium Now
+            <ChevronRight className="w-4 h-4" />
+          </Link>
 
-                    Premium Plus
-                </div>
-                <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-                    {title}
-                </h2>
-            </div>
-
-            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed px-2 font-medium">
-                {description}
-            </p>
-        </div>
-
-        {/* CTA Stack */}
-        <div className="flex flex-col gap-3">
-            <Link href="/subscription" className="w-full">
-                <button className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-[0.98]">
-                    Unlock Premium Now
-                    <ChevronRight className="w-4 h-4" />
-                </button>
-            </Link>
-
-            <button
-                onClick={() => router.back()}
-                className="w-full py-4 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white font-bold text-sm transition-colors"
+          <DialogClose asChild>
+            <Button
+              variant="ghost"
+              className="w-full h-14 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-bold text-sm transition-colors hover:bg-transparent"
+              onClick={() => router.back()}
+              aria-label="Close subscription modal"
             >
-                Not right now
-            </button>
-        </div>
-      </motion.div>
-    </div>
+              Not right now
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
+

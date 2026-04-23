@@ -67,7 +67,16 @@ export async function markConceptAsCompleted(problemId: string) {
         return { success: false, error: "Unauthorized" };
     }
 
-    if (((session.user as any).role as string) === "USER") {
+    interface SessionUser {
+        id: string;
+        email: string;
+        role: string;
+    }
+
+    const user = session.user as SessionUser;
+    const PAID_ROLES = new Set(["ADMIN", "TEACHER", "CONTEST_MANAGER", "INSTITUTION_MANAGER"]);
+
+    if (!user.role || !PAID_ROLES.has(user.role)) {
         return { success: false, error: "Subscription required to complete problems" };
     }
 

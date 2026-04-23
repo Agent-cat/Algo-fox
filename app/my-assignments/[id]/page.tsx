@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -7,7 +8,7 @@ import { AssignmentDetailView } from "@/components/assignments/AssignmentDetailV
 import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { Loader2 } from "lucide-react";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Assignment",
 };
 
@@ -20,7 +21,10 @@ async function AssignmentContent({ id }: { id: string }) {
         redirect("/login");
     }
 
-    if ((session.user as any).role === "USER") {
+    const user = session.user as { role: string };
+    const allowedRoles = new Set(["ADMIN", "TEACHER", "CONTEST_MANAGER", "INSTITUTION_MANAGER"]);
+
+    if (!user.role || !allowedRoles.has(user.role)) {
         return (
             <SubscriptionOverlay
                 title="Unlock Assignment"
