@@ -249,6 +249,7 @@ model Submission {
   @@index([status])
   @@index([userId, status, mode, problemId])
   @@index([userId, status, createdAt])
+  @@index([userId, mode, createdAt])
   @@index([contestId, createdAt])
   @@index([contestId, userId, status]) // For leaderboard groupBy queries
 }

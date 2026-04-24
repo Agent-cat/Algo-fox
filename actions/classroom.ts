@@ -15,13 +15,12 @@ const classroomSchema = z.object({
     institutionId: z.string(),
 });
 
-function generateJoinCode() {
+function generateJoinCode(): string {
+    // Use cryptographically secure random bytes — Math.random() is predictable
+    const { randomBytes } = require("crypto") as typeof import("crypto");
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
+    const bytes = randomBytes(6);
+    return Array.from(bytes, (b) => chars[b % chars.length]).join("");
 }
 
 /**

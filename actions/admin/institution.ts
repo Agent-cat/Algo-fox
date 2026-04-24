@@ -5,6 +5,15 @@ import { z } from "zod";
 import { revalidatePath, revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
 import { processLogger } from "@/lib/logger";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+async function requireAdmin() {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) return null;
+    const user = session.user as any;
+    return user.role === "ADMIN" ? user : null;
+}
 
 const institutionSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,6 +48,7 @@ export async function getInstitutionById(id: string) {
 
 // Redefining create in Service for clarity
 export async function createInstitutionAction(data: z.infer<typeof institutionSchema>) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         const validatedData = institutionSchema.parse(data);
         // Directly use prisma for create if not in service yet
@@ -64,6 +74,7 @@ export async function createInstitutionAction(data: z.infer<typeof institutionSc
 }
 
 export async function updateInstitutionAction(id: string, data: z.infer<typeof updateInstitutionSchema>) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         const validatedData = updateInstitutionSchema.parse(data);
         const institution = await InstitutionService.updateInstitution(id, {
@@ -85,6 +96,7 @@ export async function updateInstitutionAction(id: string, data: z.infer<typeof u
 }
 
 export async function assignInstitutionManager(email: string, institutionId: string) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         const { prisma } = await import("@/lib/prisma");
         const user = await prisma.user.findUnique({
@@ -141,6 +153,7 @@ export async function searchUsersByEmail(query: string) {
 }
 
 export async function removeInstitutionManager(userId: string, institutionId: string) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         const { prisma } = await import("@/lib/prisma");
 
@@ -165,6 +178,7 @@ export async function removeInstitutionManager(userId: string, institutionId: st
 }
 
 export async function deleteInstitutionAction(id: string) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         // First disconnect all users from this institution
         const { prisma } = await import("@/lib/prisma");
@@ -227,6 +241,7 @@ export async function getInstitutionUsers(institutionId: string, page: number = 
 }
 
 export async function removeUserFromInstitution(userId: string) {
+    if (!await requireAdmin()) return { success: false, error: "Unauthorized" };
     try {
         const { prisma } = await import("@/lib/prisma");
 

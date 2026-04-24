@@ -34,11 +34,18 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "classrooms are required" }, { status: 400 });
         }
 
-        const classroomIds = classroomIdsParam.split(",");
+        const classroomIds = classroomIdsParam.split(",").filter(Boolean);
+        if (classroomIds.length === 0) {
+            return NextResponse.json({ error: "No valid classroom IDs provided" }, { status: 400 });
+        }
 
-        // Fetch classrooms and students
+        // Fetch classrooms and students — teachers may only export their own classrooms
         const classrooms = await prisma.classroom.findMany({
-            where: { id: { in: classroomIds } },
+            where: {
+                id: { in: classroomIds },
+                // TEACHERs are restricted to classrooms they own
+                ...(role === "TEACHER" && { teacherId: session.user.id }),
+            },
             include: {
                 students: {
                     select: {

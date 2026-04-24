@@ -9,8 +9,8 @@ import { headers } from "next/headers";
 export async function checkCodeChefUser(handle: string, ignoreCache = false) {
     try {
         const fetchOptions = ignoreCache
-            ? { cache: 'no-store' as RequestCache }
-            : { next: { revalidate: 3600 } }; // Cache for 1 hour
+            ? { cache: 'no-store' as RequestCache, signal: AbortSignal.timeout(8000) }
+            : { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) };
 
         const resdata = await fetch(
             `https://www.codechef.com/users/${handle}`,
@@ -142,7 +142,7 @@ export async function verifyCodeChefOwnership(handle: string, verificationCode: 
         // Fetch fresh profile page, bypassing all caches
         const resdata = await fetch(
             `https://www.codechef.com/users/${handle}`,
-            { cache: 'no-store' }
+            { cache: 'no-store', signal: AbortSignal.timeout(8000) }
         );
 
         if (resdata.status !== 200) {
@@ -179,8 +179,8 @@ export async function verifyCodeChefOwnership(handle: string, verificationCode: 
 export async function checkCodeforcesUser(handle: string, ignoreCache = false) {
     try {
         const fetchOptions = ignoreCache
-            ? { cache: 'no-store' as RequestCache }
-            : { next: { revalidate: 3600 } };
+            ? { cache: 'no-store' as RequestCache, signal: AbortSignal.timeout(8000) }
+            : { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) };
 
         const [userInfoRes, userStatusRes] = await Promise.all([
             fetch(`https://codeforces.com/api/user.info?handles=${handle}`, fetchOptions),
@@ -329,8 +329,8 @@ export async function checkLeetCodeUser(handle: string, ignoreCache = false) {
         `;
 
         const fetchOptions = ignoreCache
-            ? { cache: 'no-store' as RequestCache }
-            : { next: { revalidate: 3600 } };
+            ? { cache: 'no-store' as RequestCache, signal: AbortSignal.timeout(8000) }
+            : { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) };
 
         const contestRes = await fetch('https://leetcode.com/graphql', {
             method: 'POST',
@@ -404,7 +404,8 @@ export async function verifyLeetCodeOwnership(handle: string, verificationCode: 
                 'Referer': 'https://leetcode.com'
             },
             body: JSON.stringify({ query, variables: { username: handle } }),
-            cache: 'no-store'
+            cache: 'no-store',
+            signal: AbortSignal.timeout(8000)
         });
 
         if (!res.ok) {
@@ -459,7 +460,8 @@ export async function checkGitHubUser(handle: string) {
             headers: {
                 "Accept" : "application/vnd.github.v3+json",
             },
-            next: { revalidate: 3600 }
+            next: { revalidate: 3600 },
+            signal: AbortSignal.timeout(8000)
         });
         if (res.ok) {
             let data;

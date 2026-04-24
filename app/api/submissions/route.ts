@@ -8,6 +8,11 @@ import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
 import { getVerifiedClientIP } from "@/lib/ip";
 
 export async function GET(req: NextRequest) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const problemId = searchParams.get("problemId");
@@ -17,20 +22,23 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Missing params" }, { status: 400 });
     }
 
+    // Users may only fetch their own submissions; admins can fetch any
+    const sessionUser = session.user as any;
+    if (userId !== session.user.id && sessionUser.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     try {
-        const { prisma } = await import("@/lib/prisma");
         const submissions = await prisma.submission.findMany({
             where: {
                 userId,
                 problemId,
                 contestId: contestId || null,
-                mode: "SUBMIT"
+                mode: "SUBMIT",
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
             take: 20,
-            include: {
-                language: true
-            }
+            include: { language: true },
         });
 
         return NextResponse.json(submissions);
@@ -108,13 +116,9 @@ export async function POST(req: NextRequest) {
             if (validation.participation?.ipAddress &&
                 clientIP &&
                 validation.participation.ipAddress !== clientIP) {
-                // Log suspicious activity for audit trail
-                 console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);
-                // Note: We allow submission but log it - admins can review suspicious activity
+                console.warn(`[Security] IP change detected for user ${userId} in contest ${contestId}: ${validation.participation.ipAddress} → ${clientIP}`);
             }
         }
-
-
 
         // 1. Create Submission in DB (SUBMIT MODE)
         const submission = await SubmissionService.createSubmission(userId, problemId, languageId, code, mode, contestId);
@@ -136,7 +140,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ submissionId: submission.id }, { status: 201 });
 
     } catch (error) {
-         console.error("Submission API Error:", error);
+        console.error("Submission API Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

@@ -154,7 +154,7 @@ export class SubmissionService {
         }));
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 30s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
         try {
             const response = await fetch(`${JUDGE0_URL}/submissions/batch?base64_encoded=true`, {

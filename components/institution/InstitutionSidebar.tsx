@@ -9,7 +9,8 @@ import {
   Link as LinkIcon,
   Tent,
   LucideIcon,
-  Building2
+  Building2,
+  BarChart2,
 } from "lucide-react";
 
 type SidebarItem =
@@ -24,6 +25,9 @@ const sidebarItems: SidebarItem[] = [
   { type: "link", name: "Teachers", icon: Users, href: "/dashboard/institution/teachers" },
   { type: "link", name: "Contest Managers", icon: Trophy, href: "/dashboard/institution/managers" },
   { type: "link", name: "Students", icon: Users, href: "/dashboard/institution/students" },
+
+  { type: "header", name: "Analytics" },
+  { type: "link", name: "Student Analytics", icon: BarChart2, href: "/dashboard/institution/analytics" },
 
   { type: "header", name: "Academic" },
   { type: "link", name: "Classrooms", icon: Tent, href: "/dashboard/institution/classrooms" },
