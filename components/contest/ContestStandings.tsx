@@ -25,6 +25,9 @@ interface ProblemStat {
     solvedAt: string | null;
     language: string | null;
     languageId: number | null;
+    passedPercentage: number;
+    maxPassed: number;
+    totalTestCases: number;
 }
 
 interface Student {
@@ -276,39 +279,53 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                         {problems.map((p: ContestProblem) => {
                                             const stat = student.problemStats?.find((s: ProblemStat) => s.problemId === p.id);
                                             return (
-                                                <td key={p.id} className="px-4 py-4 border-r border-gray-100 dark:border-gray-800/50 last:border-r-0">
+                                                <td key={p.id} className="px-4 py-4 border-r border-gray-100 dark:border-gray-800/50 last:border-r-0" title={p.title}>
                                                     <div className="flex flex-col items-center gap-1">
-                                                        {stat?.solved ? (
-                                                            <>
-                                                                <div className="flex items-center gap-1">
-                                                                    <LanguageLogo language={stat.language} className="w-6 h-6" />
-                                                                    <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400">+{stat.score}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                                    <div className="flex items-center gap-0.5" title="Submissions">
-                                                                        {stat.submissions}
-                                                                    </div>
-                                                                    <span className="opacity-30">|</span>
-                                                                    <div className="flex items-center gap-0.5" title="Solve Time">
-                                                                        {stat.solvedAt ? new Date(stat.solvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        ) : (
-                                                            <div className="flex flex-col items-center opacity-20">
-                                                                {stat && stat.submissions > 0 ? (
-                                                                    <>
-                                                                        <span className="text-[11px] font-black text-red-500">0</span>
-                                                                        <div className="flex items-center gap-0.5 text-[8px] font-bold text-gray-400">
-                                                                            <Hash className="w-2 h-2" />
-                                                                            {stat.submissions}
-                                                                        </div>
-                                                                    </>
-                                                                ) : (
-                                                                    <div className="w-5 h-0.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                        {stat && stat.submissions > 0 ? (
+                                            <div className="flex flex-col items-center gap-1.5 w-full">
+                                                {/* Progress Bar for partial completion */}
+                                                <div className="w-full bg-gray-100 dark:bg-white/5 h-1.5 rounded-full overflow-hidden border border-gray-200 dark:border-white/5">
+                                                    <div
+                                                        className={`h-full transition-all duration-300 ${
+                                                            stat.solved ? "bg-emerald-500" :
+                                                            stat.passedPercentage > 0 ? "bg-orange-500" : "bg-red-500"
+                                                        }`}
+                                                        style={{ width: `${stat.passedPercentage}%` }}
+                                                    />
+                                                </div>
+
+                                                <div className="flex items-center justify-between w-full px-1">
+                                                    {/* Score or Percentage */}
+                                                    <span className={`text-[10px] font-black ${
+                                                        stat.solved ? "text-emerald-600 dark:text-emerald-400" :
+                                                        stat.passedPercentage > 0 ? "text-orange-600 dark:text-orange-400" : "text-red-500"
+                                                    }`}>
+                                                        {stat.solved ? `+${stat.score}` : `${stat.passedPercentage}%`}
+                                                    </span>
+
+                                                    {/* Wrong Attempts / Total Submissions */}
+                                                    <div className="flex items-center gap-1 text-[9px] font-bold text-gray-500">
+                                                        <span title="Wrong Attempts" className="text-red-500/70">-{stat.wrongAttempts}</span>
+                                                        <span className="opacity-30">|</span>
+                                                        <span title="Total Submissions">{stat.submissions}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Meta Info: Time or Best Case count */}
+                                                <div className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                    {stat.solved ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <Clock className="w-2 h-2" />
+                                                            {stat.solvedAt ? new Date(stat.solvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}
+                                                        </div>
+                                                    ) : (
+                                                        <span>{stat.maxPassed}/{stat.totalTestCases} Cases</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="w-5 h-0.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
+                                        )}
                                                     </div>
                                                 </td>
                                             );

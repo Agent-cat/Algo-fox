@@ -58,7 +58,7 @@ export default function Navbar() {
     const canManage = isAdmin || isTeacher || isContestManager;
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-dashed border-gray-300 dark:border-[#262626]">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-gray-200 dark:border-white/10">
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
                 <div className="flex items-center">
                     <Link href="/" className="text-xl font-bold flex items-center gap-2 group">

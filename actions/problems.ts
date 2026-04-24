@@ -5,6 +5,7 @@ import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
+import { getCacheLifeConfig, getCacheTags } from "@/lib/cache-config";
 
 // GETTING PUBLIC PROBLEMS
 
@@ -19,7 +20,7 @@ export async function getProblems(
     sortBy: string = 'newest'
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    cacheLife(getCacheLifeConfig("problems"));
 
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -43,7 +44,7 @@ export async function getAdminProblems(
     type?: ProblemType
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    cacheLife(getCacheLifeConfig("problems"));
 
     // CHECKING IF USER IS AUTHENTICATED
     const session = await auth.api.getSession({
@@ -68,7 +69,7 @@ export async function searchProblems(
     domain: ProblemDomain = "DSA"
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for search results
+    cacheLife(getCacheLifeConfig("problems"));
 
     const session = await auth.api.getSession({
         headers: await headers()
@@ -83,13 +84,26 @@ export async function searchProblems(
 
 // GETTING A PROBLEM BY SLUG CACHED
 
-export async function getProblem(slug: string) {
+async function getProblemCached(slug: string, isAdmin: boolean) {
     "use cache";
-    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    cacheLife(getCacheLifeConfig("problemDetail"));
+    cacheTag(`problem-${slug}`, ...getCacheTags("problemDetail"), 'problems-list');
 
-    cacheTag(`problem-${slug}`, 'problems-list');
+    return ProblemService.getProblem(slug, isAdmin);
+}
 
-    return ProblemService.getProblem(slug);
+export async function getProblem(slug: string, isAdmin?: boolean) {
+    if (isAdmin !== undefined) {
+        return getProblemCached(slug, isAdmin);
+    }
+
+    // CHECKING IF USER IS ADMIN
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+    const finalIsAdmin = session?.user?.role === "ADMIN";
+
+    return getProblemCached(slug, finalIsAdmin);
 }
 
 
@@ -138,26 +152,39 @@ export async function createProblem(data: {
 
 
 // GETTING A PROBLEM BY ID
-export async function getProblemById(id: string) {
+async function getProblemByIdCached(id: string, isAdmin: boolean) {
     "use cache";
-    cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
+    cacheLife(getCacheLifeConfig("problemDetail"));
+    cacheTag(`problem-id-${id}`, ...getCacheTags("problemDetail"), 'problems-list');
 
-    cacheTag(`problem-id-${id}`, 'problems-list');
+    return ProblemService.getProblemById(id, isAdmin);
+}
 
-    return ProblemService.getProblemById(id);
+export async function getProblemById(id: string, isAdmin?: boolean) {
+    if (isAdmin !== undefined) {
+        return getProblemByIdCached(id, isAdmin);
+    }
+
+    // CHECKING IF USER IS ADMIN
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+    const finalIsAdmin = session?.user?.role === "ADMIN";
+
+    return getProblemByIdCached(id, finalIsAdmin);
 }
 
 // NAVIGATION ACTIONS
 
 export async function getNextProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
     "use cache: private";
-    cacheLife({ stale: 300, revalidate: 300 });
+    cacheLife(getCacheLifeConfig("problems"));
     return ProblemService.getNextProblem(currentCreatedAt, domain, type, courseId, currentProblemId);
 }
 
 export async function getPreviousProblem(currentCreatedAt: Date, domain: ProblemDomain, type: ProblemType, courseId?: string, currentProblemId?: string) {
     "use cache: private";
-    cacheLife({ stale: 300, revalidate: 300 });
+    cacheLife(getCacheLifeConfig("problems"));
     return ProblemService.getPreviousProblem(currentCreatedAt, domain, type, courseId, currentProblemId);
 }
 

@@ -55,11 +55,7 @@ function SignInContent() {
         }
 
         const message = ctx.error.message?.toLowerCase();
-        if (message?.includes("new user") || message?.includes("sign up") || ctx.error.status === 400) {
-            setError("Account not found. Please create an account first.");
-        } else {
-            toast.error(ctx.error.message || "An error occurred during sign in");
-        }
+        toast.error(ctx.error.message || "An error occurred during sign in");
         setLoading(null);
       }
     });
@@ -88,8 +84,8 @@ function SignInContent() {
         </div>
 
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-black dark:text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-600 dark:text-gray-400">Sign in to continue your journey</p>
+          <h1 className="text-4xl font-bold text-black dark:text-white mb-2">Join Algo-fox</h1>
+          <p className="text-gray-600 dark:text-gray-400">Sign in or create an account to get started</p>
         </div>
 
         {error && (
@@ -137,13 +133,6 @@ function SignInContent() {
             <span>Continue with Microsoft</span>
           </button>
         </div>
-
-        <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
-          Don't have an account?{" "}
-          <Link href="/signup" className="text-orange-500 hover:text-orange-600 font-semibold transition-colors">
-            Create account
-          </Link>
-        </p>
 
         <p className="text-center text-gray-500 dark:text-gray-400 text-xs">
           By continuing, you agree to our Terms of Service and Privacy Policy.

@@ -9,6 +9,7 @@ import { RecentSubmissionsCard } from "@/components/dashboard/RecentSubmissionsC
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import DashboardLoading from "./loading";
+import { VerificationPopup } from "@/components/dashboard/VerificationPopup";
 
 function ProfileSection({ stats }: { stats: any }) {
   return (
@@ -49,6 +50,9 @@ function MainStatsSection({ stats }: { stats: any }) {
         leetCodeHandle={stats.leetCodeHandle}
         codeChefHandle={stats.codeChefHandle}
         codeforcesHandle={stats.codeforcesHandle}
+        leetCodeVerified={stats.leetCodeVerified}
+        codeChefVerified={stats.codeChefVerified}
+        codeforcesVerified={stats.codeforcesVerified}
       />
     </div>
   );
@@ -58,7 +62,7 @@ function ActivitySection({ stats }: { stats: any }) {
   const submissions = stats.submissions;
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
+      <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Submission Activity
@@ -85,6 +89,7 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
+      <VerificationPopup />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <ProfileSection stats={stats} />

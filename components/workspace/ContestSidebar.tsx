@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { finishContestAction, submitContestSectionAction } from "@/actions/contest";
 import { toast } from "sonner";
 import { ContestEndModal } from "./ContestEndModal";
+import { SubmitConfirmationModal } from "./SubmitConfirmationModal";
 
 interface ContestSidebarProps {
     isOpen: boolean;
@@ -24,6 +25,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
     const [endConfirmText, setEndConfirmText] = useState("");
     const [isEnding, setIsEnding] = useState(false);
     const [isSubmittingSection, setIsSubmittingSection] = useState(false);
+    const [showSectionConfirm, setShowSectionConfirm] = useState(false);
 
     // Active Section UI state
     const activeSectionTarget = contest.sections?.find((s: any) => s.isUnlocked && !s.isSubmitted)?.id || contest.sections?.[0]?.id;
@@ -94,7 +96,12 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
         setShowEndModal(false);
     };
 
-    const handleSectionSubmit = async () => {
+    const handleSectionSubmitClick = () => {
+        if (!currentSection || isSubmittingSection) return;
+        setShowSectionConfirm(true);
+    };
+
+    const confirmSectionSubmit = async () => {
         if (!currentSection || isSubmittingSection) return;
         setIsSubmittingSection(true);
         try {
@@ -115,6 +122,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
             toast.error("Error submitting section");
         } finally {
             setIsSubmittingSection(false);
+            setShowSectionConfirm(false);
         }
     };
 
@@ -226,7 +234,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             {/* Sequential Section Submission */}
                             {currentSection && !currentSection.isSubmitted && displayedProblems.length > 0 && (
                                 <button
-                                    onClick={handleSectionSubmit}
+                                    onClick={handleSectionSubmitClick}
                                     disabled={isSubmittingSection}
                                     className="mt-8 w-full py-3 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 rounded-xl font-black uppercase text-xs tracking-widest transition-colors flex items-center justify-center gap-2"
                                 >
@@ -268,6 +276,15 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             confirmText={endConfirmText}
                             setConfirmText={setEndConfirmText}
                             isEnding={isEnding}
+                        />
+
+                        <SubmitConfirmationModal
+                            isOpen={showSectionConfirm}
+                            onClose={() => setShowSectionConfirm(false)}
+                            onConfirm={confirmSectionSubmit}
+                            loading={isSubmittingSection}
+                            title="Submit Section?"
+                            description={`Are you sure you want to submit "${currentSection?.title}"? Once submitted, you won't be able to change your solutions in this section.`}
                         />
                     </motion.div>
                 </>

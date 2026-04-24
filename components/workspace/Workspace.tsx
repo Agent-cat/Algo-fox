@@ -135,6 +135,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     const [isTestCasesCollapsed, setIsTestCasesCollapsed] = useState(false);
     const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
     const [pendingRestore, setPendingRestore] = useState<{ code: string; langId: number } | null>(null);
+    const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
 
     useEffect(() => {
         const domain = problem.domain as string;
@@ -368,7 +369,22 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
 
     const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
     const handleToggleSidebar = useCallback(() => setIsSidebarOpen(true), []);
-    const handleSubmitAction = useCallback(() => handleSubmission("SUBMIT"), [handleSubmission]);
+
+    const handleSubmitAction = useCallback(() => {
+        if (contestId) {
+            setIsSubmitConfirmOpen(true);
+        } else {
+            handleSubmission("SUBMIT");
+        }
+    }, [contestId, handleSubmission]);
+
+    const handleConfirmSubmit = useCallback(() => {
+        setIsSubmitConfirmOpen(false);
+        handleSubmission("SUBMIT");
+    }, [handleSubmission]);
+
+    const handleCloseSubmitConfirm = useCallback(() => setIsSubmitConfirmOpen(false), []);
+
     const handleRunAction = useCallback(() => handleSubmission("RUN"), [handleSubmission]);
     const handleCloseSettings = useCallback(() => setIsSettingsOpen(false), []);
     const handleCloseStreak = useCallback(() => setIsStreakModalOpen(false), []);
@@ -455,6 +471,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 contestModeActive={contestModeActive}
                 contestSessionId={contestSessionId}
                 handleContestBlocked={handleContestBlocked}
+                isSubmitConfirmOpen={isSubmitConfirmOpen}
+                handleCloseSubmitConfirm={handleCloseSubmitConfirm}
+                handleConfirmSubmit={handleConfirmSubmit}
+                isSubmitting={isSubmitting}
             />
             <WorkspaceSidebars
                 contestId={contestId}

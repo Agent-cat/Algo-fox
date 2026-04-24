@@ -36,7 +36,21 @@ export function useWorkspaceSubmission({
 }: useWorkspaceSubmissionProps) {
     const router = useRouter();
     const [isRunning, setIsRunning] = useState(false);
+    const isRunningRef = useRef(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const isSubmittingRef = useRef(false);
+
+    // Helper to update state and ref together
+    const setRunning = (val: boolean) => {
+        setIsRunning(val);
+        isRunningRef.current = val;
+    };
+
+    const setSubmitting = (val: boolean) => {
+        setIsSubmitting(val);
+        isSubmittingRef.current = val;
+    };
+
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
     const [submissionResults, setSubmissionResults] = useState<any[]>([]);
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
@@ -64,7 +78,7 @@ export function useWorkspaceSubmission({
             return;
         }
 
-        if (isRunning || isSubmitting) {
+        if (isRunningRef.current || isSubmittingRef.current) {
             return;
         }
 
@@ -78,8 +92,8 @@ export function useWorkspaceSubmission({
         setVerticalSizesProgrammatically([60, 40]);
 
         try {
-            if (mode === "RUN") setIsRunning(true);
-            else setIsSubmitting(true);
+            if (mode === "RUN") setRunning(true);
+            else setSubmitting(true);
 
             toast.info(mode === "RUN" ? "Running code..." : "Submitting code...");
 
@@ -149,8 +163,8 @@ export function useWorkspaceSubmission({
                      eventSource.close();
                      setSubmissionStatus(payload.data.status);
 
-                     if (mode === "RUN") setIsRunning(false);
-                     else setIsSubmitting(false);
+                     if (mode === "RUN") setRunning(false);
+                     else setSubmitting(false);
 
                      if (payload.data.status === "ACCEPTED") {
                          if (mode === "SUBMIT" && currentEditorSettings.enableCorrectSound) {
@@ -197,16 +211,17 @@ export function useWorkspaceSubmission({
 
             eventSource.onerror = (err) => {
                  console.error("SSE Error:", err);
+                eventSource.onerror = null;
                 eventSource.close();
-                if (mode === "RUN") setIsRunning(false);
-                else setIsSubmitting(false);
+                if (mode === "RUN") setRunning(false);
+                else setSubmitting(false);
             };
 
         } catch (error) {
              console.error(error);
             toast.error("Something went wrong");
-            if (mode === "RUN") setIsRunning(false);
-            else setIsSubmitting(false);
+            if (mode === "RUN") setRunning(false);
+            else setSubmitting(false);
         }
     }, [
         problem.id,

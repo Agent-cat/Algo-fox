@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Loader2, X, ExternalLink } from "lucide-react";
+import { Copy, Loader2, ExternalLink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { verifyCodeChefOwnership, verifyCodeforcesOwnership, verifyLeetCodeOwnership } from "@/actions/platform.action";
+import { Dialog as CustomDialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface VerificationModalProps {
     platform: string;
@@ -12,12 +14,9 @@ interface VerificationModalProps {
     onSuccess: () => void;
 }
 
-// ... (existing imports)
-
 export function VerificationModal({ platform, handle, onClose, onSuccess }: VerificationModalProps) {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
-    // Generate a random 8-character code
     const [verificationCode] = useState(() => Math.random().toString(36).substring(2, 10));
 
     const isCodeforces = platform === "Codeforces";
@@ -63,121 +62,121 @@ export function VerificationModal({ platform, handle, onClose, onSuccess }: Veri
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md p-6 shadow-2xl border border-gray-200 dark:border-[#333] relative animate-in zoom-in-95 duration-200">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-full transition-colors"
-                >
-                    <X className="w-5 h-5" />
-                </button>
-
-                <div className="mb-6 text-center">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                        Verify your {platform} profile
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Step {step} / 3
-                    </p>
+        <CustomDialog
+            open={true}
+            onOpenChangeAction={(open) => { if (!open) onClose(); }}
+        >
+            <div className="flex flex-col items-center text-center p-2">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">
+                    <ShieldCheck className="w-6 h-6 text-orange-600 dark:text-orange-500" />
                 </div>
 
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-center">Verify {platform} Profile</DialogTitle>
+                    <DialogDescription className="text-center pt-2">
+                        Step {step} of 3
+                    </DialogDescription>
+                </DialogHeader>
+
                 {step === 1 && (
-                    <div className="space-y-6">
-                        <div className="text-center space-y-4">
-                            <p className="text-gray-600 dark:text-gray-300">
+                    <>
+                        <div className="w-full text-center mt-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Open your {platform} profile settings in a new tab.
                             </p>
                             <a
                                 href={editUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-xl font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
+                                className="mt-4 mb-2 inline-flex items-center gap-2 px-6 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
                             >
-                                Open {platform} Settings <ExternalLink className="w-4 h-4" />
+                                Open Settings <ExternalLink className="w-4 h-4" />
                             </a>
                         </div>
-                        <button
-                            onClick={() => setStep(2)}
-                            className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl transition-colors"
-                        >
-                            Continue
-                        </button>
-                    </div>
+                        <DialogFooter className="w-full gap-2 sm:gap-0 mt-6 pt-2 flex flex-col sm:flex-row">
+                            <Button
+                                variant="outline"
+                                onClick={onClose}
+                                className="w-full sm:w-1/2 border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900/50"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => setStep(2)}
+                                className="w-full sm:w-1/2 bg-orange-500 hover:bg-orange-600 text-white"
+                            >
+                                Continue
+                            </Button>
+                        </DialogFooter>
+                    </>
                 )}
 
                 {step === 2 && (
-                    <div className="space-y-6">
-                         <div className="space-y-4">
-                            <div className="text-center">
-                                <p className="text-gray-600 dark:text-gray-300 mb-2">
-                                    Paste this verification code in your <strong>{fieldName}</strong>
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                    (You can change it back after verification)
-                                </p>
-                            </div>
+                    <>
+                        <div className="w-full text-center mt-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                                Paste this code in your <strong>{fieldName}</strong>
+                            </p>
 
-                            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl">
-                                <code className="flex-1 text-center font-mono text-lg font-bold text-gray-900 dark:text-gray-100 tracking-wider">
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-lg mt-3 mx-auto w-3/4">
+                                <code className="flex-1 text-center font-mono text-base font-bold text-gray-900 dark:text-gray-100">
                                     {verificationCode}
                                 </code>
                                 <button
                                     onClick={handleCopy}
-                                    className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-colors"
+                                    className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md transition-colors"
                                     title="Copy Code"
                                 >
-                                    <Copy className="w-5 h-5" />
+                                    <Copy className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
-
-                        <div className="flex gap-3">
-                            <button
+                        <DialogFooter className="w-full gap-2 sm:gap-0 mt-6 pt-2 flex flex-col sm:flex-row">
+                            <Button
+                                variant="outline"
                                 onClick={() => setStep(1)}
-                                className="flex-1 py-3 bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-[#333] transition-colors"
+                                className="w-full sm:w-1/2 border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900/50"
                             >
                                 Back
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => setStep(3)}
-                                className="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl transition-colors"
+                                className="w-full sm:w-1/2 bg-orange-500 hover:bg-orange-600 text-white"
                             >
-                                I've pasted the code
-                            </button>
-                        </div>
-                    </div>
+                                Copied Code
+                            </Button>
+                        </DialogFooter>
+                    </>
                 )}
 
                 {step === 3 && (
-                    <div className="space-y-6">
-                        <div className="text-center space-y-4">
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Make sure you saved your profile changes on {platform} using the verification code.
-                            </p>
-                             <p className="text-sm text-gray-500">
-                                Click verify below to confirm ownership.
+                    <>
+                        <div className="w-full text-center mt-4 px-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                Make sure you saved your profile changes on {platform} with the code. Click verify to confirm.
                             </p>
                         </div>
-
-                        <div className="flex gap-3">
-                            <button
+                        <DialogFooter className="w-full gap-2 sm:gap-0 mt-6 pt-2 flex flex-col sm:flex-row">
+                            <Button
+                                variant="outline"
                                 onClick={() => setStep(2)}
                                 disabled={isLoading}
-                                className="flex-1 py-3 bg-gray-100 dark:bg-[#262626] text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-[#333] transition-colors disabled:opacity-50"
+                                className="w-full sm:w-1/2 border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900/50"
                             >
                                 Back
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleVerify}
                                 disabled={isLoading}
-                                className="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+                                className="w-full sm:w-1/2 bg-orange-500 hover:bg-orange-600 text-white"
                             >
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : `Verify ${platform} Profile`}
-                            </button>
-                        </div>
-                    </div>
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                Verify Profile
+                            </Button>
+                        </DialogFooter>
+                    </>
                 )}
             </div>
-        </div>
+        </CustomDialog>
     );
 }

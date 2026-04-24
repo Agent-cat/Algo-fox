@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser } from "@/actions/platform.action";
 import { Loader2, ExternalLink, Trophy, TrendingUp, Award, Target, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
     LineChart,
     Line,
@@ -35,6 +36,9 @@ interface ProblemOverviewCardProps {
     leetCodeHandle?: string | null;
     codeChefHandle?: string | null;
     codeforcesHandle?: string | null;
+    leetCodeVerified?: boolean;
+    codeChefVerified?: boolean;
+    codeforcesVerified?: boolean;
     contestStats?: {
         attended: number;
         totalScore: number;
@@ -48,6 +52,9 @@ export function ProblemOverviewCard({
     leetCodeHandle,
     codeChefHandle,
     codeforcesHandle,
+    leetCodeVerified,
+    codeChefVerified,
+    codeforcesVerified,
     contestStats
 }: ProblemOverviewCardProps) {
     const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces">("overview");
@@ -64,7 +71,7 @@ export function ProblemOverviewCard({
     };
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-[#262626] p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
+        <div className="bg-white dark:bg-[#141414] rounded-3xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
              {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                 <div className="flex items-center gap-3">
@@ -78,9 +85,9 @@ export function ProblemOverviewCard({
                 {/* Modern Pill Tabs */}
                 <div className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative">
                      <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
-                     <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")}>LeetCode</TabButton>
-                     <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")}>CodeChef</TabButton>
-                     <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")}>CodeForces</TabButton>
+                     <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")} showWarning={!leetCodeHandle || !leetCodeVerified}>LeetCode</TabButton>
+                     <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")} showWarning={!codeChefHandle || !codeChefVerified}>CodeChef</TabButton>
+                     <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")} showWarning={!codeforcesHandle || !codeforcesVerified}>CodeForces</TabButton>
                 </div>
             </div>
 
@@ -114,6 +121,7 @@ export function ProblemOverviewCard({
                         >
                             <LeetCodeView
                                 handle={leetCodeHandle}
+                                isVerified={leetCodeVerified}
                                 cachedData={cachedData.leetcode}
                                 onDataFetched={(data) => updateCache("leetcode", data)}
                             />
@@ -131,6 +139,7 @@ export function ProblemOverviewCard({
                         >
                              <CodeChefView
                                 handle={codeChefHandle}
+                                isVerified={codeChefVerified}
                                 cachedData={cachedData.codechef}
                                 onDataFetched={(data) => updateCache("codechef", data)}
                             />
@@ -148,6 +157,7 @@ export function ProblemOverviewCard({
                         >
                             <CodeForcesView
                                 handle={codeforcesHandle}
+                                isVerified={codeforcesVerified}
                                 cachedData={cachedData.codeforces}
                                 onDataFetched={(data) => updateCache("codeforces", data)}
                             />
@@ -159,7 +169,7 @@ export function ProblemOverviewCard({
     );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function TabButton({ active, onClick, children, showWarning }: { active: boolean; onClick: () => void; children: React.ReactNode; showWarning?: boolean }) {
     return (
         <button
             onClick={onClick}
@@ -174,6 +184,14 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
             )}
             <span className={`relative z-20 ${active ? "text-gray-900 dark:text-gray-100" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
                 {children}
+                {showWarning && (
+                    <span
+                        className="absolute -top-1 -right-2 text-red-500 text-sm font-bold animate-bounce"
+                        title="Account not connected"
+                    >
+                        !
+                    </span>
+                )}
             </span>
         </button>
     );
@@ -193,7 +211,7 @@ function BreakdownTooltip({ breakdown, mousePos }: { breakdown: Record<string, n
                 top: mousePos.y - 12,
                 position: 'fixed'
             }}
-            className="z-[200] pointer-events-none min-w-[160px]"
+            className="z-200 pointer-events-none min-w-[160px]"
         >
             <div className="bg-white/95 dark:bg-[#1a1a1a]/95 text-gray-900 dark:text-white p-3 rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] backdrop-blur-md">
                 <div className="flex flex-col gap-2">
@@ -282,12 +300,12 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
 }
 
 
-function LeetCodeView({ handle, cachedData, onDataFetched }: { handle?: string | null, cachedData?: any, onDataFetched: (data: any) => void }) {
+function LeetCodeView({ handle, isVerified, cachedData, onDataFetched }: { handle?: string | null, isVerified?: boolean, cachedData?: any, onDataFetched: (data: any) => void }) {
     const [loading, setLoading] = useState(!cachedData);
     const [data, setData] = useState<any>(cachedData || null);
 
     useEffect(() => {
-        if (handle && !cachedData) {
+        if (handle && isVerified && !cachedData) {
             setLoading(true);
             checkLeetCodeUser(handle).then(res => {
                 if (res.success) {
@@ -297,9 +315,9 @@ function LeetCodeView({ handle, cachedData, onDataFetched }: { handle?: string |
                 setLoading(false);
             });
         }
-    }, [handle, cachedData, onDataFetched]);
+    }, [handle, isVerified, cachedData, onDataFetched]);
 
-    if (!handle) return <EmptyState PlatformIcon={<Zap className="w-8 h-8 text-yellow-500" />} message="Connect LeetCode" subMessage="Link your account in settings" />;
+    if (!handle || !isVerified) return <EmptyState logoPath="/handles_logos/leetcode.png" message="Connect LeetCode" subMessage="Link and verify your account in settings" />;
     if (loading) return <LoadingState />;
     if (!data) return <ErrorState />;
 
@@ -391,12 +409,12 @@ function LeetCodeView({ handle, cachedData, onDataFetched }: { handle?: string |
     );
 }
 
-function CodeChefView({ handle, cachedData, onDataFetched }: { handle?: string | null, cachedData?: any, onDataFetched: (data: any) => void }) {
+function CodeChefView({ handle, isVerified, cachedData, onDataFetched }: { handle?: string | null, isVerified?: boolean, cachedData?: any, onDataFetched: (data: any) => void }) {
     const [loading, setLoading] = useState(!cachedData);
     const [data, setData] = useState<any>(cachedData || null);
 
     useEffect(() => {
-        if (handle && !cachedData) {
+        if (handle && isVerified && !cachedData) {
             setLoading(true);
             checkCodeChefUser(handle).then(res => {
                 if (res.success) {
@@ -406,9 +424,9 @@ function CodeChefView({ handle, cachedData, onDataFetched }: { handle?: string |
                 setLoading(false);
             });
         }
-    }, [handle, cachedData, onDataFetched]);
+    }, [handle, isVerified, cachedData, onDataFetched]);
 
-    if (!handle) return <EmptyState PlatformIcon={<Trophy className="w-8 h-8 text-orange-700" />} message="Connect CodeChef" subMessage="Link your account in settings" />;
+    if (!handle || !isVerified) return <EmptyState logoPath="/handles_logos/codechef.png" message="Connect CodeChef" subMessage="Link and verify your account in settings" />;
     if (loading) return <LoadingState />;
     if (!data) return <ErrorState />;
 
@@ -450,12 +468,12 @@ function CodeChefView({ handle, cachedData, onDataFetched }: { handle?: string |
     );
 }
 
-function CodeForcesView({ handle, cachedData, onDataFetched }: { handle?: string | null, cachedData?: any, onDataFetched: (data: any) => void }) {
+function CodeForcesView({ handle, isVerified, cachedData, onDataFetched }: { handle?: string | null, isVerified?: boolean, cachedData?: any, onDataFetched: (data: any) => void }) {
     const [loading, setLoading] = useState(!cachedData);
     const [data, setData] = useState<any>(cachedData || null);
 
     useEffect(() => {
-        if (handle && !cachedData) {
+        if (handle && isVerified && !cachedData) {
             setLoading(true);
             checkCodeforcesUser(handle).then(res => {
                 if (res.success) {
@@ -465,9 +483,9 @@ function CodeForcesView({ handle, cachedData, onDataFetched }: { handle?: string
                 setLoading(false);
             });
         }
-    }, [handle, cachedData, onDataFetched]);
+    }, [handle, isVerified, cachedData, onDataFetched]);
 
-    if (!handle) return <EmptyState message="Connect CodeForces" subMessage="Link your account in settings" />;
+    if (!handle || !isVerified) return <EmptyState logoPath="/handles_logos/codeforces.png" message="Connect CodeForces" subMessage="Link and verify your account in settings" />;
     if (loading) return <LoadingState />;
     if (!data) return <ErrorState />;
 
@@ -558,15 +576,18 @@ function StatCard({ label, value, icon, trend, className }: any) {
     )
 }
 
-function EmptyState({ PlatformIcon, message, subMessage }: any) {
+function EmptyState({ logoPath, message, subMessage }: any) {
     return (
-        <div className="h-full flex flex-col items-center justify-center text-center space-y-3">
-            <div className="p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full">
-                {PlatformIcon}
+        <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 p-2 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-[#262626]">
+                <img src={logoPath} alt={message} className="w-full h-full object-contain" />
             </div>
             <div>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{message}</h4>
-                <p className="text-xs text-gray-500 max-w-[150px] mx-auto">{subMessage}</p>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">{message}</h4>
+                <p className="text-xs text-gray-500 max-w-[150px] mx-auto mb-4">{subMessage}</p>
+                <Link href="/dashboard/settings" className="inline-flex items-center justify-center px-4 py-1.5 text-xs font-semibold bg-black text-white dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">
+                    Connect &rarr;
+                </Link>
             </div>
         </div>
     )

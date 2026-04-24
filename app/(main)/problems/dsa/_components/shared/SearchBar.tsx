@@ -40,7 +40,7 @@ function SearchBarComponent({
             <input
                 type="text"
                 placeholder={placeholder}
-                className="block w-full pl-10 pr-9 py-2.5 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-[#1e1e1e] rounded-xl leading-5 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 dark:focus:border-orange-500/50 sm:text-sm text-gray-900 dark:text-gray-100 transition-all duration-200"
+                className="block w-full pl-10 pr-9 py-2.5 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-xl leading-5 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 dark:focus:border-orange-500/50 sm:text-sm text-gray-900 dark:text-gray-100 transition-all duration-200"
                 value={localSearch}
                 onChange={handleChange}
                 onFocus={() => setIsFocused(true)}

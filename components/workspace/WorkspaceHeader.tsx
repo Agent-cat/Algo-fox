@@ -278,8 +278,8 @@ const WorkspaceHeader = memo(({
       </div>
 
       {/* CENTER: PROGRESS OR ACTIONS */}
-      <div className="flex-1 flex justify-center items-center px-4">
-        {!contestId && domain !== "APTITUDE" && type?.toString().toUpperCase() !== "CONCEPT" && domain?.toString().toUpperCase() !== "CONCEPT" && (
+      <div className="flex-1 flex justify-center items-center px-4 gap-4">
+        {domain !== "APTITUDE" && type?.toString().toUpperCase() !== "CONCEPT" && domain?.toString().toUpperCase() !== "CONCEPT" && (
           <div className="flex items-center gap-2">
             <CustomTooltip
               content={session?.user?.role === "USER" ? "Subscription Required to Run Code" : "Run your code"}

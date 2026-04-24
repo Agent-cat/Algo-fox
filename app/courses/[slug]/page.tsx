@@ -106,7 +106,7 @@ function CourseSkeleton() {
     return (
         <div className="space-y-10 animate-pulse">
             {/* Header Skeleton */}
-            <div className="bg-white/80 dark:bg-[#121212]/80 border border-gray-200/50 dark:border-white/5 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden">
+            <div className="bg-white/80 dark:bg-[#121212]/80 border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-10 relative overflow-hidden">
                 <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
                     <div className="flex-1 space-y-6 w-full">
                         <div className="flex gap-2">
@@ -138,7 +138,7 @@ function CourseSkeleton() {
 
                 <div className="space-y-6">
                     {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="bg-white/40 dark:bg-[#121212]/40 border border-gray-200/50 dark:border-white/5 rounded-3xl p-6 md:p-8 flex items-center justify-between">
+                        <div key={i} className="bg-white/40 dark:bg-[#121212]/40 border border-gray-200 dark:border-white/10 rounded-2xl p-6 md:p-8 flex items-center justify-between">
                             <div className="flex items-center gap-5 flex-1">
                                 <div className="p-3 w-12 h-12 rounded-2xl bg-gray-200/50 dark:bg-white/5 shadow-sm" />
                                 <div className="space-y-2 flex-1 max-w-sm">

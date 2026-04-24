@@ -159,7 +159,7 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
                     transition={{ delay: 0.3, duration: 0.5 }}
                     className="relative h-[120px] w-full"
                 >
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <AreaChart
                             data={data}
                             margin={{ top: 20, right: 0, left: 0, bottom: 0 }}

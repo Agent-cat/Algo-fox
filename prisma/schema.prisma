@@ -27,6 +27,8 @@ model User {
   onboardingCompleted   Boolean                @default(false)
   bio                   String?
   year                  Int?
+  phone                 String?
+  dateOfBirth           DateTime?
   banned                Boolean?
   banReason             String?
   banExpires            DateTime?

@@ -628,7 +628,7 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#0f0f0f] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
             style={{
               animation: 'cp-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
@@ -679,7 +679,7 @@ export default function ContestProtection({
 
             {/* Timer Section */}
             {tempBlockTimeLeft > 0 && (
-              <div className="mx-6 mt-4 mb-2 p-5 rounded-none bg-gray-50 dark:bg-[#1c1c1f] border border-gray-100 dark:border-[#2a2a2e]">
+              <div className="mx-6 mt-4 mb-2 p-5 rounded-none bg-gray-50 dark:bg-[#1c1c1f] border border-dashed border-gray-200 dark:border-white/10">
                 <div className="text-[10px] font-medium text-gray-400 dark:text-[#666] uppercase tracking-[0.15em] text-center mb-2">
                   Resumes in
                 </div>
@@ -735,7 +735,7 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#161618] border border-gray-200/80 dark:border-[#2a2a2e]"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#0f0f0f] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
             style={{
               animation: 'cp-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: '0 24px 80px rgba(0,0,0,0.4)',

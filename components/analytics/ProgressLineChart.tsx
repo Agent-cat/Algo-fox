@@ -49,7 +49,7 @@ export default function ProgressLineChart({ userId }: { userId?: string }) {
 
   return (
     <div className="w-full h-64">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <AreaChart
           data={data}
           margin={{

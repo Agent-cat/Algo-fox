@@ -189,7 +189,7 @@ export default function CategoryCard({
           "w-full transition-all group flex",
           isSubCategory
             ? "bg-transparent border-none py-1.5 hover:bg-gray-100/70 dark:hover:bg-white/4 rounded-lg group/sub"
-            : "bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border border-gray-200/50 dark:border-white/5 rounded-2xl hover:bg-white dark:hover:bg-white/2 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
+            : "bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-white dark:hover:bg-white/2 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
         )}
       >
         <motion.button
@@ -341,7 +341,7 @@ export default function CategoryCard({
                               "grid grid-cols-[1fr_110px_60px] md:grid-cols-[1fr_200px_120px] items-center py-3 px-4 rounded-xl transition-all group/item border border-transparent",
                               isLocked
                                 ? "cursor-not-allowed opacity-70 bg-gray-50/50 dark:bg-white/2"
-                                : "hover:bg-gray-100 dark:hover:bg-white/4 hover:border-gray-200 dark:hover:border-white/5"
+                                : "hover:bg-gray-100 dark:hover:bg-white/4 hover:border-gray-200 dark:hover:border-white/10"
                             )}
                           >
                             {/* Title Column */}

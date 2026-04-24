@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { cacheTag, cacheLife } from "next/cache";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 
 export class ContestService {
     /**
@@ -199,7 +200,36 @@ export class ContestService {
                 isFinalized: true,
                 problems: {
                     include: {
-                        problem: { select: { id: true, title: true, score: true, slug: true, description: true } }
+                        problem: {
+                            select: {
+                                id: true,
+                                title: true,
+                                score: true,
+                                slug: true,
+                                description: true,
+                                _count: { select: { testCases: true } }
+                            }
+                        }
+                    },
+                    orderBy: { order: "asc" }
+                },
+                sections: {
+                    include: {
+                        problems: {
+                            include: {
+                                problem: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        score: true,
+                                        slug: true,
+                                        description: true,
+                                        _count: { select: { testCases: true } }
+                                    }
+                                }
+                            },
+                            orderBy: { order: "asc" }
+                        }
                     },
                     orderBy: { order: "asc" }
                 }
@@ -207,6 +237,20 @@ export class ContestService {
         });
 
         if (!contest) return null;
+
+        // Flatten all problems from both top-level and sections
+        const allContestProblems: any[] = [
+            ...contest.problems,
+            ...contest.sections.flatMap(s => s.problems)
+        ];
+
+        // Deduplicate problems in case they are in both (unlikely but safe)
+        const seenProblemIds = new Set();
+        const uniqueContestProblems = allContestProblems.filter(cp => {
+            if (seenProblemIds.has(cp.problemId)) return false;
+            seenProblemIds.add(cp.problemId);
+            return true;
+        });
 
         // FIX: Replaced N+1 pattern (2 queries per participant) with 4 bulk queries total.
         // For 200 participants this reduces ~400 DB round-trips to 4.
@@ -225,7 +269,7 @@ export class ContestService {
 
         const paginatedUserIds = participations.map(p => p.userId);
 
-        const [allAcceptedGrouped, allAttemptsGrouped] = await Promise.all([
+        const [allAcceptedGrouped, allAttemptsGrouped, maxPassedGrouped] = await Promise.all([
             // All ACCEPTED submissions for ONLY the paginated users (single bulk query)
             prisma.submission.groupBy({
                 by: ["userId", "problemId"],
@@ -250,7 +294,34 @@ export class ContestService {
                 },
                 _count: true
             }),
+            // Max passed test cases per user/problem pair
+            prisma.$queryRaw<Array<{ userId: string; problemId: string; maxPassed: bigint }>>`
+                SELECT
+                    s."userId",
+                    s."problemId",
+                    COALESCE(MAX(t.passed_count), 0) as "maxPassed"
+                FROM "Submission" s
+                LEFT JOIN (
+                    SELECT "submissionId", COUNT(*) as passed_count
+                    FROM "TestCase"
+                    WHERE status = 'ACCEPTED'
+                    GROUP BY "submissionId"
+                ) t ON s.id = t."submissionId"
+                WHERE s."contestId" = ${contestId}
+                  AND s."userId" IN (${Prisma.join(paginatedUserIds)})
+                  AND s.mode = 'SUBMIT'
+                  AND s."createdAt" >= ${contest.startTime}
+                  AND s."createdAt" <= ${contest.endTime}
+                GROUP BY s."userId", s."problemId"
+            `
         ]);
+
+        // Build mapping for maxPassed
+        const maxPassedMap = new Map<string, Map<string, number>>();
+        for (const row of maxPassedGrouped) {
+            if (!maxPassedMap.has(row.userId)) maxPassedMap.set(row.userId, new Map());
+            maxPassedMap.get(row.userId)!.set(row.problemId, Number(row.maxPassed));
+        }
 
         // Build O(1) lookup maps from bulk query results
         // acceptedMap[userId][problemId] = { minCreatedAt, count }
@@ -274,6 +345,7 @@ export class ContestService {
         const students = participations.map((p) => {
             const userAccepted = acceptedMap.get(p.userId) || new Map();
             const userAttempts = attemptsMap.get(p.userId) || new Map();
+            const userMaxPassed = maxPassedMap.get(p.userId) || new Map();
 
             const problemScores = new Map<string, number>();
             const problemSolveTimes = new Map<string, number>();
@@ -282,7 +354,7 @@ export class ContestService {
 
             // Process accepted submissions
             for (const [probId, acc] of userAccepted.entries()) {
-                const prob = contest.problems.find(cp => cp.problemId === probId);
+                const prob = uniqueContestProblems.find(cp => cp.problemId === probId);
                 const maxScore = prob?.problem.score || 0;
                 problemScores.set(probId, maxScore);
 
@@ -305,17 +377,26 @@ export class ContestService {
             const totalScore = Array.from(problemScores.values()).reduce((a, b) => a + b, 0);
             const totalTime = Array.from(problemSolveTimes.values()).reduce((a, b) => a + b, 0);
 
-            const problemStats = contest.problems.map(cp => ({
-                problemId: cp.problemId,
-                title: cp.problem.title,
-                slug: cp.problem.slug,
-                score: problemScores.get(cp.problemId) || 0,
-                maxScore: cp.problem.score,
-                submissions: problemSubmissionCounts.get(cp.problemId) || 0,
-                wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
-                solved: problemScores.has(cp.problemId),
-                solvedAt: problemSolveTimes.get(cp.problemId),
-            }));
+            const problemStats = uniqueContestProblems.map(cp => {
+                const totalTestCases = cp.problem._count.testCases || 1; // Avoid divide by zero
+                const maxPassed = userMaxPassed.get(cp.problemId) || 0;
+                const percentage = Math.min(100, Math.round((maxPassed / totalTestCases) * 100));
+
+                return {
+                    problemId: cp.problemId,
+                    title: cp.problem.title,
+                    slug: cp.problem.slug,
+                    score: problemScores.get(cp.problemId) || 0,
+                    maxScore: cp.problem.score,
+                    submissions: problemSubmissionCounts.get(cp.problemId) || 0,
+                    wrongAttempts: problemWrongAttempts.get(cp.problemId) || 0,
+                    solved: problemScores.has(cp.problemId),
+                    solvedAt: problemSolveTimes.get(cp.problemId),
+                    passedPercentage: percentage,
+                    maxPassed,
+                    totalTestCases
+                };
+            });
 
             return {
                 ...p.user,
@@ -334,7 +415,7 @@ export class ContestService {
         return {
             students,
             isFinalized: contest.isFinalized,
-            problems: contest.problems.map(cp => ({
+            problems: uniqueContestProblems.map(cp => ({
                 id: cp.problemId,
                 title: cp.problem.title,
                 description: cp.problem.description,

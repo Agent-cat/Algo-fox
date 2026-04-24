@@ -47,7 +47,7 @@ export default function TopicRadarChart({ userId }: { userId?: string }) {
 
   return (
     <div className="w-full h-64">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
           <PolarGrid stroke={isDark ? "#333" : "#e5e7eb"} />
           <PolarAngleAxis dataKey="subject" tick={{ fill: isDark ? "#9ca3af" : "#6b7280", fontSize: 12 }} />

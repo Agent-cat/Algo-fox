@@ -5,6 +5,7 @@ import { StreakCelebrationModal } from "../shared/StreakCelebrationModal";
 import { PointsCelebration } from "../shared/PointsCelebration";
 import ContestProtection from "../contest/ContestProtection";
 import ContestNavigationGuard from "../contest/ContestNavigationGuard";
+import { SubmitConfirmationModal } from "./SubmitConfirmationModal";
 
 interface WorkspaceModalsProps {
     isSettingsOpen: boolean;
@@ -21,6 +22,10 @@ interface WorkspaceModalsProps {
     contestModeActive?: boolean;
     contestSessionId?: string | null;
     handleContestBlocked: (reason: string) => void;
+    isSubmitConfirmOpen: boolean;
+    handleCloseSubmitConfirm: () => void;
+    handleConfirmSubmit: () => void;
+    isSubmitting: boolean;
 }
 
 export const WorkspaceModals = React.memo(({
@@ -37,7 +42,11 @@ export const WorkspaceModals = React.memo(({
     contestId,
     contestModeActive,
     contestSessionId,
-    handleContestBlocked
+    handleContestBlocked,
+    isSubmitConfirmOpen,
+    handleCloseSubmitConfirm,
+    handleConfirmSubmit,
+    isSubmitting
 }: WorkspaceModalsProps) => {
     return (
         <>
@@ -76,6 +85,13 @@ export const WorkspaceModals = React.memo(({
                     />
                 </>
             )}
+
+            <SubmitConfirmationModal
+                isOpen={isSubmitConfirmOpen}
+                onClose={handleCloseSubmitConfirm}
+                onConfirm={handleConfirmSubmit}
+                loading={isSubmitting}
+            />
         </>
     );
 });

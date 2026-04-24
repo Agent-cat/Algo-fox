@@ -352,13 +352,26 @@ export class ProblemService {
     }
 
     // GETTING A PROBLEM BY SLUG CACHED
-    static async getProblem(slug: string) {
+    static async getProblem(slug: string, isAdmin: boolean = false) {
         const problem = await this.getCachedProblem(slug);
+        if (!problem) return null;
+
+        // Security Check: Visibility
+        if (problem.hidden && !isAdmin) {
+            return null;
+        }
+
+        // Security Check: Information Disclosure
+        // Never return hidden test cases to the client
+        if (problem.testCases && !isAdmin) {
+            problem.testCases = (problem.testCases as any[]).filter(tc => !tc.hidden);
+        }
+
         return problem;
     }
 
     // GETTING A PROBLEM BY ID
-    static async getProblemById(id: string) {
+    static async getProblemById(id: string, isAdmin: boolean = false) {
         try {
             const problem = await prisma.problem.findUnique({
                 where: { id },
@@ -377,6 +390,20 @@ export class ProblemService {
                     }
                 }
             });
+
+            if (!problem) return { success: false, error: "Problem not found" };
+
+            // Security Check: Visibility
+            if (problem.hidden && !isAdmin) {
+                return { success: false, error: "Unauthorized" };
+            }
+
+            // Security Check: Information Disclosure
+            // Never return hidden test cases to the client
+            if (problem.testCases && !isAdmin) {
+                (problem as any).testCases = (problem.testCases as any[]).filter(tc => !tc.hidden);
+            }
+
             return { success: true, data: problem };
         } catch (error) {
             console.error("Failed to get problem by id:", error);

@@ -9,20 +9,19 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    disableSignUp: true,
   },
   socialProviders: {
     google: {
       enabled: true,
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+
     },
     microsoft: {
       enabled: true,
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-      disableImplicitSignUp: true,
+
     },
   },
   user: {

@@ -59,6 +59,8 @@ export async function completeOnboarding(data: {
     collegeName: string;
     branch: string;
     year?: string;
+    phone?: string;
+    dateOfBirth?: string;
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;
@@ -103,6 +105,8 @@ export async function updateUserInfo(data: {
     collegeId?: string;
     collegeName?: string;
     branch?: string;
+    phone?: string;
+    dateOfBirth?: string;
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;

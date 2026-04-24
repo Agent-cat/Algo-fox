@@ -24,7 +24,7 @@ interface PageProps {
 // GENERATING METADATA FOR THE PROBLEM PAGE (SEO)
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const problem = await getProblem(slug);
+  const problem = await getProblem(slug, false);
 
   if (!problem) {
     return {
@@ -51,11 +51,9 @@ async function ProblemContentWithParams({
   const { slug } = await params;
   const { contestId, courseId } = await searchParams;
 
-  // Parallelize core data fetching
-  const [problem, session] = await Promise.all([
-    getProblem(slug),
-    auth.api.getSession({ headers: await headers() })
-  ]);
+  // Parallelize core data fetching (Optimized: Session first then problem to avoid redundant calls)
+  const session = await auth.api.getSession({ headers: await headers() });
+  const problem = await getProblem(slug, session?.user?.role === "ADMIN");
 
   if (!problem) {
     return notFound();

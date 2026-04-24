@@ -1,7 +1,7 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
     Loader2, X, Trophy, Calendar, Users,
     Globe, School, BookOpen, Plus, CheckCircle2, Layers,
@@ -16,7 +16,6 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import ProblemForm from "@/components/admin/ProblemForm";
 import { ProblemDomain } from "@prisma/client";
-import { useCallback, useRef } from "react";
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -139,6 +138,42 @@ function MarkdownEditor({ label, name, register, watch, setValue, placeholder }:
     );
 }
 
+function TimeMaskInput({ value, onChange, disabled, placeholder }: any) {
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        const prevVal = value || "";
+
+        let raw = val.replace(/[^0-9]/g, "");
+        if (raw.length > 4) raw = raw.slice(0, 4);
+
+        let formatted = "";
+        if (raw.length > 0) {
+            if (raw.length > 2) {
+                formatted = raw.slice(0, 2) + ":" + raw.slice(2);
+            } else {
+                formatted = raw;
+                // Auto-add colon after 2 digits if typing forward
+                if (raw.length === 2 && !val.includes(":") && val.length > prevVal.length) {
+                    formatted = raw + ":";
+                }
+            }
+        }
+        onChange(formatted);
+    };
+
+    return (
+        <input
+            type="text"
+            value={value || ""}
+            onChange={onInputChange}
+            placeholder={placeholder || "00:00"}
+            disabled={disabled}
+            maxLength={5}
+            className="w-[80px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] border-r-0 rounded-l-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 tracking-widest disabled:bg-gray-100 disabled:opacity-50 dark:disabled:bg-gray-800 uppercase"
+        />
+    );
+}
+
 interface CreateContestWizardProps {
     institutionId?: string | null;
     userId?: string;
@@ -174,9 +209,10 @@ export default function CreateContestWizard({
     const [isSlugAvailable, setIsSlugAvailable] = useState<boolean | null>(null);
     const [isCheckingSlug, setIsCheckingSlug] = useState(false);
     const [problemToEdit, setProblemToEdit] = useState<ContestProblem | null>(null);
+    const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
 
-    const { register, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, watch, setValue, trigger, control, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(contestSchema) as any,
         defaultValues: {
             title: initialData?.title || "",
@@ -263,14 +299,14 @@ export default function CreateContestWizard({
     // Auto-generate slug from title
     const title = watch("title");
     useEffect(() => {
-        if (title && !slug) { // Only auto-generate if slug is empty
-            const autoSlug = title
+        if (!isEditing && !isSlugManuallyEdited) {
+            const autoSlug = (title || "")
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/^-+|-+$/g, "");
-            setValue("slug", autoSlug);
+            setValue("slug", autoSlug, { shouldValidate: true });
         }
-    }, [title, setValue]);
+    }, [title, isEditing, isSlugManuallyEdited, setValue]);
 
     const isInitializedRef = useRef(false);
     // Set initial sections if editing or first load
@@ -483,7 +519,11 @@ export default function CreateContestWizard({
                                     <div className="flex items-center text-[15px] text-[#39424e] dark:text-gray-300 font-mono">
                                         https://www.algo-fox.com/contest/
                                         <input
-                                            {...register("slug")}
+                                            {...register("slug", {
+                                                onChange: (e) => {
+                                                    setIsSlugManuallyEdited(true);
+                                                }
+                                            })}
                                             className="ml-1 w-64 px-2 py-1 bg-transparent border-b border-dashed border-gray-400 dark:border-[#555] focus:outline-none focus:border-solid focus:border-[#26bd58] transition-all font-mono text-[15px] text-[#39424e] dark:text-gray-300"
                                             placeholder="weekly-challenge"
                                         />
@@ -514,11 +554,16 @@ export default function CreateContestWizard({
                                         />
                                         <span className="text-[#39424e] dark:text-gray-400 font-mono font-bold text-[14px]">at</span>
                                         <div className="flex items-center group">
-                                            <input
-                                                type="text"
-                                                {...register("startTimeOfDay")}
-                                                placeholder="12:00"
-                                                className="w-[80px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] border-r-0 rounded-l-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 tracking-widest"
+                                            <Controller
+                                                name="startTimeOfDay"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <TimeMaskInput
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="12:00"
+                                                    />
+                                                )}
                                             />
                                             <select
                                                 {...register("startAmPm")}
@@ -548,12 +593,17 @@ export default function CreateContestWizard({
                                         />
                                         <span className="text-[#39424e] dark:text-gray-400 font-mono font-bold text-[14px]">at</span>
                                         <div className="flex items-center">
-                                            <input
-                                                type="text"
-                                                disabled={watch("hasNoEndTime")}
-                                                {...register("endTimeOfDay")}
-                                                placeholder="12:00"
-                                                className="w-[80px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] border-r-0 rounded-l-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm disabled:bg-gray-100 disabled:opacity-50 text-[#39424e] dark:text-gray-300 tracking-widest"
+                                            <Controller
+                                                name="endTimeOfDay"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <TimeMaskInput
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="12:00"
+                                                        disabled={watch("hasNoEndTime")}
+                                                    />
+                                                )}
                                             />
                                             <select
                                                 disabled={watch("hasNoEndTime")}

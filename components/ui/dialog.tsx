@@ -119,7 +119,7 @@ export function DialogContent({
             aria-modal={ariaModal as any}
             aria-labelledby={ariaLabelledby}
             className={cn(
-              "relative z-50 w-full rounded-2xl bg-white dark:bg-[#0f0f0f] shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden",
+              "relative z-50 w-full rounded-2xl bg-white dark:bg-[#0f0f0f] shadow-2xl border border-dashed border-gray-200 dark:border-white/10 overflow-hidden",
               className || "max-w-lg p-6"
             )}
           >

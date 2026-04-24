@@ -46,7 +46,7 @@ export default function CourseDetailClient({
             className="space-y-12"
         >
             {/* Theme-Aware Header Card matching Navbar */}
-            <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-300 dark:border-white/10 rounded-sm relative overflow-hidden group shadow-xs">
+            <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-200 dark:border-white/15 rounded-3xl relative overflow-hidden group shadow-xs">
                 {/* Technical Grid Background */}
                 <div
                     className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
@@ -70,7 +70,7 @@ export default function CourseDetailClient({
                                 {course.title}
                             </h1>
 
-                            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 py-2 border-y border-gray-100/50 dark:border-white/5">
+                            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 py-2 border-y border-gray-100/50 dark:border-white/10">
                                 <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-extrabold uppercase text-[10px] tracking-[0.2em]">
                                     <GraduationCap className="w-4 h-4 text-orange-500" />
                                     <span>{modules?.length || 0} Modules</span>
@@ -91,7 +91,7 @@ export default function CourseDetailClient({
                                     </div>
                                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tabular-nums uppercase tracking-widest">{solvedCount} / {totalProblems} Solved</span>
                                 </div>
-                                <div className="relative h-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-[#262626] group/rail">
+                                <div className="relative h-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 group/rail">
                                     <motion.div
                                         className="h-full bg-orange-500"
                                         initial={{ width: 0 }}
@@ -135,7 +135,7 @@ export default function CourseDetailClient({
             {/* Content Section */}
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header Tools */}
-                <div className="flex justify-end gap-6 border-b border-gray-100 dark:border-white/5 pb-8 px-2">
+                <div className="flex justify-end gap-6 border-b border-gray-100 dark:border-white/10 pb-8 px-2">
                     <SearchBar
                         onSearch={handleSearch}
                         placeholder="Search modules..."

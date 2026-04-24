@@ -22,7 +22,7 @@ const plans = [
   {
     name: "Pro Premium",
     monthlyPrice: "499",
-    yearlyPrice: "4990",
+    yearlyPrice: "4790",
     description: "For serious developers",
     features: [
       "Access to all Premium Courses",
@@ -70,18 +70,34 @@ export default function SubscriptionClient() {
 
         {/* Toggle Switch */}
         <div className="flex justify-center mb-12">
-          <div className="relative flex items-center p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit border border-gray-200 dark:border-white/10">
+          <div
+            role="radiogroup"
+            aria-label="Billing cycle"
+            className="relative flex items-center p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit border border-gray-200 dark:border-white/10"
+          >
             <button
+              role="radio"
+              aria-checked={billingCycle === "monthly"}
+              tabIndex={billingCycle === "monthly" ? 0 : -1}
               onClick={() => setBillingCycle("monthly")}
-              className={`relative px-6 py-2 text-sm font-bold transition-all duration-300 z-10 ${
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") setBillingCycle("yearly");
+              }}
+              className={`relative px-6 py-2 text-sm font-bold transition-all duration-300 z-10 focus:outline-none ${
                 billingCycle === "monthly" ? "text-white" : "text-gray-500 dark:text-gray-400"
               }`}
             >
               Monthly
             </button>
             <button
+              role="radio"
+              aria-checked={billingCycle === "yearly"}
+              tabIndex={billingCycle === "yearly" ? 0 : -1}
               onClick={() => setBillingCycle("yearly")}
-              className={`relative px-6 py-2 text-sm font-bold transition-all duration-300 z-10 ${
+              onKeyDown={(e) => {
+                if (e.key === "ArrowLeft") setBillingCycle("monthly");
+              }}
+              className={`relative px-6 py-2 text-sm font-bold transition-all duration-300 z-10 focus:outline-none ${
                 billingCycle === "yearly" ? "text-white" : "text-gray-500 dark:text-gray-400"
               }`}
             >

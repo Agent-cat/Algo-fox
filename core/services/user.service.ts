@@ -105,6 +105,8 @@ export class UserService {
         collegeName: string;
         branch: string;
         year?: string;
+        phone?: string;
+        dateOfBirth?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string; // Kept for type compatibility if needed, but mapped to codeforces
@@ -120,6 +122,8 @@ export class UserService {
                     collegeName: data.collegeName || null,
                     branch: data.branch || null,
                     year: data.year ? parseInt(data.year) : null,
+                    phone: data.phone || null,
+                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
                     bio: data.bio || null,
                     leetCodeHandle: data.leetCodeHandle || null,
                     codeChefHandle: data.codeChefHandle || null,
@@ -152,6 +156,7 @@ export class UserService {
         collegeId?: string;
         collegeName?: string;
         branch?: string;
+        dateOfBirth?: string;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string;
@@ -175,6 +180,7 @@ export class UserService {
                 collegeId: data.collegeId,
                 collegeName: data.collegeName,
                 branch: data.branch,
+                dateOfBirth: data.dateOfBirth !== undefined ? (data.dateOfBirth ? new Date(data.dateOfBirth) : null) : undefined,
                 leetCodeHandle: data.leetCodeHandle,
                 codeChefHandle: data.codeChefHandle,
                 codeforcesHandle: data.codeforcesHandle,
