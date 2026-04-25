@@ -26,7 +26,7 @@ export function ImpersonationBanner() {
     };
 
     return (
-        <div className="bg-orange-600 text-white h-10 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-[100] shadow-md">
+        <div className="bg-orange-600 text-white h-10 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-100 shadow-md">
             <div className="flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 animate-pulse" />
                 <span className="text-sm font-medium">

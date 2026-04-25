@@ -46,7 +46,7 @@ interface ProblemOverviewCardProps {
         performance?: {
             contestId: string;
             title: string;
-            date: Date;
+            date: string | Date;
             score: number;
         }[];
     };

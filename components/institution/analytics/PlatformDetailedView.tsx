@@ -78,24 +78,27 @@ export function PlatformDetailedView({ platform, handle, studentName, studentId 
 
     const unifiedHistory = rawHistory.map((item: any) => {
         if (platform === "CodeChef") {
+            const date = item.end_date ? new Date(item.end_date) : null;
             return {
                 name: item.name || item.code,
-                date: item.end_date,
+                date: (date && !isNaN(date.getTime())) ? date.toISOString() : '',
                 rating: parseInt(item.rating),
                 rank: item.rank
             };
         } else if (platform === "Codeforces") {
+            const timestamp = item.ratingUpdateTimeSeconds;
             return {
                 name: item.contestName,
-                date: new Date(item.ratingUpdateTimeSeconds * 1000).toISOString(),
+                date: (timestamp && typeof timestamp === 'number') ? new Date(timestamp * 1000).toISOString() : '',
                 rating: item.newRating,
                 rank: item.rank
             };
         } else {
             // LeetCode
+            const startTime = item.contest?.startTime;
             return {
                 name: item.contest?.title,
-                date: new Date(item.contest?.startTime * 1000).toISOString(),
+                date: (startTime && typeof startTime === 'number') ? new Date(startTime * 1000).toISOString() : '',
                 rating: Math.floor(item.rating),
                 rank: item.ranking
             };

@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import {
     ArrowLeft,
+    UserCircle2,
+    AlertCircle
 } from "lucide-react";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
 import { CourseProgressCard } from "./CourseProgressCard";
@@ -27,16 +29,16 @@ export function StudentInsightsDashboard({ student }: StudentInsightsDashboardPr
     const platform = searchParams.get("p") as any;
 
     const handleViewContests = () => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         params.set("view", "contest");
-        window.history.pushState(null, "", `?${params.toString()}`);
+        router.push(`?${params.toString()}`);
     };
 
     const handleViewPlatform = (p: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         params.set("view", "platform");
         params.set("p", p);
-        window.history.pushState(null, "", `?${params.toString()}`);
+        router.push(`?${params.toString()}`);
     };
 
     if (view === "contest") {
@@ -59,6 +61,32 @@ export function StudentInsightsDashboard({ student }: StudentInsightsDashboardPr
                     studentName={student.name}
                     studentId={student.id}
                 />
+            );
+        } else {
+            return (
+                <div className="flex flex-col items-center justify-center py-40 gap-6 animate-in fade-in duration-500 max-w-4xl mx-auto text-center">
+                    <div className="w-16 h-16 rounded-3xl bg-red-500/10 flex items-center justify-center">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Missing Platform Link</h2>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2">
+                            This student has not linked their <span className="font-bold text-orange-500">{platform}</span> account yet.
+                            Detailed analytics cannot be retrieved.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            const params = new URLSearchParams(searchParams.toString());
+                            params.delete("view");
+                            params.delete("p");
+                            router.push(`?${params.toString()}`);
+                        }}
+                        className="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-95"
+                    >
+                        Back to Overview
+                    </button>
+                </div>
             );
         }
     }
@@ -99,7 +127,7 @@ export function StudentInsightsDashboard({ student }: StudentInsightsDashboardPr
                         codeChefHandle={student.codeChefHandle}
                         codeforcesHandle={student.codeforcesHandle}
                         readonly={true}
-                        institutionName={student.branch}
+                        institutionName={student.branch ?? undefined}
                     />
 
                     <ProfilesStatusCard
@@ -154,7 +182,7 @@ export function StudentInsightsDashboard({ student }: StudentInsightsDashboardPr
 
                     <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
                         <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                 Submission Activity
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">

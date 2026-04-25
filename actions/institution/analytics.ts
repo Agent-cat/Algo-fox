@@ -386,8 +386,8 @@ export async function getStudentInsights(
         const langName = row.name;
         let normalizedName = langName;
         if (langName.toLowerCase().includes('cpp') || langName.toLowerCase().includes('c++')) normalizedName = 'Cpp';
-        else if (langName.toLowerCase().includes('java')) normalizedName = 'Java';
         else if (langName.toLowerCase().includes('javascript')) normalizedName = 'JavaScript';
+        else if (langName.toLowerCase().includes('java')) normalizedName = 'Java';
         if (!languageCounts[normalizedName]) languageCounts[normalizedName] = 0;
         languageCounts[normalizedName] += row.count;
     });

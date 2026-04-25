@@ -122,7 +122,7 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
     if (!isConnected) {
         return (
             <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1a1a1a] opacity-50">
-                <div className={`flex-shrink-0 ${platform.color}`}>{platform.logo}</div>
+                <div className={`shrink-0 ${platform.color}`}>{platform.logo}</div>
                 <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
                         {platform.name}
@@ -136,16 +136,16 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
 
     return (
         <div className="group flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1a1a1a] hover:bg-gray-100 dark:hover:bg-[#222222] transition-colors">
-            <div className={`flex-shrink-0 ${platform.color}`}>{platform.logo}</div>
+            <div className={`shrink-0 ${platform.color}`}>{platform.logo}</div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
                     <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
                         {platform.handle}
                     </p>
                     {platform.verified ? (
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
                     ) : (
-                        <AlertCircle className="w-3 h-3 text-gray-300 dark:text-gray-600 flex-shrink-0" />
+                        <AlertCircle className="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" />
                     )}
                 </div>
                 <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-gray-500">
@@ -177,6 +177,7 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
                         window.history.pushState(null, "", `?${params.toString()}`);
                         window.dispatchEvent(new Event("popstate"));
                     }}
+                    aria-label={`View detailed analytics for ${platform.name}`}
                     className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] font-black text-purple-500 hover:text-purple-600 uppercase tracking-widest whitespace-nowrap"
                 >
                     Details

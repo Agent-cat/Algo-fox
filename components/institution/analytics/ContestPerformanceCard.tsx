@@ -130,7 +130,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
             {/* Mini Stats Row */}
             <div className="grid grid-cols-3 gap-4">
                 <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1a1a1a] transition-all">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                         Events
                     </p>
                     <p className="text-xl font-black text-gray-900 dark:text-white tabular-nums">
@@ -138,7 +138,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
                     </p>
                 </div>
                 <div className="bg-orange-500/5 dark:bg-orange-500/10 border border-orange-500/10 rounded-2xl p-4 text-center group hover:bg-orange-500/10 transition-all">
-                    <p className="text-[10px] font-black text-orange-500 uppercase tracking-[0.1em] mb-1">
+                    <p className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">
                         Latest
                     </p>
                     <p className="text-xl font-black text-orange-500 tabular-nums">
@@ -146,7 +146,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
                     </p>
                 </div>
                 <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1a1a1a] transition-all">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                         Peak
                     </p>
                     <p className="text-xl font-black text-gray-900 dark:text-white tabular-nums">

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Ban, ShieldAlert, Trophy, Calendar, History, ArrowUp, ArrowDown, Info, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Ban, History, ArrowUp, ArrowDown, Info, AlertTriangle, User, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ContestPerformancePoint } from "@/actions/institution/analytics";
 
@@ -10,7 +10,7 @@ interface ContestDetailedViewProps {
     performance: ContestPerformancePoint[];
 }
 
-export function ContestDetailedView({ studentId, performance }: ContestDetailedViewProps) {
+export function ContestDetailedView({ studentName, studentId, performance }: ContestDetailedViewProps) {
     const router = useRouter();
 
     const wasBlockedAtLeastOnce = performance.some(p => p.isBlocked);
@@ -27,6 +27,14 @@ export function ContestDetailedView({ studentId, performance }: ContestDetailedV
                     <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
                     Back to Registry
                 </button>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 group">
+                        <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center">
+                            <User className="w-4 h-4 text-orange-500" />
+                        </div>
+                        <span className="text-sm font-black text-gray-900 dark:text-white group-hover:text-orange-500 transition-colors uppercase tracking-tight">{studentName}</span>
+                    </div>
+                </div>
                 {wasBlockedAtLeastOnce && (
                     <div className="flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 text-red-600 rounded-full animate-pulse shadow-sm">
                         <Ban className="w-3 h-3" />
@@ -91,7 +99,7 @@ export function ContestDetailedView({ studentId, performance }: ContestDetailedV
                                     }
 
                                     return (
-                                        <tr key={idx} className={`hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group ${entry.isBlocked ? 'bg-red-500/[0.02]' : ''}`}>
+                                        <tr key={idx} className={`hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group ${entry.isBlocked ? 'bg-red-500/2' : ''}`}>
                                             <td className="px-6 py-5">
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center gap-2">
