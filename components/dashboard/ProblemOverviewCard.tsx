@@ -336,8 +336,8 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
                         onHoverHard={(h: boolean) => setHoveredBreakdown(h ? solvedByDifficulty.HARD.breakdown : null)}
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tighter">{percentage}%</span>
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Practice</span>
+                        <span className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">{percentage}%</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Practice</span>
                     </div>
                 </div>
             </div>
