@@ -106,12 +106,25 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
                         </p>
                     </div>
                 </div>
-                {latest && previous && (
-                    <DeltaIndicator
-                        current={latest.score}
-                        previous={previous.score}
-                    />
-                )}
+                <div className="flex flex-col items-end gap-2">
+                    {latest && previous && (
+                        <DeltaIndicator
+                            current={latest.score}
+                            previous={previous.score}
+                        />
+                    )}
+                    <button
+                        onClick={() => {
+                            const params = new URLSearchParams(window.location.search);
+                            params.set("view", "contest");
+                            window.history.pushState(null, "", `?${params.toString()}`);
+                            window.dispatchEvent(new Event("popstate"));
+                        }}
+                        className="text-[10px] font-black text-orange-500 hover:text-orange-600 uppercase tracking-widest border-b border-orange-500/20 hover:border-orange-500 transition-all"
+                    >
+                        Detailed View
+                    </button>
+                </div>
             </div>
 
             {/* Mini Stats Row */}

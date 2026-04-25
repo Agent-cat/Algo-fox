@@ -5,6 +5,7 @@ import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser } from "@/act
 import { Loader2, ExternalLink, Trophy, TrendingUp, Award, Target, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { CircularProgress } from "./CircularProgress";
 import {
     LineChart,
     Line,
@@ -42,6 +43,16 @@ interface ProblemOverviewCardProps {
     contestStats?: {
         attended: number;
         totalScore: number;
+        performance?: {
+            contestId: string;
+            title: string;
+            date: Date;
+            score: number;
+        }[];
+    };
+    managerViews?: {
+        onViewContests?: () => void;
+        onViewPlatform?: (platform: string) => void;
     };
 }
 
@@ -55,9 +66,10 @@ export function ProblemOverviewCard({
     leetCodeVerified,
     codeChefVerified,
     codeforcesVerified,
-    contestStats
+    contestStats,
+    managerViews
 }: ProblemOverviewCardProps) {
-    const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces">("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces" | "contests">("overview");
 
     // Client-side cache for fetched data to avoid redundant network calls
     const [cachedData, setCachedData] = useState<{
@@ -83,11 +95,30 @@ export function ProblemOverviewCard({
                 </div>
 
                 {/* Modern Pill Tabs */}
-                <div className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative">
-                     <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
-                     <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")} showWarning={!leetCodeHandle || !leetCodeVerified}>LeetCode</TabButton>
-                     <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")} showWarning={!codeChefHandle || !codeChefVerified}>CodeChef</TabButton>
-                     <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")} showWarning={!codeforcesHandle || !codeforcesVerified}>CodeForces</TabButton>
+                <div className="flex items-center gap-4">
+                    <div className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative">
+                        <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
+                        <TabButton active={activeTab === "contests"} onClick={() => setActiveTab("contests")}>Contests</TabButton>
+                        <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")} showWarning={!leetCodeHandle || !leetCodeVerified}>LeetCode</TabButton>
+                        <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")} showWarning={!codeChefHandle || !codeChefVerified}>CodeChef</TabButton>
+                        <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")} showWarning={!codeforcesHandle || !codeforcesVerified}>CodeForces</TabButton>
+                    </div>
+
+                    {managerViews && activeTab !== "overview" && (
+                        <button
+                            onClick={() => {
+                                if (activeTab === "contests") managerViews.onViewContests?.();
+                                else managerViews.onViewPlatform?.(
+                                    activeTab === "leetcode" ? "LeetCode" :
+                                    activeTab === "codechef" ? "CodeChef" : "CodeForces"
+                                );
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-widest transition-all border border-orange-500/20"
+                        >
+                            <ExternalLink className="w-3 h-3" />
+                            Detailed View
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -160,6 +191,21 @@ export function ProblemOverviewCard({
                                 isVerified={codeforcesVerified}
                                 cachedData={cachedData.codeforces}
                                 onDataFetched={(data) => updateCache("codeforces", data)}
+                            />
+                        </motion.div>
+                    )}
+
+                    {activeTab === "contests" && (
+                         <motion.div
+                            key="contests"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                             className="h-full"
+                        >
+                            <ContestsView
+                                performance={contestStats?.performance}
                             />
                         </motion.div>
                     )}
@@ -279,12 +325,16 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
 
             <div className="relative flex-1 flex items-center justify-center h-full" onMouseMove={handleMouseMove}>
                 <div className="relative w-56 h-56 md:w-64 md:h-64">
-                    <svg className="w-full h-full transform -rotate-90 drop-shadow-sm">
-                        <circle cx="50%" cy="50%" r={radius} fill="none" className="stroke-gray-100 dark:stroke-[#262626]" strokeWidth="16" />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#22c55e" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - easyArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.EASY.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#f97316" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - medArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" style={{ transform: `rotate(${(easyPct / 100) * 360}deg)`, transformOrigin: "50% 50%" }} onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.MEDIUM.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
-                        <circle cx="50%" cy="50%" r={radius} fill="none" stroke="#ef4444" strokeWidth="16" strokeDasharray={circumference} strokeDashoffset={circumference - hardArc} strokeLinecap="round" className="cursor-pointer transition-all hover:stroke-width-[20px]" style={{ transform: `rotate(${((easyPct + medPct) / 100) * 360}deg)`, transformOrigin: "50% 50%" }} onMouseEnter={() => setHoveredBreakdown(solvedByDifficulty.HARD.breakdown)} onMouseLeave={() => setHoveredBreakdown(null)} />
-                    </svg>
+                    <CircularProgress
+                        solved={calculatedSolved}
+                        total={total}
+                        easyPct={easyPct}
+                        medPct={medPct}
+                        hardPct={hardPct}
+                        onHoverEasy={(h: boolean) => setHoveredBreakdown(h ? solvedByDifficulty.EASY.breakdown : null)}
+                        onHoverMed={(h: boolean) => setHoveredBreakdown(h ? solvedByDifficulty.MEDIUM.breakdown : null)}
+                        onHoverHard={(h: boolean) => setHoveredBreakdown(h ? solvedByDifficulty.HARD.breakdown : null)}
+                    />
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span className="text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tighter">{percentage}%</span>
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">Practice</span>
@@ -523,6 +573,74 @@ function CodeForcesView({ handle, isVerified, cachedData, onDataFetched }: { han
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ContestsView({ performance }: { performance?: any[] }) {
+    if (!performance || performance.length === 0) {
+        return <div className="h-full flex items-center justify-center text-gray-400 text-sm">No contest history available</div>;
+    }
+
+    const data = performance.map(p => ({
+        name: p.title,
+        score: p.score,
+        date: new Date(p.date).toLocaleDateString()
+    }));
+
+    return (
+        <div className="h-full flex flex-col gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <StatCard label="Total Contests" value={performance.length} />
+                 <StatCard label="Avg Score" value={Math.round(performance.reduce((acc, p) => acc + p.score, 0) / performance.length)} />
+                 <StatCard label="Highest Score" value={Math.max(...performance.map(p => p.score))} />
+                 <StatCard label="Recent Contest" value={performance[performance.length - 1]?.score || 0} trend="Score" />
+            </div>
+
+            <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-100 dark:border-[#262626] flex flex-col">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-6">Performance History</h4>
+                <div className="flex-1 w-full min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                            <XAxis
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fontSize: 10, fill: '#888' }}
+                                interval={0}
+                                tickFormatter={(value) => value.length > 10 ? value.substring(0, 10) + '...' : value}
+                            />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
+                            <Tooltip
+                                cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                                contentStyle={{
+                                    backgroundColor: '#1f2937',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    color: '#fff',
+                                    fontSize: '12px',
+                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                                }}
+                                itemStyle={{ color: '#fff' }}
+                                labelStyle={{ color: '#9ca3af', marginBottom: '4px' }}
+                                formatter={(value: any) => [value, 'Score']}
+                            />
+                            <Bar
+                                dataKey="score"
+                                radius={[6, 6, 0, 0]}
+                                barSize={40}
+                            >
+                                {data.map((entry, index) => (
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={index % 2 === 0 ? '#3b82f6' : '#60a5fa'}
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
         </div>

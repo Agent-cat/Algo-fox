@@ -175,7 +175,21 @@ export class DashboardService {
             }
         });
 
-        const [user, difficultyStats, contestScoreResult, languageStats, activityDates, totalByDifficulty, attendedContests, practiceSolvedCount] = await Promise.all([
+        const contestPerformancePromise = prisma.contestParticipation.findMany({
+            where: { userId, acceptedRules: true },
+            include: {
+                contest: {
+                    select: {
+                        id: true,
+                        title: true,
+                        startTime: true
+                    }
+                }
+            },
+            orderBy: { contest: { startTime: 'asc' } }
+        });
+
+        const [user, difficultyStats, contestScoreResult, languageStats, activityDates, totalByDifficulty, attendedContests, practiceSolvedCount, contestParticipations] = await Promise.all([
             userPromise,
             difficultyStatsPromise,
             contestScorePromise,
@@ -183,7 +197,8 @@ export class DashboardService {
             activityDatesPromise,
             totalByDifficultyPromise,
             attendedContestsPromise,
-            practiceSolvedCountPromise
+            practiceSolvedCountPromise,
+            contestPerformancePromise
         ]);
 
         if (!user) {
@@ -208,6 +223,39 @@ export class DashboardService {
 
         // CONTEST STATS
         const totalContestScore = contestScoreResult[0]?.totalContestScore || 0;
+
+        const contestIds = contestParticipations.map(cp => cp.contestId);
+        const contestPerformanceScores = contestIds.length > 0 ? await prisma.submission.findMany({
+            where: {
+                userId,
+                contestId: { in: contestIds },
+                status: 'ACCEPTED',
+                mode: 'SUBMIT'
+            },
+            select: {
+                contestId: true,
+                problemId: true,
+                problem: { select: { score: true } }
+            }
+        }) : [];
+
+        const scoresByContest: Record<string, number> = {};
+        const seen = new Set<string>();
+        contestPerformanceScores.forEach(sub => {
+            const key = `${sub.contestId}:${sub.problemId}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                const cId = sub.contestId!;
+                scoresByContest[cId] = (scoresByContest[cId] || 0) + (sub.problem?.score || 0);
+            }
+        });
+
+        const contestPerformance = contestParticipations.map(cp => ({
+            contestId: cp.contestId,
+            title: cp.contest.title,
+            date: cp.contest.startTime,
+            score: scoresByContest[cp.contestId] || 0
+        }));
 
         // TOTAL PROBLEMS
         const totalProblems = { EASY: 0, MEDIUM: 0, HARD: 0, TOTAL: 0 };
@@ -246,7 +294,8 @@ export class DashboardService {
             bestStreak: Math.max(bestStreak, currentStreak),
             contestStats: {
                 attended: attendedContests,
-                totalScore: totalContestScore
+                totalScore: totalContestScore,
+                performance: contestPerformance
             }
         };
 

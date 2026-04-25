@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import { Suspense } from "react";
+import MainContentWrapper from "@/components/shared/MainContentWrapper";
 
 export default function MainLayout({
   children,
@@ -11,9 +12,9 @@ export default function MainLayout({
       <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-      <div className="pt-16">
+      <MainContentWrapper>
         {children}
-      </div>
+      </MainContentWrapper>
     </>
   );
 }

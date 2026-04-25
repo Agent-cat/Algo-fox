@@ -7,6 +7,7 @@ import NetworkStatus from "@/components/NetworkStatus";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
 import FocusBlur from "@/components/FocusBlur";
+import { ImpersonationBanner } from "@/components/auth/ImpersonationBanner";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -117,6 +118,7 @@ export default function RootLayout({
               />
               <SessionConflictModal />
               <FocusBlur />
+              <ImpersonationBanner />
               {children}
             </StreakProvider>
           </Suspense>

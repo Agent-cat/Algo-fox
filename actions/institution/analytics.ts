@@ -115,6 +115,9 @@ export type ContestPerformancePoint = {
     title: string;
     date: Date;
     score: number;
+    isBlocked: boolean;
+    isFlagged: boolean;
+    violationsCount: number;
 };
 
 export type CourseEnrollmentItem = {
@@ -163,7 +166,15 @@ export type StudentInsights = {
     codeforcesContests: number;
     contestPerformance: ContestPerformancePoint[];
     courseEnrollments: CourseEnrollmentItem[];
-    submissions: { createdAt: Date; status: string }[];
+    submissions: { id: string; createdAt: Date; status: string; problem: { id: string; title: string; slug: string; difficulty: string } | null; code: string | null; language: { name: string } | null }[];
+    heatmapSubmissions: { createdAt: Date; status: string }[];
+    languageCounts: Record<string, number>;
+    solvedByDifficulty: {
+        EASY: { count: number; breakdown: Record<string, number> };
+        MEDIUM: { count: number; breakdown: Record<string, number> };
+        HARD: { count: number; breakdown: Record<string, number> };
+    };
+    totalPlatformProblems: { EASY: number; MEDIUM: number; HARD: number; TOTAL: number };
 };
 
 export async function getStudentInsights(
@@ -173,7 +184,7 @@ export async function getStudentInsights(
     const sessionUser = await checkInstitutionAccess(institutionId);
     if (!sessionUser) return { success: false, error: "Unauthorized" };
 
-    const [student, contestParticipations, courseEnrollments, submissions] = await Promise.all([
+    const [student, contestParticipations, courseEnrollments, heatmapSubmissions, totalByDifficulty, difficultyStatsRaw, languageStatsRaw] = await Promise.all([
         prisma.user.findFirst({
             where: { id: studentId, institutionId },
             select: {
@@ -188,15 +199,25 @@ export async function getStudentInsights(
                 codeChefSolved: true, codeChefRating: true, codeChefContests: true,
                 codeforcesHandle: true, codeforcesVerified: true,
                 codeforcesSolved: true, codeforcesRating: true, codeforcesContests: true,
+                submissions: {
+                    where: { mode: "SUBMIT" },
+                    select: {
+                        id: true, createdAt: true, status: true, code: true,
+                        language: { select: { name: true } },
+                        problem: { select: { id: true, difficulty: true, slug: true, title: true, domain: true } }
+                    },
+                    orderBy: { createdAt: "desc" },
+                    take: 20
+                }
             },
         }),
 
         prisma.contestParticipation.findMany({
-            where: { userId: studentId, isFinished: true },
+            where: { userId: studentId },
             include: {
                 contest: { select: { id: true, title: true, startTime: true } },
             },
-            orderBy: { createdAt: "asc" },
+            orderBy: { createdAt: "desc" },
             take: 20,
         }),
 
@@ -219,6 +240,46 @@ export async function getStudentInsights(
             select: { createdAt: true, status: true },
             orderBy: { createdAt: "asc" },
         }),
+
+        prisma.problem.groupBy({
+            by: ['difficulty'],
+            where: { hidden: false, difficulty: { not: 'CONCEPT' } },
+            _count: { id: true }
+        }),
+
+        prisma.$queryRaw<any[]>`
+            SELECT
+                p."difficulty",
+                p."domain",
+                CAST(COUNT(DISTINCT s."problemId") AS INTEGER) as "count"
+            FROM "Submission" s
+            JOIN "Problem" p ON s."problemId" = p."id"
+            WHERE s."userId" = ${studentId}
+              AND s."status" = 'ACCEPTED'::"SubmissionResult"
+              AND s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND s."contestId" IS NULL
+              AND p."type" != 'CONTEST'::"ProblemType"
+              AND p."hidden" = false
+              AND p."difficulty" != 'CONCEPT'::"Difficulty"
+            GROUP BY p."difficulty", p."domain"
+        `,
+
+        prisma.$queryRaw<any[]>`
+            SELECT
+                l."name",
+                CAST(COUNT(DISTINCT l_s."problemId") AS INTEGER) as "count"
+            FROM "Submission" l_s
+            JOIN "Language" l ON l_s."languageId" = l."id"
+            JOIN "Problem" p ON l_s."problemId" = p."id"
+            WHERE l_s."userId" = ${studentId}
+              AND l_s."status" = 'ACCEPTED'::"SubmissionResult"
+              AND l_s."mode" = 'SUBMIT'::"SubmissionMode"
+              AND l_s."contestId" IS NULL
+              AND p."type" != 'CONTEST'::"ProblemType"
+              AND p."hidden" = false
+              AND p."difficulty" != 'CONCEPT'::"Difficulty"
+            GROUP BY l."name"
+        `,
     ]);
 
     if (!student) return { success: false, error: "Student not found" };
@@ -269,6 +330,9 @@ export async function getStudentInsights(
         title: cp.contest.title,
         date: cp.contest.startTime,
         score: scoresByContest[cp.contestId] ?? 0,
+        isBlocked: cp.isBlocked || cp.permanentlyBlocked,
+        isFlagged: cp.isFlagged,
+        violationsCount: cp.totalViolations
     }));
 
     const formattedCourses: CourseEnrollmentItem[] = courseEnrollments.map((enrollment) => {
@@ -296,6 +360,38 @@ export async function getStudentInsights(
         };
     });
 
+    const totalPlatformProblems = { EASY: 0, MEDIUM: 0, HARD: 0, TOTAL: 0 };
+    totalByDifficulty.forEach((group: any) => {
+        const count = group._count.id;
+        if (group.difficulty in totalPlatformProblems) {
+            totalPlatformProblems[group.difficulty as keyof typeof totalPlatformProblems] = count;
+        }
+        totalPlatformProblems.TOTAL += count;
+    });
+
+    const solvedByDifficulty: any = {
+        EASY: { count: 0, breakdown: {} },
+        MEDIUM: { count: 0, breakdown: {} },
+        HARD: { count: 0, breakdown: {} }
+    };
+    difficultyStatsRaw.forEach((row: any) => {
+        if (row.difficulty in solvedByDifficulty) {
+            solvedByDifficulty[row.difficulty].count += row.count;
+            solvedByDifficulty[row.difficulty].breakdown[row.domain] = row.count;
+        }
+    });
+
+    const languageCounts: Record<string, number> = {};
+    languageStatsRaw.forEach((row: any) => {
+        const langName = row.name;
+        let normalizedName = langName;
+        if (langName.toLowerCase().includes('cpp') || langName.toLowerCase().includes('c++')) normalizedName = 'Cpp';
+        else if (langName.toLowerCase().includes('java')) normalizedName = 'Java';
+        else if (langName.toLowerCase().includes('javascript')) normalizedName = 'JavaScript';
+        if (!languageCounts[normalizedName]) languageCounts[normalizedName] = 0;
+        languageCounts[normalizedName] += row.count;
+    });
+
     return {
         success: true,
         student: {
@@ -304,10 +400,14 @@ export async function getStudentInsights(
             institutionRank: higherScoredCount + 1,
             contestPerformance,
             courseEnrollments: formattedCourses,
-            submissions: submissions.map((s) => ({
+            submissions: student.submissions as any,
+            heatmapSubmissions: heatmapSubmissions.map((s) => ({
                 createdAt: s.createdAt,
                 status: s.status,
             })),
+            languageCounts,
+            solvedByDifficulty,
+            totalPlatformProblems,
         },
     };
 }

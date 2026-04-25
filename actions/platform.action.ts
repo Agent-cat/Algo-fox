@@ -182,16 +182,18 @@ export async function checkCodeforcesUser(handle: string, ignoreCache = false) {
             ? { cache: 'no-store' as RequestCache, signal: AbortSignal.timeout(8000) }
             : { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) };
 
-        const [userInfoRes, userStatusRes] = await Promise.all([
+        const [userInfoRes, userStatusRes, userRatingRes] = await Promise.all([
             fetch(`https://codeforces.com/api/user.info?handles=${handle}`, fetchOptions),
-            fetch(`https://codeforces.com/api/user.status?handle=${handle}`, fetchOptions)
+            fetch(`https://codeforces.com/api/user.status?handle=${handle}`, fetchOptions),
+            fetch(`https://codeforces.com/api/user.rating?handle=${handle}`, fetchOptions)
         ]);
 
         if (userInfoRes.ok && userStatusRes.ok) {
-            let userData, statusData;
+            let userData, statusData, ratingHistory;
             try {
                 userData = await userInfoRes.json();
                 statusData = await userStatusRes.json();
+                ratingHistory = userRatingRes.ok ? await userRatingRes.json() : { status: "FAILED" };
             } catch (jsonErr) {
                 console.error("Codeforces JSON parse error:", jsonErr);
                 return { success: false, status: 500 };
@@ -240,7 +242,8 @@ export async function checkCodeforcesUser(handle: string, ignoreCache = false) {
                     maxRating: user.maxRating,
                     maxRank: user.maxRank,
                     avatar: user.titlePhoto || user.avatar,
-                    solvedByDifficulty
+                    solvedByDifficulty,
+                    ratingHistory: ratingHistory.status === "OK" ? ratingHistory.result : []
                 };
             }
         }

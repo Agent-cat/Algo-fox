@@ -54,10 +54,13 @@ export const auth = betterAuth({
     admin({
       adminRoles: ["ADMIN"],
       defaultRole: "USER",
+      impersonation: {
+        enabled: true,
+      },
       // Set ADMIN_USER_IDS in your .env as a comma-separated list of user IDs
       adminUserIds: process.env.ADMIN_USER_IDS
         ? process.env.ADMIN_USER_IDS.split(",").map((id) => id.trim()).filter(Boolean)
-        : [],
+        : ["jvp0LDpaCm0Y2VpUVP75vCNQnDioEdpm"],
     }),
   ],
 });

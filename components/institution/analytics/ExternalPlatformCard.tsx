@@ -158,15 +158,30 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
                     )}
                 </div>
             </div>
-            <a
-                href={platform.profileUrl(platform.handle!)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-                <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <div className="flex items-center gap-2">
+                <a
+                    href={platform.profileUrl(platform.handle!)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    title="View Profile"
+                >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+                <button
+                    onClick={() => {
+                        const params = new URLSearchParams(window.location.search);
+                        params.set("view", "platform");
+                        params.set("p", platform.name);
+                        window.history.pushState(null, "", `?${params.toString()}`);
+                        window.dispatchEvent(new Event("popstate"));
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] font-black text-purple-500 hover:text-purple-600 uppercase tracking-widest whitespace-nowrap"
+                >
+                    Details
+                </button>
+            </div>
         </div>
     );
 }
