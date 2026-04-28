@@ -103,7 +103,15 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         if (typeof window === 'undefined') return '// Write your code here';
         const isSql = (problem.domain as string) === 'SQL';
         if (isSql) return '';
-        const initialLangId = getStoredLanguageId(problem.domain as string);
+        
+        let initialLangId = getStoredLanguageId(problem.domain as string);
+        if (problem.allowedLanguages && problem.allowedLanguages.length > 0) {
+            const allowedIds = LANGUAGES.filter(l => problem.allowedLanguages!.includes(l.name)).map(l => l.id);
+            if (!allowedIds.includes(initialLangId)) {
+                initialLangId = allowedIds[0];
+            }
+        }
+
         if (problem.useFunctionTemplate && problem.functionTemplates) {
             const tmpl = problem.functionTemplates.find(t => t.languageId === initialLangId);
             if (tmpl?.functionTemplate) return tmpl.functionTemplate;
@@ -140,12 +148,20 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     useEffect(() => {
         const domain = problem.domain as string;
         const storedLanguageId = getStoredLanguageId(domain);
-        const finalLanguageId = domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
+        let finalLanguageId = domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
+        
+        if (problem.allowedLanguages && problem.allowedLanguages.length > 0 && domain !== "SQL") {
+            const allowedIds = LANGUAGES.filter(l => problem.allowedLanguages!.includes(l.name)).map(l => l.id);
+            if (!allowedIds.includes(finalLanguageId)) {
+                finalLanguageId = allowedIds[0];
+            }
+        }
+
         if (finalLanguageId !== languageId) {
             setLanguageId(finalLanguageId);
             setCode("");
         }
-    }, [problem.domain]);
+    }, [problem.domain, problem.allowedLanguages, languageId]);
 
     const getBoilerplateForLanguage = useCallback((langId: number): string => {
         if (problem.domain === 'SQL') return '';

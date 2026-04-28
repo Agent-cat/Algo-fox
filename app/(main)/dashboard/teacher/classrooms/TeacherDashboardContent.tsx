@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { TeacherClassroomList } from "@/components/classroom/TeacherClassroomList";
 import { CreateClassroomDialog } from "@/components/classroom/CreateClassroomDialog";
+import { Zap } from "lucide-react";
 
 interface TeacherDashboardContentProps {
     classrooms: any[];
@@ -36,14 +37,23 @@ export function TeacherDashboardContent({ classrooms, institutionId }: TeacherDa
                         </div>
                     </div>
 
-                    {institutionId && (
-                        <button
-                            onClick={() => setIsDialogOpen(true)}
-                            className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-sm font-bold hover:bg-orange-600 dark:hover:bg-gray-200 transition-all shadow-lg active:scale-[0.98]"
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/dashboard/teacher/quiz"
+                            className="inline-flex items-center gap-2 px-5 py-3 bg-orange-500 text-white rounded-xl text-sm font-bold hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 active:scale-[0.98]"
                         >
-                            Create Classroom
-                        </button>
-                    )}
+                            <Zap className="w-4 h-4" />
+                            Live Quizzes
+                        </Link>
+                        {institutionId && (
+                            <button
+                                onClick={() => setIsDialogOpen(true)}
+                                className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-sm font-bold hover:bg-orange-600 dark:hover:bg-gray-200 transition-all shadow-lg active:scale-[0.98]"
+                            >
+                                Create Classroom
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Main Content */}

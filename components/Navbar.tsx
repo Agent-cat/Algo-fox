@@ -140,9 +140,14 @@ export default function Navbar() {
                                                             )}
 
                                                             {isTeacher && (
-                                                                <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
-                                                                    Teacher Dashboard
-                                                                </Link>
+                                                                <>
+                                                                    <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                        Teacher Dashboard
+                                                                    </Link>
+                                                                    <Link href="/dashboard/teacher/quiz" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg font-semibold">
+                                                                        ⚡ Live Quizzes
+                                                                    </Link>
+                                                                </>
                                                             )}
 
                                                             {isInstitutionManager && (
@@ -283,9 +288,14 @@ export default function Navbar() {
                                     </Link>
                                 )}
                                 {isTeacher && (
-                                    <Link href="/dashboard/teacher/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
-                                        Teacher Dashboard
-                                    </Link>
+                                    <>
+                                        <Link href="/dashboard/teacher/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                            Teacher Dashboard
+                                        </Link>
+                                        <Link href="/dashboard/teacher/quiz" className="text-base font-medium text-orange-600 hover:text-orange-700">
+                                            ⚡ Live Quizzes
+                                        </Link>
+                                    </>
                                 )}
                                 {(isAdmin || isContestManager) && (
                                     <Link href="/dashboard/contests" className="text-base font-medium text-gray-800 hover:text-orange-600">

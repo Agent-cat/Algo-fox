@@ -67,6 +67,7 @@ model User {
   longestStreak         Int                    @default(0)
   lastStreakDate        DateTime?
   courseEnrollments     UserCourseEnrollment[]
+  quizzesCreated        Int                    @default(0)
 
   @@index([collegeId])
   @@index([collegeId, totalScore])

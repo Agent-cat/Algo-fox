@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import redis from "@/lib/redis";
 import { auth } from "@/lib/auth";
 import { getClientIP, getCloudflareSecurityInfo } from '@/lib/ddos-protection';
-
 import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
 
 // RATE LIMITS MAPPING
@@ -69,35 +67,51 @@ export async function proxy(request: NextRequest) {
   // 3. Authentication & Access Control
   const isAuthProtected =
     pathname.startsWith("/admin") ||
+    pathname.startsWith("/dashboard") ||
     pathname.startsWith("/dashboard/institution") ||
     pathname.startsWith("/dashboard/teacher") ||
     pathname.startsWith("/dashboard/contests");
 
-  if (isAuthProtected) {
+  const isGuestOnly =
+    pathname.startsWith("/signin") ||
+    pathname.startsWith("/signup");
+
+  if (isAuthProtected || isGuestOnly) {
     try {
       const currentSession = await getSession();
-      if (!currentSession) {
+
+      if (isGuestOnly && currentSession) {
+        // If logged in and trying to access signin/signup, redirect to dashboard
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+
+      if (isAuthProtected && !currentSession) {
+        // If not logged in and trying to access protected route, redirect to signin
         return NextResponse.redirect(new URL("/signin", request.url));
       }
 
-      const userRole = (session.user as any).role;
+      if (currentSession) {
+        const userRole = (currentSession.user as any).role;
 
-      // Role Check
-      if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
-        return NextResponse.redirect(new URL("/", request.url));
-      }
+        // Role Checks
+        if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
+          return NextResponse.redirect(new URL("/", request.url));
+        }
 
-      if (pathname.startsWith("/dashboard/institution") && userRole !== "INSTITUTION_MANAGER") {
-        return NextResponse.redirect(new URL("/", request.url));
-      }
+        if (pathname.startsWith("/dashboard/institution") && userRole !== "INSTITUTION_MANAGER") {
+          return NextResponse.redirect(new URL("/", request.url));
+        }
 
-      if ((pathname.startsWith("/dashboard/teacher") || pathname.startsWith("/dashboard/contests")) &&
-          !["TEACHER", "ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER"].includes(userRole)) {
-        return NextResponse.redirect(new URL("/", request.url));
+        if ((pathname.startsWith("/dashboard/teacher") || pathname.startsWith("/dashboard/contests")) &&
+            !["TEACHER", "ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER"].includes(userRole)) {
+          return NextResponse.redirect(new URL("/", request.url));
+        }
       }
     } catch (error) {
       console.error("[Auth] Session validation failed:", error);
-      return NextResponse.redirect(new URL("/signin", request.url));
+      if (isAuthProtected) {
+        return NextResponse.redirect(new URL("/signin", request.url));
+      }
     }
   }
 
@@ -145,7 +159,7 @@ export async function proxy(request: NextRequest) {
 
   // 5. Global Security Headers (Optimized for Cloudflare)
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN'); // Matches next.config.ts for consistency
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
@@ -166,6 +180,6 @@ export const config = {
     /*
      * Match all request paths except for the ones starting with local assets
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json).*)',
   ],
 };
