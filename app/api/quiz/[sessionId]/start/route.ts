@@ -42,7 +42,13 @@ export async function POST(
     },
   });
 
-  await scheduleQuestionEnd(sessionId, questionIndex, question.timeLimit * 1000);
+  try {
+    await scheduleQuestionEnd(sessionId, questionIndex, question.timeLimit * 1000);
+  } catch (error) {
+    console.error(`Failed to schedule question end for session ${sessionId}, question ${questionIndex}:`, error);
+    await QuizStore.setStatus(sessionId, quiz.status, quiz.currentQuestion);
+    return NextResponse.json({ ok: false, error: "Failed to schedule timer" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

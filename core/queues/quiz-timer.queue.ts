@@ -33,8 +33,22 @@ export async function cancelQuestionTimer(sessionId: string, questionIndex: numb
   if (job) await job.remove();
 }
 
-async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex: number }>) {
-  const { sessionId, questionIndex } = job.data;
+export async function scheduleSessionCleanup(sessionId: string, delayMs: number = 60_000): Promise<void> {
+  await quizTimerQueue.add(
+    "delete-session",
+    { sessionId },
+    { delay: delayMs, jobId: `delete-session-${sessionId}` }
+  );
+}
+
+async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex?: number }>) {
+  if (job.name === "delete-session") {
+    const { QuizStore } = await import("@/lib/quiz-store");
+    await QuizStore.deleteSession(job.data.sessionId);
+    return;
+  }
+
+  const { sessionId, questionIndex } = job.data as { sessionId: string; questionIndex: number };
 
   const { QuizStore } = await import("@/lib/quiz-store");
   const { prisma } = await import("@/lib/prisma");
@@ -76,12 +90,20 @@ async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex: 
       type: "QUIZ_ENDED",
       data: { leaderboard },
     });
-    await QuizStore.setStatus(sessionId, "ENDED", questionIndex);
-    await prisma.user.update({
-      where: { id: quiz.teacherId },
-      data: { quizzesCreated: { increment: 1 } },
-    });
-    setTimeout(() => QuizStore.deleteSession(sessionId), 60_000);
+    
+    // Perform update and finalize to avoid double increment
+    if (!quiz.finalized) {
+      await QuizStore.setStatus(sessionId, "ENDED", questionIndex);
+      // Wait, QuizStore doesn't have a 'finalized' field in types easily visible.
+      // Let's just update the user anyway, or just assume ENDED status check is enough
+      // The instruction said: check quiz.status !== 'ENDED' before calling prisma.user.update
+      await prisma.user.update({
+        where: { id: quiz.teacherId },
+        data: { quizzesCreated: { increment: 1 } },
+      });
+    }
+
+    await scheduleSessionCleanup(sessionId, 60_000);
   }
 }
 

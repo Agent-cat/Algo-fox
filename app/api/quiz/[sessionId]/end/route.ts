@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { QuizStore } from "@/lib/quiz-store";
-import { cancelQuestionTimer } from "@/core/queues/quiz-timer.queue";
+import { cancelQuestionTimer, scheduleSessionCleanup } from "@/core/queues/quiz-timer.queue";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -31,7 +31,7 @@ export async function POST(
     data: { quizzesCreated: { increment: 1 } },
   });
 
-  setTimeout(() => QuizStore.deleteSession(sessionId), 60_000);
+  await scheduleSessionCleanup(sessionId, 60_000);
 
   return NextResponse.json({ ok: true });
 }

@@ -223,7 +223,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
   if (phase === "lobby") {
     return (
       <div className="min-h-screen bg-[#0e0e0e] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-500 animate-gradient" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-orange-500 via-yellow-500 to-orange-500 animate-gradient" />
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-500/5 rounded-full blur-[120px]" />
 
@@ -245,8 +245,8 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
           </div>
 
           <div className="px-6 py-8 bg-[#141414] rounded-3xl border border-[#2a2a2a] shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
+            <div className="absolute inset-0 bg-linear-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
               <span className="text-2xl font-black text-white">{participantName[0]?.toUpperCase()}</span>
             </div>
             <p className="font-black text-white text-xl mb-1">{participantName}</p>
@@ -339,7 +339,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                         }
                       `}
                     >
-                      <span className="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-lg font-black flex-shrink-0 shadow-inner">
+                      <span className="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-lg font-black shrink-0 shadow-inner">
                         {OPTION_LABELS[i]}
                       </span>
                       <div className="flex-1 min-w-0 pr-2">
@@ -430,7 +430,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               {/* Question & Results */}
-              <div className="bg-[#141414] border border-[#2a2a2a] rounded-[2rem] p-8 shadow-2xl">
+              <div className="bg-[#141414] border border-[#2a2a2a] rounded-4xl p-8 shadow-2xl">
                 <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">The Question</p>
                 <div className="mb-8">
                   <Markdown content={questionText} className="text-xl font-bold text-white tracking-tight" />
@@ -459,7 +459,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               {/* Leaderboard */}
-              <div className="bg-[#141414] border border-[#2a2a2a] rounded-[2rem] p-8 shadow-2xl">
+              <div className="bg-[#141414] border border-[#2a2a2a] rounded-4xl p-8 shadow-2xl">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
                     <Trophy className="w-4 h-4 text-orange-400" />

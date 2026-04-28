@@ -105,7 +105,7 @@ export default function JoinPage({ params }: Props) {
           /* Logged in */
           <div className="space-y-4">
             <div className="px-5 py-4 bg-[#141414] border border-[#2a2a2a] rounded-2xl flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
                 <span className="text-lg font-black text-orange-400">
                   {session.user.name?.[0]?.toUpperCase()}
                 </span>
@@ -118,7 +118,7 @@ export default function JoinPage({ params }: Props) {
 
             {joinError && (
               <div className="flex items-start gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                 <p className="text-sm text-red-400">{joinError}</p>
               </div>
             )}

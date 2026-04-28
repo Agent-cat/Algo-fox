@@ -136,7 +136,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                 className="sr-only"
               />
               <div
-                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   classroomId === c.id ? "border-orange-500" : "border-gray-300 dark:border-gray-600"
                 }`}
               >
@@ -193,7 +193,7 @@ export function QuizCreateForm({ classrooms }: Props) {
               className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
               onClick={() => setExpanded(expanded === qi ? -1 : qi)}
             >
-              <span className="w-6 h-6 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-black text-xs flex items-center justify-center flex-shrink-0">
+              <span className="w-6 h-6 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-black text-xs flex items-center justify-center shrink-0">
                 {qi + 1}
               </span>
               <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">
@@ -253,7 +253,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateQuestion(qi, { correctOption: oi })}
-                              className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 transition-all ${
+                              className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shrink-0 transition-all ${
                                 q.correctOption === oi
                                   ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
                                   : "bg-gray-100 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400 hover:bg-orange-100 dark:hover:bg-orange-500/20"

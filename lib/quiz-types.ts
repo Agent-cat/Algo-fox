@@ -23,6 +23,7 @@ export interface QuizMeta {
   status: QuizStatus;
   currentQuestion: number;
   createdAt: number;
+  finalized?: boolean;
 }
 
 export interface Participant {

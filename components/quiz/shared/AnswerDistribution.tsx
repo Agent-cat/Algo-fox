@@ -9,6 +9,15 @@ interface AnswerDistributionProps {
   selectedOption?: number;
 }
 
+const indexToLabel = (index: number) => {
+  let label = "";
+  while (index >= 0) {
+    label = String.fromCharCode((index % 26) + 65) + label;
+    index = Math.floor(index / 26) - 1;
+  }
+  return label;
+};
+
 export function AnswerDistribution({
   options,
   distribution,
@@ -30,7 +39,7 @@ export function AnswerDistribution({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 min-w-0">
                 <span
-                  className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-black flex-shrink-0 ${
+                  className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-black shrink-0 ${
                     isCorrect
                       ? "bg-green-500 text-white"
                       : isSelected
@@ -38,14 +47,14 @@ export function AnswerDistribution({
                       : "bg-gray-100 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400"
                   }`}
                 >
-                  {String.fromCharCode(65 + i)}
+                  {indexToLabel(i)}
                 </span>
                 <div className={`truncate font-medium flex-1 ${isCorrect ? "text-green-700 dark:text-green-400" : "text-gray-700 dark:text-gray-300"}`}>
                   <Markdown content={option} className="inline-block prose-p:my-0" />
                   {isCorrect && <span className="ml-1 text-xs whitespace-nowrap">✓</span>}
                 </div>
               </div>
-              <span className="font-black font-mono text-xs ml-2 flex-shrink-0">
+              <span className="font-black font-mono text-xs ml-2 shrink-0">
                 {percent}%
                 <span className="text-gray-400 ml-1">({count})</span>
               </span>

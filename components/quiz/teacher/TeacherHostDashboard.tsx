@@ -226,10 +226,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#0e0e0e]">
       {/* Deletion Warning Banner */}
-      <div className="bg-orange-500/15 border-b border-orange-500/20 px-6 py-3 flex items-center justify-center gap-4 sticky top-0 z-[60] backdrop-blur-md">
-        <AlertCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+      <div className="bg-orange-500/15 border-b border-orange-500/20 px-6 py-3 flex items-center justify-center gap-4 sticky top-0 z-60 backdrop-blur-md">
+        <AlertCircle className="w-4 h-4 text-orange-500 shrink-0" />
         <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.1em] text-orange-600 dark:text-orange-400 text-center">
+          <p className="text-[10px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400 text-center">
             {phase === "ended"
               ? "Quiz Finished! Session deletes in 1 min. Download results now!"
               : "Ongoing Session: Auto-deletes 5 mins after conclusion if not ended manually."}
@@ -249,7 +249,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
             <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Live Quiz</div>
             <h1 className="text-lg font-black text-gray-900 dark:text-white truncate">{title || "Loading..."}</h1>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             {phase !== "ended" && (
               <>
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 dark:bg-green-500/10 rounded-lg border border-green-200 dark:border-green-500/20">
@@ -289,10 +289,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
               </div>
               <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-xl px-3 py-2">
                 <span className="flex-1 text-xs font-mono text-gray-600 dark:text-gray-400 truncate">{joinUrl}</span>
-                <button onClick={copyLink} className="text-gray-400 hover:text-orange-500 transition-colors flex-shrink-0">
+                <button onClick={copyLink} className="text-gray-400 hover:text-orange-500 transition-colors shrink-0">
                   <Copy className="w-3.5 h-3.5" />
                 </button>
-                <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 transition-colors flex-shrink-0">
+                <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 transition-colors shrink-0">
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -311,7 +311,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                 ) : (
                   participants.map((p) => (
                     <div key={p.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
-                      <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300 truncate font-medium">{p.name}</span>
                     </div>
                   ))
@@ -407,7 +407,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                         key={i}
                         className="flex items-center gap-3 px-4 py-3 border border-gray-200 dark:border-[#2a2a2a] rounded-xl bg-gray-50 dark:bg-[#1a1a1a]"
                       >
-                        <span className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] flex items-center justify-center text-sm font-black text-gray-500 dark:text-gray-400 flex-shrink-0">
+                        <span className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] flex items-center justify-center text-sm font-black text-gray-500 dark:text-gray-400 shrink-0">
                           {OPTION_LABELS[i] ?? i + 1}
                         </span>
                         <div className="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">
