@@ -6,7 +6,6 @@ import { Leaderboard } from "@/components/quiz/shared/Leaderboard";
 import { AnswerDistribution } from "@/components/quiz/shared/AnswerDistribution";
 import { Markdown } from "@/components/quiz/shared/Markdown";
 import type { QuizSSEEvent, QuizStatePayload, LeaderboardEntry } from "@/lib/quiz-types";
-import { Users, CheckCircle2, XCircle, Trophy, Crown, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface StudentQuizRoomProps {
@@ -222,36 +221,23 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
 
   if (phase === "lobby") {
     return (
-      <div className="min-h-screen bg-[#0e0e0e] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-orange-500 via-yellow-500 to-orange-500 animate-gradient" />
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-500/5 rounded-full blur-[120px]" />
-
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-sm text-center space-y-6 relative z-10"
         >
           <div className="space-y-2">
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="text-6xl"
-            >
-              🚀
-            </motion.div>
-            <h1 className="text-3xl font-black text-white tracking-tight">{title || "Loading..."}</h1>
-            <p className="text-gray-400 font-medium">Ready when you are!</p>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{title || "Loading..."}</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">Ready when you are!</p>
           </div>
 
-          <div className="px-6 py-8 bg-[#141414] rounded-3xl border border-[#2a2a2a] shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-linear-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
+          <div className="px-6 py-8 bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-200 dark:border-white/10 shadow-sm relative overflow-hidden group">
+            <div className="relative w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
               <span className="text-2xl font-black text-white">{participantName[0]?.toUpperCase()}</span>
             </div>
-            <p className="font-black text-white text-xl mb-1">{participantName}</p>
-            <div className="flex items-center justify-center gap-2 text-gray-400">
-              <Users className="w-4 h-4" />
+            <p className="font-black text-gray-900 dark:text-white text-xl mb-1">{participantName}</p>
+            <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
               <span className="text-sm font-bold font-mono">{participantCount} joined</span>
             </div>
           </div>
@@ -259,9 +245,9 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-full border border-orange-500/20">
               <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-              <p className="text-orange-400 text-xs font-black uppercase tracking-widest">Waiting for host</p>
+              <p className="text-orange-600 dark:text-orange-400 text-xs font-black uppercase tracking-widest">Waiting for host</p>
             </div>
-            <p className="text-gray-500 text-sm max-w-[200px]">The quiz will start as soon as the teacher clicks start</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-[200px]">The quiz will start as soon as the teacher clicks start</p>
           </div>
         </motion.div>
       </div>
@@ -269,7 +255,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] flex flex-col text-white selection:bg-orange-500/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex flex-col text-gray-900 dark:text-white selection:bg-orange-500/30 selection:text-orange-200">
       <AnimatePresence mode="wait">
         {phase === "question" && (
           <motion.div
@@ -282,17 +268,17 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 flex items-center justify-center">
                   <span className="text-orange-500 font-black text-sm">Q</span>
                 </div>
                 <div>
-                  <span className="text-xs font-black text-gray-500 uppercase tracking-widest">
+                  <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                     Question {currentQuestion + 1} of {totalQuestions}
                   </span>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="text-lg font-black leading-none">{participantName}</div>
                     {myRank && (
-                      <div className="px-2 py-0.5 bg-orange-500/10 border border-orange-500/20 rounded text-[10px] font-black text-orange-500 uppercase">
+                      <div className="px-2 py-0.5 bg-orange-500/10 border border-orange-500/20 rounded text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase">
                         Rank #{myRank}
                       </div>
                     )}
@@ -304,22 +290,20 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               )}
             </div>
 
-            {/* Question */}
-            <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full">
+            {/* Question Container */}
+            <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full">
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="bg-[#141414] border border-[#2a2a2a] rounded-3xl p-8 mb-8 shadow-2xl relative overflow-hidden"
+                className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 mb-8 shadow-sm relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-[60px]" />
-                <Markdown content={questionText} className="text-2xl font-bold text-white tracking-tight" />
+                <Markdown content={questionText} className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight" />
               </motion.div>
 
-              {/* Options */}
+              {/* Options Grid/List */}
               <div className="flex flex-col gap-4 flex-1 mb-8">
                 {options.map((opt, i) => {
-                  const color = OPTION_COLORS[i % OPTION_COLORS.length];
                   const isSelected = selectedOption === i;
                   return (
                     <motion.button
@@ -330,28 +314,30 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                       onClick={() => submitAnswer(i)}
                       disabled={isLocked}
                       className={`
-                        relative flex items-center gap-5 px-6 py-5 rounded-2xl border-b-[6px] text-white font-bold text-left transition-all active:scale-[0.97] min-h-[84px]
+                        relative flex items-center gap-5 px-6 py-5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white font-medium text-left transition-all active:scale-[0.99] min-h-[84px]
                         ${isLocked
                           ? isSelected
-                            ? `${color} opacity-100 ring-4 ring-white/20 scale-[1.02]`
-                            : "bg-[#1a1a1a] border-[#2a2a2a] opacity-40 cursor-not-allowed"
-                          : `${color} shadow-xl hover:scale-[1.02] hover:-translate-y-1 cursor-pointer`
+                            ? "bg-orange-500 border-orange-600 text-white! ring-4 ring-orange-500/20"
+                            : "bg-gray-50 dark:bg-[#1a1a1a] opacity-40 cursor-not-allowed"
+                          : "bg-white dark:bg-[#1a1a1a] hover:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-orange-500/5 cursor-pointer shadow-sm"
                         }
                       `}
                     >
-                      <span className="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center text-lg font-black shrink-0 shadow-inner">
+                      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-black shrink-0 ${
+                        isSelected && isLocked ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-[#262626] text-gray-500 dark:text-gray-400"
+                      }`}>
                         {OPTION_LABELS[i]}
                       </span>
                       <div className="flex-1 min-w-0 pr-2">
-                        <Markdown content={opt} isOption className="text-base leading-snug prose-p:my-0" />
+                        <Markdown content={opt} isOption className={`text-lg leading-snug prose-p:my-0 ${isSelected && isLocked ? "text-white prose-invert" : ""}`} />
                       </div>
                       {isSelected && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-[#121212]"
                         >
-                          <CheckCircle2 className="w-4 h-4 text-orange-500" />
+                          <div className="w-2 h-2 bg-white rounded-full" />
                         </motion.div>
                       )}
                     </motion.button>
@@ -367,7 +353,6 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                       animate={{ y: 0, opacity: 1 }}
                       className="flex items-center justify-center gap-3 py-4 bg-green-500 rounded-2xl shadow-lg shadow-green-500/20"
                     >
-                      <CheckCircle2 className="w-6 h-6 text-white" />
                       <span className="text-lg font-black text-white">Answer locked!</span>
                     </motion.div>
                   )}
@@ -377,7 +362,6 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                       animate={{ y: 0, opacity: 1 }}
                       className="flex items-center justify-center gap-3 py-4 bg-red-500 rounded-2xl shadow-lg shadow-red-500/20"
                     >
-                      <XCircle className="w-6 h-6 text-white" />
                       <span className="text-lg font-black text-white">{submitError}</span>
                     </motion.div>
                   )}
@@ -395,21 +379,13 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             exit={{ opacity: 0, scale: 1.05 }}
             className="min-h-screen p-4 sm:p-6 overflow-y-auto"
           >
-            <div className="max-w-2xl mx-auto space-y-6 py-4">
+            <div className="max-w-5xl mx-auto space-y-6 py-4">
               {/* Result banner */}
-              <div className={`overflow-hidden relative rounded-[2.5rem] p-8 text-center shadow-2xl border-b-8 ${
+              <div className={`overflow-hidden relative rounded-xl p-8 text-center shadow-md border-b-4 ${
                 selectedOption === correctOption
                   ? "bg-green-500 border-green-700 shadow-green-500/20"
                   : "bg-red-500 border-red-700 shadow-red-500/20"
               }`}>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-32 -mt-32" />
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="text-7xl mb-4 relative z-10"
-                >
-                  {selectedOption === null ? "⏱️" : selectedOption === correctOption ? "🌟" : "💔"}
-                </motion.div>
                 <h2 className="text-3xl font-black text-white mb-4 relative z-10">
                   {selectedOption === null ? "Too slow!" : selectedOption === correctOption ? "Brilliant!" : "Not quite!"}
                 </h2>
@@ -430,13 +406,13 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               {/* Question & Results */}
-              <div className="bg-[#141414] border border-[#2a2a2a] rounded-4xl p-8 shadow-2xl">
-                <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">The Question</p>
+              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
+                <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">The Question</p>
                 <div className="mb-8">
-                  <Markdown content={questionText} className="text-xl font-bold text-white tracking-tight" />
+                  <Markdown content={questionText} className="text-xl font-bold text-gray-900 dark:text-white tracking-tight" />
                 </div>
 
-                <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Results</p>
+                <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Results</p>
                 <AnswerDistribution
                   options={options}
                   distribution={distribution}
@@ -448,31 +424,28 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
-                    className="mt-8 p-6 bg-green-500/10 border border-green-500/20 rounded-2xl"
+                    className="mt-8 p-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl"
                   >
                     <div className="text-sm">
-                      <span className="font-black text-green-400 block mb-2 uppercase tracking-widest text-xs">Explanation</span>
-                      <Markdown content={explanation} className="text-green-100 prose-p:my-0" />
+                      <span className="font-black text-green-600 dark:text-green-400 block mb-2 uppercase tracking-widest text-xs">Explanation</span>
+                      <Markdown content={explanation} className="text-green-900 dark:text-green-100 prose-p:my-0" />
                     </div>
                   </motion.div>
                 )}
               </div>
 
               {/* Leaderboard */}
-              <div className="bg-[#141414] border border-[#2a2a2a] rounded-4xl p-8 shadow-2xl">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                    <Trophy className="w-4 h-4 text-orange-400" />
-                  </div>
-                  <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Live Standings</p>
+                  <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Live Standings</p>
                 </div>
                 <Leaderboard entries={leaderboard.slice(0, 10)} highlightId={participantId} compact />
               </div>
 
               <div className="text-center py-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-full">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-full">
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                  <span className="text-xs font-black text-gray-400">Waiting for next question...</span>
+                  <span className="text-xs font-black text-gray-500 dark:text-gray-400">Waiting for next question...</span>
                 </div>
               </div>
             </div>
@@ -486,49 +459,35 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             animate={{ opacity: 1 }}
             className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
           >
-           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-500/10 rounded-full blur-[140px]" />
-           <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-500/5 rounded-full blur-[140px]" />
-
-            <div className="max-w-md w-full relative z-10 text-center">
-              <motion.div
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", damping: 10 }}
-                className="text-8xl mb-6 inline-block"
-              >
-                {myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🎓"}
-              </motion.div>
-
-              <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Quiz Finished!</h1>
-              <p className="text-gray-400 font-medium mb-12">Amazing effort, {participantName}!</p>
+            <div className="max-w-xl w-full relative z-10 text-center">
+              <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Quiz Finished!</h1>
+              <p className="text-gray-500 dark:text-gray-400 font-medium mb-12">Amazing effort, {participantName}!</p>
 
               {myRank && (
                 <div className="grid grid-cols-2 gap-4 mb-12">
-                  <div className="bg-[#141414] border border-[#2a2a2a] rounded-3xl p-6 shadow-xl">
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
                     <div className="text-3xl font-black text-orange-500 mb-1">{myScore}</div>
-                    <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Total score</div>
+                    <div className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Total score</div>
                   </div>
-                  <div className="bg-[#141414] border border-[#2a2a2a] rounded-3xl p-6 shadow-xl">
-                    <div className="text-3xl font-black text-white mb-1">#{myRank}</div>
-                    <div className="text-xs font-black text-gray-500 uppercase tracking-widest">Final Rank</div>
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
+                    <div className="text-3xl font-black text-gray-900 dark:text-white mb-1">#{myRank}</div>
+                    <div className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Final Rank</div>
                   </div>
                 </div>
               )}
 
-              <div className="bg-[#141414] border border-[#2a2a2a] rounded-[2.5rem] p-8 shadow-2xl mb-8">
+              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm mb-8">
                 <div className="flex items-center gap-3 mb-6">
-                   <Crown className="w-5 h-5 text-orange-500" />
-                   <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Champions Gallery</p>
+                   <p className="text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Champions Gallery</p>
                 </div>
                 <Leaderboard entries={leaderboard} highlightId={participantId} />
               </div>
 
               <a
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black hover:bg-orange-500 hover:text-white transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-white rounded-xl font-black hover:bg-orange-600 transition-all active:scale-[0.98]"
               >
                 Return Home
-                <ArrowRight className="w-4 h-4" />
               </a>
             </div>
           </motion.div>

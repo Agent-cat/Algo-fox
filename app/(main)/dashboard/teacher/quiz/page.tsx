@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Zap } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
 
-export const metadata = { title: "Live Quizzes — Teacher" };
+export const metadata: Metadata = { title: "Live Quizzes — Teacher" };
 
 export default async function TeacherQuizPage() {
   const session = await auth.api.getSession({ headers: await headers() });

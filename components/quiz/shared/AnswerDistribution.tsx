@@ -51,7 +51,6 @@ export function AnswerDistribution({
                 </span>
                 <div className={`truncate font-medium flex-1 ${isCorrect ? "text-green-700 dark:text-green-400" : "text-gray-700 dark:text-gray-300"}`}>
                   <Markdown content={option} className="inline-block prose-p:my-0" />
-                  {isCorrect && <span className="ml-1 text-xs whitespace-nowrap">✓</span>}
                 </div>
               </div>
               <span className="font-black font-mono text-xs ml-2 shrink-0">

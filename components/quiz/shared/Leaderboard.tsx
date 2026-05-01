@@ -57,11 +57,11 @@ export function Leaderboard({ entries, highlightId, compact = false }: Leaderboa
             `}
           >
             <span
-              className={`w-6 text-center font-black text-sm font-mono ${
+              className={`w-8 text-center font-black text-sm font-mono ${
                 isTop3 ? rankColors[idx] : "text-gray-400 dark:text-gray-500"
               }`}
             >
-              {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : `#${entry.rank}`}
+              #{entry.rank}
             </span>
             <span
               className={`flex-1 font-semibold text-sm truncate ${

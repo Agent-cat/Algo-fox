@@ -8,7 +8,9 @@ import { revalidateTag, unstable_cache } from "next/cache";
 // Type definitions
 export type CommentWithUser = {
     id: string;
+    title: string | null;
     content: string;
+    tags: string[];
     createdAt: Date;
     updatedAt: Date;
     userId: string;
@@ -27,7 +29,6 @@ export type CommentWithUser = {
 
 /**
  * Fetch comments for a problem, organized as a tree.
- * Uses Next.js 16 cacheTag for on-demand revalidation.
  */
 export async function getProblemComments(problemId: string, currentUserId?: string) {
     const fetchComments = unstable_cache(
@@ -43,22 +44,21 @@ export async function getProblemComments(problemId: string, currentUserId?: stri
                             role: true,
                         }
                     },
-                    votes: true // Fetch votes to calculate userVote manually if needed, or use separate query
+                    votes: true
                 },
                 orderBy: [
-                    { isPinned: "desc" }, // Pinned first
-                    { upvoteCount: "desc" }, // Then by votes
+                    { isPinned: "desc" },
+                    { upvoteCount: "desc" },
                     { createdAt: "desc" }
                 ]
             });
         },
         [`problem-comments-${problemId}`],
-        { tags: [`comments-${problemId}`] } // Cache tag for invalidation
+        { tags: [`comments-${problemId}`] }
     );
 
     const rawComments = await fetchComments();
 
-    // Process comments to add userVote status and organize into tree
     const commentsWithVoteState = rawComments.map(comment => {
         let userVote: "UP" | "DOWN" | null = null;
         if (currentUserId) {
@@ -66,21 +66,17 @@ export async function getProblemComments(problemId: string, currentUserId?: stri
             if (vote) userVote = vote.type;
         }
 
-        // Remove votes array from result to reduce payload
         const { votes: _, ...rest } = comment;
         return { ...rest, userVote };
     });
 
-    // Build Tree Structure
     const commentMap = new Map();
     const rootComments: any[] = [];
 
-    // Initialize map
     commentsWithVoteState.forEach(comment => {
         commentMap.set(comment.id, { ...comment, replies: [] });
     });
 
-    // Link children to parents
     commentsWithVoteState.forEach(comment => {
         if (comment.parentId) {
             const parent = commentMap.get(comment.parentId);
@@ -98,7 +94,7 @@ export async function getProblemComments(problemId: string, currentUserId?: stri
 /**
  * Post a new comment or reply
  */
-export async function postComment(problemId: string, content: string, parentId?: string) {
+export async function postComment(problemId: string, content: string, parentId?: string, title?: string, tags?: string[]) {
     const session = await auth.api.getSession({
         headers: await headers()
     });
@@ -111,6 +107,8 @@ export async function postComment(problemId: string, content: string, parentId?:
         const newComment = await prisma.comment.create({
             data: {
                 content,
+                title: title || null,
+                tags: tags || [],
                 problemId,
                 userId: session.user.id,
                 parentId: parentId || null
@@ -127,14 +125,13 @@ export async function postComment(problemId: string, content: string, parentId?:
             }
         });
 
-        revalidateTag(`comments-${problemId}`, "max");
+        revalidateTag(`comments-${problemId}`,'max');
 
-        // Return the formatted comment to allow optimistic updates on client
         return {
             success: true,
             comment: {
                 ...newComment,
-                votes: [], // Empty votes for new comment
+                votes: [],
                 userVote: null,
                 replies: []
             }
@@ -227,7 +224,7 @@ export async function voteComment(commentId: string, problemId: string, type: "U
             }
         });
 
-        revalidateTag(`comments-${problemId}`, "max");
+        revalidateTag(`comments-${problemId}`,'max');
         return { success: true };
     } catch (error) {
          console.error("Failed to vote:", error);
@@ -257,7 +254,8 @@ export async function pinComment(commentId: string, problemId: string) {
             data: { isPinned: !comment.isPinned }
         });
 
-        revalidateTag(`comments-${problemId}`, "max");
+        revalidateTag(`comments-${problemId}`,'max');
+
         return { success: true };
     } catch (error) {
         return { success: false, error: "Failed to pin comment" };
@@ -287,7 +285,9 @@ export async function deleteComment(commentId: string, problemId: string) {
         }
 
         await prisma.comment.delete({ where: { id: commentId } });
-        revalidateTag(`comments-${problemId}`, "max");
+
+        revalidateTag(`comments-${problemId}`,'max');
+
         return { success: true };
     } catch (error) {
         return { success: false, error: "Failed to delete" };

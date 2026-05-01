@@ -14,11 +14,10 @@ interface CommentItemProps {
     problemId: string;
     depth?: number;
     onRefresh?: () => void;
+    onSelect?: (comment: CommentWithUser) => void;
 }
 
-
-
-export function CommentItem({ comment, problemId, depth = 0, onRefresh }: CommentItemProps) {
+export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect }: CommentItemProps) {
     const { data: session } = authClient.useSession();
     const [isReplying, setIsReplying] = useState(false);
     const [voteState, setVoteState] = useState<"UP" | "DOWN" | null>(comment.userVote || null);
@@ -38,7 +37,8 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
     const isOwner = session?.user?.id === comment.userId;
     const isAdmin = session?.user?.role === "ADMIN";
 
-    const handleVote = async (type: "UP" | "DOWN") => {
+    const handleVote = async (e: React.MouseEvent, type: "UP" | "DOWN") => {
+        e.stopPropagation();
         if (!session?.user) return toast.error("Please login to vote");
         if (isVoting) return;
 
@@ -50,14 +50,11 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
         let newVote: "UP" | "DOWN" | null = type;
 
         if (voteState === type) {
-            // Toggle off
             newVote = null;
             newScore -= (type === "UP" ? 1 : -1);
         } else if (voteState) {
-            // Flip vote
             newScore += (type === "UP" ? 2 : -2);
         } else {
-            // New vote
             newScore += (type === "UP" ? 1 : -1);
         }
 
@@ -69,7 +66,6 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
             const res = await voteComment(comment.id, problemId, type);
             if (!res.success) throw new Error(res.error);
         } catch (error) {
-            // Revert
             setVoteState(previousVote);
             setScore(previousScore);
             toast.error("Failed to vote");
@@ -78,7 +74,8 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
         }
     };
 
-    const handlePin = async () => {
+    const handlePin = async (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (!confirm(comment.isPinned ? "Unpin this comment?" : "Pin this comment?")) return;
         const res = await pinComment(comment.id, problemId);
         if (res.success) {
@@ -89,7 +86,8 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
         }
     };
 
-    const handleDelete = async () => {
+    const handleDelete = async (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (!confirm("Delete this comment permanently?")) return;
         const res = await deleteComment(comment.id, problemId);
         if (res.success) {
@@ -100,21 +98,22 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
         }
     };
 
-    return (
-        <div className={`flex flex-col ${depth > 0 ? "ml-4 md:ml-8 border-l-2 border-gray-100 dark:border-[#262626] pl-4 md:pl-6 pt-2" : ""}`}>
-            <div className={`relative group p-4 rounded-xl transition-all ${comment.isPinned ? "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/10" : "hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a]/50"}`}>
-
-                {/* Pin Badge */}
+    // If it has a title and is top-level, render as a Solution Card
+    if (comment.title && depth === 0) {
+        return (
+            <div
+                onClick={() => onSelect?.(comment)}
+                className={`group relative p-4 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#1f1f1f] hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all cursor-pointer shadow-sm shadow-black/5`}
+            >
                 {comment.isPinned && (
                     <div className="absolute top-2 right-4 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-500">
                         <Pin className="w-3 h-3 fill-current" />
                         Pinned
                     </div>
                 )}
-
                 <div className="flex gap-4">
                     {/* AVATAR */}
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden">
                             {comment.user.image ? (
                                 <Image src={comment.user.image} alt={comment.user.name} width={32} height={32} className="object-cover" />
@@ -130,6 +129,80 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{comment.user.name}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 font-bold uppercase tracking-wider">Solution</span>
+                            <span className="text-xs text-gray-400">• {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</span>
+                        </div>
+
+                        <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 group-hover:text-orange-500 transition-colors mb-2 line-clamp-1">
+                            {comment.title}
+                        </h4>
+
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                            {comment.tags.map(tag => (
+                                <span key={tag} className="px-1.5 py-0.5 bg-gray-100 dark:bg-[#1a1a1a] text-[10px] font-bold text-gray-500 dark:text-gray-400 rounded border border-gray-200 dark:border-[#262626]">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+
+                        {/* ACTIONS - Horizontal like standard comments */}
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#262626] rounded-lg p-0.5">
+                                <button
+                                    onClick={(e) => handleVote(e, "UP")}
+                                    className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors ${voteState === "UP" ? "text-orange-600 dark:text-orange-500" : "text-gray-500 dark:text-gray-400"}`}
+                                >
+                                    <ArrowBigUp className={`w-5 h-5 ${voteState === "UP" ? "fill-current" : ""}`} />
+                                </button>
+                                <span className={`text-xs font-bold w-6 text-center ${voteState === "UP" ? "text-orange-600 dark:text-orange-500" : voteState === "DOWN" ? "text-blue-600 dark:text-blue-500" : "text-gray-600 dark:text-gray-400"}`}>
+                                    {score}
+                                </span>
+                                <button
+                                    onClick={(e) => handleVote(e, "DOWN")}
+                                    className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors ${voteState === "DOWN" ? "text-blue-600 dark:text-blue-500" : "text-gray-500 dark:text-gray-400"}`}
+                                >
+                                    <ArrowBigDown className={`w-5 h-5 ${voteState === "DOWN" ? "fill-current" : ""}`} />
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                <MessageSquare className="w-4 h-4" />
+                                {comment.replies?.length || 0} Comments
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`flex flex-col ${depth > 0 ? "ml-4 md:ml-8 border-l-2 border-gray-100 dark:border-[#262626] pl-4 md:pl-6 pt-2" : ""}`}>
+            <div className={`relative group p-4 rounded-xl transition-all hover:bg-white dark:hover:bg-[#1a1a1a] hover:shadow-sm`}>
+
+                {comment.isPinned && (
+                    <div className="absolute top-2 right-4 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-500">
+                        <Pin className="w-3 h-3 fill-current" />
+                        Pinned
+                    </div>
+                )}
+
+                <div className="flex gap-4">
+                    <div className="shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden">
+                            {comment.user.image ? (
+                                <Image src={comment.user.image} alt={comment.user.name} width={32} height={32} className="object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500">
+                                    {comment.user.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{comment.user.name}</span>
                             {comment.user.role === "ADMIN" && (
                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400">ADMIN</span>
                             )}
@@ -140,12 +213,10 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
                             {comment.content}
                         </div>
 
-                        {/* ACTIONS */}
                         <div className="flex items-center gap-4 mt-3">
-                            {/* VOTE */}
                             <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#262626] rounded-lg p-0.5">
                                 <button
-                                    onClick={() => handleVote("UP")}
+                                    onClick={(e) => handleVote(e, "UP")}
                                     className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors ${voteState === "UP" ? "text-orange-600 dark:text-orange-500" : "text-gray-500 dark:text-gray-400"}`}
                                 >
                                     <ArrowBigUp className={`w-5 h-5 ${voteState === "UP" ? "fill-current" : ""}`} />
@@ -154,7 +225,7 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh }: Commen
                                     {score}
                                 </span>
                                 <button
-                                    onClick={() => handleVote("DOWN")}
+                                    onClick={(e) => handleVote(e, "DOWN")}
                                     className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-[#333] transition-colors ${voteState === "DOWN" ? "text-blue-600 dark:text-blue-500" : "text-gray-500 dark:text-gray-400"}`}
                                 >
                                     <ArrowBigDown className={`w-5 h-5 ${voteState === "DOWN" ? "fill-current" : ""}`} />

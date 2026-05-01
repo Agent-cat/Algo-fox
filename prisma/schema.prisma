@@ -553,7 +553,9 @@ model CourseAllocation {
 
 model Comment {
   id          String        @id @default(cuid())
+  title       String?       // For solutions
   content     String
+  tags        String[]      @default([]) // For solutions
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   userId      String

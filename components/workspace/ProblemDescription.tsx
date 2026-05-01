@@ -78,30 +78,33 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
     ];
 
     return (
-        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212]">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+            {/* Subtle glassmorphism background glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[100px] pointer-events-none" />
+
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-gray-200/80 dark:border-[#1e1e1e] px-3 py-2 bg-[#fafafa] dark:bg-[#121212]">
+            <div className="flex items-center gap-1 border-b border-gray-200/50 dark:border-white/5 px-3 py-2 bg-white/40 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-20">
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => onTabChange(tab.key)}
                             className={`
-                                relative flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium rounded-lg transition-colors duration-200 border
+                                relative flex items-center gap-2 px-3.5 py-1.5 text-sm font-bold rounded-xl transition-all duration-300 border
                                 ${activeTab === tab.key
-                                    ? "bg-[#fafafa] dark:bg-[#141414] text-gray-900 dark:text-gray-100 shadow-sm border-gray-200 dark:border-[#262626]"
-                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border-transparent hover:bg-gray-100/50 dark:hover:bg-[#141414]/50"
+                                    ? "bg-white/80 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-none border-gray-200/50 dark:border-white/10"
+                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-transparent hover:bg-white/40 dark:hover:bg-white/5"
                                 }
                             `}
                         >
-                            <span className={`transition-colors duration-200 ${activeTab === tab.key ? 'text-orange-500' : ''}`}>
+                            <span className={`transition-all duration-300 ${activeTab === tab.key ? 'text-orange-500 scale-110 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]' : ''}`}>
                                 {tab.icon}
                             </span>
                             {tab.label}
                             {activeTab === tab.key && (
                                 <motion.div
                                     layoutId="activeTabIndicator"
-                                    className="absolute -bottom-[9px] left-2 right-2 h-[2px] bg-orange-500 rounded-full"
+                                    className="absolute -bottom-[9px] left-2 right-2 h-[2px] bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.6)]"
                                 />
                             )}
                         </button>
@@ -187,24 +190,24 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-gray-100 dark:border-[#1e1e1e] bg-gray-50/30 dark:bg-[#0d0d0d]">
+                            <div className="flex items-center gap-4 px-6 border-b border-gray-200/50 dark:border-white/5 bg-white/20 dark:bg-black/10 backdrop-blur-md">
                                 {(["official", "community"] as const).map((tab) => (
                                     <button
                                         key={tab}
                                         onClick={() => setSolutionTab(tab)}
-                                        className={`relative py-3 text-sm font-bold transition-colors ${
-                                            solutionTab === tab ? "text-orange-600 dark:text-orange-500" : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                                        className={`relative py-3 text-sm font-black transition-all duration-300 ${
+                                            solutionTab === tab ? "text-orange-600 dark:text-orange-500 scale-105" : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
                                         }`}
                                     >
                                         {tab === "official" ? "Official Solution" : "Community"}
                                         {solutionTab === tab && (
-                                            <motion.div layoutId="solutionTabIndicator" className="absolute bottom-0 left-0 right-0 h-[2px] bg-orange-500 rounded-full" />
+                                            <motion.div layoutId="solutionTabIndicator" className="absolute bottom-0 left-0 right-0 h-[2px] bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
                                         )}
                                     </button>
                                 ))}
                             </div>
 
-                            <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+                            <div className={`flex-1 ${solutionTab === "community" ? "" : "overflow-y-auto px-6 py-6 custom-scrollbar"}`}>
                                 <AnimatePresence mode="wait">
                                     {solutionTab === "official" ? (
                                         isSolved ? (
@@ -243,7 +246,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                             initial={{ opacity: 0, y: 8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -6 }}
-                                            className="h-full"
+                                            className="h-full flex flex-col"
                                         >
                                             <CommentTree problemId={problem.id} />
                                         </motion.div>

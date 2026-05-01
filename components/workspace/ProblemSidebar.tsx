@@ -231,11 +231,15 @@ export default function ProblemSidebar({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-none bg-[#fafafa] dark:bg-[#121212] border-r border-gray-100/80 dark:border-white/5"
+            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-r border-white/20 dark:border-white/5"
           >
+            {/* Subtle glow background */}
+            <div className="absolute top-0 left-0 w-64 h-64 bg-orange-500/10 dark:bg-orange-500/5 blur-[100px] -z-10 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/5 blur-[100px] -z-10 pointer-events-none" />
+
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header section with Title and Close button */}
-              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/10 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
+              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/10 dark:border-white/5 bg-transparent sticky top-0 z-20">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
                     <List className="w-5 h-5 text-orange-600 dark:text-orange-500" />
@@ -254,7 +258,7 @@ export default function ProblemSidebar({
               </div>
 
               {/* Navigation & Search Container */}
-              <div className="px-6 py-4 space-y-4 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-100/10 dark:border-white/5">
+              <div className="px-6 py-4 space-y-4 bg-transparent border-b border-gray-100/10 dark:border-white/5">
                 {courseName && (
                   <div className="px-3 py-2 rounded-lg bg-orange-500/5 border border-orange-500/10 mb-2">
                     <p className="text-[10px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-0.5">Course</p>
