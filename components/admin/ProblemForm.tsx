@@ -464,21 +464,38 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                     <span className="text-[10px] text-gray-500 font-medium italic">At least 2 required</span>
                                                 </div>
                                             </div>
-                                            <div className="space-y-3">
+                                            <div className="space-y-6">
                                                 {[0, 1, 2, 3].map((idx) => (
-                                                    <div key={idx} className="flex gap-2">
-                                                        <input
-                                                            type="radio"
-                                                            value={watch(`options.${idx}`)}
-                                                            checked={watch("answer") === watch(`options.${idx}`) && watch("answer") !== "" && !!watch("answer")}
-                                                            onChange={() => setValue("answer", watch(`options.${idx}`) || "")}
-                                                            className="mt-3 w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                                        />
-                                                        <input
-                                                            {...register(`options.${idx}` as const)}
-                                                            placeholder={`Option ${idx + 1}`}
-                                                            className={`${inputCls} py-2`}
-                                                        />
+                                                    <div key={idx} className="space-y-2">
+                                                        <div className="flex gap-3">
+                                                            <div className="pt-3">
+                                                                <input
+                                                                    type="radio"
+                                                                    value={watch(`options.${idx}`)}
+                                                                    checked={watch("answer") === watch(`options.${idx}`) && watch("answer") !== "" && !!watch("answer")}
+                                                                    onChange={() => setValue("answer", watch(`options.${idx}`) || "")}
+                                                                    className="w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1 space-y-2">
+                                                                <textarea
+                                                                    {...register(`options.${idx}` as const)}
+                                                                    placeholder={`Option ${idx + 1} (Markdown supported)`}
+                                                                    rows={3}
+                                                                    className={`${inputCls} py-2 min-h-[80px] resize-y`}
+                                                                />
+                                                                {watch(`options.${idx}`) && (
+                                                                    <div className="p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#222] rounded-[3px]">
+                                                                        <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Preview</div>
+                                                                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                                {watch(`options.${idx}`) || ""}
+                                                                            </ReactMarkdown>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>

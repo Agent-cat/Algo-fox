@@ -135,7 +135,7 @@ function SignInContent() {
         </div>
 
         <p className="text-center text-gray-500 dark:text-gray-400 text-xs">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our <Link href="/terms" className="text-orange-600 hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-orange-600 hover:underline">Privacy Policy</Link>.
         </p>
       </div>
     </div>

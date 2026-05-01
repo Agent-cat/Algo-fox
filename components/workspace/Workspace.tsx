@@ -577,10 +577,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     .split-vertical { display: flex; flex-direction: column; }
                     .gutter { background-color: transparent; transition: background-color 0.25s ease; position: relative; }
                     .gutter:hover { background-color: rgba(234, 88, 12, 0.2) !important; }
-                    .gutter.gutter-horizontal { cursor: col-resize; border-left: 1px solid #e5e7eb; }
-                    .gutter.gutter-vertical { cursor: row-resize; border-top: 1px solid #e5e7eb; }
-                    .dark .gutter.gutter-horizontal { border-left: 1px solid #1e1e1e; }
-                    .dark .gutter.gutter-vertical { border-top: 1px solid #1e1e1e; }
+                    .gutter.gutter-horizontal { cursor: col-resize; border-left: 1px dashed #e5e7eb; }
+                    .gutter.gutter-vertical { cursor: row-resize; border-top: 1px dashed #e5e7eb; }
+                    .dark .gutter.gutter-horizontal { border-left: 1px dashed #262626; }
+                    .dark .gutter.gutter-vertical { border-top: 1px dashed #262626; }
                 `}</style>
             </div>
         </div>

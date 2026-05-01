@@ -7,6 +7,7 @@ import { CheckCircle2, Check, X, Info, Trophy, LayoutList, RotateCcw, ArrowRight
 import { toast } from "sonner";
 import { Problem } from "@prisma/client";
 import { markConceptAsCompleted } from "@/actions/submission.action";
+import { Markdown } from "@/components/quiz/shared/Markdown";
 
 interface AptitudeMCQPanelProps {
     problem: Problem;
@@ -93,11 +94,11 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-center p-6 md:p-10 custom-scrollbar overflow-y-auto bg-transparent">
-            <div className="max-w-3xl mx-auto w-full flex flex-col items-center">
+        <div className="h-full flex flex-col items-center justify-start p-6 md:p-10 custom-scrollbar overflow-y-auto bg-transparent py-12">
+            <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
 
                 {/* Options Grid - No Card Surrounding it */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+                <div className="grid grid-cols-1 gap-5 w-full">
                     {options.map((option, idx) => {
                         const isSelected = selectedOption === option;
                         const isCorrect = status === "correct" && isSelected;
@@ -123,18 +124,28 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                         if (status === "incorrect" || status === "correct") setStatus("idle");
                                     }
                                 }}
-                                className={`w-full text-left px-6 py-5 rounded-2xl border transition-all duration-300 group flex items-center justify-between gap-4 shadow-sm ${stateClasses}`}
+                                className={`w-full text-left px-6 py-5 rounded-xl border transition-all duration-300 group flex items-start justify-between gap-4 shadow-sm ${stateClasses}`}
                             >
-                                <span className={`text-[15px] font-medium transition-colors ${
-                                    isCorrect ? "text-emerald-600 dark:text-emerald-400 font-bold" :
-                                    isIncorrect ? "text-rose-600 dark:text-rose-400 font-bold" :
-                                    isSelected ? "text-orange-600 dark:text-orange-400 font-bold" :
-                                    "text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
-                                }`}>
-                                    {option}
-                                </span>
+                                <div className="flex items-start gap-4 flex-1">
+                                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center text-xs font-bold transition-all duration-300 mt-0.5 ${
+                                        isCorrect ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20" :
+                                        isIncorrect ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" :
+                                        isSelected ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20" :
+                                        "bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 group-hover:border-gray-300 dark:group-hover:border-white/20"
+                                    }`}>
+                                        {String.fromCharCode(65 + idx)}
+                                    </div>
+                                    <div className={`text-[15px] font-medium transition-colors flex-1 min-w-0 pt-1 ${
+                                        isCorrect ? "text-emerald-600 dark:text-emerald-400 font-bold" :
+                                        isIncorrect ? "text-rose-600 dark:text-rose-400 font-bold" :
+                                        isSelected ? "text-orange-600 dark:text-orange-400 font-bold" :
+                                        "text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
+                                    }`}>
+                                        <Markdown content={option} isOption className="text-inherit prose-pre:my-0 prose-p:my-0" />
+                                    </div>
+                                </div>
 
-                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 ${
+                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 mt-1 ${
                                     isCorrect ? "border-emerald-500 bg-emerald-500 text-white" :
                                     isIncorrect ? "border-rose-500 bg-rose-500 text-white" :
                                     isSelected ? "border-orange-500 bg-orange-500 text-white" : "border-gray-300 dark:border-white/20"

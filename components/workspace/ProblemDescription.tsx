@@ -79,11 +79,9 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
     return (
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
-            {/* Subtle glassmorphism background glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[100px] pointer-events-none" />
 
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-gray-200/50 dark:border-white/5 px-3 py-2 bg-white/40 dark:bg-black/20 backdrop-blur-xl sticky top-0 z-20">
+            <div className="flex items-center gap-1 border-b border-gray-200 dark:border-white/5 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <button
@@ -92,8 +90,8 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                             className={`
                                 relative flex items-center gap-2 px-3.5 py-1.5 text-sm font-bold rounded-xl transition-all duration-300 border
                                 ${activeTab === tab.key
-                                    ? "bg-white/80 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-none border-gray-200/50 dark:border-white/10"
-                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-transparent hover:bg-white/40 dark:hover:bg-white/5"
+                                    ? "bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-white/10 shadow-sm"
+                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-transparent hover:bg-gray-100 dark:hover:bg-white/5"
                                 }
                             `}
                         >
@@ -190,7 +188,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-gray-200/50 dark:border-white/5 bg-white/20 dark:bg-black/10 backdrop-blur-md">
+                            <div className="flex items-center gap-4 px-6 border-b border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]">
                                 {(["official", "community"] as const).map((tab) => (
                                     <button
                                         key={tab}

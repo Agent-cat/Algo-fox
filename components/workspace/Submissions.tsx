@@ -84,7 +84,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
     return (
         <div className="bg-[#fafafa] dark:bg-[#121212]">
-            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-[#121212] sticky top-0 z-10 backdrop-blur-sm">
+            <div className="p-5 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-10">
                 <div className="flex items-center gap-2">
                     <span className="w-1 h-3 bg-orange-500 rounded-full" />
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-widest">My Submissions</h3>
@@ -102,7 +102,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                 ) : (
                     <div className="w-full text-sm text-left">
                         {/* HEADER */}
-                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-gray-100/50 dark:bg-[#141414] border-b border-gray-100 dark:border-[#262626] font-black tracking-widest">
+                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#141414] border-b border-gray-100 dark:border-[#262626] font-black tracking-widest">
                             <div>Status</div>
                             <div>Language</div>
                             <div>Time</div>

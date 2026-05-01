@@ -314,7 +314,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                       onClick={() => submitAnswer(i)}
                       disabled={isLocked}
                       className={`
-                        relative flex items-center gap-5 px-6 py-5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white font-medium text-left transition-all active:scale-[0.99] min-h-[84px]
+                        relative flex items-start gap-5 px-6 py-5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white font-medium text-left transition-all active:scale-[0.99]
                         ${isLocked
                           ? isSelected
                             ? "bg-orange-500 border-orange-600 text-white! ring-4 ring-orange-500/20"

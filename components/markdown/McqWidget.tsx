@@ -51,8 +51,8 @@ export default function McqWidget({ data }: McqWidgetProps) {
             <Markdown>{question}</Markdown>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {options.map((option) => {
+        <div className="grid grid-cols-1 gap-3">
+            {options.map((option, idx) => {
                 let statusClass = "border-gray-200 dark:border-[#333] hover:border-orange-200 dark:hover:border-orange-500/30 hover:bg-white dark:hover:bg-[#1a1a1a]";
 
                 if (isSubmitted) {
@@ -73,13 +73,24 @@ export default function McqWidget({ data }: McqWidgetProps) {
                         onClick={() => handleSelect(option.id)}
                         disabled={isSubmitted}
                         className={cn(
-                            "w-full text-left p-4 rounded-lg border transition-all duration-200 flex items-center justify-between group",
+                            "w-full text-left p-4 rounded-lg border transition-all duration-200 flex items-start justify-between group gap-3",
                             statusClass
                         )}
                     >
-                        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                            <Markdown components={{ p: ({children}) => <>{children}</> }}>{option.text}</Markdown>
-                        </span>
+                        <div className="flex items-start gap-3 flex-1">
+                            <div className={cn(
+                                "shrink-0 w-6 h-6 rounded border flex items-center justify-center text-[10px] font-bold transition-all duration-200 mt-0.5",
+                                isSubmitted && option.isCorrect ? "bg-emerald-500 border-emerald-500 text-white" :
+                                isSubmitted && option.id === selectedOptionId && !option.isCorrect ? "bg-red-500 border-red-500 text-white" :
+                                selectedOptionId === option.id ? "bg-orange-500 border-orange-500 text-white" :
+                                "bg-gray-100 dark:bg-[#1a1a1a] border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 group-hover:border-orange-300 dark:group-hover:border-orange-500/30"
+                            )}>
+                                {String.fromCharCode(65 + idx)}
+                            </div>
+                            <div className="text-sm text-gray-700 dark:text-gray-300 font-medium flex-1 min-w-0 pt-1">
+                                <Markdown components={{ p: ({children}) => <>{children}</> }}>{option.text}</Markdown>
+                            </div>
+                        </div>
 
                         {isSubmitted && option.isCorrect && (
                             <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />

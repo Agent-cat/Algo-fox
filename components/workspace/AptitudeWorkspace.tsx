@@ -222,7 +222,7 @@ export default function AptitudeWorkspace({
                 }
                 .gutter.gutter-horizontal {
                     cursor: col-resize;
-                    border-left: 1px solid #e5e7eb;
+                    border-left: 1px dashed #e5e7eb;
                     border-right: none;
                 }
                 .gutter.gutter-horizontal::after {
@@ -233,7 +233,7 @@ export default function AptitudeWorkspace({
                     height: 32px;
                 }
                 .dark .gutter.gutter-horizontal {
-                    border-left: 1px solid #1e1e1e;
+                    border-left: 1px dashed #262626;
                 }
             `}</style>
         </div>
