@@ -6,7 +6,7 @@ import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+
 import { Badge } from "@/components/ui/badge";
 import { CommentItem } from "./CommentItem";
 import { CommentInput } from "./CommentInput";
@@ -104,10 +104,10 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
                     <div className="flex items-center gap-4 mb-10 p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm">
                         <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden shrink-0">
                             {comment.user.image ? (
-                                <Image src={comment.user.image} alt={comment.user.name} width={48} height={48} className="object-cover" />
+                                <Image src={comment.user.image} alt={comment.user.name || "User"} width={48} height={48} className="object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-lg font-bold text-gray-400">
-                                    {comment.user.name.charAt(0).toUpperCase()}
+                                    {(comment.user.name || "?").charAt(0).toUpperCase()}
                                 </div>
                             )}
                         </div>
@@ -127,7 +127,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
 
                     {/* CONTENT */}
                     <div className="prose prose-slate dark:prose-invert max-w-none mb-12 selection:bg-orange-500/20">
-                        <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                        <Markdown remarkPlugins={[remarkGfm]}>
                             {comment.content}
                         </Markdown>
                     </div>

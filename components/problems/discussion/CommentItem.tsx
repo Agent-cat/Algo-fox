@@ -102,7 +102,15 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
     if (comment.title && depth === 0) {
         return (
             <div
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelect?.(comment)}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === " ") e.preventDefault();
+                        onSelect?.(comment);
+                    }
+                }}
                 className={`group relative p-4 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#1f1f1f] hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all cursor-pointer shadow-sm shadow-black/5`}
             >
                 {comment.isPinned && (
@@ -116,10 +124,10 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
                     <div className="shrink-0">
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden">
                             {comment.user.image ? (
-                                <Image src={comment.user.image} alt={comment.user.name} width={32} height={32} className="object-cover" />
+                                <Image src={comment.user.image} alt={comment.user.name || "User"} width={32} height={32} className="object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500">
-                                    {comment.user.name.charAt(0).toUpperCase()}
+                                    {(comment.user.name || "?").charAt(0).toUpperCase()}
                                 </div>
                             )}
                         </div>
@@ -191,10 +199,10 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
                     <div className="shrink-0">
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden">
                             {comment.user.image ? (
-                                <Image src={comment.user.image} alt={comment.user.name} width={32} height={32} className="object-cover" />
+                                <Image src={comment.user.image} alt={comment.user.name || "User"} width={32} height={32} className="object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500">
-                                    {comment.user.name.charAt(0).toUpperCase()}
+                                    {(comment.user.name || "?").charAt(0).toUpperCase()}
                                 </div>
                             )}
                         </div>

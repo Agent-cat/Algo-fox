@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import rehypeRaw from "rehype-raw";
+
 import hljs from "highlight.js";
 import "highlight.js/styles/github-dark.css";
 
@@ -37,11 +37,21 @@ const HLJS_STYLE = `
   .hljs-deletion { color: #ffdcd7; background-color: #67060c; }
 `;
 
+import { useEffect } from "react";
+
 export function Markdown({ content, className = "", isOption = false }: MarkdownProps) {
+  useEffect(() => {
+    const styleId = "algofox-hljs-styles";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.innerHTML = HLJS_STYLE;
+      document.head.appendChild(style);
+    }
+  }, []);
+
   return (
-    <>
-      <style>{HLJS_STYLE}</style>
-      <div className={`
+    <div className={`
       prose dark:prose-invert max-w-none
       prose-p:leading-relaxed
       prose-pre:bg-[#1a1a1a] prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10 prose-pre:rounded-xl
@@ -55,7 +65,6 @@ export function Markdown({ content, className = "", isOption = false }: Markdown
     `}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
-        rehypePlugins={[rehypeRaw]}
         components={{
           code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");
@@ -67,7 +76,7 @@ export function Markdown({ content, className = "", isOption = false }: Markdown
                 const highlighted = hljs.highlight(codeString, { language }).value;
                 return (
                   <code
-                    className={`${className} hljs bg-transparent p-0!`}
+                    className={`${className} hljs bg-transparent p-0`}
                     dangerouslySetInnerHTML={{ __html: highlighted }}
                   />
                 );
@@ -103,6 +112,5 @@ export function Markdown({ content, className = "", isOption = false }: Markdown
         {content}
       </ReactMarkdown>
     </div>
-    </>
   );
 }

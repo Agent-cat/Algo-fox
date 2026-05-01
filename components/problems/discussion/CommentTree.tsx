@@ -42,6 +42,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
                 if (prev.type === "DETAIL") {
                     const updated = data.find(c => c.id === prev.comment.id);
                     if (updated) return { ...prev, comment: updated };
+                    return { type: "LIST" };
                 }
                 return prev;
             });

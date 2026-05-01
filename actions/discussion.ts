@@ -131,7 +131,6 @@ export async function postComment(problemId: string, content: string, parentId?:
             success: true,
             comment: {
                 ...newComment,
-                votes: [],
                 userVote: null,
                 replies: []
             }
