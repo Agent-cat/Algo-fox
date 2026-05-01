@@ -60,7 +60,7 @@ export default function Navbar() {
     const isImpersonating = !!session?.session?.impersonatedBy;
 
     return (
-        <nav className={`fixed ${isImpersonating ? 'top-10' : 'top-0'} left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-gray-200 dark:border-white/10 transition-all duration-300`}>
+        <nav className={`fixed ${isImpersonating ? 'top-10' : 'top-0'} left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-dashed border-gray-200 dark:border-white/10 transition-all duration-300`}>
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
                 <div className="flex items-center">
                     <Link href="/" className="text-xl font-bold flex items-center gap-2 group">

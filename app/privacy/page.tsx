@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
                         </h2>
                         <div className="space-y-6 text-gray-600 dark:text-gray-400 leading-loose text-justify">
                             <p>
-                                When you use our platform, we collect certain information necessary to provide the service. This include information you provide directly to us, such as when you create an account using third-party authentication services (Google or Microsoft). This data typically includes your name, email address, and profile picture.
+                                When you use our platform, we collect certain information necessary to provide the service. This includes information you provide directly to us, such as when you create an account using third-party authentication services (Google or Microsoft). This data typically includes your name, email address, and profile picture.
                             </p>
                             <p>
                                 Additionally, as you interact with Algo-fox, we automatically collect information about your device, including your IP address, browser type, and interaction logs. For students, we collect academic data such as problem submissions, execution logs, and classroom participation metrics to facilitate the educational experience.
@@ -119,7 +119,7 @@ export default function PrivacyPolicy() {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                         <div className="space-y-2">
                             <p className="text-sm font-bold text-gray-900 dark:text-white">Privacy Department</p>
-                            <p className="text-xs text-gray-500">Global Data Protection Regulation (GDPR) Compliant</p>
+                            <p className="text-xs text-gray-500">General Data Protection Regulation (GDPR) Compliant</p>
                         </div>
                         <div className="text-xs text-gray-400 max-w-sm text-justify md:text-right">
                             If you have any questions about this Privacy Policy, please contact us by email: privacy@algofox.com.

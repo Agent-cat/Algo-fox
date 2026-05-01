@@ -162,7 +162,7 @@ const WorkspaceHeader = memo(({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="h-14 bg-[#fafafa] dark:bg-[#121212] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 z-10 relative"
+      className="h-14 bg-[#fafafa] dark:bg-[#121212] border-b border-dashed border-gray-300/80 dark:border-white/10 flex items-center justify-between px-4 z-10 relative"
     >
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3' : ''}`}>

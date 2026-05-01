@@ -89,7 +89,7 @@ const CodeFileTabs = memo(({
     const cancelEdit = () => setEditingId(null);
 
     return (
-        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-gray-200 dark:border-[#2a2a2a] bg-gray-50 dark:bg-[#161616] px-2 pt-1 min-h-[36px]">
+        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-dashed border-gray-200 dark:border-[#2a2a2a] bg-gray-50 dark:bg-[#161616] px-2 pt-1 min-h-[36px]">
             {files.map((file, idx) => {
                 const isActive = file.fileId === activeFileId;
                 const isEditing = editingId === file.fileId;

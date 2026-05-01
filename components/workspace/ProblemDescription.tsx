@@ -81,7 +81,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
 
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-gray-200 dark:border-white/5 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
+            <div className="flex items-center gap-1 border-b border-dashed border-gray-200 dark:border-white/5 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <button
@@ -188,7 +188,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]">
+                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]">
                                 {(["official", "community"] as const).map((tab) => (
                                     <button
                                         key={tab}

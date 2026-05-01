@@ -208,10 +208,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         loadCategories();
     }, [initialData, domain]);
 
-    const router = useRouter();
-    const isDSA = domain === "DSA";
-    const isAptitude = domain === "APTITUDE";
-
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -233,6 +229,29 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             allowedLanguages: (initialData as any)?.allowedLanguages || [],
         }
     });
+
+    const router = useRouter();
+    const isDSA = domain === "DSA";
+    const isAptitude = domain === "APTITUDE";
+
+    // MCQ guard: clear answer if selected index becomes invalid or convert text to index
+    const mcqOptions = watch("options");
+    const mcqAnswer = watch("answer");
+    useEffect(() => {
+        if (mcqAnswer && mcqOptions) {
+            const idx = Number(mcqAnswer);
+            if (isNaN(idx)) {
+                // Try to find the index if it's currently stored as text (initial state)
+                const foundIdx = mcqOptions.indexOf(mcqAnswer);
+                if (foundIdx !== -1) {
+                    setValue("answer", foundIdx.toString());
+                }
+            } else if (idx >= mcqOptions.length || idx < 0) {
+                // Clear if index is out of bounds
+                setValue("answer", "");
+            }
+        }
+    }, [mcqOptions, mcqAnswer, setValue]);
 
     const { ref: descriptionFormRef, ...descriptionRegister } = register("description");
     const { ref: solutionFormRef, ...solutionRegister } = register("solution");
@@ -317,7 +336,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             functionTemplates: isDSA && useFunctionTemplate && !isConcept ? functionTemplates : [],
             isMcq: data.isMcq,
             options: data.isMcq ? data.options?.filter(o => o.trim() !== "") : [],
-            answer: data.isMcq ? data.answer : null,
+            answer: data.isMcq ? (data.options && data.answer !== "" && data.answer !== undefined ? data.options[Number(data.answer)] : null) : null,
             testCases: (isAptitude || isConcept) ? [] : data.testCases,
             categoryId: data.categoryId || null,
             allowedLanguages: data.allowedLanguages || [],
@@ -471,9 +490,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                             <div className="pt-3">
                                                                 <input
                                                                     type="radio"
-                                                                    value={watch(`options.${idx}`)}
-                                                                    checked={watch("answer") === watch(`options.${idx}`) && watch("answer") !== "" && !!watch("answer")}
-                                                                    onChange={() => setValue("answer", watch(`options.${idx}`) || "")}
+                                                                    value={idx}
+                                                                    checked={watch("answer") === idx.toString()}
+                                                                    onChange={() => setValue("answer", idx.toString())}
                                                                     className="w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                                                                 />
                                                             </div>
@@ -502,7 +521,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             <div className="pt-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
                                                 <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#121212] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
-                                                    {watch("answer") || "Select correct option using radio button"}
+                                                    {(watch("options") && watch("answer") !== "" && watch("answer") !== undefined)
+                                                        ? watch(`options.${Number(watch("answer"))}`)
+                                                        : "Select correct option using radio button"}
                                                 </div>
                                             </div>
                                         </div>
