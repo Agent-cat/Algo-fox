@@ -65,8 +65,8 @@ export async function getAdminProblems(
 
 export async function searchProblems(
     term: string,
-    type: ProblemType = "PRACTICE",
-    domain: ProblemDomain = "DSA"
+    type?: ProblemType,
+    domain?: ProblemDomain
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife(getCacheLifeConfig("problems"));
@@ -76,7 +76,7 @@ export async function searchProblems(
     });
     const userId = session?.user?.id;
 
-    const tagKey = `search-${domain}-${type}-${term.toLowerCase().slice(0, 20)}${userId ? `-user-${userId}` : ''}`;
+    const tagKey = `search-${domain || 'all'}-${type || 'all'}-${term.toLowerCase().slice(0, 20)}${userId ? `-user-${userId}` : ''}`;
     cacheTag(tagKey, 'problems-search');
 
     return ProblemService.searchProblems(term, type, domain, userId);

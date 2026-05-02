@@ -84,7 +84,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
     return (
         <div className="bg-[#fafafa] dark:bg-[#121212]">
-            <div className="p-5 border-b border-dashed border-gray-100 dark:border-[#262626] flex justify-between items-center bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-10">
+            <div className="p-5 border-b border-dashed border-gray-200 dark:border-white/10 flex justify-between items-center bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-10">
                 <div className="flex items-center gap-2">
                     <span className="w-1 h-3 bg-orange-500 rounded-full" />
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-widest">My Submissions</h3>
@@ -102,7 +102,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                 ) : (
                     <div className="w-full text-sm text-left">
                         {/* HEADER */}
-                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#141414] border-b border-dashed border-gray-100 dark:border-[#262626] font-black tracking-widest">
+                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#141414] border-b border-dashed border-gray-200 dark:border-white/10 font-black tracking-widest">
                             <div>Status</div>
                             <div>Language</div>
                             <div>Time</div>
@@ -111,7 +111,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                             <div className="text-right">Date</div>
                         </div>
                         {/* ROWS */}
-                        <div className="divide-y divide-gray-100 dark:divide-[#262626]">
+                        <div className="divide-y divide-gray-200 dark:divide-white/10">
                             {submissions.map((sub) => (
                                 <Link
                                     key={sub.id}
@@ -154,7 +154,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
                         {/* LOAD MORE */}
                         {hasMore && (
-                            <div className="p-6 flex justify-center border-t border-gray-50 dark:border-[#262626] bg-gray-50/20 dark:bg-[#141414]">
+                            <div className="p-6 flex justify-center border-t border-gray-200 dark:border-white/10 bg-gray-50/20 dark:bg-[#141414]">
                                 <button
                                     onClick={() => loadSubmissions(submissions[submissions.length - 1].id)}
                                     disabled={loadingMore}

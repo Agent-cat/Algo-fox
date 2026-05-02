@@ -4,7 +4,6 @@ import ProblemDescription from './ProblemDescription';
 import WorkspaceHeader from './WorkspaceHeader';
 import { Problem, ProblemTestCase } from '@prisma/client';
 import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { usePersistentSplit } from '@/hooks/use-layout';
 import AptitudeMCQPanel from './AptitudeMCQPanel';
@@ -156,6 +155,8 @@ export default function AptitudeWorkspace({
                             onTabChange={setActiveTab}
                             isSolved={isSolved}
                             domain={problem.domain}
+                            nextProblemSlug={nextProblemSlug}
+                            courseId={courseId}
                         />
                     </div>
 
@@ -168,6 +169,7 @@ export default function AptitudeWorkspace({
                             onRevealSolution={handleRevealSolution}
                             nextProblemSlug={nextProblemSlug}
                             userRole={(session?.user as any)?.role}
+                            courseId={courseId}
                         />
                     </div>
                 </Split>
@@ -233,7 +235,7 @@ export default function AptitudeWorkspace({
                     height: 32px;
                 }
                 .dark .gutter.gutter-horizontal {
-                    border-left: 1px dashed #262626;
+                    border-left: 1px dashed rgba(255, 255, 255, 0.1);
                 }
             `}</style>
         </div>

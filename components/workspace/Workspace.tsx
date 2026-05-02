@@ -529,6 +529,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             isSolved={isSolvedState}
                             contestId={contestId}
                             domain={problem.domain}
+                            nextProblemSlug={nextProblemSlug}
+                            courseId={courseId}
                             onRestoreCode={handleRestoreCode}
                         />
                     </div>

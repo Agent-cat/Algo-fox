@@ -16,9 +16,10 @@ interface AptitudeMCQPanelProps {
     onRevealSolution: () => void;
     nextProblemSlug?: string | null;
     userRole?: string;
+    courseId?: string | null;
 }
 
-const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug, userRole }: AptitudeMCQPanelProps) => {
+const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug, userRole, courseId }: AptitudeMCQPanelProps) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [isLoading, setIsLoading] = useState(false);
@@ -89,7 +90,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
 
     const handleNextProblem = () => {
         if (nextProblemSlug) {
-            router.push(`/problems/aptitude/${nextProblemSlug}`);
+            router.push(`/problems/${nextProblemSlug}${courseId ? `?courseId=${courseId}` : ''}`);
         }
     };
 
@@ -199,7 +200,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                             onClick={handleCheckAnswer}
                             disabled={!selectedOption || status === "correct" || isLoading}
                             className={`px-10 py-3.5 rounded-xl font-bold text-sm transition-all shadow-xl hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-2 ${
-                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-white/5 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
+                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
                             } ${
                                 status === "correct" ? "hidden" : ""
                             }`}
@@ -215,28 +216,14 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                         </button>
                     </div>
 
-                    {nextProblemSlug && (
-                        <motion.button
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            onClick={handleNextProblem}
-                            className={`px-10 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 active:scale-95 shadow-lg ${
-                                status === "correct"
-                                    ? "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20"
-                                    : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#262626]"
-                            }`}
-                        >
-                            NEXT
-                            <ArrowRight className="w-4 h-4" />
-                        </motion.button>
-                    )}
+
                 </div>
 
                 {(status === "correct" || status === "incorrect") && (
                     <div className="mt-8 w-full flex justify-center">
                         <button
                             onClick={onRevealSolution}
-                            className={`px-8 py-3.5 border border-gray-200 dark:border-[#262626] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-xl font-bold text-sm transition-all ${
+                            className={`px-8 py-3.5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-xl font-bold text-sm transition-all ${
                                 status === "correct" ? "bg-transparent opacity-40 hover:opacity-100" : "bg-transparent w-full sm:w-auto text-xs opacity-60"
                             }`}
                         >

@@ -31,6 +31,7 @@ interface ProblemDescriptionProps {
     contestId?: string;
     domain?: string;
     nextProblemSlug?: string | null;
+    courseId?: string | null;
     onRestoreCode?: (code: string, languageId: number) => void;
 }
 
@@ -67,7 +68,7 @@ const staggerItem: Variants = {
     }
 };
 
-const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug, onRestoreCode }: ProblemDescriptionProps) => {
+const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug, courseId, onRestoreCode }: ProblemDescriptionProps) => {
     const router = useRouter();
     const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
 
@@ -81,7 +82,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
 
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-dashed border-gray-200 dark:border-white/5 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
+            <div className="flex items-center gap-1 border-b border-dashed border-gray-200 dark:border-white/10 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <button
@@ -146,6 +147,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                     isSolved={isSolved}
                                     domain={domain}
                                     nextProblemSlug={nextProblemSlug}
+                                    courseId={courseId}
                                     router={router}
                                 />
 
@@ -188,7 +190,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212]">
+                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/10 bg-[#fafafa] dark:bg-[#121212]">
                                 {(["official", "community"] as const).map((tab) => (
                                     <button
                                         key={tab}

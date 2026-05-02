@@ -240,12 +240,12 @@ export class ProblemService {
     // Short-lived cache (30s) for search results to reduce DB load on repeated/concurrent identical searches.
     static async searchProblems(
         term: string,
-        type: ProblemType = "PRACTICE",
-        domain: ProblemDomain = "DSA",
+        type?: ProblemType,
+        domain?: ProblemDomain,
         userId?: string
     ) {
         const SEARCH_CACHE_TTL = 30;
-        const searchCacheKey = `problems:search:${domain}:${type}:${term.toLowerCase().trim()}`;
+        const searchCacheKey = `problems:search:${domain || 'all'}:${type || 'all'}:${term.toLowerCase().trim()}`;
 
         let problems: any[] | null = null;
         try {
@@ -256,12 +256,12 @@ export class ProblemService {
         if (!problems) {
             problems = await prisma.problem.findMany({
                 where: {
-                    type,
-                    domain,
+                    type: type || undefined,
+                    domain: domain || undefined,
                     hidden: false,
                     title: { contains: term, mode: 'insensitive' }
                 },
-                take: 10,
+                take: 20,
                 orderBy: { createdAt: 'desc' },
                 select: {
                     id: true,

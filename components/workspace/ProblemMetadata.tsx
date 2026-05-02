@@ -13,6 +13,7 @@ interface ProblemMetadataProps {
     isSolved: boolean;
     domain?: string;
     nextProblemSlug?: string | null;
+    courseId?: string | null;
     router: any;
 }
 
@@ -54,7 +55,7 @@ const getDifficultyConfig = (difficulty: string) => {
     }
 };
 
-export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProblemSlug, router }: ProblemMetadataProps) => {
+export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProblemSlug, courseId, router }: ProblemMetadataProps) => {
     const diffConfig = getDifficultyConfig(problem.difficulty);
 
     const formatDifficulty = (difficulty: string) => {
@@ -78,7 +79,7 @@ export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProb
 
             {/* Separator if tags exist */}
             {problem.tags && problem.tags.length > 0 && (
-                <div className="w-px h-4 bg-gray-200 dark:bg-[#262626]" />
+                <div className="w-px h-4 bg-gray-200 dark:bg-white/10" />
             )}
 
             {/* Tags */}
@@ -86,23 +87,14 @@ export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProb
                 {problem.tags?.map((tag) => (
                     <div
                         key={tag.slug}
-                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
+                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
                     >
                         {tag.name.toLowerCase()}
                     </div>
                 ))}
             </div>
 
-            {/* Next Problem Shortcut */}
-            {nextProblemSlug && (
-                <button
-                    onClick={() => router.push(`/problems/${nextProblemSlug}`)}
-                    className="group ml-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/5 hover:bg-orange-500/10 border border-orange-500/10 hover:border-orange-500/20 text-orange-600 dark:text-orange-400 text-[11px] font-bold uppercase tracking-wider transition-all"
-                >
-                    Next Problem
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                </button>
-            )}
+
         </motion.div>
     );
 });

@@ -74,7 +74,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                 <div>
                     <div className="flex items-center gap-2 mb-1.5">
                         <div className="w-2 h-2 bg-orange-600 rounded-full animate-pulse" />
-                        <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Active Task Hub</h2>
+                        <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Assignments List</h2>
                     </div>
                     <h1 className="text-2xl font-black text-gray-950 dark:text-white tracking-tightest uppercase">
                         Current Assignments
@@ -86,7 +86,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                         className="h-10 px-6 bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 dark:hover:bg-emerald-500 dark:hover:text-white transition-all shadow-lg active:scale-95 flex items-center gap-2"
                     >
                         <Plus className="w-3.5 h-3.5" />
-                        Init New Protocol
+                        New Assignment
                     </button>
                 )}
             </div>
@@ -98,10 +98,10 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
             ) : assignments.length === 0 ? (
                 <div className="text-center py-24 bg-white/30 dark:bg-white/5 backdrop-blur-lg border border-gray-100 dark:border-white/5 rounded-3xl">
                     <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-6" />
-                    <h3 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tight">System Idle</h3>
+                    <h3 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tight">No Assignments</h3>
                     <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                         {isTeacher
-                            ? "Initiate assignment to begin tracking"
+                            ? "Create an assignment to get started"
                             : "Awaiting publication from instructor"}
                     </p>
                 </div>
@@ -119,7 +119,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                                 </div>
                                 {assignment.dueDate && (
                                     <div className="flex flex-col items-end">
-                                        <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Target Horizon</span>
+                                        <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Due Date</span>
                                         <div className="px-2.5 py-1 bg-white dark:bg-black/40 rounded-lg border border-gray-100 dark:border-white/10 shadow-sm">
                                             <span className="text-[10px] font-black text-gray-900 dark:text-gray-200 uppercase tabular-nums tracking-widest leading-none">
                                                 {format(new Date(assignment.dueDate), "MMM dd")}
@@ -134,15 +134,15 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                             </h3>
 
                             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-8 line-clamp-2 leading-relaxed min-h-[32px]">
-                                {assignment.description || "Experimental parameters undefined."}
+                                {assignment.description || "No description provided."}
                             </p>
 
                             <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-white/5">
                                 <div className="flex items-center gap-4">
                                     <div className="flex flex-col">
-                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Complexity</span>
+                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Structure</span>
                                         <span className="text-[10px] font-black text-gray-950 dark:text-white tabular-nums uppercase">
-                                            {assignment._count.problems} Node Points
+                                            {assignment._count.problems} Problems
                                         </span>
                                     </div>
                                 </div>
@@ -150,14 +150,14 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                                 {isTeacher ? (
                                     <button className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 text-[9px] font-black uppercase tracking-widest group-hover:bg-orange-600 group-hover:text-white transition-all">
                                         <BarChart2 className="w-3 h-3" />
-                                        Fetch Logs
+                                        View Results
                                     </button>
                                 ) : (
                                     <Link
                                         href={`/my-assignments/${assignment.id}`}
                                         className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 text-[9px] font-black uppercase tracking-widest group-hover:bg-orange-600 group-hover:text-white transition-all"
                                     >
-                                        Execute Link
+                                        View Problems
                                         <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 )}
