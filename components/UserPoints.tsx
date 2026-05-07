@@ -16,38 +16,43 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
         async function fetchPoints() {
             try {
                 const score = await getUserScore();
-                setPoints(score);
+                if (isMounted) setPoints(score);
             } catch (error) {
-                 console.error("Failed to fetch user points:", error);
-                setPoints(0);
+                 if (isMounted) {
+                    console.error("Failed to fetch user points:", error);
+                    setPoints(0);
+                 }
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         }
 
         fetchPoints();
+        return () => { isMounted = false; };
     }, []);
 
     // Refresh points when window gains focus or when points are updated
     useEffect(() => {
+        let isMounted = true;
         const handleFocus = async () => {
             try {
                 const score = await getUserScore();
-                setPoints(score);
+                if (isMounted) setPoints(score);
             } catch (error) {
-                 console.error("Failed to refresh user points:", error);
+                 if (isMounted) console.error("Failed to refresh user points:", error);
             }
         };
 
         const handlePointsUpdated = async () => {
             try {
                 const score = await getUserScore();
-                setPoints(score);
+                if (isMounted) setPoints(score);
             } catch (error) {
-                 console.error("Failed to refresh user points:", error);
+                 if (isMounted) console.error("Failed to refresh user points:", error);
             }
         };
 
@@ -55,6 +60,7 @@ export default function UserPoints({ className = "" }: UserPointsProps) {
         window.addEventListener("pointsUpdated", handlePointsUpdated);
 
         return () => {
+            isMounted = false;
             window.removeEventListener("focus", handleFocus);
             window.removeEventListener("pointsUpdated", handlePointsUpdated);
         };
