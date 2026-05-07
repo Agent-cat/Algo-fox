@@ -62,6 +62,7 @@ export default function PracticeClient({
     const observerTarget = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        let isMounted = true;
         const performSearch = async () => {
             if (!searchTerm || searchTerm.length < 2) {
                 setSearchResults([]);
@@ -71,16 +72,19 @@ export default function PracticeClient({
             setIsSearching(true);
             try {
                 const result = await searchProblems(searchTerm, type, domain);
-                setSearchResults(result.problems);
+                if (isMounted) setSearchResults(result.problems);
             } catch (error) {
-                 console.error("Search failed:", error);
-                setSearchResults([]);
+                 if (isMounted) {
+                    console.error("Search failed:", error);
+                    setSearchResults([]);
+                 }
             } finally {
-                setIsSearching(false);
+                if (isMounted) setIsSearching(false);
             }
         };
 
         performSearch();
+        return () => { isMounted = false; };
     }, [searchTerm, type, domain]);
 
     const displayedProblems = useMemo(() => {
