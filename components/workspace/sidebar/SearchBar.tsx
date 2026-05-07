@@ -15,17 +15,17 @@ export function SearchBar({ searchTerm, onSearchChange }: SearchBarProps) {
             </div>
             <input
                 type="text"
-                placeholder={`Search ${searchTerm ? '' : 'problems...'}`}
+                placeholder="Search problems..."
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full bg-[#fafafa] dark:bg-[#121212] border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                className="w-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-orange-500/30 rounded-full pl-10 pr-10 py-2.5 text-sm font-bold focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-white"
             />
             {searchTerm && (
                 <button
                     onClick={() => onSearchChange("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-white/5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
                 >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-4 h-4" />
                 </button>
             )}
         </div>

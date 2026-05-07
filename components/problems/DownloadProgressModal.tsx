@@ -41,30 +41,32 @@ export default function DownloadProgressModal({
     const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
 
     useEffect(() => {
+        let isMounted = true;
         if (isOpen) {
-            fetchClassrooms();
+            fetchClassrooms(isMounted);
         } else {
             // Reset state on close
             setSelectedIds([]);
             setFormat("csv");
             setDifficultyFilter("ALL");
         }
+        return () => { isMounted = false; };
     }, [isOpen]);
 
-    const fetchClassrooms = async () => {
+    const fetchClassrooms = async (isMounted: boolean = true) => {
         setIsLoadingClasses(true);
         try {
             if (userRole === "TEACHER") {
                 const res = await getTeacherClassrooms();
+                if (!isMounted) return;
                 if (res.success && res.classrooms) {
                     setClassrooms(res.classrooms);
                 } else {
                     toast.error("Failed to load your classrooms.");
                 }
             } else if (userRole === "INSTITUTION_MANAGER" || userRole === "ADMIN") {
-                // Fetching first page with high limit or relying on dedicated un-paginated action if it existed
-                // For now getInstitutionClassrooms uses pagination, so let's request 100
                 const res = await getInstitutionClassrooms(1, 100);
+                if (!isMounted) return;
                 if (res.success && res.classrooms) {
                     setClassrooms(res.classrooms);
                 } else {
@@ -72,10 +74,12 @@ export default function DownloadProgressModal({
                 }
             }
         } catch (error) {
-             console.error("Error fetching classrooms:", error);
-            toast.error("Failed to fetch classrooms.");
+             if (isMounted) {
+                console.error("Error fetching classrooms:", error);
+                toast.error("Failed to fetch classrooms.");
+             }
         } finally {
-            setIsLoadingClasses(false);
+            if (isMounted) setIsLoadingClasses(false);
         }
     };
 
@@ -100,6 +104,7 @@ export default function DownloadProgressModal({
         }
 
         setIsDownloading(true);
+        const controller = new AbortController();
 
         try {
             const classIdsStr = selectedIds.join(",");
@@ -117,7 +122,9 @@ export default function DownloadProgressModal({
                 queryParams.append("categoryName", categoryTitle);
             }
 
-            const response = await fetch(`/api/progress/export?${queryParams.toString()}`);
+            const response = await fetch(`/api/progress/export?${queryParams.toString()}`, {
+                signal: controller.signal
+            });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -147,7 +154,11 @@ export default function DownloadProgressModal({
             toast.success("Download started successfully!");
             onClose();
         } catch (error: any) {
-             console.error("Download error:", error);
+            if (error.name === 'AbortError') {
+                console.log('Download aborted');
+                return;
+            }
+            console.error("Download error:", error);
             toast.error(error.message || "An error occurred while downloading.");
         } finally {
             setIsDownloading(false);

@@ -58,22 +58,22 @@ function CategoryItem({
         <div className={cn(
             "transition-all duration-300",
             level === 0
-                ? "mb-4 border border-gray-100/60 dark:border-white/5 bg-white/40 dark:bg-[#121212]/40 backdrop-blur-sm shadow-[0_2px_8px_-2px_rgba(0,0,0,0.03)] rounded-2xl"
-                : "ml-3 border-l-2 border-gray-200/50 dark:border-white/5 mt-1"
+                ? "mb-4 border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212]/40 backdrop-blur-sm shadow-sm rounded-2xl overflow-hidden"
+                : "ml-4 border-l-2 border-gray-100 dark:border-white/5 mt-1"
         )}>
             <button
                 onClick={() => onToggleCategory(category.id)}
                 className={cn(
                     "w-full flex items-center justify-between transition-all text-left group",
-                    level === 0 ? "px-4 py-3" : "pl-3 pr-4 py-2.5",
-                    isExpanded && level === 0 ? "bg-orange-50/30 dark:bg-orange-500/3" : "hover:bg-gray-50/50 dark:hover:bg-white/1"
+                    level === 0 ? "px-5 py-4" : "pl-4 pr-5 py-3",
+                    isExpanded && level === 0 ? "bg-orange-50/50 dark:bg-orange-500/5" : "hover:bg-gray-50 dark:hover:bg-white/5"
                 )}
             >
-                <div className="flex items-center gap-3.5 flex-1 overflow-hidden">
+                <div className="flex items-center gap-4 flex-1 overflow-hidden">
                     {isExpanded ? (
-                        <FolderOpen className={cn("shrink-0 transition-all duration-300 text-orange-500", level === 0 ? "w-4 h-4" : "w-3.5 h-3.5")} />
+                        <FolderOpen className={cn("shrink-0 transition-all duration-300 text-orange-500", level === 0 ? "w-5 h-5" : "w-4.5 h-4.5")} />
                     ) : (
-                        <Folder className={cn("shrink-0 transition-all duration-300 text-gray-400 dark:text-gray-500", level === 0 ? "w-4 h-4" : "w-3.5 h-3.5")} />
+                        <Folder className={cn("shrink-0 transition-all duration-300 text-gray-400 dark:text-gray-600 group-hover:text-orange-500/60", level === 0 ? "w-5 h-5" : "w-4.5 h-4.5")} />
                     )}
                     <span className={cn(
                         "font-bold tracking-tight truncate transition-colors duration-300",
@@ -83,14 +83,14 @@ function CategoryItem({
                         {category.name}
                     </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     {categoryProblems[category.id] && (
-                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 bg-gray-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded-md">
+                        <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full border border-gray-200/50 dark:border-white/5">
                             {categoryProblems[category.id].length}
                         </span>
                     )}
                     <ChevronDown className={cn(
-                        "w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-500 transform",
+                        "w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-orange-500 transition-all duration-500 transform",
                         isExpanded && "rotate-180 text-orange-500"
                     )} />
                 </div>
@@ -107,9 +107,9 @@ function CategoryItem({
                     >
                         <div className={cn(
                            "transition-all",
-                           level === 0 ? "px-3 pb-3 pt-1 bg-[#fafafa] dark:bg-[#121212]" : "pb-1 pt-1"
+                           level === 0 ? "px-3 pb-3 pt-1 bg-gray-50/30 dark:bg-black/20" : "pb-1 pt-1"
                         )}>
-                            {/* Render Sub-categories first */}
+                            {/* Render Sub-categories */}
                             {category.children && category.children.length > 0 && (
                                 <div className="space-y-1.5 mb-2">
                                     {category.children.map(child => (
@@ -131,9 +131,9 @@ function CategoryItem({
 
                             {/* Render Problems */}
                             {loadingCategoryProblems === category.id ? (
-                                <div className="flex flex-col items-center justify-center p-8 gap-2">
-                                    <Loader2 className="w-5 h-5 animate-spin text-orange-500/40" />
-                                    <span className="text-[10px] text-gray-400 font-bold tracking-widest animate-pulse">FETCHING...</span>
+                                <div className="flex flex-col items-center justify-center p-8 gap-3">
+                                    <Loader2 className="w-5 h-5 animate-spin text-orange-500/60" />
+                                    <span className="text-[10px] text-gray-400 font-black tracking-widest animate-pulse">FETCHING CONTENT</span>
                                 </div>
                             ) : (
                                 <div className="space-y-1 mt-1">
@@ -146,10 +146,10 @@ function CategoryItem({
                                                 key={prob.id}
                                                 href={`/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
                                                 className={cn(
-                                                    "group/prob flex items-center justify-between p-2.5 rounded-xl text-[13px] transition-all border border-transparent duration-300",
+                                                    "group/prob flex items-center justify-between p-3 rounded-xl text-[13px] transition-all border border-transparent duration-300",
                                                     isCurrent
-                                                        ? "bg-orange-50/60 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/40 dark:border-orange-500/20 shadow-[0_2px_10px_-4px_rgba(249,115,22,0.15)]"
-                                                        : "hover:bg-white dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:shadow-sm"
+                                                        ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/50 dark:border-orange-500/20 shadow-sm"
+                                                        : "hover:bg-white dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                                 )}
                                             >
                                                 <div className="flex items-center gap-3 overflow-hidden">
@@ -157,20 +157,20 @@ function CategoryItem({
                                                         {isSolved ? (
                                                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                                                         ) : (
-                                                            <div className={cn("w-1.5 h-1.5 rounded-full", level === 0 ? "bg-gray-200 dark:bg-[#1e1e1e]" : "bg-gray-300/60 dark:bg-white/10")} />
+                                                            <div className={cn(
+                                                                "w-1.5 h-1.5 rounded-full",
+                                                                isCurrent ? "bg-orange-500" : "bg-gray-200 dark:bg-white/10"
+                                                            )} />
                                                         )}
                                                     </div>
                                                     <span className={cn(
-                                                        "truncate tracking-tight",
-                                                        isCurrent ? "font-bold text-orange-700 dark:text-orange-400" : "font-medium group-hover/prob:text-gray-900 dark:group-hover/prob:text-white transition-colors"
+                                                        "truncate tracking-tight font-bold",
+                                                        isCurrent ? "text-orange-700 dark:text-orange-400" : "text-gray-600 dark:text-gray-400 group-hover/prob:text-gray-900 dark:group-hover/prob:text-white"
                                                     )}>
                                                         {prob.title}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-2 pl-2">
-                                                     {prob.difficulty === "CONCEPT" && (
-                                                         <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10 px-1.5 py-0.5 rounded-md uppercase tracking-tighter border border-indigo-500/10">Theory</span>
-                                                     )}
                                                      <div className="opacity-0 -translate-x-2 group-hover/prob:opacity-100 group-hover/prob:translate-x-0 transition-all duration-300">
                                                          <ChevronDown className="-rotate-90 w-3.5 h-3.5 text-gray-400" />
                                                      </div>
@@ -179,10 +179,12 @@ function CategoryItem({
                                         );
                                     })}
                                     {(!categoryProblems[category.id] || categoryProblems[category.id].length === 0) && (!category.children || category.children.length === 0) && (
-                                        <div className="py-8 flex flex-col items-center justify-center opacity-40">
-                                            <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-700 mb-2" />
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest text-center">
-                                                Module Content Coming Soon
+                                        <div className="py-10 flex flex-col items-center justify-center opacity-30 grayscale">
+                                            <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-700 mb-3 flex items-center justify-center">
+                                                <Folder className="w-4 h-4" />
+                                            </div>
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest text-center">
+                                                No content available
                                             </p>
                                         </div>
                                     )}
@@ -210,15 +212,23 @@ export function CategoriesList({
 
     if (loadingCategories) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 gap-3">
+            <div className="flex flex-col items-center justify-center p-24 gap-4">
                 <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-                <span className="text-xs font-medium text-gray-400 animate-pulse">Organizing Knowledge...</span>
+                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] animate-pulse">Syncing Library</span>
+            </div>
+        );
+    }
+
+    if (categories.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-24 opacity-40">
+                <p className="text-sm font-bold text-gray-500">No categories found</p>
             </div>
         );
     }
 
     return (
-        <div className="pb-12 px-0.5">
+        <div className="pb-16 pt-2">
             {categories.map((category) => (
                 <CategoryItem
                     key={category.id}

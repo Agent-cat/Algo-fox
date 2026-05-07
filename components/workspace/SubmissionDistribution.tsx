@@ -22,18 +22,30 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+        const controller = new AbortController();
+
         const fetchDistribution = async () => {
             try {
                 const data = await getSubmissionDistributionAction(problemId);
-                const items = type === 'runtime' ? data.runtimes : data.memories;
-                setDistribution(items);
+                if (isMounted) {
+                    const items = type === 'runtime' ? data.runtimes : data.memories;
+                    setDistribution(items);
+                }
             } catch (error) {
-                 console.error("Failed to load distribution", error);
+                 if (isMounted) {
+                    console.error("Failed to load distribution", error);
+                 }
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
+
         fetchDistribution();
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
     }, [problemId, type]);
 
     const stats = useMemo(() => {

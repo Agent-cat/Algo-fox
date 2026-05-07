@@ -103,7 +103,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         if (typeof window === 'undefined') return '// Write your code here';
         const isSql = (problem.domain as string) === 'SQL';
         if (isSql) return '';
-        
+
         let initialLangId = getStoredLanguageId(problem.domain as string);
         if (problem.allowedLanguages && problem.allowedLanguages.length > 0) {
             const allowedIds = LANGUAGES.filter(l => problem.allowedLanguages!.includes(l.name)).map(l => l.id);
@@ -149,7 +149,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         const domain = problem.domain as string;
         const storedLanguageId = getStoredLanguageId(domain);
         let finalLanguageId = domain === "SQL" ? SQL_LANGUAGE_ID : storedLanguageId;
-        
+
         if (problem.allowedLanguages && problem.allowedLanguages.length > 0 && domain !== "SQL") {
             const allowedIds = LANGUAGES.filter(l => problem.allowedLanguages!.includes(l.name)).map(l => l.id);
             if (!allowedIds.includes(finalLanguageId)) {
@@ -519,9 +519,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 type={problem.type}
                 onToggleSidebar={handleToggleSidebar}
             />
-            <div className="flex-1 overflow-hidden flex flex-row min-h-0">
-                <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={4} snapOffset={30} onDragEnd={setMainSizes}>
-                    <div id="problem-description" className="h-full overflow-hidden">
+            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#0a0a0a]">
+                <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={8} snapOffset={30} onDragEnd={setMainSizes}>
+                    <div id="problem-description" className="h-full overflow-hidden border-l border-dashed border-gray-400 dark:border-white/10">
                         <ProblemDescription
                             problem={problem}
                             activeTab={activeTab}
@@ -534,9 +534,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             onRestoreCode={handleRestoreCode}
                         />
                     </div>
-                    <div className="h-full overflow-hidden flex flex-col">
-                        <Split className="split-vertical flex flex-col h-full" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={4} onDragEnd={setVerticalSizes}>
-                            <div id="code-editor" className="h-full overflow-hidden">
+                    <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10">
+                        <Split className="split-vertical flex flex-col h-full" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
+                            <div id="code-editor" className="h-full overflow-hidden flex flex-col">
                                 <CodeEditor
                                     key={`${problem.id}-${languageId}`}
                                     value={code}
@@ -555,7 +555,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                     allowedLanguages={problem.allowedLanguages}
                                 />
                             </div>
-                            <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
+                            <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
                                 <TestCases
                                     cases={problem.testCases}
                                     customCases={customTestCases}
@@ -577,12 +577,30 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 <style jsx global>{`
                     .split { display: flex; }
                     .split-vertical { display: flex; flex-direction: column; }
-                    .gutter { background-color: transparent; transition: background-color 0.25s ease; position: relative; }
-                    .gutter:hover { background-color: rgba(234, 88, 12, 0.2) !important; }
-                    .gutter.gutter-horizontal { cursor: col-resize; border-left: 1px dashed #e5e7eb; }
-                    .gutter.gutter-vertical { cursor: row-resize; border-top: 1px dashed #e5e7eb; }
-                    .dark .gutter.gutter-horizontal { border-left: 1px dashed #262626; }
-                    .dark .gutter.gutter-vertical { border-top: 1px dashed #262626; }
+                    .gutter { background-color: transparent; transition: all 0.25s ease; position: relative; }
+                    .gutter:hover { background-color: rgba(234, 88, 12, 0.1) !important; }
+                    .gutter.gutter-horizontal { cursor: col-resize; border-left: 1px dashed #d1d5db; }
+                    .gutter.gutter-vertical { cursor: row-resize; border-top: 1px dashed #d1d5db; }
+                    .dark .gutter.gutter-horizontal { border-left: 1px dashed rgba(255, 255, 255, 0.1); }
+                    .dark .gutter.gutter-vertical { border-top: 1px dashed rgba(255, 255, 255, 0.1); }
+
+                    .gutter::after {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background-color: #9ca3af;
+                        border-radius: 4px;
+                        opacity: 0.5;
+                        transition: all 0.25s ease;
+                    }
+                    .gutter.gutter-horizontal::after { width: 4px; height: 24px; }
+                    .gutter.gutter-vertical::after { width: 24px; height: 4px; }
+                    .gutter:hover::after { opacity: 1; background-color: #f97316; height: 32px; width: 4px; }
+                    .gutter.gutter-vertical:hover::after { width: 32px; height: 4px; }
+                    .dark .gutter::after { background-color: rgba(255, 255, 255, 0.3); }
+                    .dark .gutter:hover::after { background-color: #f97316; }
                 `}</style>
             </div>
         </div>

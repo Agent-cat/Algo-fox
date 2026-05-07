@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import DevToolsBlocker from "@/components/DevToolsBlocker";
@@ -10,11 +10,15 @@ import FocusBlur from "@/components/FocusBlur";
 import { ImpersonationBanner } from "@/components/auth/ImpersonationBanner";
 import { Suspense } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -83,9 +87,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body
-        className={` ${geistSans.variable} ${geistMono.variable} antialiased select-none bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100`}
+        className={`${geistMono.variable} antialiased select-none bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 font-sans`}
       >
         <ThemeProvider>
           <Suspense fallback={

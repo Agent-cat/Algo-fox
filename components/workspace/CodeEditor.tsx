@@ -764,7 +764,7 @@ const CodeEditor = memo(({
   return (
     <div
       ref={editorContainerRef}
-      className={`h-full flex flex-col bg-[#fafafa] dark:bg-[#1e1e1e] border-l border-gray-200 dark:border-[#262626] ${
+      className={`h-full flex flex-col bg-[#fafafa] dark:bg-[#1e1e1e] border-l border-gray-300 dark:border-[#262626] ${
         isFullScreen ? "fixed inset-0 z-50" : ""
       }`}
     >

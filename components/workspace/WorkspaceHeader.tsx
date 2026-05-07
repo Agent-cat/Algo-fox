@@ -422,6 +422,7 @@ const WorkspaceHeader = memo(({
                     </AnimatePresence>
                   </div>
                   <StreakBadge />
+                  <div className="h-4 w-px bg-gray-200 dark:bg-[#262626] mx-1 hidden md:block" />
                   <UserPoints className="hidden md:flex" />
                 </div>
               ) : (

@@ -31,10 +31,12 @@ export function CommentTree({ problemId }: CommentTreeProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [view, setView] = useState<ViewState>({ type: "LIST" });
 
-    const fetchComments = async () => {
+    const fetchComments = async (isMounted: boolean = true) => {
         setIsLoading(true);
         try {
             const data = await getProblemComments(problemId, session?.user?.id);
+            if (!isMounted) return;
+            
             setComments(data);
             
             // Update detail view if active
@@ -47,14 +49,16 @@ export function CommentTree({ problemId }: CommentTreeProps) {
                 return prev;
             });
         } catch (error) {
-             console.error("Failed to fetch comments", error);
+             if (isMounted) console.error("Failed to fetch comments", error);
         } finally {
-            setIsLoading(false);
+            if (isMounted) setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchComments();
+        let isMounted = true;
+        fetchComments(isMounted);
+        return () => { isMounted = false; };
     }, [problemId, session?.user?.id]);
 
     const handleSuccess = async () => {
@@ -86,7 +90,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
     return (
         <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#121212]">
             {/* TOP ACTIONS */}
-            <div className="p-4 border-b border-gray-100 dark:border-[#1e1e1e] flex items-center justify-between">
+            <div className="p-4 border-b border-dashed border-gray-100 dark:border-white/10 flex items-center justify-between">
                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {comments.length} Solutions & Comments
                 </h3>
@@ -126,7 +130,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
             </div>
 
             {/* Sticky Bottom Input for quick comments (optional, but keep for consistency) */}
-            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-t border-gray-200 dark:border-[#262626] p-4">
+            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-t border-dashed border-gray-200 dark:border-white/10 p-4">
                 {session?.user ? (
                     <CommentInput problemId={problemId} onSuccess={() => fetchComments()} compact />
                 ) : (

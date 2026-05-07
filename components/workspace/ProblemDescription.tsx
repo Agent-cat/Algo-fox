@@ -127,7 +127,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className={`${domain === "APTITUDE" ? "px-8 py-8" : "px-6 py-6"} space-y-6`}
+                            className={`${domain === "APTITUDE" ? "px-8 py-8" : "px-5 py-5"} space-y-4`}
                         >
                             <motion.div variants={staggerContainer} initial="hidden" animate="visible">
                                 <motion.div variants={staggerItem} className="flex items-center gap-3 flex-wrap mb-4">
@@ -151,7 +151,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                     router={router}
                                 />
 
-                                <div className="mt-8 prose prose-slate dark:prose-invert max-w-none">
+                                <div className="mt-4 prose prose-slate dark:prose-invert max-w-none">
                                     <Markdown
                                         remarkPlugins={[remarkDirective, remarkGfm, remarkBreaks, remarkMcqDirective]}
                                         rehypePlugins={[rehypeRaw]}
@@ -159,7 +159,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                             // @ts-ignore
                                             'mcq-widget': McqWidget,
                                             table: ({ children }) => (
-                                                <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
+                                                <table className="my-3 w-full border-collapse text-sm border border-gray-300 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
                                             ),
                                             thead: ({ children }) => (
                                                 <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
@@ -173,6 +173,24 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                             tr: ({ children }) => (
                                                 <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
                                             ),
+                                            pre: ({ children }) => (
+                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                                                    {children}
+                                                </pre>
+                                            ),
+                                            code: ({ node, inline, className, children, ...props }: any) => {
+                                                return (
+                                                    <code
+                                                        className={`${className} ${inline
+                                                            ? 'px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-white/10 text-orange-600 dark:text-orange-400 font-mono text-[13px]'
+                                                            : 'font-mono text-[14px] leading-[1.6] text-gray-800 dark:text-gray-200'}`}
+                                                        {...props}
+                                                    >
+                                                        {children}
+                                                    </code>
+                                                );
+                                            },
+                                            hr: () => <hr className="my-4 border-dashed border-gray-200 dark:border-white/10" />,
                                         }}
                                     >
                                         {problem.description}
@@ -219,6 +237,24 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                         components={{
                                                             // @ts-ignore
                                                             'solution-group': SolutionCodeGroup,
+                                                            pre: ({ children }) => (
+                                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                                                                    {children}
+                                                                </pre>
+                                                            ),
+                                                            code: ({ node, inline, className, children, ...props }: any) => {
+                                                                return (
+                                                                    <code
+                                                                        className={`${className} ${inline
+                                                                            ? 'px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-white/10 text-orange-600 dark:text-orange-400 font-mono text-[13px]'
+                                                                            : 'font-mono text-[14px] leading-[1.6] text-gray-800 dark:text-gray-200'}`}
+                                                                        {...props}
+                                                                    >
+                                                                        {children}
+                                                                    </code>
+                                                                );
+                                                            },
+                                                            hr: () => <hr className="my-4 border-dashed border-gray-300 dark:border-white/10" />,
                                                         }}
                                                     >
                                                         {preprocessMarkdown(problem.solution)}

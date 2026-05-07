@@ -1,7 +1,6 @@
 "use client";
 
 import { CheckCircle, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface ProblemSimple {
@@ -40,103 +39,107 @@ export function ProblemsList({
 
     if (isSearchMode && searchTerm && isSearching) {
         return (
-            <div className="flex justify-center p-4">
-                <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+            <div className="flex flex-col items-center justify-center p-12 gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">Searching...</span>
             </div>
         );
     }
 
     if (isSearchMode && searchTerm && !isSearching && problems.length === 0) {
         return (
-             <div className="text-center p-4 text-gray-500 text-sm">
-                No problems found.
+             <div className="text-center p-12 space-y-2 opacity-60">
+                <p className="text-sm font-bold text-gray-500">No matching problems</p>
+                <p className="text-xs text-gray-400">Try a different search term</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-2">
-            {problems.map((prob) => {
-                const isSolved = solvedSet.has(prob.id);
-                const isCurrent = currentProblemId === prob.id;
+        <div className="flex flex-col h-full">
+            <div className="w-full overflow-hidden">
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr className="border-b border-gray-100 dark:border-white/5">
+                            <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] w-[60%]">Problem</th>
+                            <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Difficulty</th>
+                            <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Stats</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/2">
+                        {problems.map((prob) => {
+                            const isSolved = solvedSet.has(prob.id);
+                            const isCurrent = currentProblemId === prob.id;
 
-                return (
-                    <Link
-                        key={prob.id}
-                        href={`/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
-                        className={cn(
-                            "group flex items-center gap-4 p-3.5 rounded-xl transition-all duration-300 border relative overflow-hidden",
-                            isCurrent
-                                ? "bg-orange-50/60 dark:bg-orange-500/5 border-orange-200/50 dark:border-orange-500/20 shadow-sm ring-1 ring-orange-500/10 dark:ring-transparent"
-                                : "bg-[#fafafa] dark:bg-[#121212] hover:bg-white dark:hover:bg-white/3 border-gray-200/50 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 hover:shadow-sm"
-                        )}
-                    >
-                        {/* Status Checkbox/Indicator */}
-                        <div className={cn(
-                            "w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300",
-                            isSolved
-                                ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-500 shadow-sm"
-                                : "bg-gray-50 dark:bg-[#1a1a1a] border-gray-200 dark:border-[#333] text-gray-300 dark:text-gray-600 group-hover:border-gray-300 dark:group-hover:border-[#444]"
-                        )}>
-                            {isSolved ? (
-                                <CheckCircle className="w-4 h-4" />
-                            ) : (
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors group-hover:bg-gray-400 dark:group-hover:bg-gray-500" />
-                            )}
-                        </div>
+                            // Mock acceptance for now
+                            const mockAcceptance = (25 + Math.random() * 20).toFixed(1) + "%";
 
-                        {/* Title and Metadata */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-1">
-                            <div className="flex items-center justify-between gap-2">
-                                <p className={cn(
-                                    "font-semibold text-[13.5px] truncate transition-all duration-300",
-                                    isCurrent ? "text-orange-700 dark:text-orange-400" : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
-                                )}>
-                                    {prob.title}
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <span className={cn(
-                                    "text-[9px] font-bold px-1.5 py-0.5 rounded-md border uppercase tracking-widest",
-                                    prob.difficulty === "EASY" && "text-emerald-600 dark:text-emerald-500 border-emerald-100 dark:border-emerald-500/10 bg-emerald-50/30 dark:bg-emerald-500/5",
-                                    prob.difficulty === "MEDIUM" && "text-amber-600 dark:text-amber-500 border-amber-100 dark:border-amber-500/10 bg-amber-50/30 dark:bg-amber-500/5",
-                                    prob.difficulty === "HARD" && "text-rose-600 dark:text-rose-500 border-rose-100 dark:border-rose-500/10 bg-rose-50/30 dark:bg-rose-500/5"
-                                )}>
-                                    {prob.difficulty}
-                                </span>
-                                {isSolved && (
-                                    <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-medium">Solved</span>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Hover arrow or decoration */}
-                        <div className={cn(
-                            "opacity-0 transition-all duration-300 transform translate-x-2",
-                            "group-hover:opacity-100 group-hover:translate-x-0"
-                        )}>
-                             <svg className="w-4 h-4 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                             </svg>
-                        </div>
-                    </Link>
-                );
-            })}
+                            return (
+                                <tr
+                                    key={prob.id}
+                                    className={cn(
+                                        "group cursor-pointer transition-all duration-300",
+                                        isCurrent
+                                            ? "bg-orange-50/50 dark:bg-orange-500/5 hover:bg-orange-100/50 dark:hover:bg-orange-500/10"
+                                            : "hover:bg-gray-50 dark:hover:bg-white/5"
+                                    )}
+                                    onClick={() => window.location.href = `/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
+                                >
+                                    <td className="py-4 px-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="shrink-0">
+                                                {isSolved ? (
+                                                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                                ) : (
+                                                    <div className={cn(
+                                                        "w-1.5 h-1.5 rounded-full",
+                                                        isCurrent ? "bg-orange-500" : "bg-gray-200 dark:bg-white/10"
+                                                    )} />
+                                                )}
+                                            </div>
+                                            <span className={cn(
+                                                "text-sm font-bold truncate tracking-tight transition-colors duration-300",
+                                                isCurrent ? "text-orange-600 dark:text-orange-400" : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
+                                            )}>
+                                                {prob.title}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <span className={cn(
+                                            "text-[11px] font-black uppercase tracking-wider",
+                                            prob.difficulty === "EASY" && "text-emerald-500",
+                                            prob.difficulty === "MEDIUM" && "text-orange-500",
+                                            prob.difficulty === "HARD" && "text-rose-500",
+                                        )}>
+                                            {prob.difficulty}
+                                        </span>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">
+                                            {mockAcceptance}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
 
             {!isSearchMode && (
-                <div className="mt-4 flex justify-center pb-4">
+                <div className="mt-8 flex justify-center pb-12">
                     {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                        <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
                     ) : hasMore ? (
                         <button
                             onClick={onLoadMore}
-                            className="text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                            className="px-8 py-2.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-orange-500 hover:text-white hover:border-orange-500 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all active:scale-95 shadow-sm"
                         >
                             Load More
                         </button>
                     ) : (
-                        <span className="text-xs text-gray-400">No more problems</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest opacity-40">End of list</span>
                     )}
                 </div>
             )}

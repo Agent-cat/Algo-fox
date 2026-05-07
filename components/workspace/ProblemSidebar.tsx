@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, BookOpen, List } from "lucide-react";
+import { X, BookOpen, List, ChevronDown } from "lucide-react";
+import { getNextProblem, getRandomProblem } from "@/actions/problems";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getProblems, searchProblems } from "@/actions/problems";
 import { getCategories, getCategoryProblems } from "@/actions/category.action";
@@ -75,6 +76,10 @@ export default function ProblemSidebar({
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<ProblemSimple[]>([]);
 
+  // Filter State
+  const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
+  const [sortBy, setSortBy] = useState<string>("newest");
+
   // Search Handler
   useEffect(() => {
     const search = async () => {
@@ -102,42 +107,44 @@ export default function ProblemSidebar({
     };
 
     search();
-  }, [debouncedSearchTerm, activeTab, domain]);
+  }, [debouncedSearchTerm, domain, activeTab]);
 
-  // PREFETCH: Load both problems and categories on mount and when domain changes
+  // PREFETCH: Load problems on mount and when domain/filters change
   useEffect(() => {
     setProblems([]);
     setPage(1);
     setHasMore(true);
-    setCategories([]);
-    setExpandedCategories([]);
-    setCategoryProblems({});
+    
+    loadProblems(1, difficulty, sortBy);
+  }, [domain, courseId, difficulty, sortBy]);
 
-    loadProblems(1);
-    loadCategories();
-  }, [domain, courseId]); // Re-run when domain or courseId changes
-
-  // Sync active tab if problem type or courseId changes
+  // Handle Intelligence: Switch tab based on problemType
   useEffect(() => {
-    if (courseId) {
-        setActiveTab("learn");
-    } else if (problemType) {
-        setActiveTab(problemType === "LEARN" ? "learn" : "problems");
+    if (problemType === "LEARN") {
+      setActiveTab("learn");
+    } else {
+      setActiveTab("problems");
     }
-  }, [problemType, courseId]);
+  }, [problemType]);
 
-  const loadProblems = async (pageNum: number) => {
+  // Load Categories when Learn tab is active
+  useEffect(() => {
+    if (activeTab === "learn" && categories.length === 0) {
+      loadCategories();
+    }
+  }, [activeTab, domain, courseId]);
+
+  const loadProblems = async (pageNum: number, diff?: string, sort?: string) => {
     if (isLoadingProblems) return;
     setIsLoadingProblems(true);
     try {
-      const res = await getProblems(pageNum, 20, "PRACTICE", domain);
+      const res = await getProblems(pageNum, 20, "PRACTICE", domain, diff as any, [], undefined, sort);
       if (res && res.problems) {
         if (pageNum === 1) {
           setProblems(res.problems);
         } else {
           setProblems((prev) => [...prev, ...res.problems]);
         }
-        // If we got fewer than requested, no more pages
         if (res.problems.length < 20) {
           setHasMore(false);
         } else {
@@ -174,7 +181,6 @@ export default function ProblemSidebar({
             }
         });
 
-        // Ensure orders are preserved if needed (getCategories should already be sorted)
         setCategories(roots);
       }
     } catch (error) {
@@ -197,7 +203,7 @@ export default function ProblemSidebar({
     if (!categoryProblems[categoryId]) {
       setLoadingCategoryProblems(categoryId);
       try {
-        const res = await getCategoryProblems(categoryId, 1, 50); // Fetch first 50 for now
+        const res = await getCategoryProblems(categoryId, 1, 50); 
         if (res && res.problems) {
           setCategoryProblems((prev) => ({
             ...prev,
@@ -222,7 +228,7 @@ export default function ProblemSidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 z-40 bg-black/20 dark:bg-black/60 backdrop-blur-sm"
           />
 
           {/* Sidebar */}
@@ -230,85 +236,120 @@ export default function ProblemSidebar({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute top-0 left-0 bottom-0 w-[420px] max-w-[90vw] z-50 shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-white/5"
+            transition={{ type: "spring", stiffness: 300, damping: 35 }}
+            className="absolute top-0 left-0 bottom-0 w-[550px] max-w-[95vw] z-50 shadow-2xl bg-white dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-white/5"
           >
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header section with Title and Close button */}
-              <div className="px-6 pt-6 pb-2 flex items-center justify-between border-b border-gray-100/10 dark:border-white/5 bg-transparent sticky top-0 z-20">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
-                    <List className="w-5 h-5 text-orange-600 dark:text-orange-500" />
-                  </div>
-                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-none pt-0.5">
-                    Problem Navigator
+              <div className="px-6 py-6 flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    {activeTab === "problems" ? "Practice Problems" : "Learning Modules"}
                   </h2>
-                </div>
                 <button
                   onClick={onClose}
-                  className="p-2 shrink-0 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm group active:scale-95"
-                  title="Close Sidebar"
+                  className="p-2 shrink-0 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full text-gray-600 dark:text-white transition-all group active:scale-95"
+                  title="Close"
                 >
-                  <X className="w-5 h-5 transition-transform group-hover:rotate-90 duration-300" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Navigation & Search Container */}
-              <div className="px-6 py-4 space-y-4 bg-transparent border-b border-gray-100/10 dark:border-white/5">
-                {courseName && (
-                  <div className="px-3 py-2 rounded-lg bg-orange-500/5 border border-orange-500/10 mb-2">
-                    <p className="text-[10px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-0.5">Course</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{courseName}</p>
-                  </div>
-                )}
-                {/* Tabs with sliding indicator - HIDDEN IF IN COURSE CONTEXT */}
-                {!courseId && (
-                  <div className="relative flex p-1.5 gap-1 bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-[#262626] overflow-hidden">
-                    {/* Sliding Background */}
-                    <motion.div
-                      className="absolute inset-y-1.5 bg-white dark:bg-[#2c2c2c] rounded-lg shadow-md ring-1 ring-black/5 dark:ring-white/5 z-0"
-                      initial={false}
-                      animate={{
-                        x: activeTab === "problems" ? 0 : "100%",
-                        width: "calc(50% - 6px)"
-                      }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      style={{ left: activeTab === "problems" ? "4px" : "2px" }}
-                    />
-
+              {/* Mode Toggle Switcher */}
+              <div className="px-6 pb-2">
+                <div className="p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl flex gap-1 items-center relative">
                     <button
-                      onClick={() => { setActiveTab("problems"); setSearchTerm(""); }}
-                      className={cn(
-                        "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
-                        activeTab === "problems"
-                          ? "text-gray-900 dark:text-white"
-                          : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                      )}
+                        onClick={() => setActiveTab("problems")}
+                        className={cn(
+                            "flex-1 relative z-10 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2",
+                            activeTab === "problems" ? "text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        )}
                     >
-                      <List className="w-4 h-4" />
-                      Practice
+                        <List className="w-4 h-4" />
+                        Practice
+                        {activeTab === "problems" && (
+                            <motion.div 
+                                layoutId="activeTabSwitcher"
+                                className="absolute inset-0 bg-orange-500 rounded-xl -z-10 shadow-lg shadow-orange-500/20"
+                            />
+                        )}
                     </button>
                     <button
-                      onClick={() => { setActiveTab("learn"); setSearchTerm(""); }}
-                      className={cn(
-                        "relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
-                        activeTab === "learn"
-                          ? "text-gray-900 dark:text-white"
-                          : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                      )}
+                        onClick={() => setActiveTab("learn")}
+                        className={cn(
+                            "flex-1 relative z-10 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2",
+                            activeTab === "learn" ? "text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        )}
                     >
-                      <BookOpen className="w-4 h-4" />
-                      Learn
+                        <BookOpen className="w-4 h-4" />
+                        Learn
+                        {activeTab === "learn" && (
+                            <motion.div 
+                                layoutId="activeTabSwitcher"
+                                className="absolute inset-0 bg-orange-500 rounded-xl -z-10 shadow-lg shadow-orange-500/20"
+                            />
+                        )}
                     </button>
-                  </div>
-                )}
-
-                {/* Search Bar section */}
-                <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+                </div>
               </div>
 
-              {/* Content area with improved scrolling */}
-              <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-[#262626] scrollbar-track-transparent">
+              {/* Navigation & Search Container */}
+              <div className="px-6 py-4 space-y-4">
+                {/* Search and Filters row */}
+                <div className="flex flex-wrap gap-2 items-center">
+                    <div className="flex-1 min-w-[120px]">
+                        <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+                    </div>
+                    
+                    <div className="relative group">
+                        <select 
+                            value={difficulty || ""} 
+                            onChange={(e) => setDifficulty(e.target.value || undefined)}
+                            className="appearance-none flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-orange-500/30 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all focus:outline-none cursor-pointer pr-8"
+                        >
+                            <option value="" className="bg-white dark:bg-[#0d0d0d]">Difficulty</option>
+                            <option value="EASY" className="bg-white dark:bg-[#0d0d0d]">Easy</option>
+                            <option value="MEDIUM" className="bg-white dark:bg-[#0d0d0d]">Medium</option>
+                            <option value="HARD" className="bg-white dark:bg-[#0d0d0d]">Hard</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none group-hover:text-orange-500 transition-colors" />
+                    </div>
+
+                    <div className="relative group">
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="appearance-none flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-orange-500/30 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all focus:outline-none cursor-pointer pr-8"
+                        >
+                            <option value="newest" className="bg-white dark:bg-[#0d0d0d]">Newest</option>
+                            <option value="oldest" className="bg-white dark:bg-[#0d0d0d]">Oldest</option>
+                            <option value="title" className="bg-white dark:bg-[#0d0d0d]">Title</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none group-hover:text-orange-500 transition-colors" />
+                    </div>
+
+                    <button 
+                        onClick={() => {
+                            const res = getRandomProblem(domain, "PRACTICE");
+                            res.then(p => {
+                                if (p && (p as any).slug) window.location.href = `/problems/${(p as any).slug}${courseId ? `?courseId=${courseId}` : ""}`;
+                            });
+                        }}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-orange-500 hover:text-white hover:border-orange-500 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all active:scale-95 shadow-sm hover:shadow-orange-500/20"
+                    >
+                         Random
+                    </button>
+                </div>
+
+                {courseName && (
+                  <div className="px-4 py-3 rounded-2xl bg-orange-500/5 dark:bg-orange-500/10 border border-orange-500/10 dark:border-orange-500/20 shadow-sm">
+                    <p className="text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-0.5">Assigned Course</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{courseName}</p>
+                  </div>
+                )}
+              </div>
+
+                {/* Content area */}
+              <div className="flex-1 overflow-y-auto px-6 py-2 scrollbar-hide">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={searchTerm ? "search" : activeTab}

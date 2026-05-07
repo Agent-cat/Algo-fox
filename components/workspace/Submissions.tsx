@@ -43,7 +43,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
     const [hasMore, setHasMore] = useState(false);
     const PAGE_SIZE = 15;
 
-    const loadSubmissions = async (cursor?: string) => {
+    const loadSubmissions = async (cursor?: string, isMounted: boolean = true) => {
         if (!problemId) return;
         if (cursor) setLoadingMore(true);
         else setLoading(true);
@@ -51,6 +51,8 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
         try {
             const { getProblemSubmissionsAction } = await import("@/actions/submission.action");
             const data = await getProblemSubmissionsAction(problemId, PAGE_SIZE, cursor);
+
+            if (!isMounted) return;
 
             if (cursor) {
                 setSubmissions(prev => [...prev, ...data]);
@@ -60,18 +62,24 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
             setHasMore(data.length === PAGE_SIZE);
         } catch (error) {
-             console.error("Failed to load submissions", error);
+             if (isMounted) console.error("Failed to load submissions", error);
         } finally {
-            setLoading(false);
-            setLoadingMore(false);
+            if (isMounted) {
+                setLoading(false);
+                setLoadingMore(false);
+            }
         }
     };
 
     useEffect(() => {
-        loadSubmissions();
-        const handleUpdate = () => loadSubmissions();
+        let isMounted = true;
+        loadSubmissions(undefined, isMounted);
+        const handleUpdate = () => loadSubmissions(undefined, isMounted);
         window.addEventListener("pointsUpdated", handleUpdate);
-        return () => window.removeEventListener("pointsUpdated", handleUpdate);
+        return () => {
+            isMounted = false;
+            window.removeEventListener("pointsUpdated", handleUpdate);
+        };
     }, [problemId]);
 
     if (!session?.user) {

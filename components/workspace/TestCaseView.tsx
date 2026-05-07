@@ -104,10 +104,10 @@ export const TestCaseView = React.memo(({
                                 value={testCase.input}
                                 onChange={(e) => onUpdateCustomCase?.(customIdx, { input: e.target.value })}
                                 placeholder="Enter custom input..."
-                                className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
+                                className="w-full bg-transparent border border-dashed border-gray-300 dark:border-white/10 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
                             />
                         ) : (
-                            <div className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto">
+                            <div className="w-full bg-transparent border border-dashed border-gray-300 dark:border-white/10 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto">
                                 {testCase.input}
                             </div>
                         )}
@@ -124,12 +124,12 @@ export const TestCaseView = React.memo(({
                                 Your Output
                             </div>
                             <div className={`
-                                w-full border rounded-lg p-4 font-mono text-sm whitespace-pre-wrap min-h-[80px] overflow-x-auto transition-all
+                                w-full border border-dashed rounded-lg p-4 font-mono text-sm whitespace-pre-wrap min-h-[80px] overflow-x-auto transition-all
                                 ${result?.status === 'ACCEPTED'
                                     ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-900 dark:text-emerald-300'
                                     : result?.status === 'WRONG_ANSWER'
                                         ? 'bg-red-500/5 border-red-500/20 text-red-900 dark:text-red-300'
-                                        : 'bg-transparent border-gray-200 dark:border-[#262626] text-gray-800 dark:text-gray-200'
+                                        : 'bg-transparent border-gray-300 dark:border-white/10 text-gray-800 dark:text-gray-200'
                                 }
                             `}>
                                 {((result as any)?.stdout?.toString() || "") || (result?.status === 'PENDING' ? '...' : (result ? 'No output' : 'Awaiting execution'))}
@@ -146,10 +146,10 @@ export const TestCaseView = React.memo(({
                                     value={testCase.output}
                                     onChange={(e) => onUpdateCustomCase?.(customIdx, { output: e.target.value })}
                                     placeholder="Expected output..."
-                                    className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
+                                    className="w-full bg-transparent border border-dashed border-gray-300 dark:border-white/10 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-500/50 transition-colors min-h-[80px] resize-none"
                                 />
                             ) : (
-                                <div className="w-full bg-transparent border border-gray-200 dark:border-[#262626] rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto min-h-[80px]">
+                                <div className="w-full bg-transparent border border-dashed border-gray-300 dark:border-white/10 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto min-h-[80px]">
                                     {testCase.output}
                                 </div>
                             )}
