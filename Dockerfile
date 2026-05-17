@@ -21,7 +21,7 @@ RUN apk add --no-cache openssl
 WORKDIR /app
 
 # Accept DATABASE_URL for build-time static generation, with a dummy fallback
-ARG DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+ARG DATABASE_URL=""
 ENV DATABASE_URL=${DATABASE_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
