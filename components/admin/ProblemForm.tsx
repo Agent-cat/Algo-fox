@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
     Plus, Trash2, Eye, EyeOff, Code2, Check, List,
-    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon
+    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon, BadgeCheck
 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getCategories } from "@/actions/category.action";
 import { LANGUAGES } from "@/lib/languages";
+import remarkDirective from 'remark-directive';
+import { remarkSolutionDirective } from '@/lib/markdown-plugins';
+import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
+import SolutionTabs from "@/components/markdown/SolutionTabs";
+import { preprocessMarkdown } from '@/lib/markdown-utils';
+
 
 // FUNCTION TEMPLATE SCHEMA
 const functionTemplateSchema = z.object({
@@ -75,14 +81,18 @@ function MarkdownPreview({ content, placeholder }: { content: string; placeholde
     }
     return (
         <div className="w-full min-h-[460px] px-6 py-6 overflow-auto prose prose-base dark:prose-invert max-w-none bg-[#f8f9fa] dark:bg-[#111] text-[#39424e] dark:text-gray-300 font-mono text-[15px]
-            prose-pre:bg-[#1e1e2e] prose-pre:text-gray-100 prose-pre:rounded-[3px] prose-pre:border prose-pre:border-gray-700/40
+            prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0
             prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a2e] prose-code:rounded-[3px] prose-code:px-1.5 prose-code:text-[0.85em]
             prose-headings:text-[#39424e] dark:prose-headings:text-white prose-headings:font-bold prose-headings:font-mono
             prose-a:text-[#26bd58] prose-strong:text-[#39424e] dark:prose-strong:text-white
             prose-blockquote:border-[#26bd58] prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
             <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkDirective, remarkSolutionDirective]}
                 components={{
+                    // @ts-ignore
+                    'solution-group': SolutionCodeGroup,
+                    // @ts-ignore
+                    'solution-tabs': SolutionTabs,
                     table: ({ children }) => (
                         <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
                     ),
@@ -98,9 +108,14 @@ function MarkdownPreview({ content, placeholder }: { content: string; placeholde
                     tr: ({ children }) => (
                         <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
                     ),
+                    pre: ({ children }) => (
+                        <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                            {children}
+                        </pre>
+                    ),
                 }}
             >
-                {content}
+                {preprocessMarkdown(content)}
             </ReactMarkdown>
         </div>
     );
@@ -151,6 +166,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             case "h2": before = "## "; after = ""; placeholder = "Heading"; break;
             case "h3": before = "### "; after = ""; placeholder = "Subheading"; break;
             case "link": before = "["; after = "](url)"; placeholder = "link text"; break;
+            case "solution-template": 
+                before = ':::solution{title="Optimal Solution"}\n\n```cpp\n// C++ Solution\n```\n\n```python\n# Python Solution\n```\n\n```java\n// Java Solution\n```\n\n:::';
+                after = ""; placeholder = ""; break;
         }
 
         const textToInsert = selectedText || placeholder;
@@ -798,6 +816,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             <button type="button" onClick={() => insertMarkdown("solution", "code")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Code Block">
                                                 <Code2 className="w-3.5 h-3.5" />
                                             </button>
+                                            <button type="button" onClick={() => insertMarkdown("solution", "solution-template")} className="px-2 h-8 flex items-center justify-center text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 font-bold hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-[2px] transition-colors gap-1.5" title="Insert Solution Template">
+                                                <BadgeCheck className="w-3.5 h-3.5" />
+                                                <span className="text-[10px] uppercase">Template</span>
+                                            </button>
                                         </div>
                                         <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button
@@ -832,7 +854,28 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                                 <div className="grid grid-cols-1">
                                     {!solutionPreview ? (
-                                        <div className="border-r border-gray-200 dark:border-[#333]">
+                                        <div className="border-r border-gray-200 dark:border-[#333] relative">
+                                            {(!solutionValue || solutionValue.trim() === "") && (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#111]/50 backdrop-blur-[2px] z-10">
+                                                    <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-xl border border-dashed border-gray-300 dark:border-[#444] shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
+                                                        <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center">
+                                                            <BadgeCheck className="w-10 h-10 text-orange-500" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Solution Editorial</h3>
+                                                            <p className="text-sm text-gray-500 max-w-[300px] mt-1">Start by using our pre-defined multi-language solution group template.</p>
+                                                        </div>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => insertMarkdown("solution", "solution-template")}
+                                                            className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                            Initialize Solution Template
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <textarea
                                                 {...solutionRegister}
                                                 ref={(e) => {

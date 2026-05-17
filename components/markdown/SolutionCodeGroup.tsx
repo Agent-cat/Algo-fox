@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ReactElement, ReactNode } from "react";
-import { Copy, Check, Maximize2, X, Download } from "lucide-react";
+import { Copy, Check, Maximize2, X, Download, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import hljs from "highlight.js";
 import "highlight.js/styles/github-dark.css"; // Ensure a dark theme is available, or use a specific one
@@ -28,45 +28,57 @@ interface CodeSnippet {
 interface SolutionCodeGroupProps {
   title?: string;
   children: ReactNode;
+  onApproachChange?: (index: number) => void;
+  approaches?: string[];
+  activeApproachIndex?: number;
 }
 
 const STORAGE_KEY = "algofox_solution_lang_pref";
 
-export default function SolutionCodeGroup({ title = "Solution", children }: SolutionCodeGroupProps) {
+export default function SolutionCodeGroup({ 
+  title = "Solution", 
+  children, 
+  onApproachChange, 
+  approaches = [], 
+  activeApproachIndex = 0 
+}: SolutionCodeGroupProps) {
   const [snippets, setSnippets] = useState<CodeSnippet[]>([]);
   const [activeLang, setActiveLang] = useState<string>("");
   const [isCopied, setIsCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isApproachMenuOpen, setIsApproachMenuOpen] = useState(false);
 
   // Parse children to extract code blocks and languages
   useEffect(() => {
     const validSnippets: CodeSnippet[] = [];
+    const findSnippets = (child: ReactNode) => {
+      if (!React.isValidElement(child)) return;
+      
+      const childEl = child as any;
+      const props = childEl.props || {};
+      const className = props.className || "";
+      
+      // If this element itself is a code block
+      if (typeof className === 'string' && className.includes("language-")) {
+        const match = /language-(\w+)/.exec(className);
+        const language = match ? match[1] : "text";
+        const code = extractText(props.children);
 
-    // React.Children.toArray transforms children to an array for safe iteration
-    React.Children.forEach(children, (child) => {
-      // We expect 'pre' tags containing 'code' tags from markdown
-      if (React.isValidElement(child)) {
-        // Direct code block in pre usually looks like <pre><code className="language-xyz">...</code></pre>
-        const childEl = child as any;
-        if (childEl.type === 'pre' && childEl.props.children) {
-          const codeElement = childEl.props.children as ReactElement;
-          if (React.isValidElement(codeElement) && (codeElement as any).type === 'code') {
-            const codeProps = (codeElement as any).props;
-            const className = codeProps.className || "";
-            // Extract language from className "language-xyz"
-            const match = /language-(\w+)/.exec(className);
-            const language = match ? match[1] : "text";
-            const code = extractText(codeProps.children);
-
-            validSnippets.push({
-              language,
-              code,
-              element: child // Keep original element for rendering if needed, or we reproduce it
-            });
-          }
-        }
+        validSnippets.push({
+          language,
+          code,
+          element: child
+        });
+        return; // Found a code block, no need to look deeper in this branch
       }
-    });
+
+      // If it's a pre or other wrapper, look at its children
+      if (props.children) {
+        React.Children.forEach(props.children, findSnippets);
+      }
+    };
+
+    React.Children.forEach(children, findSnippets);
 
     setSnippets(validSnippets);
 
@@ -155,26 +167,85 @@ export default function SolutionCodeGroup({ title = "Solution", children }: Solu
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between bg-[#252526] px-2 border-b border-gray-800">
            <div className="flex items-center overflow-hidden">
-              <span className="text-gray-400 font-bold text-xs uppercase tracking-wider px-4 py-3 hidden md:block border-r border-gray-800 mr-2">{title}</span>
+              {/* Approach Switcher Dropdown */}
+              <div className="relative border-r border-gray-800 mr-2">
+                 <button
+                   onClick={() => approaches.length > 1 && setIsApproachMenuOpen(!isApproachMenuOpen)}
+                   className={`
+                     flex items-center gap-2 px-4 py-3 text-[10px] md:text-xs font-black uppercase tracking-wider transition-all duration-200
+                     ${approaches.length > 1 
+                       ? "hover:bg-[#2a2a2b] text-orange-500 cursor-pointer active:scale-95" 
+                       : "text-gray-400 cursor-default"}
+                   `}
+                 >
+                   <span className="truncate max-w-[100px] md:max-w-[200px]">
+                    {title}
+                   </span>
+                   {approaches.length > 1 && (
+                     <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isApproachMenuOpen ? "rotate-180" : ""}`} />
+                   )}
+                 </button>
+
+                 <AnimatePresence>
+                   {isApproachMenuOpen && (
+                     <>
+                       <div className="fixed inset-0 z-40" onClick={() => setIsApproachMenuOpen(false)} />
+                       <motion.div
+                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                         animate={{ opacity: 1, y: 0, scale: 1 }}
+                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                         transition={{ duration: 0.15, ease: "easeOut" }}
+                         className="absolute left-0 top-full mt-2 w-64 bg-[#252526] border border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl bg-opacity-95"
+                       >
+                         <div className="p-2 border-b border-gray-800 bg-gray-900/20">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 px-2">Select Approach</span>
+                         </div>
+                         <div className="py-1">
+                            {approaches.map((approach, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  onApproachChange?.(index);
+                                  setIsApproachMenuOpen(false);
+                                }}
+                                className={`
+                                  w-full text-left px-4 py-3 text-[11px] font-bold uppercase tracking-wider transition-colors flex items-center justify-between
+                                  ${activeApproachIndex === index 
+                                    ? "text-orange-500 bg-orange-500/5" 
+                                    : "text-gray-400 hover:text-white hover:bg-[#2a2a2b]"}
+                                `}
+                              >
+                                {approach}
+                                {activeApproachIndex === index && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+                                )}
+                              </button>
+                            ))}
+                         </div>
+                       </motion.div>
+                     </>
+                   )}
+                 </AnimatePresence>
+              </div>
 
               {/* Tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-gradient-right">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar mask-gradient-right px-2">
                 {snippets.map((snippet) => (
                    <button
                      key={snippet.language}
                      onClick={() => handleLangChange(snippet.language)}
                      className={`
-                       relative px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap outline-none
+                       relative px-4 py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap outline-none
                        ${activeLang === snippet.language
                          ? 'text-orange-500 bg-[#1e1e1e]'
                          : 'text-gray-500 hover:text-gray-300 hover:bg-[#2a2a2b]'}
                      `}
                    >
-                     {getLangName(snippet.language)}
+                     <span className="relative z-10">{getLangName(snippet.language)}</span>
                      {activeLang === snippet.language && (
                        <motion.div
                          layoutId={`underline-${title}`}
-                         className="absolute top-0 left-0 right-0 h-0.5 bg-orange-500"
+                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"
                        />
                      )}
                    </button>
@@ -207,7 +278,7 @@ export default function SolutionCodeGroup({ title = "Solution", children }: Solu
           relative bg-[#1e1e1e] overflow-auto custom-scrollbar group
           ${isFullscreen ? 'flex-1 p-8' : 'p-6 max-h-[600px]'}
         `}>
-          <pre className="!bg-transparent !p-0 !m-0 !border-0 font-mono text-[13px] md:text-sm leading-7 text-gray-300 font-medium">
+          <pre className="bg-transparent! p-0! m-0! border-0! font-mono text-[13px] md:text-sm leading-7 text-gray-300 font-medium">
              <HighlightedCode code={activeSnippet.code} language={activeSnippet.language} />
           </pre>
         </div>

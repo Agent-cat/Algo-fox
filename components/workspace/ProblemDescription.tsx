@@ -12,6 +12,8 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import Submissions from './Submissions';
 import McqWidget from "@/components/markdown/McqWidget";
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
+import SolutionTabs from "@/components/markdown/SolutionTabs";
+
 import remarkDirective from 'remark-directive';
 import { remarkMcqDirective, remarkSolutionDirective } from '@/lib/markdown-plugins';
 import { preprocessMarkdown } from '@/lib/markdown-utils';
@@ -237,6 +239,8 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                         components={{
                                                             // @ts-ignore
                                                             'solution-group': SolutionCodeGroup,
+                                                            // @ts-ignore
+                                                            'solution-tabs': SolutionTabs,
                                                             pre: ({ children }) => (
                                                                 <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
                                                                     {children}
@@ -254,7 +258,8 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                                     </code>
                                                                 );
                                                             },
-                                                            hr: () => <hr className="my-4 border-dashed border-gray-300 dark:border-white/10" />,
+                                                            hr: () => <hr className="
+                                                            my-4 border-dashed border-gray-300 dark:border-white/10" />,
                                                         }}
                                                     >
                                                         {preprocessMarkdown(problem.solution)}

@@ -352,13 +352,35 @@ export class ProblemService {
     }
 
     // GETTING A PROBLEM BY SLUG CACHED
-    static async getProblem(slug: string, isAdmin: boolean = false) {
+    static async getProblem(slug: string, isAdmin: boolean = false, contestId?: string) {
         const problem = await this.getCachedProblem(slug);
         if (!problem) return null;
 
         // Security Check: Visibility
         if (problem.hidden && !isAdmin) {
-            return null;
+            if (contestId) {
+                // Check if problem is part of the contest (either directly or via a section)
+                // Handles both contest ID and Slug
+                const isInContest = await prisma.contestProblem.findFirst({
+                    where: {
+                        problemId: problem.id,
+                        contest: { OR: [{ id: contestId }, { slug: contestId }] }
+                    }
+                }) || await prisma.contestSectionProblem.findFirst({
+                    where: {
+                        problemId: problem.id,
+                        section: {
+                            contest: { OR: [{ id: contestId }, { slug: contestId }] }
+                        }
+                    }
+                });
+                
+                if (!isInContest) {
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
 
         // Security Check: Information Disclosure
@@ -371,7 +393,7 @@ export class ProblemService {
     }
 
     // GETTING A PROBLEM BY ID
-    static async getProblemById(id: string, isAdmin: boolean = false) {
+    static async getProblemById(id: string, isAdmin: boolean = false, contestId?: string) {
         try {
             const problem = await prisma.problem.findUnique({
                 where: { id },
@@ -395,7 +417,29 @@ export class ProblemService {
 
             // Security Check: Visibility
             if (problem.hidden && !isAdmin) {
-                return { success: false, error: "Unauthorized" };
+                if (contestId) {
+                    // Check if problem is part of the contest (either directly or via a section)
+                    // Handles both contest ID and Slug
+                    const isInContest = await prisma.contestProblem.findFirst({
+                        where: {
+                            problemId: problem.id,
+                            contest: { OR: [{ id: contestId }, { slug: contestId }] }
+                        }
+                    }) || await prisma.contestSectionProblem.findFirst({
+                        where: {
+                            problemId: problem.id,
+                            section: {
+                                contest: { OR: [{ id: contestId }, { slug: contestId }] }
+                            }
+                        }
+                    });
+                    
+                    if (!isInContest) {
+                        return { success: false, error: "Unauthorized" };
+                    }
+                } else {
+                    return { success: false, error: "Unauthorized" };
+                }
             }
 
             // Security Check: Information Disclosure

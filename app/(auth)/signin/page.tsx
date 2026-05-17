@@ -74,16 +74,7 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Layer */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: "url('/bg.png')",
-          opacity: 0.3
-        }}
-      />
-
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-white dark:bg-[#121212]">
       {/* Back Button */}
       <div className="absolute top-8 left-8 z-20">
         <Link href="/" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors font-medium">
@@ -93,10 +84,7 @@ function SignInContent() {
       </div>
       
       <div 
-        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl shadow-2xl z-10 relative overflow-hidden"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")`
-        }}
+        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#121212] shadow-2xl z-10 relative overflow-hidden"
       >
         <div className="space-y-8">
           <div className="text-center">

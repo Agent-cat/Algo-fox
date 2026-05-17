@@ -18,7 +18,7 @@ export function preprocessMarkdown(content: string): string {
   // It effectively collapses "::: solution" to ":::solution"
   // And it wraps attributes in {} if they aren't already
 
-  const processed = content.replace(/^:::\s*([a-zA-Z0-9_-]+)(.*)$/gm, (match, name, args) => {
+  const processed = content.replace(/^\s*:::\s*([a-zA-Z0-9_-]+)(.*)$/gm, (match, name, args) => {
     const trimmedArgs = args.trim();
 
     // If no args, just return the directive

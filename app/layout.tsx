@@ -98,7 +98,7 @@ export default function RootLayout({
             </div>
           }>
             <StreakProvider>
-              <NetworkStatus />
+              {/* <NetworkStatus /> */}
               <DevToolsBlocker />
               <Toaster
                 position="top-right"

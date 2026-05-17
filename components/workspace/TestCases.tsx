@@ -100,7 +100,21 @@ const TestCases = memo(({
     // Get error details for console
     const errorDetails = useMemo(() => {
         const errorCase = results?.find(r => r.status === "COMPILE_ERROR" || r.status === "RUNTIME_ERROR");
-        if (!errorCase) return null;
+        
+        if (!errorCase) {
+            if (status === "COMPILE_ERROR" || status === "RUNTIME_ERROR") {
+                return {
+                    type: status === "COMPILE_ERROR" ? "Compilation Error" : "Runtime Error",
+                    message: "Execution failed. The server might be unreachable or the code caused a fatal system error.",
+                    status: status,
+                    testCaseIndex: -1,
+                    time: 0,
+                    memory: 0,
+                    line: null
+                };
+            }
+            return null;
+        }
 
         const message = errorCase.errorMessage || "";
 

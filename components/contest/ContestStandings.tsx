@@ -282,18 +282,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                                 <td key={p.id} className="px-4 py-4 border-r border-gray-100 dark:border-gray-800/50 last:border-r-0" title={p.title}>
                                                     <div className="flex flex-col items-center gap-1">
                                                         {stat && stat.submissions > 0 ? (
-                                            <div className="flex flex-col items-center gap-1.5 w-full">
-                                                {/* Progress Bar for partial completion */}
-                                                <div className="w-full bg-gray-100 dark:bg-white/5 h-1.5 rounded-full overflow-hidden border border-gray-200 dark:border-white/5">
-                                                    <div
-                                                        className={`h-full transition-all duration-300 ${
-                                                            stat.solved ? "bg-emerald-500" :
-                                                            stat.passedPercentage > 0 ? "bg-orange-500" : "bg-red-500"
-                                                        }`}
-                                                        style={{ width: `${stat.passedPercentage}%` }}
-                                                    />
-                                                </div>
-
+                                            <div className="flex flex-col items-center gap-1 w-full">
                                                 <div className="flex items-center justify-between w-full px-1">
                                                     {/* Score or Percentage */}
                                                     <span className={`text-[10px] font-black ${

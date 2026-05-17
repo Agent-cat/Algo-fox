@@ -11,33 +11,106 @@ interface ContentNode extends Node {
     hProperties?: Record<string, any>;
   };
   type: string;
+  value?: string;
 }
 
 
 export function remarkSolutionDirective() {
   return (tree: ContentNode) => {
-    visit(tree, (node) => {
-      if (
-        node.type === 'containerDirective' ||
-        node.type === 'leafDirective' ||
-        node.type === 'textDirective'
-      ) {
-        if (node.name === 'solution') {
-          // Verify we have attributes
-          const data = node.data || (node.data = {});
-          const attributes = node.attributes || {};
-          const title = attributes.title || "Solution";
+    const traverse = (node: ContentNode) => {
+      if (!node.children) return;
 
-          // Transform this node into a custom 'solution-group' element for React Markdown to pick up
-          // react-markdown will see this as a customized element
-          data.hName = 'solution-group';
-          data.hProperties = {
-            title,
-            ...attributes,
-          };
+      // First, recurse into all children to process nested directives
+      node.children.forEach(child => traverse(child));
+
+      const newChildren: ContentNode[] = [];
+      let i = 0;
+
+      while (i < node.children.length) {
+        const child = node.children[i];
+
+        if (child.type === 'containerDirective' && child.name === 'solution') {
+          // Found a solution, now see how many follow it
+          const group: ContentNode[] = [child];
+          let j = i + 1;
+
+          while (j < node.children.length) {
+            const current = node.children[j];
+            if (current.type === 'containerDirective' && current.name === 'solution') {
+              group.push(current);
+              j++;
+            } else if (current.type === 'thematicBreak') {
+              // Check if another solution follows
+              let foundNext = false;
+              for (let k = j + 1; k < node.children.length; k++) {
+                const next = node.children[k];
+                if (next.type === 'containerDirective' && next.name === 'solution') {
+                  foundNext = true;
+                  break;
+                } else if (next.type === 'text' && (!next.value || !next.value.trim())) {
+                  continue;
+                } else {
+                  break;
+                }
+              }
+              if (foundNext) {
+                j++; // Skip HR
+              } else {
+                break;
+              }
+            } else if (current.type === 'text' && (!current.value || /^\s*$/.test(current.value))) {
+              j++; // Skip whitespace nodes including multiple newlines
+            } else {
+              break;
+            }
+          }
+
+          if (group.length > 1) {
+            // Transform each solution in the group
+            group.forEach(n => {
+                const data = n.data || (n.data = {});
+                const attributes = n.attributes || {};
+                data.hName = 'solution-group';
+                data.hProperties = {
+                    title: attributes.title || "Solution",
+                    ...attributes,
+                };
+            });
+
+            const tabsNode: ContentNode = {
+              type: 'containerDirective',
+              name: 'solution-tabs',
+              children: group,
+              data: {
+                hName: 'solution-tabs',
+                hProperties: {
+                  titles: JSON.stringify(group.map(g => g.data?.hProperties?.title || "Solution"))
+                }
+              }
+            };
+            newChildren.push(tabsNode);
+            i = j;
+          } else {
+            // Single solution
+            const data = child.data || (child.data = {});
+            const attributes = child.attributes || {};
+            data.hName = 'solution-group';
+            data.hProperties = {
+                title: attributes.title || "Solution",
+                ...attributes,
+            };
+            newChildren.push(child);
+            i++;
+          }
+        } else {
+          newChildren.push(child);
+          i++;
         }
       }
-    });
+      node.children = newChildren;
+    };
+
+    traverse(tree);
   };
 }
 

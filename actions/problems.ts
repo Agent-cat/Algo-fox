@@ -84,17 +84,17 @@ export async function searchProblems(
 
 // GETTING A PROBLEM BY SLUG CACHED
 
-async function getProblemCached(slug: string, isAdmin: boolean) {
+async function getProblemCached(slug: string, isAdmin: boolean, contestId?: string) {
     "use cache";
     cacheLife(getCacheLifeConfig("problemDetail"));
     cacheTag(`problem-${slug}`, ...getCacheTags("problemDetail"), 'problems-list');
 
-    return ProblemService.getProblem(slug, isAdmin);
+    return ProblemService.getProblem(slug, isAdmin, contestId);
 }
 
-export async function getProblem(slug: string, isAdmin?: boolean) {
+export async function getProblem(slug: string, isAdmin?: boolean, contestId?: string) {
     if (isAdmin !== undefined) {
-        return getProblemCached(slug, isAdmin);
+        return getProblemCached(slug, isAdmin, contestId);
     }
 
     // CHECKING IF USER IS ADMIN
@@ -103,7 +103,7 @@ export async function getProblem(slug: string, isAdmin?: boolean) {
     });
     const finalIsAdmin = session?.user?.role === "ADMIN";
 
-    return getProblemCached(slug, finalIsAdmin);
+    return getProblemCached(slug, finalIsAdmin, contestId);
 }
 
 
@@ -152,17 +152,17 @@ export async function createProblem(data: {
 
 
 // GETTING A PROBLEM BY ID
-async function getProblemByIdCached(id: string, isAdmin: boolean) {
+async function getProblemByIdCached(id: string, isAdmin: boolean, contestId?: string) {
     "use cache";
     cacheLife(getCacheLifeConfig("problemDetail"));
     cacheTag(`problem-id-${id}`, ...getCacheTags("problemDetail"), 'problems-list');
 
-    return ProblemService.getProblemById(id, isAdmin);
+    return ProblemService.getProblemById(id, isAdmin, contestId);
 }
 
-export async function getProblemById(id: string, isAdmin?: boolean) {
+export async function getProblemById(id: string, isAdmin?: boolean, contestId?: string) {
     if (isAdmin !== undefined) {
-        return getProblemByIdCached(id, isAdmin);
+        return getProblemByIdCached(id, isAdmin, contestId);
     }
 
     // CHECKING IF USER IS ADMIN
@@ -171,7 +171,7 @@ export async function getProblemById(id: string, isAdmin?: boolean) {
     });
     const finalIsAdmin = session?.user?.role === "ADMIN";
 
-    return getProblemByIdCached(id, finalIsAdmin);
+    return getProblemByIdCached(id, finalIsAdmin, contestId);
 }
 
 // NAVIGATION ACTIONS
