@@ -128,7 +128,6 @@ export class UserService {
                     leetCodeHandle: data.leetCodeHandle || null,
                     codeChefHandle: data.codeChefHandle || null,
                     codeforcesHandle: data.codeforcesHandle || data.hackerrankHandle || null,
-                    githubHandle: data.githubHandle || null,
                     onboardingCompleted: true
                 }
             });

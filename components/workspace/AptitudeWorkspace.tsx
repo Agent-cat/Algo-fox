@@ -138,17 +138,17 @@ export default function AptitudeWorkspace({
                 points={pointsGained}
             />
 
-            <div className="flex-1 overflow-hidden min-w-0">
+            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#0a0a0a]">
                 <Split
-                    className="split flex h-full"
+                    className="split flex h-full w-full"
                     sizes={mainSizes}
                     minSize={300}
-                    gutterSize={4}
+                    gutterSize={8}
                     snapOffset={30}
                     onDragEnd={setMainSizes}
                 >
                     {/* LEFT SIDE: DESCRIPTION */}
-                    <div id="problem-description" className="h-full overflow-hidden">
+                    <div id="problem-description" className="h-full overflow-hidden border-l border-dashed border-gray-400 dark:border-white/10">
                         <ProblemDescription
                             problem={problem}
                             activeTab={activeTab}
@@ -161,7 +161,7 @@ export default function AptitudeWorkspace({
                     </div>
 
                     {/* RIGHT SIDE: MCQ INTERFACE */}
-                    <div className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212]">
+                    <div className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-r border-dashed border-gray-400 dark:border-white/10">
                         <AptitudeMCQPanel
                             problem={problem}
                             isSolved={isSolved}

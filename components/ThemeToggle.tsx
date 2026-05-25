@@ -4,6 +4,8 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
+import { flushSync } from "react-dom";
+
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [loading, setloading] = useState(true);
@@ -17,8 +19,47 @@ export function ThemeToggle() {
     );
   }
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+  const toggleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const doc = document as any;
+    if (!doc.startViewTransition) {
+      setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      return;
+    }
+
+    const x = event.clientX;
+    const y = event.clientY;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    document.documentElement.classList.add("no-transitions");
+
+    const transition = doc.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      });
+    });
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 650,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
+
+    transition.finished.then(() => {
+      document.documentElement.classList.remove("no-transitions");
+    });
   };
 
   return (

@@ -211,7 +211,15 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
 
     const { getValues, setValue, watch, reset } = form;
 
-    const isGithubConnected = !!user.githubHandle || !!watch("githubHandle");
+    const [githubHandle, setGithubHandle] = useState<string | null>(user.githubHandle || null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        setGithubHandle(user.githubHandle || null);
+    }, [user.githubHandle]);
+
+    const isGithubConnected = !!githubHandle;
 
     const onSubmit = async (platform: keyof FormData) => {
         setIsLoading(platform);
@@ -222,7 +230,6 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                 leetCodeHandle: data.leetCodeHandle,
                 codeChefHandle: data.codeChefHandle,
                 codeforcesHandle: data.codeforcesHandle,
-                githubHandle: data.githubHandle,
             };
 
             const res = await updateUserInfo(updatePayload);
@@ -274,21 +281,72 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                         <Github className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                         <span className="font-medium text-gray-900 dark:text-gray-100">Github</span>
                     </div>
-                    {isGithubConnected ? (
-                         <button className="px-4 py-2 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] text-sm font-medium rounded-lg">
-                            Connected as {user.githubHandle || watch("githubHandle")}
-                         </button>
+                    {!mounted ? (
+                        <div className="h-10 w-24 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+                    ) : isGithubConnected ? (
+                         <div className="flex items-center gap-2">
+                             <span className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg">
+                                Connected as {githubHandle}
+                             </span>
+                             <button
+                                 onClick={async () => {
+                                     setIsLoading("github");
+                                     try {
+                                         const { authClient } = await import("@/lib/auth-client");
+                                         // Attempt to unlink the account via Better Auth (ignores 400 error if already unlinked)
+                                         await authClient.unlinkAccount({
+                                             providerId: "github"
+                                         });
+
+                                         const updateRes = await updateUserInfo({ githubHandle: "" });
+                                         if (updateRes.success) {
+                                             setGithubHandle(null);
+                                             setValue("githubHandle", "");
+                                             toast.success("GitHub account disconnected");
+                                             router.refresh();
+                                         } else {
+                                             toast.error(updateRes.error || "Failed to update profile");
+                                         }
+                                     } catch (err) {
+                                         toast.error("Failed to disconnect GitHub");
+                                     } finally {
+                                         setIsLoading(null);
+                                     }
+                                 }}
+                                 disabled={isLoading === "github"}
+                                 className="flex items-center justify-center w-10 h-10 border border-gray-200 dark:border-[#333] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg transition-colors disabled:opacity-50"
+                                 title="Disconnect"
+                             >
+                                 {isLoading === "github" ? (
+                                     <Loader2 className="w-4 h-4 animate-spin" />
+                                 ) : (
+                                     <Trash2 className="w-4 h-4" />
+                                 )}
+                             </button>
+                         </div>
                     ) : (
                         <button
                             onClick={async () => {
-                                const { authClient } = await import("@/lib/auth-client");
-                                await authClient.signIn.social({
-                                    provider: "github",
-                                    callbackURL: window.location.href
-                                });
+                                setIsLoading("github");
+                                try {
+                                    const { authClient } = await import("@/lib/auth-client");
+                                    const res = await authClient.linkSocial({
+                                        provider: "github",
+                                        callbackURL: window.location.href
+                                    });
+                                    if (res?.error) {
+                                        toast.error(res.error.message || "Failed to connect GitHub");
+                                    }
+                                } catch (err) {
+                                    toast.error("Failed to connect GitHub");
+                                } finally {
+                                    setIsLoading(null);
+                                }
                             }}
-                            className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                            disabled={isLoading === "github"}
+                            className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
                         >
+                            {isLoading === "github" && <Loader2 className="w-4.h-4 animate-spin" />}
                             Connect
                         </button>
                     )}

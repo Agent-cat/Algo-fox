@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser } from "@/actions/platform.action";
-import { Loader2, ExternalLink, Trophy, TrendingUp, Award, Target, Zap } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { checkCodeChefUser, checkCodeforcesUser, checkLeetCodeUser, checkGitHubUser } from "@/actions/platform.action";
+import { Loader2, ExternalLink, Trophy, TrendingUp, Award, Target, Zap, GitBranch, GitPullRequest, GitFork, Users, ChevronLeft, ChevronRight } from "lucide-react";
+const Github = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+        {...props}
+        fill="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+    </svg>
+);
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { CircularProgress } from "./CircularProgress";
@@ -37,6 +46,7 @@ interface ProblemOverviewCardProps {
     leetCodeHandle?: string | null;
     codeChefHandle?: string | null;
     codeforcesHandle?: string | null;
+    githubHandle?: string | null;
     leetCodeVerified?: boolean;
     codeChefVerified?: boolean;
     codeforcesVerified?: boolean;
@@ -63,24 +73,68 @@ export function ProblemOverviewCard({
     leetCodeHandle,
     codeChefHandle,
     codeforcesHandle,
+    githubHandle,
     leetCodeVerified,
     codeChefVerified,
     codeforcesVerified,
     contestStats,
     managerViews
 }: ProblemOverviewCardProps) {
-    const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces" | "contests">("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "leetcode" | "codechef" | "codeforces" | "github" | "contests">("overview");
 
     // Client-side cache for fetched data to avoid redundant network calls
     const [cachedData, setCachedData] = useState<{
         leetcode?: any;
         codechef?: any;
         codeforces?: any;
+        github?: any;
     }>({});
 
-    const updateCache = (platform: "leetcode" | "codechef" | "codeforces", data: any) => {
+    const updateCache = (platform: "leetcode" | "codechef" | "codeforces" | "github", data: any) => {
         setCachedData(prev => ({ ...prev, [platform]: data }));
     };
+
+    const tabsRef = useRef<HTMLDivElement>(null);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(false);
+
+    const checkScroll = useCallback(() => {
+        const el = tabsRef.current;
+        if (el) {
+            setShowLeftArrow(el.scrollLeft > 2);
+            setShowRightArrow(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+        }
+    }, []);
+
+    const scrollTabs = (direction: "left" | "right") => {
+        const el = tabsRef.current;
+        if (el) {
+            const scrollAmount = 140;
+            el.scrollBy({
+                left: direction === "left" ? -scrollAmount : scrollAmount,
+                behavior: "smooth"
+            });
+        }
+    };
+
+    useEffect(() => {
+        const el = tabsRef.current;
+        if (el) {
+            checkScroll();
+            const timer = setTimeout(checkScroll, 100);
+            el.addEventListener("scroll", checkScroll);
+            window.addEventListener("resize", checkScroll);
+            return () => {
+                clearTimeout(timer);
+                el.removeEventListener("scroll", checkScroll);
+                window.removeEventListener("resize", checkScroll);
+            };
+        }
+    }, [checkScroll]);
+
+    useEffect(() => {
+        checkScroll();
+    }, [activeTab, checkScroll]);
 
     return (
         <div className="bg-white dark:bg-[#141414] rounded-3xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
@@ -94,14 +148,47 @@ export function ProblemOverviewCard({
                     </div>
                 </div>
 
-                {/* Modern Pill Tabs */}
-                <div className="flex items-center gap-4">
-                    <div className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative">
-                        <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
-                        <TabButton active={activeTab === "contests"} onClick={() => setActiveTab("contests")}>Contests</TabButton>
-                        <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")} showWarning={!leetCodeHandle || !leetCodeVerified}>LeetCode</TabButton>
-                        <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")} showWarning={!codeChefHandle || !codeChefVerified}>CodeChef</TabButton>
-                        <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")} showWarning={!codeforcesHandle || !codeforcesVerified}>CodeForces</TabButton>
+                 {/* Modern Pill Tabs */}
+                <div className="flex items-center gap-4 max-w-full overflow-hidden">
+                    <div className="relative flex items-center group max-w-full py-1">
+                        {/* Left Scroll Button & Fade Overlay */}
+                        {showLeftArrow && (
+                            <>
+                                <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white dark:from-[#141414] to-transparent pointer-events-none z-10" />
+                                <button 
+                                    onClick={() => scrollTabs("left")}
+                                    className="absolute left-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
+                                >
+                                    <ChevronLeft className="w-3.5 h-3.5" />
+                                </button>
+                            </>
+                        )}
+
+                        {/* Scroll Container */}
+                        <div 
+                            ref={tabsRef}
+                            className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap max-w-[280px] xs:max-w-[360px] sm:max-w-[440px] md:max-w-[480px] lg:max-w-[480px]"
+                        >
+                            <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
+                            <TabButton active={activeTab === "contests"} onClick={() => setActiveTab("contests")}>Contests</TabButton>
+                            <TabButton active={activeTab === "leetcode"} onClick={() => setActiveTab("leetcode")} showWarning={!leetCodeHandle || !leetCodeVerified}>LeetCode</TabButton>
+                            <TabButton active={activeTab === "codechef"} onClick={() => setActiveTab("codechef")} showWarning={!codeChefHandle || !codeChefVerified}>CodeChef</TabButton>
+                            <TabButton active={activeTab === "codeforces"} onClick={() => setActiveTab("codeforces")} showWarning={!codeforcesHandle || !codeforcesVerified}>CodeForces</TabButton>
+                            <TabButton active={activeTab === "github"} onClick={() => setActiveTab("github")} showWarning={!githubHandle}>GitHub</TabButton>
+                        </div>
+
+                        {/* Right Scroll Button & Fade Overlay */}
+                        {showRightArrow && (
+                            <>
+                                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-[#141414] to-transparent pointer-events-none z-10" />
+                                <button 
+                                    onClick={() => scrollTabs("right")}
+                                    className="absolute right-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
+                                >
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {managerViews && activeTab !== "overview" && (
@@ -110,10 +197,11 @@ export function ProblemOverviewCard({
                                 if (activeTab === "contests") managerViews.onViewContests?.();
                                 else managerViews.onViewPlatform?.(
                                     activeTab === "leetcode" ? "LeetCode" :
-                                    activeTab === "codechef" ? "CodeChef" : "CodeForces"
+                                    activeTab === "codechef" ? "CodeChef" :
+                                    activeTab === "codeforces" ? "CodeForces" : "GitHub"
                                 );
                             }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-widest transition-all border border-orange-500/20"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-widest transition-all border border-orange-500/20 shrink-0"
                         >
                             <ExternalLink className="w-3 h-3" />
                             Detailed View
@@ -191,6 +279,23 @@ export function ProblemOverviewCard({
                                 isVerified={codeforcesVerified}
                                 cachedData={cachedData.codeforces}
                                 onDataFetched={(data) => updateCache("codeforces", data)}
+                            />
+                        </motion.div>
+                    )}
+
+                    {activeTab === "github" && (
+                         <motion.div
+                            key="github"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                             className="h-full"
+                        >
+                            <GitHubView
+                                handle={githubHandle}
+                                cachedData={cachedData.github}
+                                onDataFetched={(data) => updateCache("github", data)}
                             />
                         </motion.div>
                     )}
@@ -694,11 +799,11 @@ function StatCard({ label, value, icon, trend, className }: any) {
     )
 }
 
-function EmptyState({ logoPath, message, subMessage }: any) {
+function EmptyState({ logoPath, Icon, message, subMessage }: any) {
     return (
         <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
             <div className="w-16 h-16 p-2 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-[#262626]">
-                <img src={logoPath} alt={message} className="w-full h-full object-contain" />
+                {Icon ? <Icon className="w-8 h-8 text-gray-900 dark:text-gray-100" /> : <img src={logoPath} alt={message} className="w-full h-full object-contain" />}
             </div>
             <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">{message}</h4>
@@ -709,6 +814,263 @@ function EmptyState({ logoPath, message, subMessage }: any) {
             </div>
         </div>
     )
+}
+
+function GitHubView({ handle, cachedData, onDataFetched }: { handle?: string | null, cachedData?: any, onDataFetched: (data: any) => void }) {
+    const [loading, setLoading] = useState(!cachedData);
+    const [data, setData] = useState<any>(cachedData || null);
+
+    useEffect(() => {
+        if (handle && !cachedData) {
+            setLoading(true);
+            checkGitHubUser(handle).then(res => {
+                if (res.success) {
+                    setData(res);
+                    onDataFetched(res);
+                }
+                setLoading(false);
+            });
+        }
+    }, [handle, cachedData, onDataFetched]);
+
+    if (!handle) return <EmptyState Icon={Github} message="Connect GitHub" subMessage="Link your account in settings" />;
+    if (loading) return <LoadingState />;
+    if (!data) return <ErrorState />;
+
+    const getGitHubIntensityClass = (level: number) => {
+        switch (level) {
+            case 0: return "bg-gray-100 dark:bg-[#161b22] hover:bg-gray-200 dark:hover:bg-[#30363d]";
+            case 1: return "bg-[#9be9a8] dark:bg-[#0e4429] opacity-80 hover:opacity-100";
+            case 2: return "bg-[#40c463] dark:bg-[#006d32] opacity-80 hover:opacity-100";
+            case 3: return "bg-[#30a14e] dark:bg-[#26a641] opacity-80 hover:opacity-100";
+            case 4: return "bg-[#216e39] dark:bg-[#39d353] opacity-80 hover:opacity-100";
+            default: return "bg-gray-100 dark:bg-[#161b22]";
+        }
+    };
+
+    const LANGUAGE_COLORS: Record<string, string> = {
+        TypeScript: "bg-[#3178c6]",
+        JavaScript: "bg-[#f1e05a]",
+        Python: "bg-[#3572A5]",
+        HTML: "bg-[#e34c26]",
+        CSS: "bg-[#563d7c]",
+        Rust: "bg-[#dea584]",
+        Go: "bg-[#00ADD8]",
+        Java: "bg-[#b07219]",
+        "C++": "bg-[#f34b7d]",
+        C: "bg-[#555555]",
+        Ruby: "bg-[#701516]",
+        PHP: "bg-[#4F5D95]",
+        Swift: "bg-[#f05138]",
+        Kotlin: "bg-[#A97BFF]"
+    };
+
+    const getLanguageColor = (lang: string) => {
+        return LANGUAGE_COLORS[lang] || "bg-gray-400";
+    };
+
+    const weeks: any[][] = [];
+    let currentWeek: any[] = [];
+    const contributionDays = data.contributionDays || [];
+    for (let i = 0; i < contributionDays.length; i++) {
+        currentWeek.push(contributionDays[i]);
+        if (currentWeek.length === 7) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+    }
+    if (currentWeek.length > 0) {
+        weeks.push(currentWeek);
+    }
+
+    const monthLabels: { month: string; weekIndex: number }[] = [];
+    let lastMonth = "";
+    weeks.forEach((week, wIndex) => {
+        const firstDay = week[0];
+        if (firstDay) {
+            const date = new Date(firstDay.date);
+            const month = date.toLocaleString('default', { month: 'short' });
+            if (month !== lastMonth) {
+                monthLabels.push({ month, weekIndex: wIndex });
+                lastMonth = month;
+            }
+        }
+    });
+
+    const totalRepos = Object.values(data.languages as Record<string, number>).reduce((a, b) => a + b, 0) || 1;
+    const sortedLanguages = Object.entries(data.languages as Record<string, number>)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4);
+
+    return (
+        <div className="h-full flex flex-col gap-4">
+             {/* Top Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                 <StatCard
+                    label="Public Repos"
+                    value={data.publicRepos ?? 0}
+                />
+                 <StatCard
+                    label="Pull Requests"
+                    value={data.totalPRs ?? 0}
+                />
+                <StatCard
+                    label="Total Stars"
+                    value={data.totalStars ?? 0}
+                />
+                <StatCard
+                    label="Followers"
+                    value={data.followers ?? 0}
+                />
+            </div>
+
+            {/* Bottom Section: Heatmap and Languages/Profile stacked */}
+            <div className="flex-1 flex flex-col xl:flex-row gap-4 min-h-0">
+                {/* Heatmap Area */}
+                <div className="flex-1 bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 dark:border-[#262626] overflow-hidden flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                            Contributions Heatmap
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+                            <span>Less</span>
+                            <div className="flex gap-[2px]">
+                                <div className="w-2.5 h-2.5 rounded-[1px] bg-gray-100 dark:bg-[#161b22]" />
+                                <div className="w-2.5 h-2.5 rounded-[1px] bg-[#9be9a8] dark:bg-[#0e4429]" />
+                                <div className="w-2.5 h-2.5 rounded-[1px] bg-[#40c463] dark:bg-[#006d32]" />
+                                <div className="w-2.5 h-2.5 rounded-[1px] bg-[#30a14e] dark:bg-[#26a641]" />
+                                <div className="w-2.5 h-2.5 rounded-[1px] bg-[#216e39] dark:bg-[#39d353]" />
+                            </div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                    
+                    {contributionDays.length > 0 ? (
+                        <div className="flex-1 overflow-x-auto [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-[#333] [&::-webkit-scrollbar-track]:bg-transparent pb-2 mt-1">
+                            <div className="min-w-[650px] relative">
+                                {/* Month Labels */}
+                                <div className="flex text-[9px] font-semibold text-gray-400 dark:text-gray-500 mb-1 relative h-3">
+                                    {monthLabels.map((label, i) => (
+                                        <span
+                                            key={`${label.month}-${i}`}
+                                            className="absolute top-0 pointer-events-none"
+                                            style={{
+                                                left: `${label.weekIndex * 11.5}px` // Column width + gap approximation
+                                            }}
+                                        >
+                                            {label.month}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-2">
+                                    {/* Mon, Wed, Fri labels */}
+                                    <div className="flex flex-col gap-[2px] text-[8px] text-gray-400 dark:text-gray-500 mt-[1px] select-none">
+                                        <span className="h-2 leading-[8px] invisible">Sun</span>
+                                        <span className="h-2 leading-[8px]">Mon</span>
+                                        <span className="h-2 leading-[8px] invisible">Tue</span>
+                                        <span className="h-2 leading-[8px]">Wed</span>
+                                        <span className="h-2 leading-[8px] invisible">Thu</span>
+                                        <span className="h-2 leading-[8px]">Fri</span>
+                                        <span className="h-2 leading-[8px] invisible">Sat</span>
+                                    </div>
+
+                                    {/* Heatmap Grid */}
+                                    <div className="flex gap-[2.5px]">
+                                        {weeks.map((week, wIndex) => (
+                                            <div key={wIndex} className="flex flex-col gap-[2.5px]">
+                                                {week.map((day: any, dIndex) => {
+                                                    if (!day) return null;
+                                                    const date = new Date(day.date);
+                                                    const titleDate = date.toLocaleDateString(undefined, {
+                                                        weekday: 'long',
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric'
+                                                    });
+
+                                                    return (
+                                                        <div
+                                                            key={day.date}
+                                                            className={`w-2.5 h-2.5 rounded-[1.5px] ${getGitHubIntensityClass(day.level)} cursor-pointer relative group transition-all duration-150`}
+                                                        >
+                                                            {/* Tooltip */}
+                                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 whitespace-nowrap">
+                                                                <div className="bg-gray-900 dark:bg-white text-white dark:text-black text-[9px] font-black py-0.5 px-1.5 rounded shadow-xl border border-gray-800 dark:border-gray-200">
+                                                                    <span>{day.count} contributions</span> on {titleDate}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center text-gray-400 text-xs">No contributions available</div>
+                    )}
+                </div>
+
+                {/* Profile Card and Languages stacked on right */}
+                <div className="w-full xl:w-[260px] flex flex-col gap-4">
+                    {/* Mini Profile Card */}
+                    <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm border border-gray-100 dark:border-[#262626] rounded-2xl p-3 flex items-center gap-3">
+                        {data.avatar ? (
+                            <img src={data.avatar} alt={data.name} className="w-10 h-10 rounded-full border border-gray-200 dark:border-[#333] object-cover" />
+                        ) : (
+                            <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-[#333] bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-gray-500">GH</span>
+                            </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{data.name}</h5>
+                            <a 
+                                href={`https://github.com/${handle}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-gray-400 hover:text-blue-500 flex items-center gap-1 mt-0.5 font-semibold"
+                            >
+                                @{handle}
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Languages Card */}
+                    <div className="flex-1 bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm border border-gray-100 dark:border-[#262626] rounded-2xl p-4 flex flex-col justify-between">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            Languages Used
+                        </h4>
+                        {sortedLanguages.length > 0 ? (
+                            <div className="space-y-2.5">
+                                {sortedLanguages.map(([lang, count]) => {
+                                    const pct = Math.round((count / totalRepos) * 100);
+                                    return (
+                                        <div key={lang} className="space-y-1">
+                                            <div className="flex justify-between text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                                                <span>{lang}</span>
+                                                <span className="text-gray-400">{pct}%</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 dark:bg-[#2c2c2c] h-1.5 rounded-full overflow-hidden">
+                                                <div 
+                                                    className={`h-full rounded-full ${getLanguageColor(lang)}`} 
+                                                    style={{ width: `${pct}%` }} 
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="text-gray-400 text-xs py-4 text-center">No languages found</div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 function LoadingState() {

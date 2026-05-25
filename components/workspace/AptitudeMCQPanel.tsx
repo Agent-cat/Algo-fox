@@ -95,11 +95,11 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-start p-6 md:p-10 custom-scrollbar overflow-y-auto bg-transparent py-12">
+        <div className="h-full flex flex-col items-center justify-start p-4 md:p-6 custom-scrollbar overflow-y-auto bg-transparent py-6">
             <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
 
                 {/* Options Grid - No Card Surrounding it */}
-                <div className="grid grid-cols-1 gap-5 w-full">
+                <div className="grid grid-cols-1 gap-3 w-full">
                     {options.map((option, idx) => {
                         const isSelected = selectedOption === option;
                         const isCorrect = status === "correct" && isSelected;
@@ -113,8 +113,8 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                         return (
                             <motion.button
                                 key={idx}
-                                whileHover={{ y: -2 }}
-                                whileTap={{ scale: 0.985 }}
+                                whileHover={{ y: -1 }}
+                                whileTap={{ scale: 0.99 }}
                                 disabled={isLoading}
                                 onClick={() => {
                                     if (selectedOption === option) {
@@ -125,10 +125,10 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                         if (status === "incorrect" || status === "correct") setStatus("idle");
                                     }
                                 }}
-                                className={`w-full text-left px-6 py-5 rounded-xl border transition-all duration-300 group flex items-start justify-between gap-4 shadow-sm ${stateClasses}`}
+                                className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-300 group flex items-start justify-between gap-3 shadow-sm ${stateClasses}`}
                             >
-                                <div className="flex items-start gap-4 flex-1">
-                                    <div className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center text-xs font-bold transition-all duration-300 mt-0.5 ${
+                                <div className="flex items-start gap-3 flex-1">
+                                    <div className={`shrink-0 w-7 h-7 rounded-md border flex items-center justify-center text-xs font-bold transition-all duration-300 mt-0.5 ${
                                         isCorrect ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20" :
                                         isIncorrect ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" :
                                         isSelected ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20" :
@@ -136,7 +136,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                     }`}>
                                         {String.fromCharCode(65 + idx)}
                                     </div>
-                                    <div className={`text-[15px] font-medium transition-colors flex-1 min-w-0 pt-1 ${
+                                    <div className={`text-sm font-medium transition-colors flex-1 min-w-0 pt-0.5 ${
                                         isCorrect ? "text-emerald-600 dark:text-emerald-400 font-bold" :
                                         isIncorrect ? "text-rose-600 dark:text-rose-400 font-bold" :
                                         isSelected ? "text-orange-600 dark:text-orange-400 font-bold" :
@@ -146,14 +146,14 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                     </div>
                                 </div>
 
-                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 mt-1 ${
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 mt-0.5 ${
                                     isCorrect ? "border-emerald-500 bg-emerald-500 text-white" :
                                     isIncorrect ? "border-rose-500 bg-rose-500 text-white" :
                                     isSelected ? "border-orange-500 bg-orange-500 text-white" : "border-gray-300 dark:border-white/20"
                                 } shadow-inner`}>
-                                    {isCorrect ? <Check className="w-4 h-4" strokeWidth={4} /> :
-                                     isIncorrect ? <X className="w-4 h-4" strokeWidth={4} /> :
-                                     isSelected ? <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" /> : null}
+                                    {isCorrect ? <Check className="w-3.5 h-3.5" strokeWidth={4} /> :
+                                     isIncorrect ? <X className="w-3.5 h-3.5" strokeWidth={4} /> :
+                                     isSelected ? <div className="w-2 h-2 rounded-full bg-white shadow-sm" /> : null}
                                 </div>
                             </motion.button>
                         );
@@ -161,57 +161,57 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                 </div>
 
                 {/* Status Message Area */}
-                <div className="h-12 flex items-center justify-center mt-8 w-full">
+                <div className="h-10 flex items-center justify-center mt-5 w-full">
                     <AnimatePresence mode="wait">
                         {status === "correct" ? (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="flex items-center gap-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-full border border-emerald-500/20"
+                                className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3.5 py-1.5 rounded-full border border-emerald-500/20"
                             >
-                                <Trophy className="w-4 h-4" />
-                                <span className="text-sm font-bold uppercase tracking-wider">Correct Answer identified</span>
+                                <Trophy className="w-3.5 h-3.5" />
+                                <span className="text-xs font-bold uppercase tracking-wider">Correct Answer identified</span>
                             </motion.div>
                         ) : status === "incorrect" ? (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="flex items-center gap-3 bg-rose-500/10 text-rose-600 dark:text-rose-400 px-4 py-2 rounded-full border border-rose-500/20"
+                                className="flex items-center gap-2 bg-rose-500/10 text-rose-600 dark:text-rose-400 px-3.5 py-1.5 rounded-full border border-rose-500/20"
                             >
-                                <span className="text-sm font-bold uppercase tracking-wider">Incorrect, try again</span>
+                                <span className="text-xs font-bold uppercase tracking-wider">Incorrect, try again</span>
                             </motion.div>
                         ) : null}
                     </AnimatePresence>
                 </div>
 
                 {/* Control Actions Bottom Bar */}
-                <div className="mt-12 flex flex-wrap items-center justify-between gap-6 w-full">
-                    <div className="flex items-center gap-4">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 w-full">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={handleClearAnswer}
                             disabled={!selectedOption || isLoading}
-                            className="px-6 py-3.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-sm transition-all flex items-center gap-2 group disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="px-4 py-2.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-xs transition-all flex items-center gap-1.5 group disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            <RotateCcw className="w-4 h-4 group-hover:-rotate-45 transition-transform" />
+                            <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform" />
                             Clear
                         </button>
 
                         <button
                             onClick={handleCheckAnswer}
                             disabled={!selectedOption || status === "correct" || isLoading}
-                            className={`px-10 py-3.5 rounded-xl font-bold text-sm transition-all shadow-xl hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-2 ${
+                            className={`px-6 py-2.5 rounded-lg font-bold text-xs transition-all shadow-md hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-1.5 ${
                                 userRole === "USER" ? "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
                             } ${
                                 status === "correct" ? "hidden" : ""
                             }`}
                         >
                             {isLoading ? (
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-3.5 h-3.5 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
                                     Checking...
                                 </div>
                             ) : userRole === "USER" ? (
-                                <><Lock className="w-4 h-4 text-orange-500" aria-label="locked" /> Check Answer</>
+                                <><Lock className="w-3.5 h-3.5 text-orange-500" aria-label="locked" /> Check Answer</>
                             ) : "Check Answer"}
                         </button>
                     </div>
@@ -220,11 +220,11 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                 </div>
 
                 {(status === "correct" || status === "incorrect") && (
-                    <div className="mt-8 w-full flex justify-center">
+                    <div className="mt-4 w-full flex justify-center">
                         <button
                             onClick={onRevealSolution}
-                            className={`px-8 py-3.5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-xl font-bold text-sm transition-all ${
-                                status === "correct" ? "bg-transparent opacity-40 hover:opacity-100" : "bg-transparent w-full sm:w-auto text-xs opacity-60"
+                            className={`px-5 py-2.5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg font-bold text-xs transition-all ${
+                                status === "correct" ? "bg-transparent opacity-40 hover:opacity-100" : "bg-transparent w-full sm:w-auto text-[10px] opacity-60"
                             }`}
                         >
                             View Solution Details

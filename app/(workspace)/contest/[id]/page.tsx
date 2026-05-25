@@ -51,9 +51,9 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
     }
 
     const userRole = (session.user as any).role;
-    const privilegedRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER"];
+    const viewerRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER", "STUDENT"];
 
-    if (!userRole || !privilegedRoles.includes(userRole)) {
+    if (!userRole || !viewerRoles.includes(userRole)) {
         return (
             <div className="pt-20">
                 <SubscriptionOverlay
@@ -64,8 +64,8 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
         );
     }
 
-    const allowedRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER"];
-    const isAdminOrInstructor = allowedRoles.includes(userRole);
+    const adminRoles = ["ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER", "TEACHER"];
+    const isAdminOrInstructor = adminRoles.includes(userRole);
     const backLink = isAdminOrInstructor ? "/dashboard/contests" : "/contests";
 
     const res = await getContestDetail(id);

@@ -50,6 +50,7 @@ function MainStatsSection({ stats }: { stats: any }) {
         leetCodeHandle={stats.leetCodeHandle}
         codeChefHandle={stats.codeChefHandle}
         codeforcesHandle={stats.codeforcesHandle}
+        githubHandle={stats.githubHandle}
         leetCodeVerified={stats.leetCodeVerified}
         codeChefVerified={stats.codeChefVerified}
         codeforcesVerified={stats.codeforcesVerified}
