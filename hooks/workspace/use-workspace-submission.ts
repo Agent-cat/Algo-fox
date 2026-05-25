@@ -17,6 +17,8 @@ interface useWorkspaceSubmissionProps {
     setVerticalSizesProgrammatically: (sizes: number[]) => void;
     setHighlightLine: (line: number | null) => void;
     onSolved: (streakUpdated?: boolean, currentStreak?: number, firstSolved?: boolean, pointsGained?: number) => void;
+    onSubmissionStarted?: () => void;
+    onSubmissionCompleted?: (status: string) => void;
 }
 
 export function useWorkspaceSubmission({
@@ -33,6 +35,8 @@ export function useWorkspaceSubmission({
     setVerticalSizesProgrammatically,
     setHighlightLine,
     onSolved,
+    onSubmissionStarted,
+    onSubmissionCompleted,
 }: useWorkspaceSubmissionProps) {
     const router = useRouter();
     const [isRunning, setIsRunning] = useState(false);
@@ -54,6 +58,7 @@ export function useWorkspaceSubmission({
     const [submissionMode, setSubmissionMode] = useState<"RUN" | "SUBMIT" | null>(null);
     const [submissionResults, setSubmissionResults] = useState<any[]>([]);
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+    const [submissionId, setSubmissionId] = useState<string | null>(null);
     const eventSourceRef = useRef<EventSource | null>(null);
 
     // Cleanup EventSource on unmount to prevent leaks
@@ -90,6 +95,7 @@ export function useWorkspaceSubmission({
         // AUTO-EXPAND
         setIsTestCasesCollapsed(false);
         setVerticalSizesProgrammatically([60, 40]);
+        setSubmissionId(null);
 
         try {
             if (mode === "RUN") setRunning(true);
@@ -135,6 +141,12 @@ export function useWorkspaceSubmission({
             setSubmissionResults(initialResults);
             setSubmissionStatus(null);
 
+            if (mode === "SUBMIT") {
+                setSubmissionId(submissionId);
+                onSubmissionStarted?.();
+                window.dispatchEvent(new CustomEvent("submissionsUpdated"));
+            }
+
             // Connect to SSE
             if (eventSourceRef.current) eventSourceRef.current.close();
             const eventSource = new EventSource(`/api/sse/submission/${submissionId}`);
@@ -166,6 +178,12 @@ export function useWorkspaceSubmission({
                      if (mode === "RUN") setRunning(false);
                      else setSubmitting(false);
 
+                     if (mode === "SUBMIT") {
+                         router.refresh();
+                         window.dispatchEvent(new CustomEvent("submissionsUpdated"));
+                         onSubmissionCompleted?.(payload.data.status);
+                     }
+
                      if (payload.data.status === "ACCEPTED") {
                          if (mode === "SUBMIT" && currentEditorSettings.enableCorrectSound) {
                              const audio = new Audio('/submission.mp3');
@@ -177,7 +195,6 @@ export function useWorkspaceSubmission({
                              toast.success("Submitted Successfully!", { description: desc, descriptionClassName: "!text-white/90" });
 
                              // Refresh server components to update lists/cache
-                             router.refresh();
                              window.dispatchEvent(new CustomEvent("pointsUpdated"));
 
                              onSolved(
@@ -238,6 +255,8 @@ export function useWorkspaceSubmission({
         setVerticalSizesProgrammatically,
         setHighlightLine,
         onSolved,
+        onSubmissionStarted,
+        onSubmissionCompleted,
         router
     ]);
 
@@ -247,6 +266,7 @@ export function useWorkspaceSubmission({
         isSubmitting,
         submissionMode,
         submissionResults,
-        submissionStatus
+        submissionStatus,
+        submissionId
     };
 }

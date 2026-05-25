@@ -366,7 +366,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         isSubmitting,
         submissionMode,
         submissionResults,
-        submissionStatus
+        submissionStatus,
+        submissionId
     } = useWorkspaceSubmission({
         problem,
         languageId,
@@ -380,8 +381,34 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         setIsTestCasesCollapsed,
         setVerticalSizesProgrammatically,
         setHighlightLine,
-        onSolved: onSubmissionSolved
+        onSolved: onSubmissionSolved,
+        onSubmissionStarted: () => {
+            setActiveTab("submissions");
+        }
     });
+
+    const runningSubmission = useMemo(() => {
+        if (!isSubmitting || !submissionId) return null;
+
+        const lang = getLanguageById(languageId);
+        const completed = submissionResults.filter(r => r.status !== "PENDING").length;
+        const passed = submissionResults.filter(r => r.status === "ACCEPTED").length;
+        const total = submissionResults.length;
+
+        return {
+            id: submissionId,
+            status: (submissionStatus || (completed > 0 ? "PROCESSING" : "PENDING")) as any,
+            time: null,
+            memory: null,
+            createdAt: new Date().toISOString(),
+            code: code,
+            language: {
+                name: lang?.name || "Language",
+                judge0Id: languageId
+            },
+            progress: total > 0 ? { passed, completed, total } : undefined
+        };
+    }, [isSubmitting, submissionId, submissionResults, submissionStatus, languageId, code]);
 
     const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
     const handleToggleSidebar = useCallback(() => setIsSidebarOpen(true), []);
@@ -532,6 +559,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             nextProblemSlug={nextProblemSlug}
                             courseId={courseId}
                             onRestoreCode={handleRestoreCode}
+                            runningSubmission={runningSubmission}
                         />
                     </div>
                     <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10">
