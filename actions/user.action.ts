@@ -64,7 +64,6 @@ export async function completeOnboarding(data: {
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;
-    githubHandle?: string;
 }): Promise<{ success: boolean; error?: string }> {
     const session = await auth.api.getSession({
         headers: await headers()
