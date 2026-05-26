@@ -3,7 +3,7 @@
 import { authClient } from '@/lib/auth-client';
 import { SubmissionResult } from '@prisma/client';
 import { Loader2, RefreshCw, SquareArrowOutUpRight } from 'lucide-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,52 +17,22 @@ interface Submission {
         name: string;
         judge0Id: number;
     };
+    code: string;
 }
 
 interface SubmissionsProps {
     problemId: string;
     onRestoreCode?: (code: string, languageId: number) => void;
-    runningSubmission?: any;
 }
 
-export default function Submissions({ problemId, onRestoreCode, runningSubmission }: SubmissionsProps) {
+export default function Submissions({ problemId, onRestoreCode }: SubmissionsProps) {
     const { data: session } = authClient.useSession();
-    // Use a separate state to handle the list locally if needed, but optimally this should be a client component that receives initial data or fetches via action.
-    // Given the requirement to be "nice and optimized", using the server action in useEffect is good,
-    // but React Server Components would be better if this was a page. Since it's a tab content,
-    // we'll fetch on mount using the action.
-
-    // Actually, to make it truly optimized, we should probably fetch this data in the parent server component
-    // and pass it down, but the Tab system is client-side.
-    // So client-side fetching via Server Action is the way to go here for SPA-like feel without full reload.
-
-    // Import dynamically to avoid server-only module errors in client component?
-    // No, Actions can be imported in Client Components.
 
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(false);
     const PAGE_SIZE = 15;
-
-    const [activeRunningSub, setActiveRunningSub] = useState<any | null>(null);
-
-    useEffect(() => {
-        if (runningSubmission) {
-            setActiveRunningSub(runningSubmission);
-        } else if (activeRunningSub) {
-            const existsInFetched = submissions.some(sub => sub.id === activeRunningSub.id);
-            if (existsInFetched) {
-                setActiveRunningSub(null);
-            }
-        }
-    }, [runningSubmission, submissions, activeRunningSub]);
-
-    const displaySubmissions = useMemo(() => {
-        if (!activeRunningSub) return submissions;
-        const filtered = submissions.filter(sub => sub.id !== activeRunningSub.id);
-        return [activeRunningSub, ...filtered];
-    }, [activeRunningSub, submissions]);
 
     const loadSubmissions = async (cursor?: string, isMounted: boolean = true, isSilent: boolean = false) => {
         if (!problemId) return;
@@ -75,19 +45,24 @@ export default function Submissions({ problemId, onRestoreCode, runningSubmissio
 
             if (!isMounted) return;
 
+            // Only show completed submissions
+            const completedData = data.filter(
+                (d) => d.status !== "PENDING" && d.status !== "PROCESSING"
+            );
+
             if (cursor) {
                 setSubmissions(prev => {
                     const prevIds = new Set(prev.map(p => p.id));
-                    const newItems = data.filter(d => !prevIds.has(d.id));
+                    const newItems = completedData.filter(d => !prevIds.has(d.id));
                     return [...prev, ...newItems];
                 });
             } else {
-                setSubmissions(data);
+                setSubmissions(completedData);
             }
 
             setHasMore(data.length === PAGE_SIZE);
         } catch (error) {
-             if (isMounted) console.error("Failed to load submissions", error);
+            if (isMounted) console.error("Failed to load submissions", error);
         } finally {
             if (isMounted) {
                 setLoading(false);
@@ -132,7 +107,7 @@ export default function Submissions({ problemId, onRestoreCode, runningSubmissio
                 </button>
             </div>
             <div className="">
-                {displaySubmissions.length === 0 ? (
+                {submissions.length === 0 ? (
                     <div className="p-12 text-center text-gray-500 dark:text-gray-400 text-sm">No submissions recorded yet.</div>
                 ) : (
                     <div className="w-full text-sm text-left">
@@ -148,143 +123,58 @@ export default function Submissions({ problemId, onRestoreCode, runningSubmissio
                         {/* ROWS */}
                         <div className="flex flex-col">
                             <AnimatePresence initial={false}>
-                                {displaySubmissions.map((sub) => {
-                                    const isRunningRow = activeRunningSub && sub.id === activeRunningSub.id;
-                                    const isPendingOrProcessing = sub.status === 'PENDING' || sub.status === 'PROCESSING';
-                                    return (
-                                        <motion.div
-                                            key={sub.id}
-                                            layout
-                                            initial={{ opacity: 0, x: 80, height: 0 }}
-                                            animate={isRunningRow ? {
-                                                opacity: 1,
-                                                x: 0,
-                                                height: "auto",
-                                                backgroundColor: [
-                                                    "rgba(249, 115, 22, 0.02)",
-                                                    "rgba(249, 115, 22, 0.08)",
-                                                    "rgba(249, 115, 22, 0.02)"
-                                                ]
-                                            } : {
-                                                opacity: 1,
-                                                x: 0,
-                                                height: "auto",
-                                                backgroundColor: "rgba(0, 0, 0, 0)"
-                                            }}
-                                            exit={{ opacity: 0, x: -80, height: 0 }}
-                                            transition={isRunningRow ? {
-                                                type: "spring",
-                                                stiffness: 350,
-                                                damping: 30,
-                                                height: { duration: 0.35 },
-                                                opacity: { duration: 0.25 },
-                                                backgroundColor: {
-                                                    repeat: Infinity,
-                                                    duration: 1.8,
-                                                    ease: "easeInOut"
-                                                }
-                                            } : {
-                                                type: "spring",
-                                                stiffness: 350,
-                                                damping: 30,
-                                                height: { duration: 0.35 },
-                                                opacity: { duration: 0.25 },
-                                                backgroundColor: { duration: 0.2 }
-                                            }}
-                                            className="border-b border-gray-200 dark:border-white/10 overflow-hidden"
+                                {submissions.map((sub) => (
+                                    <motion.div
+                                        key={sub.id}
+                                        layout
+                                        initial={{ opacity: 0, x: -80, height: 0 }}
+                                        animate={{ opacity: 1, x: 0, height: "auto" }}
+                                        exit={{ opacity: 0, x: 80, height: 0 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 350,
+                                            damping: 30,
+                                            height: { duration: 0.35 },
+                                            opacity: { duration: 0.25 }
+                                        }}
+                                        className="border-b border-gray-200 dark:border-white/10 overflow-hidden"
+                                    >
+                                        <Link
+                                            href={`/submissions/${sub.id}`}
+                                            className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group items-center border-l-4 border-l-transparent"
                                         >
-                                            <Link
-                                                href={isPendingOrProcessing ? '#' : `/submissions/${sub.id}`}
-                                                onClick={(e) => {
-                                                    if (isPendingOrProcessing) {
+                                            <div className="font-medium">
+                                                <span className={`
+                                                    px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-tight
+                                                    ${sub.status === 'ACCEPTED' ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-500 border border-emerald-100 dark:border-emerald-500/20' :
+                                                        'text-rose-700 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-500 border border-rose-100 dark:border-rose-500/20'}
+                                                `}>
+                                                    {sub.status.replace(/_/g, " ")}
+                                                </span>
+                                            </div>
+                                            <div className="text-gray-600 dark:text-gray-300 font-medium">{sub.language.name}</div>
+                                            <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.time ? `${Number(sub.time).toFixed(3)}ms` : '-'}</div>
+                                            <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.memory ? `${sub.memory}KB` : '-'}</div>
+                                            <div className="flex justify-center">
+                                                <button
+                                                    onClick={(e) => {
                                                         e.preventDefault();
-                                                    }
-                                                }}
-                                                className={`grid grid-cols-6 gap-4 px-6 py-4 transition-colors group items-center border-l-4 ${
-                                                    isRunningRow 
-                                                        ? 'border-l-orange-500' 
-                                                        : 'border-l-transparent hover:bg-gray-50 dark:hover:bg-[#1a1a1a]'
-                                                }`}
-                                            >
-                                                <div className="font-medium">
-                                                    <div className="flex flex-col gap-1.5 items-start">
-                                                        <span className={`
-                                                            inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight
-                                                            ${sub.status === 'ACCEPTED' ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-500 border border-emerald-100 dark:border-emerald-500/20' :
-                                                                sub.status === 'PENDING' ? 'text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-500 border border-amber-100 dark:border-amber-500/20' :
-                                                                sub.status === 'PROCESSING' ? 'text-orange-700 bg-orange-50 dark:bg-orange-500/10 dark:text-orange-500 border border-orange-100 dark:border-orange-500/20' :
-                                                                    'text-rose-700 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-500 border border-rose-100 dark:border-rose-500/20'}
-                                                        `}>
-                                                            {sub.status === 'PENDING' && (
-                                                                <Loader2 className="w-2.5 h-2.5 animate-spin text-amber-500" />
-                                                            )}
-                                                            {sub.status === 'PROCESSING' && (
-                                                                <Loader2 className="w-2.5 h-2.5 animate-spin text-orange-500" />
-                                                            )}
-                                                            {sub.status === 'PENDING' ? 'QUEUED' : sub.status === 'PROCESSING' ? 'GRADING' : sub.status.replace(/_/g, " ")}
-                                                        </span>
-
-                                                        {sub.status === 'PROCESSING' && sub.progress && (
-                                                            <div className="flex flex-col gap-1 w-24">
-                                                                <div className="w-full bg-gray-200 dark:bg-white/10 h-1 rounded-full overflow-hidden">
-                                                                    <div 
-                                                                        className="bg-orange-500 h-full rounded-full transition-all duration-300"
-                                                                        style={{ width: `${(sub.progress.completed / sub.progress.total) * 100}%` }}
-                                                                    />
-                                                                </div>
-                                                                <span className="text-[9px] text-gray-400 font-medium whitespace-nowrap">
-                                                                    {sub.progress.passed} / {sub.progress.total} passed
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="text-gray-600 dark:text-gray-300 font-medium">{sub.language.name}</div>
-                                                <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">
-                                                    {isPendingOrProcessing ? (
-                                                        <span className="text-orange-500 dark:text-orange-400 animate-pulse font-medium text-[11px]">
-                                                            Evaluating...
-                                                        </span>
-                                                    ) : sub.time ? (
-                                                        `${Number(sub.time).toFixed(3)}ms`
-                                                    ) : (
-                                                        '-'
-                                                    )}
-                                                </div>
-                                                <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">
-                                                    {sub.status === 'PENDING' ? (
-                                                        <span className="text-gray-400 dark:text-gray-500 text-[11px] italic">In Queue</span>
-                                                    ) : sub.status === 'PROCESSING' && sub.progress ? (
-                                                        <span className="text-orange-500 dark:text-orange-400 font-semibold text-[11px]">
-                                                            Case {Math.min(sub.progress.completed + 1, sub.progress.total)}/{sub.progress.total}
-                                                        </span>
-                                                    ) : sub.memory ? (
-                                                        `${sub.memory}KB`
-                                                    ) : (
-                                                        '-'
-                                                    )}
-                                                </div>
-                                                <div className="flex justify-center">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            onRestoreCode?.(sub.code, sub.language.judge0Id);
-                                                        }}
-                                                        className="p-2 text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-all"
-                                                        title="Restore to editor"
-                                                    >
-                                                        <SquareArrowOutUpRight className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                                <div className="text-gray-400 dark:text-gray-500 text-[10px] font-bold text-right uppercase tracking-tighter">
-                                                    {new Date(sub.createdAt).toLocaleDateString()}
-                                                    <div className="opacity-60">{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                                </div>
-                                            </Link>
-                                        </motion.div>
-                                    );
-                                })}
+                                                        e.stopPropagation();
+                                                        onRestoreCode?.(sub.code, sub.language.judge0Id);
+                                                    }}
+                                                    className="p-2 text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-all"
+                                                    title="Restore to editor"
+                                                >
+                                                    <SquareArrowOutUpRight className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="text-gray-400 dark:text-gray-500 text-[10px] font-bold text-right uppercase tracking-tighter">
+                                                {new Date(sub.createdAt).toLocaleDateString()}
+                                                <div className="opacity-60">{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            </div>
+                                        </Link>
+                                    </motion.div>
+                                ))}
                             </AnimatePresence>
                         </div>
 

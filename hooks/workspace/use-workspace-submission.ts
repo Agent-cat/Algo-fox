@@ -144,7 +144,6 @@ export function useWorkspaceSubmission({
             if (mode === "SUBMIT") {
                 setSubmissionId(submissionId);
                 onSubmissionStarted?.();
-                window.dispatchEvent(new CustomEvent("submissionsUpdated"));
             }
 
             // Connect to SSE
