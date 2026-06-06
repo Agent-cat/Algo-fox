@@ -133,6 +133,9 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                                             <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
                                                                 My Dashboard
                                                             </Link>
+                                                            <Link href="/bookmarks" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                Bookmarks
+                                                            </Link>
                                                             <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
                                                                 My Classrooms
                                                             </Link>

@@ -68,6 +68,7 @@ model User {
   lastStreakDate        DateTime?
   courseEnrollments     UserCourseEnrollment[]
   quizzesCreated        Int                    @default(0)
+  bookmarks             Bookmark[]
 
   @@index([collegeId])
   @@index([collegeId, totalScore])
@@ -159,6 +160,7 @@ model Problem {
   tags                   Tag[]                     @relation("ProblemToTag")
   courseId               String?
   course                 Course?                   @relation("CourseProblems", fields: [courseId], references: [id], onDelete: Cascade)
+  bookmarks              Bookmark[]
 
   @@index([courseId])
   @@index([createdAt])
@@ -175,6 +177,20 @@ model Tag {
   problems  Problem[] @relation("ProblemToTag")
 
   @@index([slug])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+  @@map("bookmark")
 }
 
 model ProblemTestCase {

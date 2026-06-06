@@ -130,6 +130,7 @@ export default function AptitudeWorkspace({
                 totalCourseProblems={totalCourseProblems}
                 currentCourseProblemIndex={currentCourseProblemIndex}
                 onToggleSidebar={handleToggleSidebar}
+                problemId={problem.id}
             />
 
             <PointsCelebration

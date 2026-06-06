@@ -29,6 +29,7 @@ import { StreakBadge } from "@/components/shared/StreakBadge";
 import { ThemeToggleButton } from "@/components/shared/ThemeToggleButton";
 import { ContestTimer } from "./ContestTimer";
 import CustomTooltip from "../ui/CustomTooltip";
+import { BookmarkButton } from "./BookmarkButton";
 
 
 interface WorkspaceHeaderProps {
@@ -47,6 +48,7 @@ interface WorkspaceHeaderProps {
   totalCourseProblems?: number;
   currentCourseProblemIndex?: number;
   onToggleSidebar?: () => void;
+  problemId?: string;
 }
 
 const WorkspaceHeader = memo(({
@@ -64,7 +66,8 @@ const WorkspaceHeader = memo(({
   type,
   totalCourseProblems = 0,
   currentCourseProblemIndex = -1,
-  onToggleSidebar
+  onToggleSidebar,
+  problemId
 }: WorkspaceHeaderProps) => {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
@@ -272,6 +275,11 @@ const WorkspaceHeader = memo(({
                   <Shuffle className={`w-4 h-4 ${isRandomizing ? '' : ''}`} />
                 </motion.button>
               </CustomTooltip>
+            )}
+            
+            {/* BOOKMARK BUTTON */}
+            {!contestId && problemId && (
+              <BookmarkButton problemId={problemId} />
             )}
           </motion.div>
         )}

@@ -99,6 +99,7 @@ export default function ConceptViewer({
                 type="CONCEPT"
                 domain={problem.domain}
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                problemId={problem.id}
             />
             <div className="flex-1 overflow-y-auto pb-20 pt-6">
                 <PointsCelebration
