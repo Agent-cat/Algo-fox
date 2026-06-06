@@ -97,7 +97,8 @@ function EditProblemContent() {
                             options: problem.options || ["", "", "", ""],
                             answer: problem.answer || "",
                             companies: problem.companies || null,
-                            categoryId: problem.categoryProblems?.[0]?.categoryId || ""
+                            categoryId: problem.categoryProblems?.[0]?.categoryId || "",
+                            allowedLanguages: problem.allowedLanguages || []
                         }}
                         onSubmit={(data) => updateProblem(id, data)}
                         submitLabel="Save Changes"

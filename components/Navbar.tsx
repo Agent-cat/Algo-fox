@@ -11,13 +11,24 @@ import { StreakBadge } from "./shared/StreakBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChevronDown } from "lucide-react";
 
-export default function Navbar() {
-    const { data: session, isPending } = authClient.useSession();
+interface NavbarProps {
+    initialSession?: any;
+}
+
+export default function Navbar({ initialSession }: NavbarProps = {}) {
+    const { data: clientSession, isPending } = authClient.useSession();
+    
+    // During SSR and initial hydration, isPending is true. We use initialSession to ensure 
+    // the server and client render the exact same HTML, preventing hydration mismatch.
+    // Once loaded (isPending is false), we use the clientSession so logouts/updates work.
+    const session = isPending ? initialSession : clientSession;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+
+    const shouldRender = initialSession !== undefined ? true : (mounted && !isPending);
 
     useEffect(() => {
         setMounted(true);
@@ -76,7 +87,7 @@ export default function Navbar() {
                 {/* Right Desktop and Mobile Menu */}
                 <div className="flex-1 flex items-center justify-end gap-6">
                     <div className="hidden md:flex items-center gap-4">
-                    {mounted && !isPending && (
+                    {shouldRender && (
                         <>
                             {session ? (
                                     <>

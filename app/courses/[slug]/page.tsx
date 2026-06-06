@@ -24,8 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-async function CourseContent({ slug }: { slug: string }) {
-    const session = await auth.api.getSession({ headers: await headers() });
+async function CourseContent({ slug, session }: { slug: string, session: any }) {
     const course = await CourseService.getCourseBySlug(slug);
 
     if (!course) {
@@ -163,11 +162,12 @@ function CourseSkeleton() {
 
 export default async function CourseDetailPage({ params }: Props) {
     const { slug } = await params;
+    const session = await auth.api.getSession({ headers: await headers() });
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
             <Suspense fallback={<div className="h-16 w-full" />}>
-                <Navbar />
+                <Navbar initialSession={session} />
             </Suspense>
 
             <main className="max-w-7xl mx-auto px-6 pt-28 pb-20">
@@ -179,7 +179,7 @@ export default async function CourseDetailPage({ params }: Props) {
                 </div>
 
                 <Suspense fallback={<CourseSkeleton />}>
-                    <CourseContent slug={slug} />
+                    <CourseContent slug={slug} session={session} />
                 </Suspense>
             </main>
         </div>

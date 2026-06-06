@@ -33,7 +33,7 @@ export default async function CoursesPage() {
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
             <Suspense fallback={<div className="h-16 w-full" />}>
-                <Navbar />
+                <Navbar initialSession={session} />
             </Suspense>
             <main className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-20">
                 <Suspense fallback={<CoursesSkeleton />}>
