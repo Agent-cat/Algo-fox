@@ -142,6 +142,7 @@ model Problem {
   isMcq                  Boolean                   @default(false)
   options                Json?
   answer                 String?
+  companies              Json?
   createdAt              DateTime                  @default(now())
   updatedAt              DateTime                  @updatedAt
   userId                 String?

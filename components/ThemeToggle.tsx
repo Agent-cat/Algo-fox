@@ -37,9 +37,17 @@ export function ThemeToggle() {
 
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
+        if (resolvedTheme === "dark") {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+        } else {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
         setTheme(resolvedTheme === "dark" ? "light" : "dark");
       });
     });
+
 
     transition.ready.then(() => {
       document.documentElement.animate(

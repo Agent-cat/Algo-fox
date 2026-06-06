@@ -42,9 +42,17 @@ export function ThemeToggleButton() {
 
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
+        if (isDark) {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+        } else {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
         setTheme(isDark ? 'light' : 'dark');
       });
     });
+
 
     transition.ready.then(() => {
       document.documentElement.animate(

@@ -12,6 +12,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TagInput } from "./TagInput";
+import { parseCompanies } from "../problems/CompanyAvatars";
 import FunctionTemplateEditor, { FunctionTemplate } from "./FunctionTemplateEditor";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,6 +41,10 @@ const formSchema = z.object({
     hidden: z.boolean(),
     hiddenQuery: z.string().optional().nullable(),
     tags: z.array(z.string()).optional(),
+    companies: z.array(z.object({
+        name: z.string().min(1, "Company name is required"),
+        logo: z.string().optional()
+    })).optional().nullable(),
     testCases: z.array(z.object({
         input: z.string().optional(),
         output: z.string().optional(),
@@ -62,6 +67,7 @@ interface ProblemFormProps {
         tags?: { name: string; slug: string }[];
         useFunctionTemplate?: boolean;
         functionTemplates?: FunctionTemplate[];
+        companies?: any;
     };
     onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
     submitLabel: string;
@@ -128,6 +134,49 @@ const DIFFICULTY_OPTIONS = [
     { value: "CONCEPT", label: "Concept", color: "text-orange-600 bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30" },
 ];
 
+const PREDEFINED_COMPANIES = [
+    { name: "Google", logo: "https://cdn.simpleicons.org/google" },
+    { name: "Amazon", logo: "https://cdn.simpleicons.org/amazon" },
+    { name: "Microsoft", logo: "https://cdn.simpleicons.org/microsoft" },
+    { name: "Meta", logo: "https://cdn.simpleicons.org/meta" },
+    { name: "Apple", logo: "https://cdn.simpleicons.org/apple" },
+    { name: "Netflix", logo: "https://cdn.simpleicons.org/netflix" },
+    { name: "Uber", logo: "https://cdn.simpleicons.org/uber" },
+    { name: "Salesforce", logo: "https://cdn.simpleicons.org/salesforce" },
+    { name: "Adobe", logo: "https://cdn.simpleicons.org/adobe" },
+    { name: "NVIDIA", logo: "https://cdn.simpleicons.org/nvidia" },
+    { name: "Tesla", logo: "https://cdn.simpleicons.org/tesla" },
+    { name: "X", logo: "https://cdn.simpleicons.org/x" },
+    { name: "LinkedIn", logo: "https://cdn.simpleicons.org/linkedin" },
+    { name: "Twitter", logo: "https://cdn.simpleicons.org/twitter" },
+    { name: "Flipkart", logo: "https://cdn.simpleicons.org/flipkart" },
+    { name: "Oracle", logo: "https://cdn.simpleicons.org/oracle" },
+    { name: "IBM", logo: "https://cdn.simpleicons.org/ibm" },
+    { name: "Atlassian", logo: "https://cdn.simpleicons.org/atlassian" },
+    { name: "Spotify", logo: "https://cdn.simpleicons.org/spotify" },
+    { name: "Airbnb", logo: "https://cdn.simpleicons.org/airbnb" },
+    { name: "Stripe", logo: "https://cdn.simpleicons.org/stripe" },
+    { name: "Shopify", logo: "https://cdn.simpleicons.org/shopify" },
+    { name: "Dropbox", logo: "https://cdn.simpleicons.org/dropbox" },
+    { name: "Slack", logo: "https://cdn.simpleicons.org/slack" },
+    { name: "PayPal", logo: "https://cdn.simpleicons.org/paypal" },
+    { name: "Walmart", logo: "https://cdn.simpleicons.org/walmart" },
+    { name: "ByteDance", logo: "https://cdn.simpleicons.org/bytedance" },
+    { name: "TikTok", logo: "https://cdn.simpleicons.org/tiktok" },
+    { name: "Intuit", logo: "https://cdn.simpleicons.org/intuit" },
+    { name: "Snap", logo: "https://cdn.simpleicons.org/snapchat" },
+    { name: "Pinterest", logo: "https://cdn.simpleicons.org/pinterest" },
+    { name: "Twitch", logo: "https://cdn.simpleicons.org/twitch" },
+    { name: "Reddit", logo: "https://cdn.simpleicons.org/reddit" },
+    { name: "GitHub", logo: "https://cdn.simpleicons.org/github" },
+    { name: "Databricks", logo: "https://cdn.simpleicons.org/databricks" },
+    { name: "Palantir", logo: "https://cdn.simpleicons.org/palantir" },
+    { name: "SAP", logo: "https://cdn.simpleicons.org/sap" },
+    { name: "Cisco", logo: "https://cdn.simpleicons.org/cisco" },
+    { name: "VMware", logo: "https://cdn.simpleicons.org/vmware" },
+    { name: "Zoom", logo: "https://cdn.simpleicons.org/zoom" },
+];
+
 export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath, slugPrefix = "/problems/" }: ProblemFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
@@ -140,6 +189,21 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [isUploading, setIsUploading] = useState(false);
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
     const solutionRef = useRef<HTMLTextAreaElement>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [customLogoUrl, setCustomLogoUrl] = useState("");
+    const [isAddingCustom, setIsAddingCustom] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
     const descriptionFileInputRef = useRef<HTMLInputElement>(null);
     const solutionFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -245,8 +309,29 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             answer: (initialData as any)?.answer || "",
             categoryId: (initialData as any)?.categoryId || "",
             allowedLanguages: (initialData as any)?.allowedLanguages || [],
+            companies: parseCompanies(initialData?.companies) || [],
         }
     });
+
+    const selectedCompanies = watch("companies") || [];
+
+    const handleSelectCompany = (company: { name: string; logo?: string }) => {
+        if (selectedCompanies.some((c: any) => c.name.toLowerCase() === company.name.toLowerCase())) {
+            return;
+        }
+        setValue("companies", [...selectedCompanies, company]);
+        setSearchQuery("");
+        setShowDropdown(false);
+    };
+
+    const handleRemoveCompany = (name: string) => {
+        setValue("companies", selectedCompanies.filter((c: any) => c.name !== name));
+    };
+
+    const filteredPredefined = PREDEFINED_COMPANIES.filter(c => 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) &&
+        !selectedCompanies.some((sc: any) => sc.name.toLowerCase() === c.name.toLowerCase())
+    );
 
     const router = useRouter();
     const isDSA = domain === "DSA";
@@ -350,6 +435,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
             tags: selectedTags.map(t => t.slug),
+            companies: data.companies && data.companies.length > 0 ? { companies: data.companies } : null,
             useFunctionTemplate: isDSA && !isConcept ? useFunctionTemplate : false,
             functionTemplates: isDSA && useFunctionTemplate && !isConcept ? functionTemplates : [],
             isMcq: data.isMcq,
@@ -490,6 +576,136 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 setValue("tags", newTags.map(t => t.slug));
                                             }}
                                         />
+                                    </div>
+
+                                    {/* Companies Asked In */}
+                                    <div className="pt-4" ref={dropdownRef}>
+                                        <label className={labelCls}>Companies Asked In</label>
+                                        
+                                        {/* Selected companies list */}
+                                        {selectedCompanies.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {selectedCompanies.map((company: any, index: number) => (
+                                                    <div
+                                                        key={`${company.name}-${index}`}
+                                                        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-zinc-900 text-xs font-semibold text-gray-700 dark:text-gray-300"
+                                                    >
+                                                        {company.logo ? (
+                                                            <img src={company.logo} alt={company.name} className="w-3.5 h-3.5 object-contain" />
+                                                        ) : (
+                                                            <div className="w-3.5 h-3.5 rounded-full bg-gray-200 dark:bg-zinc-800 text-[8px] font-bold flex items-center justify-center capitalize">{company.name.charAt(0)}</div>
+                                                        )}
+                                                        <span>{company.name}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveCompany(company.name)}
+                                                            className="text-gray-400 hover:text-red-500 font-bold ml-1 transition-colors text-sm leading-none"
+                                                        >
+                                                            &times;
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Search Input */}
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={searchQuery}
+                                                onChange={(e) => {
+                                                    setSearchQuery(e.target.value);
+                                                    setShowDropdown(true);
+                                                }}
+                                                onFocus={() => setShowDropdown(true)}
+                                                placeholder="Search or add companies..."
+                                                className={inputCls}
+                                            />
+                                            {showDropdown && (
+                                                <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] shadow-lg max-h-[200px] overflow-y-auto pr-1">
+                                                    {filteredPredefined.map((company, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => handleSelectCompany(company)}
+                                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-300 font-bold transition-colors duration-150 border-b border-gray-100 dark:border-[#1e1e1e] last:border-b-0"
+                                                        >
+                                                            <img src={company.logo} alt={company.name} className="w-4 h-4 object-contain" />
+                                                            {company.name}
+                                                        </button>
+                                                    ))}
+                                                    
+                                                    {searchQuery.trim() !== "" && !filteredPredefined.some(c => c.name.toLowerCase() === searchQuery.toLowerCase().trim()) && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setIsAddingCustom(true)}
+                                                            className="w-full flex items-center gap-2 px-4 py-2.5 text-left text-xs text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/5 font-bold transition-colors"
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5" /> Add custom company "{searchQuery.trim()}"
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {filteredPredefined.length === 0 && searchQuery.trim() === "" && (
+                                                        <div className="px-4 py-3 text-xs text-gray-400 italic">Type to search or add custom...</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Add Custom Company Form */}
+                                        {isAddingCustom && (
+                                            <div className="mt-3 p-4 rounded-[3px] border border-orange-200 dark:border-orange-500/20 bg-orange-50/20 dark:bg-orange-500/5 space-y-3">
+                                                <div className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Add Custom Company</div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label className="text-[11px] font-semibold text-gray-500 mb-1 block">Company Name</label>
+                                                        <input
+                                                            type="text"
+                                                            value={searchQuery}
+                                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                                            className={inputCls}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[11px] font-semibold text-gray-500 mb-1 block">Logo URL (Optional)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={customLogoUrl}
+                                                            onChange={(e) => setCustomLogoUrl(e.target.value)}
+                                                            placeholder="https://example.com/logo.png"
+                                                            className={inputCls}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setIsAddingCustom(false);
+                                                            setCustomLogoUrl("");
+                                                        }}
+                                                        className="px-3 py-1.5 border border-gray-300 dark:border-[#444] rounded-[3px] text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#222]"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (searchQuery.trim() === "") return;
+                                                            handleSelectCompany({
+                                                                name: searchQuery.trim(),
+                                                                logo: customLogoUrl.trim() || undefined
+                                                            });
+                                                            setIsAddingCustom(false);
+                                                            setCustomLogoUrl("");
+                                                        }}
+                                                        className="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-[3px] text-xs font-bold shadow-md shadow-orange-500/10"
+                                                    >
+                                                        Confirm Add
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {(watch("isMcq") || isAptitude) && (

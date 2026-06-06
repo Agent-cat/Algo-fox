@@ -539,7 +539,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     </div>
                     <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10">
                         <Split className="split-vertical flex flex-col h-full" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
-                            <div id="code-editor" className="h-full overflow-hidden flex flex-col">
+                            <div id="code-editor" className="overflow-hidden flex flex-col">
                                 <CodeEditor
                                     key={`${problem.id}-${languageId}`}
                                     value={code}
@@ -556,9 +556,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                     fileTabs={fileTabsNode}
                                     highlightLine={highlightLine}
                                     allowedLanguages={problem.allowedLanguages}
-                                />
+                                  />
                             </div>
-                            <div id="test-cases" className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
+                            <div id="test-cases" className="overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
                                 <TestCases
                                     cases={problem.testCases}
                                     customCases={customTestCases}

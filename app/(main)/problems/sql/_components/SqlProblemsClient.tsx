@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "../../dsa/_components/practice/PracticeClient";
@@ -10,6 +10,7 @@ import { FilterBar } from "@/components/problems/FilterBar";
 import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 import { motion } from "framer-motion";
+import { parseCompanies } from "@/components/problems/CompanyAvatars";
 
 type ProblemWithStats = {
     id: string;
@@ -20,6 +21,7 @@ type ProblemWithStats = {
     acceptance: number;
     solved?: number | null;
     isSolved?: boolean;
+    companies?: any;
     score: number;
     createdAt: Date;
     _count: { submissions: number };
@@ -88,6 +90,20 @@ export default function SqlProblemsClient({
         setSearchTerm(term);
     };
 
+    // Collect unique companies from all loaded problems for the filter dropdown
+    const allCompanies = useMemo(() => {
+        const seen = new Map<string, { name: string; logo?: string }>();
+        for (const problem of initialProblems) {
+            const list = parseCompanies(problem.companies);
+            for (const c of list) {
+                if (!seen.has(c.name)) {
+                    seen.set(c.name, { name: c.name, logo: c.logo?.trim() || undefined });
+                }
+            }
+        }
+        return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }, [initialProblems]);
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -139,7 +155,7 @@ export default function SqlProblemsClient({
                     {mode === "practice" ? (
                         <>
                             <div className="px-5 pt-4 pb-2">
-                                <FilterBar domain="SQL" />
+                                <FilterBar domain="SQL" companies={allCompanies} />
                             </div>
                             <PracticeClient
                                 initialProblems={initialProblems}

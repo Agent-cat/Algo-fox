@@ -185,30 +185,38 @@ const TestCases = memo(({
     const safeCases = cases || [];
     const publicCases = safeCases.filter(tc => !tc.hidden);
 
-    let displayCases: ProblemTestCase[];
-    let totalCount: number;
+    const filteredResults = useMemo(() => {
+        if (!results) return undefined;
+        return results.filter(r => {
+            const tc = safeCases[r.index];
+            return (tc && !tc.hidden) || r.index >= safeCases.length;
+        }).map(r => {
+            const tc = safeCases[r.index];
+            if (tc) {
+                const displayIdx = publicCases.findIndex(p => p.id === tc.id);
+                return { ...r, index: displayIdx };
+            } else {
+                const customIdx = r.index - safeCases.length;
+                const displayIdx = publicCases.length + customIdx;
+                return { ...r, index: displayIdx };
+            }
+        });
+    }, [results, safeCases, publicCases]);
+
+    const displayCases = publicCases;
+    const totalCount = publicCases.length;
     let resultsMap: Map<number, TestCase> | null = null;
 
-    if (results && results.length > 0) {
-        resultsMap = new Map(results.map(r => [r.index, r]));
-        if (mode === "SUBMIT") {
-            displayCases = safeCases;
-            totalCount = safeCases.length;
-        } else {
-            displayCases = publicCases;
-            totalCount = publicCases.length;
-        }
-    } else {
-        displayCases = publicCases;
-        totalCount = publicCases.length;
+    if (filteredResults && filteredResults.length > 0) {
+        resultsMap = new Map(filteredResults.map(r => [r.index, r]));
     }
 
     const indices = Array.from({ length: totalCount }, (_, i) => i);
     const customIndices = Array.from({ length: customCases.length }, (_, i) => i);
 
-    // Count passed/failed
-    const passedCount = results ? results.filter(r => r.status === "ACCEPTED").length : 0;
-    const totalResults = results ? results.length : 0;
+    // Count passed/failed for public and custom test cases only
+    const passedCount = filteredResults ? filteredResults.filter(r => r.status === "ACCEPTED").length : 0;
+    const totalResults = filteredResults ? filteredResults.length : 0;
 
     return (
         <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] border-t border-gray-200/80 dark:border-[#1e1e1e]">
@@ -288,10 +296,7 @@ const TestCases = memo(({
                                     </motion.button>
                                 )}
                                 {indices.map((displayIndex) => {
-                                    const testCase = displayCases[displayIndex];
-                                    const originalIndex = safeCases.findIndex(tc => tc.id === testCase.id);
-                                    const result = resultsMap?.get(originalIndex);
-                                    const isHidden = testCase.hidden;
+                                    const result = resultsMap?.get(displayIndex);
                                     const caseStatus = result?.status;
 
                                     const getStatusStyles = () => {
@@ -342,14 +347,14 @@ const TestCases = memo(({
                                             {caseStatus === 'PENDING' && <Clock className="w-3.5 h-3.5 text-gray-400 animate-pulse" />}
                                             {caseStatus === 'PROCESSING' && <div className="w-3 h-3 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />}
 
-                                            {mode === "SUBMIT" && isHidden ? `Case ${originalIndex + 1}` : (isHidden ? "Hidden Case" : `Case ${originalIndex + 1}`)}
+                                            {`Case ${displayIndex + 1}`}
                                         </motion.button>
                                     );
                                 })}
 
                                 {/* Custom Cases Tabs */}
                                 {customIndices.map((customIdx) => {
-                                    const displayIndex = safeCases.length + customIdx;
+                                    const displayIndex = publicCases.length + customIdx;
                                     const result = resultsMap?.get(displayIndex);
                                     const caseStatus = result?.status;
 
@@ -442,23 +447,21 @@ const TestCases = memo(({
                                         <ConsoleErrorView
                                             key="error-view"
                                             errorDetails={errorDetails}
-                                            results={results}
+                                            results={filteredResults}
                                         />
                                     )}
                                     {typeof activeTab === "number" && (() => {
                                         const displayIndex = activeTab;
-                                        const isCustom = displayIndex >= safeCases.length;
+                                        const isCustom = displayIndex >= publicCases.length;
 
                                         let testCase: { input: string; output: string; hidden?: boolean; id?: string };
-                                        let originalIndex: number;
                                         let result: TestCase | undefined;
                                         let isHidden: boolean;
                                         let hideContents: boolean = mode === "SUBMIT";
 
                                         if (isCustom) {
-                                            const customIdx = displayIndex - safeCases.length;
+                                            const customIdx = displayIndex - publicCases.length;
                                             testCase = customCases[customIdx];
-                                            originalIndex = displayIndex;
                                             result = resultsMap?.get(displayIndex);
                                             isHidden = false;
                                             hideContents = false;
@@ -466,8 +469,7 @@ const TestCases = memo(({
                                             if (displayIndex >= totalCount) return <div key="select-case" className='text-gray-400 text-sm'>Select a case</div>;
                                             const problemCase = displayCases[displayIndex];
                                             testCase = problemCase;
-                                            originalIndex = safeCases.findIndex(tc => tc.id === problemCase.id);
-                                            result = resultsMap?.get(originalIndex);
+                                            result = resultsMap?.get(displayIndex);
                                             isHidden = !!problemCase.hidden;
                                         }
 
@@ -481,7 +483,7 @@ const TestCases = memo(({
                                                 hideContents={hideContents}
                                                 isCustom={isCustom}
                                                 onUpdateCustomCase={onUpdateCustomCase}
-                                                customIdx={isCustom ? displayIndex - safeCases.length : undefined}
+                                                customIdx={isCustom ? displayIndex - publicCases.length : undefined}
                                             />
                                         )
                                     })()}

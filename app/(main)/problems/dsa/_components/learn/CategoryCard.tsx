@@ -10,6 +10,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "../shared/LoadingSpinner";
 import { DIFFICULTY_COLORS, INTERSECTION_THRESHOLD } from "../shared/constants";
+import CompanyAvatars from "@/components/problems/CompanyAvatars";
 
 type ProblemWithStats = Problem & { acceptance: number; isSolved?: boolean };
 
@@ -338,7 +339,7 @@ export default function CategoryCard({
                           <ProblemWrapper
                             {...accessibilityProps}
                             className={cn(
-                              "grid grid-cols-[1fr_110px_60px] md:grid-cols-[1fr_200px_120px] items-center py-3 px-4 rounded-xl transition-all group/item border border-transparent",
+                              "grid grid-cols-[1fr_75px_50px_60px] md:grid-cols-[1fr_120px_100px_130px] gap-4 md:gap-8 items-center py-3.5 px-6 rounded-xl transition-all group/item border border-transparent",
                               isLocked
                                 ? "cursor-not-allowed opacity-70 bg-gray-50/50 dark:bg-white/2"
                                 : "hover:bg-gray-100 dark:hover:bg-white/4 hover:border-gray-200 dark:hover:border-white/10"
@@ -348,11 +349,11 @@ export default function CategoryCard({
                             <div className="flex items-center gap-4 overflow-hidden">
                               <div className="w-5 flex justify-center shrink-0">
                                 {isLocked ? (
-                                  <Lock className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
+                                  <Lock className="w-5 h-5 text-gray-400 dark:text-gray-600 shrink-0" />
                                 ) : problem.isSolved ? (
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                                 ) : (
-                                  <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700 group-hover/item:bg-orange-500/50 transition-colors" />
+                                  <div className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-700 group-hover/item:bg-orange-500/50 transition-colors" />
                                 )}
                               </div>
                               <span className={cn(
@@ -377,11 +378,18 @@ export default function CategoryCard({
 
                             {/* Acceptance Column - Right Aligned */}
                             <div className="flex justify-end">
-                              {problem.difficulty !== "CONCEPT" && (
+                              {problem.difficulty !== "CONCEPT" ? (
                                 <span className="text-sm font-bold text-gray-400 dark:text-gray-500 tabular-nums">
                                   {problem.acceptance.toFixed(1)}%
                                 </span>
+                              ) : (
+                                <span className="text-sm font-bold text-gray-400 dark:text-gray-500">—</span>
                               )}
+                            </div>
+
+                            {/* Company Column - Centered */}
+                            <div className="flex justify-center">
+                              <CompanyAvatars companies={(problem as any).companies} />
                             </div>
                           </ProblemWrapper>
                         </motion.div>

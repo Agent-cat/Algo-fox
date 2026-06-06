@@ -122,6 +122,7 @@ export async function createProblem(data: {
     useFunctionTemplate?: boolean;
     functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
     solution?: string | null;
+    companies?: any;
 }) {
     const session = await auth.api.getSession({
         headers: await headers()

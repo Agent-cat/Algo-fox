@@ -1,14 +1,13 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { X, Check, ChevronDown, RotateCcw, ArrowUpDown } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { X, Check, ChevronDown, RotateCcw, ArrowUpDown, Search, Building2 } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { getAllTags } from "@/actions/tag.action";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { ProblemDomain } from "@prisma/client";
 
 const dropdownVariants: Variants = {
-
     hidden: { opacity: 0, y: 10, scale: 0.95 },
     visible: {
         opacity: 1,
@@ -28,18 +27,25 @@ const dropdownVariants: Variants = {
     }
 };
 
-export function FilterBar({ domain }: { domain?: ProblemDomain }) {
+interface CompanyOption {
+    name: string;
+    logo?: string;
+}
+
+export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; companies?: CompanyOption[] }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
 
     const [allTags, setAllTags] = useState<{ name: string; slug: string }[]>([]);
-    const [openDropdown, setOpenDropdown] = useState<"difficulty" | "topics" | "sort" | null>(null);
+    const [openDropdown, setOpenDropdown] = useState<"difficulty" | "topics" | "sort" | "company" | null>(null);
+    const [companySearch, setCompanySearch] = useState("");
     const containerRef = useRef<HTMLDivElement>(null);
 
     const difficulty = searchParams.get("difficulty");
     const selectedTags = searchParams.getAll("tags");
     const sortBy = searchParams.get("sortBy") || "newest";
+    const selectedCompany = searchParams.get("company");
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -55,11 +61,17 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setOpenDropdown(null);
+                setCompanySearch("");
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const filteredCompanies = useMemo(() => {
+        const q = companySearch.toLowerCase();
+        return companies.filter(c => c.name.toLowerCase().includes(q));
+    }, [companies, companySearch]);
 
     const updateFilters = (key: string, value: string | null | string[]) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -76,13 +88,15 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
         params.set("page", "1");
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
         setOpenDropdown(null);
+        setCompanySearch("");
     };
 
-    const hasFilters = difficulty || selectedTags.length > 0 || sortBy !== "newest";
+    const hasFilters = difficulty || selectedTags.length > 0 || sortBy !== "newest" || selectedCompany;
 
     return (
         <div className="flex flex-wrap items-center gap-3 mb-4" ref={containerRef}>
-            {/* Difficulty Dropdown */}
+
+            {/* ── Difficulty ── */}
             <div className="relative">
                 <button
                     onClick={() => setOpenDropdown(prev => prev === "difficulty" ? null : "difficulty")}
@@ -99,41 +113,24 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="absolute top-full left-0 mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-101 py-2"
+                            className="absolute top-full left-0 mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-[101] py-2"
                         >
-                            <button
-                                onClick={() => updateFilters("difficulty", null)}
-                                className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 font-bold tracking-tight transition-colors"
-                            >
-                                All Difficulties
+                            <button onClick={() => updateFilters("difficulty", null)} className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 font-bold tracking-tight transition-colors">All Difficulties</button>
+                            <button onClick={() => updateFilters("difficulty", "EASY")} className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-emerald-50 dark:hover:bg-emerald-500/5 text-emerald-600 dark:text-emerald-500 font-bold tracking-tight transition-colors flex items-center justify-between">
+                                Easy {difficulty === "EASY" && <Check className="w-3 h-3 stroke-4" />}
                             </button>
-                            <button
-                                onClick={() => updateFilters("difficulty", "EASY")}
-                                className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-emerald-50 dark:hover:bg-emerald-500/5 text-emerald-600 dark:text-emerald-500 font-bold tracking-tight transition-colors flex items-center justify-between"
-                            >
-                                Easy
-                                {difficulty === "EASY" && <Check className="w-3 h-3 stroke-4" />}
+                            <button onClick={() => updateFilters("difficulty", "MEDIUM")} className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-amber-50 dark:hover:bg-amber-500/5 text-amber-500 font-bold tracking-tight transition-colors flex items-center justify-between">
+                                Medium {difficulty === "MEDIUM" && <Check className="w-3 h-3 stroke-4" />}
                             </button>
-                            <button
-                                onClick={() => updateFilters("difficulty", "MEDIUM")}
-                                className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-amber-50 dark:hover:bg-amber-500/5 text-amber-500 dark:text-amber-500 font-bold tracking-tight transition-colors flex items-center justify-between"
-                            >
-                                Medium
-                                {difficulty === "MEDIUM" && <Check className="w-3 h-3 stroke-4" />}
-                            </button>
-                            <button
-                                onClick={() => updateFilters("difficulty", "HARD")}
-                                className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-rose-50 dark:hover:bg-rose-500/5 text-rose-600 dark:text-rose-500 font-bold tracking-tight transition-colors flex items-center justify-between"
-                            >
-                                Hard
-                                {difficulty === "HARD" && <Check className="w-3 h-3 stroke-4" />}
+                            <button onClick={() => updateFilters("difficulty", "HARD")} className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-rose-50 dark:hover:bg-rose-500/5 text-rose-600 dark:text-rose-500 font-bold tracking-tight transition-colors flex items-center justify-between">
+                                Hard {difficulty === "HARD" && <Check className="w-3 h-3 stroke-4" />}
                             </button>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            {/* Topics Dropdown */}
+            {/* ── Topics ── */}
             <div className="relative">
                 <button
                     onClick={() => setOpenDropdown(prev => prev === "topics" ? null : "topics")}
@@ -155,42 +152,138 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="absolute top-full left-0 mt-2 w-64 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-100 max-h-[320px] overflow-y-auto py-2 custom-scrollbar"
+                            className="absolute top-full left-0 mt-2 w-64 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-[100] max-h-[320px] overflow-y-auto py-2 custom-scrollbar"
                         >
-                            {allTags.length > 0 ? (
-                                allTags.map(tag => {
-                                    const isSelected = selectedTags.includes(tag.slug);
-                                    return (
-                                        <button
-                                            key={tag.slug}
-                                            onClick={() => {
-                                                const newTags = isSelected
-                                                    ? selectedTags.filter(t => t !== tag.slug)
-                                                    : [...selectedTags, tag.slug];
-                                                updateFilters("tags", newTags);
-                                            }}
-                                            className={`w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] flex items-center justify-between transition-all duration-200 font-bold tracking-tight ${isSelected ? 'text-orange-600 dark:text-orange-500 bg-orange-50/30 dark:bg-orange-500/5' : 'text-gray-700 dark:text-gray-300'}`}
-                                        >
-                                            {tag.name}
-                                            {isSelected && (
-                                                <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                                                    <Check className="w-2.5 h-2.5 text-white stroke-4" />
-                                                </div>
-                                            )}
-                                        </button>
-                                    );
-                                })
-                            ) : (
-                                <div className="px-4 py-8 text-center text-xs text-gray-400 font-bold uppercase tracking-widest">
-                                    Scanning Topics...
-                                </div>
+                            {allTags.length > 0 ? allTags.map(tag => {
+                                const isSelected = selectedTags.includes(tag.slug);
+                                return (
+                                    <button
+                                        key={tag.slug}
+                                        onClick={() => {
+                                            const newTags = isSelected
+                                                ? selectedTags.filter(t => t !== tag.slug)
+                                                : [...selectedTags, tag.slug];
+                                            updateFilters("tags", newTags);
+                                        }}
+                                        className={`w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] flex items-center justify-between transition-all duration-200 font-bold tracking-tight ${isSelected ? 'text-orange-600 dark:text-orange-500 bg-orange-50/30 dark:bg-orange-500/5' : 'text-gray-700 dark:text-gray-300'}`}
+                                    >
+                                        {tag.name}
+                                        {isSelected && (
+                                            <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                                                <Check className="w-2.5 h-2.5 text-white stroke-4" />
+                                            </div>
+                                        )}
+                                    </button>
+                                );
+                            }) : (
+                                <div className="px-4 py-8 text-center text-xs text-gray-400 font-bold uppercase tracking-widest">Scanning Topics...</div>
                             )}
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            {/* Sort Dropdown */}
+            {/* ── Company ── */}
+            {companies.length > 0 && (
+                <div className="relative">
+                    <button
+                        onClick={() => setOpenDropdown(prev => prev === "company" ? null : "company")}
+                        className={`flex items-center gap-2.5 px-4 py-2 bg-[#fafafa] dark:bg-[#111111] border border-gray-200 dark:border-[#1e1e1e] rounded-xl text-[13px] font-bold text-gray-700 dark:text-gray-300 transition-all duration-200 hover:border-gray-300 dark:hover:border-[#333] tracking-tight ${selectedCompany ? 'ring-2 ring-orange-500/10 border-orange-400/50 text-orange-600' : ''}`}
+                    >
+                        {selectedCompany ? (
+                            <>
+                                {(() => {
+                                    const c = companies.find(co => co.name === selectedCompany);
+                                    return c?.logo
+                                        ? <img src={c.logo} alt={c.name} className="w-4 h-4 object-contain" />
+                                        : <Building2 className="w-3.5 h-3.5 text-orange-500" />;
+                                })()}
+                                <span className="max-w-[100px] truncate">{selectedCompany}</span>
+                            </>
+                        ) : (
+                            <>
+                                <Building2 className="w-3.5 h-3.5 text-gray-400" />
+                                <span>Company</span>
+                            </>
+                        )}
+                        <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${openDropdown === "company" ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                        {openDropdown === "company" && (
+                            <motion.div
+                                variants={dropdownVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                className="absolute top-full left-0 mt-2 w-64 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-[100] flex flex-col overflow-hidden"
+                            >
+                                {/* Search */}
+                                <div className="px-3 pt-3 pb-2 border-b border-gray-100 dark:border-[#1e1e1e]">
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl">
+                                        <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            value={companySearch}
+                                            onChange={e => setCompanySearch(e.target.value)}
+                                            placeholder="Search company..."
+                                            className="flex-1 text-[12px] bg-transparent outline-none text-gray-700 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600 font-medium"
+                                        />
+                                        {companySearch && (
+                                            <button onClick={() => setCompanySearch("")} className="text-gray-400 hover:text-gray-600">
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* List */}
+                                <div className="max-h-[240px] overflow-y-auto py-2 custom-scrollbar">
+                                    <button
+                                        onClick={() => updateFilters("company", null)}
+                                        className="w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 font-bold tracking-tight transition-colors flex items-center justify-between"
+                                    >
+                                        All Companies
+                                        {!selectedCompany && <Check className="w-3 h-3 stroke-4 text-orange-500" />}
+                                    </button>
+
+                                    {filteredCompanies.length > 0 ? filteredCompanies.map(company => {
+                                        const isSelected = selectedCompany === company.name;
+                                        return (
+                                            <button
+                                                key={company.name}
+                                                onClick={() => updateFilters("company", company.name)}
+                                                className={`w-full text-left px-5 py-2.5 text-[13px] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] flex items-center gap-3 transition-all duration-150 font-bold tracking-tight ${isSelected ? 'text-orange-600 dark:text-orange-500 bg-orange-50/30 dark:bg-orange-500/5' : 'text-gray-700 dark:text-gray-300'}`}
+                                            >
+                                                {company.logo ? (
+                                                    <div className="w-5 h-5 rounded-full bg-white border border-gray-200 dark:border-[#333] flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+                                                        <img src={company.logo} alt={company.name} className="w-full h-full object-contain p-0.5" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 text-[9px] font-black text-gray-500 uppercase">
+                                                        {company.name.charAt(0)}
+                                                    </div>
+                                                )}
+                                                <span className="flex-1 truncate">{company.name}</span>
+                                                {isSelected && (
+                                                    <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
+                                                        <Check className="w-2.5 h-2.5 text-white stroke-4" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    }) : (
+                                        <div className="px-5 py-6 text-center text-xs text-gray-400 font-medium">No companies match</div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            )}
+
+            {/* ── Sort ── */}
             <div className="relative">
                 <button
                     onClick={() => setOpenDropdown(prev => prev === "sort" ? null : "sort")}
@@ -208,7 +301,7 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="absolute top-full left-0 mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-101 py-2"
+                            className="absolute top-full left-0 mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-2xl shadow-black/10 z-[101] py-2"
                         >
                             {[
                                 { id: "newest", label: "Newest" },
@@ -229,7 +322,7 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                 </AnimatePresence>
             </div>
 
-            {/* Selected Tags Display */}
+            {/* ── Active filter chips ── */}
             <div className="hidden lg:flex flex-wrap gap-2 ml-2">
                 <AnimatePresence>
                     {selectedTags.map(slug => {
@@ -244,18 +337,35 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                                 className="flex items-center gap-1.5 px-3 py-1 bg-[#fafafa] dark:bg-[#141414] text-orange-600 dark:text-orange-500 rounded-lg text-[10px] font-black border border-gray-100 dark:border-white/5 uppercase tracking-wider shadow-sm"
                             >
                                 {tagName}
-                                <button
-                                    onClick={() => updateFilters("tags", selectedTags.filter(t => t !== slug))}
-                                    className="hover:text-red-500 rounded p-0.5 transition-colors"
-                                >
+                                <button onClick={() => updateFilters("tags", selectedTags.filter(t => t !== slug))} className="hover:text-red-500 rounded p-0.5 transition-colors">
                                     <X className="w-2.5 h-2.5 stroke-4" />
                                 </button>
                             </motion.span>
                         );
                     })}
+                    {selectedCompany && (
+                        <motion.span
+                            key="company-chip"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                            className="flex items-center gap-1.5 px-3 py-1 bg-[#fafafa] dark:bg-[#141414] text-orange-600 dark:text-orange-500 rounded-lg text-[10px] font-black border border-gray-100 dark:border-white/5 uppercase tracking-wider shadow-sm"
+                        >
+                            {(() => {
+                                const c = companies.find(co => co.name === selectedCompany);
+                                return c?.logo ? <img src={c.logo} alt={c.name} className="w-3 h-3 object-contain" /> : null;
+                            })()}
+                            {selectedCompany}
+                            <button onClick={() => updateFilters("company", null)} className="hover:text-red-500 rounded p-0.5 transition-colors">
+                                <X className="w-2.5 h-2.5 stroke-4" />
+                            </button>
+                        </motion.span>
+                    )}
                 </AnimatePresence>
             </div>
 
+            {/* ── Reset ── */}
             {hasFilters && (
                 <motion.button
                     initial={{ opacity: 0 }}
@@ -265,6 +375,7 @@ export function FilterBar({ domain }: { domain?: ProblemDomain }) {
                         params.delete("difficulty");
                         params.delete("tags");
                         params.delete("sortBy");
+                        params.delete("company");
                         params.set("page", "1");
                         router.push(`${pathname}?${params.toString()}`, { scroll: false });
                         setOpenDropdown(null);

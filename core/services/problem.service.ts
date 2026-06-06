@@ -69,6 +69,7 @@ export class ProblemService {
                 solved: true,
                 createdAt: true,
                 type: true,
+                companies: true,
                 _count: {
                     select: { submissions: true }
                 },
@@ -272,6 +273,7 @@ export class ProblemService {
                     solved: true,
                     createdAt: true,
                     type: true,
+                    companies: true,
                     _count: { select: { submissions: true } },
                     tags: { select: { name: true, slug: true } }
                 }
@@ -633,6 +635,7 @@ export class ProblemService {
         courseId?: string | null;
         type?: ProblemType;
         allowedLanguages?: string[];
+        companies?: any;
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -651,6 +654,7 @@ export class ProblemService {
                     isMcq: data.isMcq || false,
                     options: data.options || null,
                     answer: data.answer || null,
+                    companies: data.companies || null,
                     courseId: data.courseId || null,
                     allowedLanguages: data.allowedLanguages || [],
                     testCases: {
@@ -792,6 +796,7 @@ export class ProblemService {
             scanAndDelete("problems:list:*"),
             scanAndDelete("admin:problems:*"),
             scanAndDelete("problems:search:*"),
+            scanAndDelete("category:*:problems:*"),
         ]);
     }
 }

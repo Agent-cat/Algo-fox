@@ -82,8 +82,8 @@ function SignInContent() {
           Back
         </Link>
       </div>
-      
-      <div 
+
+      <div
         className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#121212] shadow-2xl z-10 relative overflow-hidden"
       >
         <div className="space-y-8">

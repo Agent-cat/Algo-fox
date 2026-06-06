@@ -7,6 +7,8 @@ import { Difficulty } from "@prisma/client";
 import { DIFFICULTY_COLORS } from "./constants";
 import { motion } from "framer-motion";
 
+import CompanyAvatars from "@/components/problems/CompanyAvatars";
+
 interface ProblemRowProps {
     id: string;
     slug: string;
@@ -14,6 +16,7 @@ interface ProblemRowProps {
     difficulty: Difficulty;
     acceptance: number;
     isSolved?: boolean;
+    companies?: any;
     index?: number;
 }
 
@@ -32,6 +35,7 @@ function ProblemRowComponent({
     difficulty,
     acceptance,
     isSolved,
+    companies,
     index = 0,
 }: ProblemRowProps) {
     return (
@@ -42,24 +46,27 @@ function ProblemRowComponent({
         >
             <Link
                 href={`/problems/${slug}`}
-                className="group grid grid-cols-12 gap-4 px-5 py-3.5 rounded-xl items-center transition-all duration-200 hover:bg-gray-50/80 dark:hover:bg-[#111111] border border-transparent hover:border-gray-100 dark:hover:border-[#1e1e1e]"
+                className="group grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 rounded-xl items-center transition-all duration-200 hover:bg-gray-50/80 dark:hover:bg-[#111111] border border-transparent hover:border-gray-100 dark:hover:border-[#1e1e1e]"
             >
-                <div className="col-span-8 md:col-span-6 font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 flex items-center gap-2.5">
+                <div className="col-span-6 md:col-span-5 font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 flex items-center gap-3">
                     {isSolved && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                     )}
                     {!isSolved && (
-                        <div className="w-4 h-4 rounded-full border-2 border-gray-200 dark:border-[#333] shrink-0 group-hover:border-orange-300 dark:group-hover:border-orange-500/40 transition-colors duration-200" />
+                        <div className="w-5 h-5 rounded-full border-2 border-gray-200 dark:border-[#333] shrink-0 group-hover:border-orange-300 dark:group-hover:border-orange-500/40 transition-colors duration-200" />
                     )}
                     <span className="truncate">{title}</span>
                 </div>
-                <div className="col-span-2 md:col-span-3">
+                <div className="col-span-2 md:col-span-2 flex justify-start md:justify-center">
                     <span className={`inline-flex items-center text-xs font-black uppercase tracking-widest ${getDifficultyColor(difficulty)}`}>
                         {getDifficultyLabel(difficulty)}
                     </span>
                 </div>
-                <div className="col-span-2 md:col-span-3 text-sm text-gray-500 dark:text-gray-400 font-mono tabular-nums">
+                <div className="col-span-2 md:col-span-2 text-sm text-gray-500 dark:text-gray-400 font-mono tabular-nums flex justify-start md:justify-end">
                     {acceptance.toFixed(1)}%
+                </div>
+                <div className="col-span-2 md:col-span-3 flex justify-start md:justify-center">
+                    <CompanyAvatars companies={companies} />
                 </div>
             </Link>
         </motion.div>

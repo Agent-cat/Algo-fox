@@ -96,6 +96,7 @@ function EditProblemContent() {
                             isMcq: problem.isMcq,
                             options: problem.options || ["", "", "", ""],
                             answer: problem.answer || "",
+                            companies: problem.companies || null,
                             categoryId: problem.categoryProblems?.[0]?.categoryId || ""
                         }}
                         onSubmit={(data) => updateProblem(id, data)}
