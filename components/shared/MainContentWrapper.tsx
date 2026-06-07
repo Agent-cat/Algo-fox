@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 
 // Define a safe type for the session that includes the impersonalization status
 type BetterAuthSession = {
@@ -13,8 +14,13 @@ type BetterAuthSession = {
 export default function MainContentWrapper({ children }: { children: React.ReactNode }) {
     const { data } = authClient.useSession();
     const session = data as BetterAuthSession;
+    const [mounted, setMounted] = useState(false);
 
-    const isImpersonating = !!session?.session?.impersonatedBy;
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const isImpersonating = mounted && !!session?.session?.impersonatedBy;
 
     return (
         <div className={`transition-all duration-400 ease-in-out ${isImpersonating ? 'pt-26' : 'pt-16'}`}>

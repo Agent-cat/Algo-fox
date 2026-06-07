@@ -194,3 +194,31 @@ export async function getUserSettings() {
 
     return UserService.getUserSettings(userId);
 }
+
+/**
+ * Get user institution details
+ */
+export async function getUserInstitutionDetails() {
+    "use cache: private";
+    cacheLife({ stale: 3600, revalidate: 3600 }); // 1 hour
+
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session?.user?.institutionId) {
+        return null;
+    }
+
+    try {
+        const institutionId = session.user.institutionId;
+        cacheTag(`institution-${institutionId}`);
+        const institution = await prisma.institution.findUnique({
+            where: { id: institutionId },
+            select: { name: true, logo: true, slug: true }
+        });
+        return institution;
+    } catch (e) {
+        return null;
+    }
+}

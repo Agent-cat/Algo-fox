@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import { useStreak } from '@/context/StreakContext';
@@ -8,8 +8,13 @@ import { cn } from '@/lib/utils';
 
 export const StreakBadge = () => {
     const { streak, badgeRef, isPulsing, isFlying } = useStreak();
+    const [mounted, setMounted] = useState(false);
 
-    if (streak <= 0 && !isFlying) return null;
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted || (streak <= 0 && !isFlying)) return null;
 
     return (
         <motion.div
@@ -55,7 +60,7 @@ export const StreakBadge = () => {
             )} fill="currentColor" />
 
             <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight leading-none">
-              {streak}
+                {streak}
             </span>
 
             {/* Subtle background fire particles or micro-animation would go here */}

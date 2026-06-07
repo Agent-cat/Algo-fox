@@ -10,6 +10,7 @@ import UserPoints from "./UserPoints";
 import { StreakBadge } from "./shared/StreakBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChevronDown } from "lucide-react";
+import { getUserInstitutionDetails } from "@/actions/user.action";
 
 interface NavbarProps {
     initialSession?: any;
@@ -25,6 +26,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [institution, setInstitution] = useState<{name: string, logo: string | null} | null>(null);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -33,6 +35,31 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        if ((session?.user as any)?.institutionId) {
+            try {
+                const stored = localStorage.getItem('algofox_user_institution');
+                if (stored) setInstitution(JSON.parse(stored));
+            } catch (e) {}
+            
+            getUserInstitutionDetails().then((data) => {
+                if (data) {
+                    setInstitution(data as any);
+                    try {
+                        localStorage.setItem('algofox_user_institution', JSON.stringify(data));
+                    } catch (e) {}
+                }
+            });
+        } else if (session?.user && !(session?.user as any)?.institutionId) {
+            setInstitution(null);
+            try {
+                localStorage.removeItem('algofox_user_institution');
+            } catch (e) {}
+        }
+    }, [(session?.user as any)?.institutionId, session?.user]);
+
+    const isInstitutionLoading = (!mounted && !!(session?.user as any)?.institutionId) || (!!(session?.user as any)?.institutionId && !institution);
 
 
 
@@ -75,10 +102,28 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
                 <div className="flex items-center">
                     <Link href="/" className="text-xl font-bold flex items-center gap-2 group">
-                        <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">
-                            A
-                        </span>
-                        <span className="tracking-tight text-gray-900 dark:text-gray-100">Algofox</span>
+                        {isInstitutionLoading ? (
+                            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                        ) : institution?.logo ? (
+                            <img 
+                                src={institution.logo} 
+                                alt={institution.name} 
+                                width={32} 
+                                height={32} 
+                                className="w-8 h-8 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform duration-300"
+                            />
+                        ) : (
+                            <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">
+                                {institution ? institution.name.charAt(0).toUpperCase() : "A"}
+                            </span>
+                        )}
+                        {isInstitutionLoading ? (
+                            <div className="w-20 h-5 bg-gray-200 dark:bg-gray-800 animate-pulse rounded ml-1 hidden sm:block" />
+                        ) : (
+                            <span className="tracking-tight text-gray-900 dark:text-gray-100 line-clamp-1 max-w-[200px]">
+                                {institution ? institution.name : "Algofox"}
+                            </span>
+                        )}
                     </Link>
                 </div>
 

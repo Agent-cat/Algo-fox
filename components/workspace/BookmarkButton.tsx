@@ -48,18 +48,14 @@ export function BookmarkButton({ problemId }: BookmarkButtonProps) {
             <motion.button
                 onClick={handleToggle}
                 disabled={isLoading}
-                className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${
-                    isBookmarked
-                        ? "text-orange-500 bg-orange-50/50 hover:bg-orange-100 dark:bg-orange-500/10 dark:hover:bg-orange-500/20 shadow-sm shadow-orange-500/10"
-                        : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1a]"
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center ${isBookmarked
+                    } ${isLoading ? ' cursor-not-allowed' : ''}`}
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.9 }}
             >
-                <Bookmark 
-                    className={`w-[18px] h-[18px] transition-all duration-300 ${
-                        isBookmarked ? "fill-orange-500 stroke-orange-500" : ""
-                    }`} 
+                <Bookmark
+                    className={`w-[18px] h-[18px] transition-all duration-300 ${isBookmarked ? "fill-orange-500 stroke-orange-500" : ""
+                        }`}
                     strokeWidth={isBookmarked ? 2 : 1.5}
                 />
             </motion.button>

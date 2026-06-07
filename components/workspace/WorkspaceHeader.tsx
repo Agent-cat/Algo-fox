@@ -30,7 +30,7 @@ import { ThemeToggleButton } from "@/components/shared/ThemeToggleButton";
 import { ContestTimer } from "./ContestTimer";
 import CustomTooltip from "../ui/CustomTooltip";
 import { BookmarkButton } from "./BookmarkButton";
-
+import { getUserInstitutionDetails } from "@/actions/user.action";
 
 interface WorkspaceHeaderProps {
   onSubmit: () => void;
@@ -74,6 +74,37 @@ const WorkspaceHeader = memo(({
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [isRandomizing, startRandomizing] = useTransition();
   const profileRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [institution, setInstitution] = useState<{name: string, logo: string | null} | null>(null);
+
+  useEffect(() => {
+      setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if ((session?.user as any)?.institutionId) {
+      try {
+          const stored = localStorage.getItem('algofox_user_institution');
+          if (stored) setInstitution(JSON.parse(stored));
+      } catch (e) {}
+
+      getUserInstitutionDetails().then((data) => {
+        if (data) {
+          setInstitution(data as any);
+          try {
+              localStorage.setItem('algofox_user_institution', JSON.stringify(data));
+          } catch (e) {}
+        }
+      });
+    } else if (session?.user && !(session?.user as any)?.institutionId) {
+        setInstitution(null);
+        try {
+            localStorage.removeItem('algofox_user_institution');
+        } catch (e) {}
+    }
+  }, [(session?.user as any)?.institutionId, session?.user]);
+
+  const isInstitutionLoading = isPending || (!mounted && !!(session?.user as any)?.institutionId) || (!!(session?.user as any)?.institutionId && !institution);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -184,14 +215,27 @@ const WorkspaceHeader = memo(({
         )}
 
         <Link href={contestId ? `/contest/${contestId}` : "/"} className="flex items-center gap-2 group">
-          <motion.span
-            whileHover={{ scale: 1.08, rotate: -3 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 text-sm font-bold"
-          >
-            A
-          </motion.span>
+          {isInstitutionLoading ? (
+            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />
+          ) : institution?.logo ? (
+            <motion.img
+              src={institution.logo}
+              alt={institution.name}
+              whileHover={{ scale: 1.08, rotate: -3 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="w-8 h-8 object-contain rounded-lg shadow-sm"
+            />
+          ) : (
+            <motion.span
+              whileHover={{ scale: 1.08, rotate: -3 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 text-sm font-bold"
+            >
+              {institution ? institution.name.charAt(0).toUpperCase() : "A"}
+            </motion.span>
+          )}
           {contestId && (
             <motion.div
               initial={{ opacity: 0, x: -8 }}

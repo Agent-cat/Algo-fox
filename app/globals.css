@@ -29,7 +29,7 @@
 }
 
 .dark {
-  --background: #121212;
+  --background: #0f0f0f;
   --foreground: #f5f5f5;
   --toast-bg: #1a1a1a;
   --toast-color: #f5f5f5;
@@ -164,6 +164,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -182,6 +183,7 @@ body {
     linear-gradient(to right, #262626 1px, transparent 1px),
     linear-gradient(to bottom, #262626 1px, transparent 1px);
 }
+
 /* Custom syntax highlighting that adapts to theme */
 .hljs-keyword,
 .hljs-selector-tag,
