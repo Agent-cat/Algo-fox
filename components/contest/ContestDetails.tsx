@@ -66,6 +66,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         try {
             const res = await finishContestAction(contest.id);
             if (res.success) {
+                // Signal the extension to end the exam mode
+                window.postMessage({ type: "SAFE_EXAM_END" }, "*");
+                
                 toast.success("Contest submitted successfully!");
                 router.push("/");
             } else {

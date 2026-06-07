@@ -55,7 +55,7 @@ const RULES = [
 
 const AI_SITES = ["ChatGPT", "Claude", "Gemini", "Copilot", "Perplexity"];
 
-type Step = "PASSWORD" | "RULES" | "TAB_PERMISSION" | "CLIPBOARD_PERMISSION" | "CONFIRM";
+type Step = "PASSWORD" | "ENVIRONMENT_CHECK" | "RULES" | "TAB_PERMISSION" | "CLIPBOARD_PERMISSION" | "CONFIRM";
 type ClipboardStatus = "idle" | "requesting" | "granted" | "denied";
 
 export default function ContestEntryModal({
@@ -72,13 +72,17 @@ export default function ContestEntryModal({
   const [agreed, setAgreed] = useState(false);
   const [tabAgreed, setTabAgreed] = useState(false);
   const [clipboardStatus, setClipboardStatus] = useState<ClipboardStatus>("idle");
+  const [envCheckStatus, setEnvCheckStatus] = useState<"idle" | "checking" | "success" | "error">("idle");
+  const [envCheckError, setEnvCheckError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setStep(requiresPassword ? "PASSWORD" : "RULES");
+      setStep(requiresPassword ? "PASSWORD" : "ENVIRONMENT_CHECK");
       setAgreed(false);
       setTabAgreed(false);
       setClipboardStatus("idle");
+      setEnvCheckStatus("idle");
+      setEnvCheckError(null);
       setPassword("");
       setIsLoading(false);
     }
@@ -93,7 +97,7 @@ export default function ContestEntryModal({
     try {
       const result = await verifyContestPassword(contestId, password);
       if (result.success) {
-        setStep("RULES");
+        setStep("ENVIRONMENT_CHECK");
         toast.success("Access granted");
       } else {
         toast.error(result.error || "Incorrect password");
@@ -117,9 +121,54 @@ export default function ContestEntryModal({
     }
   };
 
+  const runEnvironmentCheck = async () => {
+    setEnvCheckStatus("checking");
+    setEnvCheckError(null);
+
+    const extensionCheck = await new Promise<any>((resolve) => {
+      const timeout = setTimeout(() => {
+        window.removeEventListener("message", messageHandler);
+        resolve({ success: false, reason: "not_installed" });
+      }, 1500);
+
+      const messageHandler = (event: MessageEvent) => {
+        if (event.source !== window) return;
+        if (event.data && event.data.type === "SAFE_EXAM_ACK" && event.data.action === "start") {
+          clearTimeout(timeout);
+          window.removeEventListener("message", messageHandler);
+          resolve({ success: true, payload: event.data.payload });
+        }
+      };
+
+      window.addEventListener("message", messageHandler);
+      window.postMessage({ type: "SAFE_EXAM_START" }, "*");
+    });
+
+    if (!extensionCheck.success) {
+      setEnvCheckStatus("error");
+      setEnvCheckError("Safe Exam Extension is not installed or active.");
+      return;
+    }
+
+    if (extensionCheck.payload.status === "blocked") {
+      setEnvCheckStatus("error");
+      if (extensionCheck.payload.reason === "other_extensions_active") {
+         setEnvCheckError(`Please disable other active extensions: ${extensionCheck.payload.extensions.join(', ')}`);
+      } else if (extensionCheck.payload.reason === "other_tabs_open") {
+         setEnvCheckError(`Please close ${extensionCheck.payload.count} other open tab(s) before starting.`);
+      } else {
+         setEnvCheckError(`Blocked: ${extensionCheck.payload.reason}`);
+      }
+      return;
+    }
+
+    setEnvCheckStatus("success");
+  };
+
   const handleStartContest = async () => {
     if (!agreed) return;
     setIsLoading(true);
+
     try {
       const result = await startContestSession(contestId, password);
       if (!result.success) {
@@ -156,7 +205,7 @@ export default function ContestEntryModal({
   };
 
   // Build the ordered list of non-password steps for the progress indicator
-  const progressSteps: Step[] = ["RULES", "TAB_PERMISSION", "CLIPBOARD_PERMISSION", "CONFIRM"];
+  const progressSteps: Step[] = ["ENVIRONMENT_CHECK", "RULES", "TAB_PERMISSION", "CLIPBOARD_PERMISSION", "CONFIRM"];
   const displayStepIndex = progressSteps.indexOf(step);
 
   if (!isOpen) return null;
@@ -167,7 +216,10 @@ export default function ContestEntryModal({
       <div
         className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md"
         onClick={() => {
-          if (!requiresPassword || step !== "PASSWORD") onClose();
+          if (!requiresPassword || step !== "PASSWORD") {
+            window.postMessage({ type: "SAFE_EXAM_END" }, "*");
+            onClose();
+          }
         }}
       />
 
@@ -197,7 +249,10 @@ export default function ContestEntryModal({
           </div>
           {step !== "PASSWORD" && (
             <button
-              onClick={onClose}
+              onClick={() => {
+                window.postMessage({ type: "SAFE_EXAM_END" }, "*");
+                onClose();
+              }}
               className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
@@ -236,6 +291,66 @@ export default function ContestEntryModal({
                 >
                   {isLoading ? "Verifying…" : <><span>Continue</span> <ArrowRight className="w-4 h-4" /></>}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* ─────────── STEP: ENVIRONMENT_CHECK ─────────── */}
+          {step === "ENVIRONMENT_CHECK" && (
+            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">System Check</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  We need to verify your environment before proceeding.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4 mb-6">
+                 {envCheckStatus === "idle" && (
+                    <div className="p-4 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#1e1e1e] text-center text-sm text-gray-600 dark:text-gray-400">
+                        Click the button below to start the environment check.
+                    </div>
+                 )}
+                 {envCheckStatus === "checking" && (
+                    <div className="p-4 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#1e1e1e] text-center flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-600 border-t-orange-500 rounded-full animate-spin" />
+                        Verifying environment...
+                    </div>
+                 )}
+                 {envCheckStatus === "error" && (
+                    <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-center flex flex-col items-center gap-2">
+                        <XCircle className="w-6 h-6 text-red-500" />
+                        <p className="text-sm text-red-700 dark:text-red-400 font-medium">Verification Failed</p>
+                        <p className="text-xs text-red-600 dark:text-red-300">{envCheckError}</p>
+                    </div>
+                 )}
+                 {envCheckStatus === "success" && (
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-center flex flex-col items-center gap-2">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                        <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">All checks passed</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-300">Your environment is secure and ready.</p>
+                    </div>
+                 )}
+              </div>
+
+              <div className="mt-auto pt-7 flex flex-col gap-3">
+                {envCheckStatus !== "success" && (
+                  <button
+                    onClick={runEnvironmentCheck}
+                    disabled={envCheckStatus === "checking"}
+                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {envCheckStatus === "error" ? "Retry Checks" : "Run Checks"}
+                  </button>
+                )}
+                {envCheckStatus === "success" && (
+                  <button
+                    onClick={() => setStep("RULES")}
+                    className="w-full bg-orange-600 text-white py-3.5 rounded-none font-semibold text-sm tracking-wide hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Continue <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -520,6 +635,8 @@ export default function ContestEntryModal({
               </div>
             </div>
           )}
+
+
 
         </div>
       </div>
