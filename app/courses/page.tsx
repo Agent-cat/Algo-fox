@@ -15,7 +15,7 @@ function CoursesSkeleton() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-                <div key={i} className="h-[400px] rounded-4xl bg-gray-100 dark:bg-[#1a1a1a] animate-pulse" />
+                <div key={i} className="h-[400px] rounded-4xl bg-gray-100 dark:bg-[#1D1E23] animate-pulse" />
             ))}
         </div>
     );
@@ -31,7 +31,7 @@ export default async function CoursesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212]">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
             <Suspense fallback={<div className="h-16 w-full" />}>
                 <Navbar initialSession={session} />
             </Suspense>

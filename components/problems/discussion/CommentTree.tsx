@@ -88,7 +88,7 @@ export function CommentTree({ problemId }: CommentTreeProps) {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#121212]">
+        <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23]">
             {/* TOP ACTIONS */}
             <div className="p-4 border-b border-dashed border-gray-100 dark:border-white/10 flex items-center justify-between">
                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -130,11 +130,11 @@ export function CommentTree({ problemId }: CommentTreeProps) {
             </div>
 
             {/* Sticky Bottom Input for quick comments (optional, but keep for consistency) */}
-            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-t border-dashed border-gray-200 dark:border-white/10 p-4">
+            <div className="sticky bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1D1E23]/80 backdrop-blur-md border-t border-dashed border-gray-200 dark:border-white/10 p-4">
                 {session?.user ? (
                     <CommentInput problemId={problemId} onSuccess={() => fetchComments()} compact />
                 ) : (
-                   <div className="text-center py-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg border border-dashed border-gray-200 dark:border-[#333]">
+                   <div className="text-center py-3 bg-gray-50 dark:bg-[#1D1E23] rounded-lg border border-dashed border-gray-200 dark:border-[#333]">
                         <p className="text-sm text-gray-500 dark:text-gray-400">Please sign in to join the discussion.</p>
                     </div>
                 )}

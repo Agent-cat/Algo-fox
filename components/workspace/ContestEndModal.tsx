@@ -20,7 +20,7 @@ export const ContestEndModal = ({ isOpen, onClose, onConfirm, confirmText, setCo
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-[#fafafa] dark:bg-[#121212] rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-100 dark:border-white/5"
+                className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-2xl shadow-2xl w-full max-w-md p-8 border border-gray-100 dark:border-white/5"
             >
                 <div className="flex items-center gap-4 mb-6 text-red-600 dark:text-red-500">
                     <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
@@ -40,14 +40,14 @@ export const ContestEndModal = ({ isOpen, onClose, onConfirm, confirmText, setCo
                     placeholder="Type 'end' to confirm"
                     value={confirmText}
                     onChange={(e) => setConfirmText(e.target.value)}
-                    className="w-full px-6 py-4 border rounded-xl mb-8 bg-gray-50 dark:bg-[#111] border-gray-200 dark:border-[#262626] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#1a1a1a] focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest text-lg placeholder:normal-case placeholder:tracking-normal placeholder:text-sm"
+                    className="w-full px-6 py-4 border rounded-xl mb-8 bg-gray-50 dark:bg-[#1D1E23] border-gray-200 dark:border-[#262626] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-[#1D1E23] focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest text-lg placeholder:normal-case placeholder:tracking-normal placeholder:text-sm"
                     autoFocus
                 />
 
                 <div className="flex gap-4">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-6 py-4 border rounded-xl font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] border-gray-200 dark:border-[#262626] transition-all active:scale-95"
+                        className="flex-1 px-6 py-4 border rounded-xl font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1D1E23] border-gray-200 dark:border-[#262626] transition-all active:scale-95"
                     >
                         Cancel
                     </button>

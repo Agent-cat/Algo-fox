@@ -47,7 +47,7 @@ export function CommentInput({ problemId, parentId, onSuccess, onCancel, placeho
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder={placeholder || "Type a comment..."}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 transition-all"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 transition-all"
                     autoFocus={autoFocus}
                 />
                 <button
@@ -68,7 +68,7 @@ export function CommentInput({ problemId, parentId, onSuccess, onCancel, placeho
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder={placeholder || "Write a comment..."}
-                    className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-y text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+                    className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-y text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
                     autoFocus={autoFocus}
                 />
                 <div className="absolute bottom-3 right-3 flex items-center gap-2">

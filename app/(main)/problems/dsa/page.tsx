@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import { Metadata } from "next";
+import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 
 export const metadata: Metadata = {
     title: "DSA Problems",
@@ -35,7 +36,7 @@ async function DsaProblemsContent({
         if (!allocatedCourses.domains.includes("DSA")) {
             // User doesn't have access to DSA
             return (
-                <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center px-4">
+                <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center px-4">
                     <div className="max-w-md text-center">
                         <div className="mb-6">
                             <svg className="w-20 h-20 mx-auto text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,15 +99,7 @@ export default async function DsaProblemsPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
-            <div className="text-center space-y-4">
-                <div className="relative">
-                    <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
-                    <div className="absolute inset-0 h-10 w-10 border-[3px] border-transparent border-b-orange-300 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading problems...</p>
-            </div>
-        </div>}>
+        <Suspense fallback={<ProblemListSkeleton />}>
             <DsaProblemsContent searchParams={searchParams} />
         </Suspense>
     );

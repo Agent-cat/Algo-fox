@@ -42,14 +42,14 @@ export default async function EditContestPage({ params }: EditContestPageProps) 
     const contest = res.contest;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#121212]">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#24262C]">
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="mb-8">
                     <BackButton />
                 </div>
 
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden shadow-sm">
-                    <div className="px-8 py-6 border-b border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#111]">
+                <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-white/5 rounded-xl overflow-hidden shadow-sm">
+                    <div className="px-8 py-6 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#24262C]">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Contest</h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Update contest details, problems, and settings</p>
                     </div>

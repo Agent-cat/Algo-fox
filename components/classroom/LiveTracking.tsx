@@ -203,7 +203,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                         return (
                             <div
                                 key={student.id}
-                                className="bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-500 group shadow-sm hover:shadow-xl hover:shadow-gray-200/10 dark:hover:shadow-none"
+                                className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-500 group shadow-sm hover:shadow-xl hover:shadow-gray-200/10 dark:hover:shadow-none"
                             >
                                 {/* Matrix Card Header */}
                                 <div className="p-5 flex items-start justify-between border-b border-gray-100 dark:border-white/5">
@@ -304,7 +304,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 100 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-5xl bg-white dark:bg-[#121212] rounded-4xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[90vh]"
+                            className="relative w-full max-w-5xl bg-white dark:bg-[#1D1E23] rounded-4xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-[#262626] flex flex-col max-h-[90vh]"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">
@@ -328,7 +328,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                             {/* Modal Content */}
                             <div className="flex-1 overflow-auto bg-gray-50 dark:bg-[#0c0c0c] p-0">
                                 <div className="p-8">
-                                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-200 bg-white dark:bg-[#141414] p-6 rounded-xl border border-gray-100 dark:border-[#262626]">
+                                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-200 bg-white dark:bg-[#24262C] p-6 rounded-xl border border-gray-100 dark:border-[#262626]">
                                         <code>{selectedSubmission.code}</code>
                                     </pre>
                                 </div>

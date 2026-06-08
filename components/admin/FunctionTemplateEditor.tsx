@@ -91,13 +91,13 @@ export default function FunctionTemplateEditor({
     return (
         <div className="space-y-6">
             {/* Mode Toggle */}
-            <div className="bg-gray-50 dark:bg-[#111] rounded-[3px] p-1.5 border border-gray-200 dark:border-[#333]">
+            <div className="bg-gray-50 dark:bg-[#1D1E23] rounded-[3px] p-1.5 border border-gray-200 dark:border-[#333]">
                 <div className="flex items-center gap-1">
                     <button
                         type="button"
                         onClick={() => onUseFunctionTemplateChange(false)}
                         className={`flex-1 px-4 py-3 rounded-[3px] text-sm font-bold transition-all ${!useFunctionTemplate
-                            ? "bg-white dark:bg-[#121212] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
+                            ? "bg-white dark:bg-[#1D1E23] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
                             : "bg-transparent text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                     >
@@ -110,7 +110,7 @@ export default function FunctionTemplateEditor({
                         type="button"
                         onClick={() => onUseFunctionTemplateChange(true)}
                         className={`flex-1 px-4 py-3 rounded-[3px] text-sm font-bold transition-all ${useFunctionTemplate
-                            ? "bg-white dark:bg-[#121212] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
+                            ? "bg-white dark:bg-[#1D1E23] text-[#39424e] dark:text-white shadow-sm border border-gray-200 dark:border-[#444]"
                             : "bg-transparent text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                     >
@@ -144,7 +144,7 @@ export default function FunctionTemplateEditor({
                             return (
                                 <div key={lang.id} className={idx > 0 ? "border-t border-gray-200 dark:border-[#333]" : ""}>
                                     {/* Language Header */}
-                                    <div className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] hover:bg-gray-100 dark:hover:bg-[#222] transition-colors">
+                                    <div className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-[#1D1E23] hover:bg-gray-100 dark:hover:bg-[#222] transition-colors">
                                         <button
                                             type="button"
                                             onClick={() => toggleLanguage(lang.id)}
@@ -185,7 +185,7 @@ export default function FunctionTemplateEditor({
 
                                     {/* Language Content */}
                                     {isExpanded && (
-                                        <div className="p-4 bg-white dark:bg-[#141414] space-y-4">
+                                        <div className="p-4 bg-white dark:bg-[#24262C] space-y-4">
                                             {/* Function Template */}
                                             <div className="space-y-2">
                                                 <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">

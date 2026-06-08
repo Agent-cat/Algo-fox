@@ -102,7 +102,7 @@ export default function SqlAdminCategoriesPage() {
           { label: "Actions", className: "text-right" }
         ]}
         renderItem={(category) => (
-          <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
+          <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
             <td className="px-6 py-4">
               <div className="flex items-center gap-1">
                 {category.level && category.level > 0 ? (
@@ -123,7 +123,7 @@ export default function SqlAdminCategoriesPage() {
               </div>
             </td>
             <td className="px-6 py-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1a1a1a] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1D1E23] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
                 {category._count.categoryProblems} problems
               </span>
             </td>

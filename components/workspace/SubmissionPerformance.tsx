@@ -95,10 +95,10 @@ export default function SubmissionPerformance({ runtime, memory, problemId }: { 
             initial={{ opacity: 0, scale: 0.98, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="mt-4 bg-[#fafafa] dark:bg-[#121212] border border-gray-200 dark:border-[#1e1e1e] rounded-xl overflow-hidden shadow-sm dark:shadow-2xl"
+            className="mt-4 bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-200 dark:border-[#1e1e1e] rounded-xl overflow-hidden shadow-sm dark:shadow-2xl"
         >
             {/* Nav Tabs */}
-            <div className="flex bg-gray-50/50 dark:bg-[#0d0d0d] border-b border-gray-100 dark:border-white/5 px-2">
+            <div className="flex bg-gray-50/50 dark:bg-[#24262C] border-b border-gray-100 dark:border-white/5 px-2">
                 <button
                     onClick={() => setActiveTab("runtime")}
                     className={`px-6 py-2.5 text-[12px] font-bold font-mono transition-all relative ${

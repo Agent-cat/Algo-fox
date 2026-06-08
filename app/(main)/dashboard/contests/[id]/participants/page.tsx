@@ -106,7 +106,7 @@ export default function ContestParticipantsPage() {
                 <CheckCircle2 className="w-3 h-3" /> Unblocked
             </span>;
         }
-        return <span className="px-2 py-1 bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 text-xs font-medium rounded-full">
+        return <span className="px-2 py-1 bg-gray-100 dark:bg-[#24262C] text-gray-700 dark:text-gray-300 text-xs font-medium rounded-full">
             Active
         </span>;
     };
@@ -115,14 +115,14 @@ export default function ContestParticipantsPage() {
     const flaggedCount = participants.filter(p => p.isFlagged && !p.isBlocked).length;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#121212]">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#24262C]">
             {/* Header */}
-            <div className="bg-white dark:bg-[#141414] border-b border-gray-200 dark:border-[#262626] sticky top-0 z-10">
+            <div className="bg-white dark:bg-[#24262C] border-b border-gray-200 dark:border-white/5 sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-4 py-4">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => router.back()}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-500 dark:text-gray-400"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-[#24262C] rounded-lg transition-colors text-gray-500 dark:text-gray-400"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
@@ -137,7 +137,7 @@ export default function ContestParticipantsPage() {
             {/* Stats */}
             <div className="max-w-6xl mx-auto px-4 py-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white dark:bg-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl p-4 border border-gray-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/10 rounded-lg flex items-center justify-center">
                                 <Users className="w-5 h-5 text-blue-600 dark:text-blue-500" />
@@ -148,7 +148,7 @@ export default function ContestParticipantsPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl p-4 border border-gray-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-red-100 dark:bg-red-500/10 rounded-lg flex items-center justify-center">
                                 <Ban className="w-5 h-5 text-red-600 dark:text-red-500" />
@@ -159,7 +159,7 @@ export default function ContestParticipantsPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl p-4 border border-gray-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-500/10 rounded-lg flex items-center justify-center">
                                 <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
@@ -170,7 +170,7 @@ export default function ContestParticipantsPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-[#141414] rounded-xl p-4 border border-gray-200 dark:border-[#262626]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl p-4 border border-gray-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-green-100 dark:bg-green-500/10 rounded-lg flex items-center justify-center">
                                 <Shield className="w-5 h-5 text-green-600 dark:text-green-500" />
@@ -186,7 +186,7 @@ export default function ContestParticipantsPage() {
                 </div>
 
                 {/* Participants List */}
-                <div className="bg-white dark:bg-[#141414] rounded-xl border border-gray-200 dark:border-[#262626] overflow-hidden">
+                <div className="bg-white dark:bg-[#24262C] rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden">
                     {loading ? (
                         <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading participants...</div>
                     ) : participants.length === 0 ? (
@@ -194,7 +194,7 @@ export default function ContestParticipantsPage() {
                     ) : (
                         <div className="divide-y divide-gray-100 dark:divide-[#262626]">
                             {participants.map((p) => (
-                                <div key={p.id} className="hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">
+                                <div key={p.id} className="hover:bg-gray-50 dark:hover:bg-[#24262C]">
                                     <div
                                         className="p-4 flex items-center justify-between cursor-pointer"
                                         onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
@@ -237,11 +237,11 @@ export default function ContestParticipantsPage() {
 
                                     {/* Expanded details */}
                                     {expandedId === p.id && (
-                                        <div className="px-4 pb-4 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#1a1a1a]">
+                                        <div className="px-4 pb-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#24262C]">
                                             <div className="pt-4">
                                                 <div className="flex flex-col md:flex-row gap-4 mb-4">
                                                     {/* IP Info */}
-                                                    <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl p-3 flex-1">
+                                                    <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-white/5 rounded-xl p-3 flex-1">
                                                         <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Entry IP Address</p>
                                                         <p className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100">
                                                             {p.ipAddress || 'unknown'}
@@ -271,7 +271,7 @@ export default function ContestParticipantsPage() {
                                                 ) : (
                                                     <div className="space-y-2">
                                                         {p.violations.map((v) => (
-                                                            <div key={v.id} className="flex items-center justify-between p-2 bg-white dark:bg-[#141414] rounded-lg border border-gray-200 dark:border-[#262626]">
+                                                            <div key={v.id} className="flex items-center justify-between p-2 bg-white dark:bg-[#24262C] rounded-lg border border-gray-200 dark:border-white/5">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="px-2 py-0.5 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-xs rounded font-medium">
                                                                         {v.type.replace(/_/g, ' ')}

@@ -132,7 +132,7 @@ function SqlCategoryProblemsContent() {
 
   if (isLoading && !category) {
     return (
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -141,7 +141,7 @@ function SqlCategoryProblemsContent() {
   // --- INLINE FORM VIEWS ---
   if (mode === "add-problem") {
     return (
-      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#121212]">
+      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#1D1E23]">
         <div className="max-w-6xl mx-auto px-8 pt-10 pb-6 flex items-center gap-4">
           <button
             onClick={() => setMode("list")}
@@ -171,7 +171,7 @@ function SqlCategoryProblemsContent() {
 
   if (mode === "add-concept") {
     return (
-      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#121212]">
+      <div className="min-h-screen pt-16 pb-32 bg-white dark:bg-[#1D1E23]">
         <div className="max-w-6xl mx-auto px-8 pt-10 pb-6 flex items-center gap-4">
           <button
             onClick={() => setMode("list")}
@@ -198,7 +198,7 @@ function SqlCategoryProblemsContent() {
 
   // --- LIST VIEW ---
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212]">
+    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#1D1E23]">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/admin/sql/categories"
@@ -235,7 +235,7 @@ function SqlCategoryProblemsContent() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
           {isLoading ? (
             <div className="p-20 flex flex-col items-center justify-center gap-4">
               <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-full">
@@ -245,7 +245,7 @@ function SqlCategoryProblemsContent() {
             </div>
           ) : problems.length === 0 ? (
             <div className="p-20 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
                 <Plus className="w-6 h-6 text-gray-400" />
               </div>
               <h3 className="text-gray-900 dark:text-white font-semibold mb-1">No problems yet</h3>
@@ -262,7 +262,7 @@ function SqlCategoryProblemsContent() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626]">
+                  <tr className="bg-gray-50 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#262626]">
                     <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Title
                     </th>
@@ -278,7 +278,7 @@ function SqlCategoryProblemsContent() {
                   {problems.map((problem) => (
                     <tr
                       key={problem.id}
-                      className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                      className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group"
                     >
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900 dark:text-white">{problem.title}</div>

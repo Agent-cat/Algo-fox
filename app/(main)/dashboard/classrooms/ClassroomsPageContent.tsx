@@ -81,7 +81,7 @@ export function ClassroomsPageContent({
              placeholder="Locate logic nodes or mentors..."
              value={searchQuery}
              onChange={handleSearchChange}
-             className="w-full h-12 pl-12 pr-4 bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500/20 shadow-sm transition-all"
+             className="w-full h-12 pl-12 pr-4 bg-[#fafafa] dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500/20 shadow-sm transition-all"
            />
          </div>
 
@@ -104,7 +104,7 @@ export function ClassroomsPageContent({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-32 text-center bg-[#fafafa] dark:bg-[#121212] rounded-3xl border border-dashed border-gray-200 dark:border-white/5">
+        <div className="flex flex-col items-center justify-center py-32 text-center bg-[#fafafa] dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-200 dark:border-white/5">
           <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 border border-gray-100 dark:border-white/5">
             <Layers className="w-8 h-8 text-gray-300 dark:text-gray-700" />
           </div>
@@ -128,7 +128,7 @@ export function ClassroomsPageContent({
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             disabled={currentPage === 1}
-            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
+            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
           >
             <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
@@ -146,7 +146,7 @@ export function ClassroomsPageContent({
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             disabled={currentPage === totalPages}
-            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
+            className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
           >
             <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>

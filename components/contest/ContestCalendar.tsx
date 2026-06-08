@@ -92,7 +92,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
             <div className="w-full lg:w-80 flex-shrink-0 order-2 lg:order-1 space-y-6">
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-[#111] rounded-2xl border border-gray-200 dark:border-[#222] p-5 shadow-sm">
+                <div className="bg-white dark:bg-[#1D1E23] rounded-2xl border border-gray-200 dark:border-[#222] p-5 shadow-sm">
                     <div className="flex items-center gap-2 mb-4 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider font-bold">
                         <Filter className="w-3 h-3" />
                         <span>Platform Filters</span>
@@ -116,7 +116,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                 </div>
 
                 {/* Upcoming List */}
-                <div className="bg-white dark:bg-[#111] rounded-2xl border border-gray-200 dark:border-[#222] p-5 shadow-sm min-h-[400px]">
+                <div className="bg-white dark:bg-[#1D1E23] rounded-2xl border border-gray-200 dark:border-[#222] p-5 shadow-sm min-h-[400px]">
                     <div className="flex items-center gap-2 mb-6 text-orange-600 dark:text-orange-500 text-xs uppercase tracking-wider font-bold">
                         <Clock className="w-3 h-3" />
                         <span>Upcoming Contests</span>
@@ -155,7 +155,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
             </div>
 
             {/* Main Calendar */}
-            <div className="flex-1 order-1 lg:order-2 bg-white dark:bg-[#111] rounded-3xl border border-gray-200 dark:border-[#222] p-8 min-h-[600px] flex flex-col">
+            <div className="flex-1 order-1 lg:order-2 bg-white dark:bg-[#1D1E23] rounded-3xl border border-gray-200 dark:border-[#222] p-8 min-h-[600px] flex flex-col">
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
@@ -205,7 +205,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                                 onClick={() => setSelectedDate(day)}
                                 className={`
                                     relative min-h-[100px] lg:min-h-[120px] p-2 transition-colors cursor-pointer flex flex-col gap-1
-                                    ${!isCurrentMonth ? "bg-gray-50 dark:bg-[#121212] text-gray-400 dark:text-gray-800" : "bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-[#161616] text-gray-500 dark:text-gray-400"}
+                                    ${!isCurrentMonth ? "bg-gray-50 dark:bg-[#1D1E23] text-gray-400 dark:text-gray-800" : "bg-white dark:bg-[#1D1E23] hover:bg-gray-50 dark:hover:bg-[#161616] text-gray-500 dark:text-gray-400"}
                                     ${isSelected ? "bg-orange-50/50 dark:bg-[#161616] ring-1 ring-orange-500 inset-0 z-0" : ""}
                                 `}
                             >
@@ -223,7 +223,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                                             key={contest.id}
                                             className="group/contest relative"
                                         >
-                                            <div className="px-1.5 py-1 rounded bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#222] hover:border-orange-500/50 hover:bg-white dark:hover:bg-[#222] transition-colors flex items-center gap-1.5">
+                                            <div className="px-1.5 py-1 rounded bg-gray-100 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] hover:border-orange-500/50 hover:bg-white dark:hover:bg-[#222] transition-colors flex items-center gap-1.5">
                                                 <img src={PLATFORM_LOGOS[contest.site]} className="w-2.5 h-2.5 opacity-80" alt="" />
                                                 <p className="text-[9px] font-medium text-gray-700 dark:text-gray-300 truncate leading-tight">
                                                     {contest.name}
@@ -232,7 +232,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
 
                                             {/* Hover Card */}
                                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full pt-2 opacity-0 group-hover/contest:opacity-100 transition-opacity pointer-events-none group-hover/contest:pointer-events-auto z-50 w-64 shadow-xl">
-                                                <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl p-3 shadow-2xl mb-2">
+                                                <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-xl p-3 shadow-2xl mb-2">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <img src={PLATFORM_LOGOS[contest.site]} className="w-4 h-4" alt="" />
                                                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{contest.site}</span>

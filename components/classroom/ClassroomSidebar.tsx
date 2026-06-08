@@ -51,7 +51,7 @@ export function ClassroomSidebar({
     ];
 
     return (
-        <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#111] border-r border-gray-200 dark:border-[#262626] font-mono overflow-y-auto scrollbar-hide">
+        <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#1D1E23] border-r border-gray-200 dark:border-[#262626] font-mono overflow-y-auto scrollbar-hide">
             <div className="px-6 mb-8">
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
@@ -138,7 +138,7 @@ export function ClassroomSidebar({
                             <button
                                 key={`action-${index}`}
                                 onClick={onDownload}
-                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group"
                             >
                                 <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
                                 <span className="tracking-tight">{item.label}</span>
@@ -151,7 +151,7 @@ export function ClassroomSidebar({
                             <button
                                 key={`progress-action-${index}`}
                                 onClick={onProgressDownload}
-                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group"
                             >
                                 <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
                                 <span className="tracking-tight">{item.label}</span>
@@ -167,7 +167,7 @@ export function ClassroomSidebar({
                                 w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
                                 ${isActive
                                     ? "text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23]"
                                 }
                             `}
                         >

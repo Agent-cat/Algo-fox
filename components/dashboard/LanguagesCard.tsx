@@ -41,24 +41,20 @@ export function LanguagesCard({ languageCounts }: LanguagesCardProps) {
     const displayLanguages = languages.length > 0 ? languages : defaultLanguages;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-dashed border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col">
+            <div className="mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Languages</h3>
             </div>
-            <div className="p-6">
+            <div className="flex-1">
                 <div className="space-y-3">
                     {displayLanguages.map((lang, index) => {
-                        const colorClass = languageColors[lang.name] || 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
-                        const bgColor = colorClass.includes('blue') ? 'bg-blue-50/50 dark:bg-blue-500/5 border-blue-100 dark:border-blue-500/20' :
-                            colorClass.includes('orange') ? 'bg-orange-50/50 dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20' :
-                                colorClass.includes('yellow') ? 'bg-yellow-50/50 dark:bg-yellow-500/5 border-yellow-100 dark:border-yellow-500/20' :
-                                    colorClass.includes('green') ? 'bg-green-50/50 dark:bg-green-500/5 border-green-100 dark:border-green-500/20' :
-                                        'bg-gray-50/50 dark:bg-[#1a1a1a] border-gray-100 dark:border-[#262626]';
+                        const colorClass = languageColors[lang.name] || 'bg-gray-100 dark:bg-[#1D1E23] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/5';
+                        const bgColor = 'bg-gray-50 dark:bg-[#1D1E23] border-gray-100 dark:border-white/5';
 
                         return (
                             <div
                                 key={index}
-                                className={`flex items-center justify-between p-3 rounded-xl border border-dashed ${bgColor} hover:shadow-sm`}
+                                className={`flex items-center justify-between p-4 rounded-xl border ${bgColor} hover:border-gray-300 dark:hover:border-white/10 transition-colors`}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${colorClass}`}>

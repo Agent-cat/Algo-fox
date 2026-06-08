@@ -12,7 +12,7 @@ function CreateProblemContent() {
                 <p className="text-gray-500 dark:text-gray-400 text-lg">Add a new challenge for the community.</p>
             </div>
 
-            <div className="bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl border border-white/20 dark:border-[#262626] p-8 rounded-3xl shadow-xl shadow-gray-200/40 dark:shadow-none">
+            <div className="bg-white/80 dark:bg-[#24262C]/80 backdrop-blur-xl border border-white/20 dark:border-[#262626] p-8 rounded-3xl shadow-xl shadow-gray-200/40 dark:shadow-none">
                 <ProblemForm
                     onSubmit={createProblem}
                     submitLabel="Create Problem"

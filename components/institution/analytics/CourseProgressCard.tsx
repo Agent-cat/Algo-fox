@@ -42,7 +42,7 @@ interface CourseProgressCardProps {
 export function CourseProgressCard({ courses }: CourseProgressCardProps) {
     if (courses.length === 0) {
         return (
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-shadow duration-300">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center">
                         <BookOpen className="w-4.5 h-4.5 text-blue-500" />
@@ -73,7 +73,7 @@ export function CourseProgressCard({ courses }: CourseProgressCardProps) {
     );
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-shadow duration-300">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 mb-5">
                 <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ export function CourseProgressCard({ courses }: CourseProgressCardProps) {
                     return (
                         <div
                             key={course.courseId}
-                            className="group bg-gray-50/60 dark:bg-[#1a1a1a] rounded-xl p-4 hover:bg-gray-100 dark:hover:bg-[#222222] transition-colors"
+                            className="group bg-gray-50/60 dark:bg-[#1D1E23] rounded-xl p-4 hover:bg-gray-100 dark:hover:bg-[#222222] transition-colors"
                         >
                             <div className="flex items-start justify-between gap-3 mb-2.5">
                                 <div className="min-w-0">

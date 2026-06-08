@@ -81,7 +81,7 @@ export default function ProgressLineChart({ userId }: { userId?: string }) {
             contentStyle={{
                 borderRadius: "8px",
                 border: isDark ? "1px solid #333" : "none",
-                backgroundColor: isDark ? "#141414" : "#fff",
+                backgroundColor: isDark ? "#24262C" : "#fff",
                 boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)"
             }}
             labelStyle={{ color: isDark ? "#9ca3af" : "#6b7280", fontSize: "12px" }}

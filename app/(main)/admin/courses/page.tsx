@@ -45,7 +45,7 @@ export default function AdminCoursesPage() {
                     { label: "Actions", className: "text-right" }
                 ]}
                 renderItem={(course) => (
-                    <tr key={course.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
+                    <tr key={course.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
                         <td className="px-6 py-5">
                             <div className="flex flex-col">
                                 <span className="font-bold text-gray-900 dark:text-white uppercase tracking-tight">{course.title}</span>
@@ -74,7 +74,7 @@ export default function AdminCoursesPage() {
                             {course.isPublished ? (
                                 <span className="px-2.5 py-1 bg-green-500/10 text-green-600 dark:text-green-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-green-500/20">Published</span>
                             ) : (
-                                <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-gray-200 dark:border-transparent">Draft</span>
+                                <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#1D1E23] text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-gray-200 dark:border-transparent">Draft</span>
                             )}
                         </td>
                         <td className="px-6 py-5 text-right">

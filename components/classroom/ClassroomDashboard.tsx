@@ -12,16 +12,16 @@ import { authClient } from "@/lib/auth-client";
 import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
 
 const LiveTracking = dynamic(() => import("./LiveTracking").then(mod => mod.LiveTracking), {
-    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>,
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1D1E23] rounded-2xl" /></div>,
     ssr: false
 });
 
 const AssignmentsTab = dynamic(() => import("./assignments/AssignmentsTab").then(mod => mod.AssignmentsTab), {
-    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1D1E23] rounded-2xl" /></div>
 });
 
 const ContestPerformance = dynamic(() => import("./ContestPerformance").then(mod => mod.ContestPerformance), {
-    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1a1a1a] rounded-2xl" /></div>
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1D1E23] rounded-2xl" /></div>
 });
 
 interface Student {
@@ -101,7 +101,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
     };
 
     return (
-        <div className={`min-h-screen bg-[#fafafa] dark:bg-[#121212] ${isTeacher ? 'pl-0 md:pl-72' : ''}`}>
+        <div className={`min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] ${isTeacher ? 'pl-0 md:pl-72' : ''}`}>
              {isTeacher && (
                 <ClassroomSidebar
                     activeTab={activeTab}

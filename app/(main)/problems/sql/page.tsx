@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
+import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 
 export const metadata: Metadata = {
     title: "SQL Problems",
@@ -35,7 +36,7 @@ async function SqlProblemsContent({
         if (!allocatedCourses.domains.includes("SQL")) {
             // User doesn't have access to SQL
             return (
-                <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center px-4">
+                <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center px-4">
                     <div className="max-w-md text-center">
                         <div className="mb-6">
                             <svg className="w-20 h-20 mx-auto text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,15 +98,7 @@ export default async function SqlProblemsPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
-            <div className="text-center space-y-4">
-                <div className="relative">
-                    <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
-                    <div className="absolute inset-0 h-10 w-10 border-[3px] border-transparent border-b-orange-300 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading problems...</p>
-            </div>
-        </div>}>
+        <Suspense fallback={<ProblemListSkeleton />}>
             <SqlProblemsContent searchParams={searchParams} />
         </Suspense>
     );

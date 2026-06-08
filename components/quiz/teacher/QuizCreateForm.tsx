@@ -124,7 +124,7 @@ export function QuizCreateForm({ classrooms }: Props) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all ${
                 classroomId === c.id
                   ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                  : "border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#3a3a3a]"
+                  : "border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#1D1E23] hover:border-gray-300 dark:hover:border-[#3a3a3a]"
               }`}
             >
               <input
@@ -174,7 +174,7 @@ export function QuizCreateForm({ classrooms }: Props) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Data Structures Revision — Week 3"
-          className="w-full px-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-xl text-gray-900 dark:text-white font-medium placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+          className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-xl text-gray-900 dark:text-white font-medium placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
         />
       </div>
 
@@ -187,10 +187,10 @@ export function QuizCreateForm({ classrooms }: Props) {
         {questions.map((q, qi) => (
           <div
             key={qi}
-            className="border border-gray-200 dark:border-[#2a2a2a] rounded-xl overflow-hidden bg-white dark:bg-[#141414]"
+            className="border border-gray-200 dark:border-[#2a2a2a] rounded-xl overflow-hidden bg-white dark:bg-[#24262C]"
           >
             <div
-              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
               onClick={() => setExpanded(expanded === qi ? -1 : qi)}
             >
               <span className="w-6 h-6 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-black text-xs flex items-center justify-center shrink-0">
@@ -230,7 +230,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                 </div>
 
                 {previewMode[qi] ? (
-                  <div className="p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg min-h-[80px]">
+                  <div className="p-4 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-lg min-h-[80px]">
                     <Markdown content={q.text || "*No text provided*"} className="text-sm" />
                   </div>
                 ) : (
@@ -239,7 +239,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                     onChange={(e) => updateQuestion(qi, { text: e.target.value })}
                     placeholder="Enter your question (supports Markdown)..."
                     rows={2}
-                    className="w-full px-3 py-2.5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
+                    className="w-full px-3 py-2.5 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
                   />
                 )}
 
@@ -265,7 +265,7 @@ export function QuizCreateForm({ classrooms }: Props) {
 
                             <div className="flex-1 min-w-0">
                               {isPreview ? (
-                                <div className="p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg min-h-[40px]">
+                                <div className="p-3 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-lg min-h-[40px]">
                                   <Markdown content={opt || "*Empty option*"} isOption className="text-sm" />
                                 </div>
                               ) : (
@@ -274,7 +274,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                                   onChange={(e) => updateOption(qi, oi, e.target.value)}
                                   placeholder={`Option ${OPTION_LABELS[oi]} (supports Markdown)...`}
                                   rows={3}
-                                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500 transition-all resize-y"
+                                  className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500 transition-all resize-y"
                                 />
                               )}
                             </div>
@@ -318,7 +318,7 @@ export function QuizCreateForm({ classrooms }: Props) {
                       value={q.explanation}
                       onChange={(e) => updateQuestion(qi, { explanation: e.target.value })}
                       placeholder="Why is this the correct answer?"
-                      className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
                     />
                   </div>
                   <div>

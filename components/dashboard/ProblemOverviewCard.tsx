@@ -137,7 +137,7 @@ export function ProblemOverviewCard({
     }, [activeTab, checkScroll]);
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-3xl border border-dashed border-gray-300 dark:border-[#262626] p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
+        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
              {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                 <div className="flex items-center gap-3">
@@ -154,10 +154,10 @@ export function ProblemOverviewCard({
                         {/* Left Scroll Button & Fade Overlay */}
                         {showLeftArrow && (
                             <>
-                                <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white dark:from-[#141414] to-transparent pointer-events-none z-10" />
+                                <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white dark:from-[#24262C] to-transparent pointer-events-none z-10" />
                                 <button 
                                     onClick={() => scrollTabs("left")}
-                                    className="absolute left-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
+                                    className="absolute left-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
                                 >
                                     <ChevronLeft className="w-3.5 h-3.5" />
                                 </button>
@@ -167,7 +167,7 @@ export function ProblemOverviewCard({
                         {/* Scroll Container */}
                         <div 
                             ref={tabsRef}
-                            className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1.5 rounded-full relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap max-w-[280px] xs:max-w-[360px] sm:max-w-[440px] md:max-w-[480px] lg:max-w-[480px]"
+                            className="flex bg-gray-100 dark:bg-[#1D1E23] p-1.5 rounded-full relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap max-w-[280px] xs:max-w-[360px] sm:max-w-[440px] md:max-w-[480px] lg:max-w-[480px]"
                         >
                             <TabButton active={activeTab === "overview"} onClick={() => setActiveTab("overview")}>Overview</TabButton>
                             <TabButton active={activeTab === "contests"} onClick={() => setActiveTab("contests")}>Contests</TabButton>
@@ -180,10 +180,10 @@ export function ProblemOverviewCard({
                         {/* Right Scroll Button & Fade Overlay */}
                         {showRightArrow && (
                             <>
-                                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-[#141414] to-transparent pointer-events-none z-10" />
+                                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-[#24262C] to-transparent pointer-events-none z-10" />
                                 <button 
                                     onClick={() => scrollTabs("right")}
-                                    className="absolute right-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
+                                    className="absolute right-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-[#222] shadow-sm text-gray-500 dark:text-gray-400 transition-all cursor-pointer"
                                 >
                                     <ChevronRight className="w-3.5 h-3.5" />
                                 </button>
@@ -364,7 +364,7 @@ function BreakdownTooltip({ breakdown, mousePos }: { breakdown: Record<string, n
             }}
             className="z-200 pointer-events-none min-w-[160px]"
         >
-            <div className="bg-white/95 dark:bg-[#1a1a1a]/95 text-gray-900 dark:text-white p-3 rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] backdrop-blur-md">
+            <div className="bg-white/95 dark:bg-[#1D1E23]/95 text-gray-900 dark:text-white p-3 rounded-xl shadow-2xl border border-gray-200 dark:border-[#333] backdrop-blur-md">
                 <div className="flex flex-col gap-2">
                     {entries.map(([domain, count]) => (
                         <div key={domain} className="flex justify-between items-center gap-6">
@@ -415,7 +415,7 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
                     <StatRow color="bg-red-500" label="Hard" value={hardCount} total={totalProblems.HARD} onHoverChange={(h) => setHoveredBreakdown(h ? solvedByDifficulty.HARD.breakdown : null)} />
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-gray-100 dark:border-[#262626] flex items-center justify-around text-center">
+                <div className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5 flex items-center justify-around text-center">
                      <div className="flex flex-col items-center">
                          <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-1">Contests</span>
                          <span className="text-2xl font-semibold text-gray-900 dark:text-gray-100 tracking-tighter">{contestStats?.attended || 0}</span>
@@ -512,7 +512,7 @@ function LeetCodeView({ handle, isVerified, cachedData, onDataFetched }: { handl
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
                 {/* Contest Rating Graph */}
-                <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl p-4 border border-gray-100 dark:border-[#262626] relative flex flex-col">
+                <div className="flex-1 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl p-4 border border-gray-100 dark:border-white/5 relative flex flex-col">
                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4">Rating History</h4>
                     {contestHistory.length > 0 ? (
                         <div className="flex-1 w-full min-h-0">
@@ -539,7 +539,7 @@ function LeetCodeView({ handle, isVerified, cachedData, onDataFetched }: { handl
                 </div>
 
                  {/* Difficulty Breakdown - Mini Bar */}
-                 <div className="w-full md:w-1/3 flex flex-col justify-center space-y-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#262626]">
+                 <div className="w-full md:w-1/3 flex flex-col justify-center space-y-4 p-4 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl border border-gray-100 dark:border-white/5">
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs font-medium"><span className="text-green-600">Easy</span> <span>{easy}</span></div>
                         <div className="w-full bg-gray-200 dark:bg-[#333] h-1.5 rounded-full overflow-hidden">
@@ -594,7 +594,7 @@ function CodeChefView({ handle, isVerified, cachedData, onDataFetched }: { handl
                  <StatCard label="Contests" value={data.ratingData?.length || 0} />
             </div>
 
-            <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl p-4 border border-gray-100 dark:border-[#262626] relative flex flex-col">
+            <div className="flex-1 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl p-4 border border-gray-100 dark:border-white/5 relative flex flex-col">
                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4">Rating History</h4>
                   {data.ratingData && data.ratingData.length > 0 ? (
                         <div className="flex-1 w-full min-h-0">
@@ -661,7 +661,7 @@ function CodeForcesView({ handle, isVerified, cachedData, onDataFetched }: { han
             </div>
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
-                <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl p-4 border border-gray-100 dark:border-[#262626] flex flex-col justify-center">
+                <div className="flex-1 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl p-4 border border-gray-100 dark:border-white/5 flex flex-col justify-center">
                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4">Tags Distribution</h4>
                     {/* Placeholder for tags if we had them, or just another visual. Using solving breakdown chart here. */}
                     <div className="w-full h-48">
@@ -704,7 +704,7 @@ function ContestsView({ performance }: { performance?: any[] }) {
                  <StatCard label="Recent Contest" value={performance[performance.length - 1]?.score || 0} trend="Score" />
             </div>
 
-            <div className="flex-1 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-100 dark:border-[#262626] flex flex-col">
+            <div className="flex-1 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl p-6 border border-gray-100 dark:border-white/5 flex flex-col">
                 <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-6">Performance History</h4>
                 <div className="flex-1 w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
@@ -770,7 +770,7 @@ function StatRow({ color, label, value, total, onHoverChange }: { color: string;
                 // But row tracking might be tricky without a ref-based mouse track.
             }}
         >
-            <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] transition-all group-hover:border-gray-300 dark:group-hover:border-[#444] group-hover:shadow-sm">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 transition-all group-hover:border-gray-300 dark:group-hover:border-[#444] group-hover:shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${color}`} />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{label}</span>
@@ -786,7 +786,7 @@ function StatRow({ color, label, value, total, onHoverChange }: { color: string;
 
 function StatCard({ label, value, icon, trend, className }: any) {
     return (
-        <div className={`bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-2xl border border-gray-100 dark:border-[#262626] flex flex-col justify-between ${className}`}>
+        <div className={`bg-gray-50 dark:bg-[#1D1E23] p-4 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col justify-between ${className}`}>
              <div className="flex items-center justify-between mb-2">
                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
                  {icon}
@@ -802,7 +802,7 @@ function StatCard({ label, value, icon, trend, className }: any) {
 function EmptyState({ logoPath, Icon, message, subMessage }: any) {
     return (
         <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-            <div className="w-16 h-16 p-2 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-[#262626]">
+            <div className="w-16 h-16 p-2 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-white/5">
                 {Icon ? <Icon className="w-8 h-8 text-gray-900 dark:text-gray-100" /> : <img src={logoPath} alt={message} className="w-full h-full object-contain" />}
             </div>
             <div>
@@ -927,7 +927,7 @@ function GitHubView({ handle, cachedData, onDataFetched }: { handle?: string | n
             {/* Bottom Section: Heatmap and Languages/Profile stacked */}
             <div className="flex-1 flex flex-col xl:flex-row gap-4 min-h-0">
                 {/* Heatmap Area */}
-                <div className="flex-1 bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 dark:border-[#262626] overflow-hidden flex flex-col justify-between">
+                <div className="flex-1 bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 dark:border-white/5 overflow-hidden flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-3">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
                             Contributions Heatmap
@@ -1017,7 +1017,7 @@ function GitHubView({ handle, cachedData, onDataFetched }: { handle?: string | n
                 {/* Profile Card and Languages stacked on right */}
                 <div className="w-full xl:w-[260px] flex flex-col gap-4">
                     {/* Mini Profile Card */}
-                    <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm border border-gray-100 dark:border-[#262626] rounded-2xl p-3 flex items-center gap-3">
+                    <div className="bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-sm border border-gray-100 dark:border-white/5 rounded-2xl p-3 flex items-center gap-3">
                         {data.avatar ? (
                             <img src={data.avatar} alt={data.name} className="w-10 h-10 rounded-full border border-gray-200 dark:border-[#333] object-cover" />
                         ) : (
@@ -1039,7 +1039,7 @@ function GitHubView({ handle, cachedData, onDataFetched }: { handle?: string | n
                     </div>
 
                     {/* Languages Card */}
-                    <div className="flex-1 bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-sm border border-gray-100 dark:border-[#262626] rounded-2xl p-4 flex flex-col justify-between">
+                    <div className="flex-1 bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-sm border border-gray-100 dark:border-white/5 rounded-2xl p-4 flex flex-col justify-between">
                         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                             Languages Used
                         </h4>

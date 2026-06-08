@@ -111,7 +111,7 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
                         onSelect?.(comment);
                     }
                 }}
-                className={`group relative p-4 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] hover:bg-gray-50/50 dark:hover:bg-[#1f1f1f] hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all cursor-pointer shadow-sm shadow-black/5`}
+                className={`group relative p-4 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1D1E23] hover:bg-gray-50/50 dark:hover:bg-[#1f1f1f] hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all cursor-pointer shadow-sm shadow-black/5`}
             >
                 {comment.isPinned && (
                     <div className="absolute top-2 right-4 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-500">
@@ -147,7 +147,7 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
 
                         <div className="flex flex-wrap gap-1.5 mb-3">
                             {comment.tags.map(tag => (
-                                <span key={tag} className="px-1.5 py-0.5 bg-gray-100 dark:bg-[#1a1a1a] text-[10px] font-bold text-gray-500 dark:text-gray-400 rounded border border-gray-200 dark:border-[#262626]">
+                                <span key={tag} className="px-1.5 py-0.5 bg-gray-100 dark:bg-[#1D1E23] text-[10px] font-bold text-gray-500 dark:text-gray-400 rounded border border-gray-200 dark:border-[#262626]">
                                     {tag}
                                 </span>
                             ))}
@@ -186,7 +186,7 @@ export function CommentItem({ comment, problemId, depth = 0, onRefresh, onSelect
 
     return (
         <div className={`flex flex-col ${depth > 0 ? "ml-4 md:ml-8 border-l-2 border-gray-100 dark:border-[#262626] pl-4 md:pl-6 pt-2" : ""}`}>
-            <div className={`relative group p-4 rounded-xl transition-all hover:bg-white dark:hover:bg-[#1a1a1a] hover:shadow-sm`}>
+            <div className={`relative group p-4 rounded-xl transition-all hover:bg-white dark:hover:bg-[#1D1E23] hover:shadow-sm`}>
 
                 {comment.isPinned && (
                     <div className="absolute top-2 right-4 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-500">

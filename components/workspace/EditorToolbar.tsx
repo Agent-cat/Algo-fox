@@ -43,7 +43,7 @@ export const EditorToolbar = React.memo(({
     dropdownRef
 }: EditorToolbarProps) => {
     return (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#24262C]">
             <div className="flex items-center gap-3">
                 <div className="relative" ref={dropdownRef}>
                     <button
@@ -53,7 +53,7 @@ export const EditorToolbar = React.memo(({
                         className={`flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 rounded transition-colors ${
                             readOnly
                                 ? "opacity-70 cursor-default"
-                                : "hover:bg-gray-200 dark:hover:bg-[#262626]"
+                                : "hover:bg-gray-200 dark:hover:bg-[#262626] cursor-pointer"
                         }`}
                     >
                         {currentLanguageName}
@@ -66,7 +66,7 @@ export const EditorToolbar = React.memo(({
                         )}
                     </button>
                     {isDropdownOpen && !readOnly && (
-                        <div className="absolute top-full left-0 mt-1 bg-[#fafafa] dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-lg shadow-lg z-50 min-w-30">
+                        <div className="absolute top-full left-0 mt-1 bg-[#fafafa] dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-lg shadow-lg z-50 min-w-30">
                             {availableLanguages.map((lang) => (
                                 <button
                                     key={lang.id}
@@ -90,7 +90,7 @@ export const EditorToolbar = React.memo(({
                 {currentDriverCode && !readOnly && (
                     <button
                         onClick={() => setIsDriverCodeModalOpen(true)}
-                        className="flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors"
+                        className="flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-gray-300 px-2 py-1 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors cursor-pointer"
                         title="View Driver Code"
                     >
                         <Code2 className="w-3.5 h-3.5 text-orange-600 dark:text-orange-500" />
@@ -113,7 +113,7 @@ export const EditorToolbar = React.memo(({
                 <CustomTooltip content="Format Code" shortcut="Shift+Alt+F" side="bottom">
                     <button
                         onClick={handleFormat}
-                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                     >
                         <AlignLeft className="w-4 h-4" />
                     </button>
@@ -123,7 +123,7 @@ export const EditorToolbar = React.memo(({
                     <CustomTooltip content="Reset to Default" shortcut="Alt+Backspace" side="bottom">
                         <button
                             onClick={handleReset}
-                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                         >
                             <RotateCcw className="w-4 h-4" />
                         </button>
@@ -133,7 +133,7 @@ export const EditorToolbar = React.memo(({
                 <CustomTooltip content={isFullScreen ? "Exit Full Screen" : "Full Screen"} shortcut="Alt+Z" side="bottom">
                     <button
                         onClick={handleFullScreen}
-                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+                        className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                     >
                         {isFullScreen ? (
                             <Minimize2 className="w-4 h-4" />
@@ -147,7 +147,7 @@ export const EditorToolbar = React.memo(({
                     <CustomTooltip content="Editor Settings" shortcut="Ctrl+," side="bottom">
                         <button
                             onClick={onOpenSettings}
-                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400"
+                            className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                         >
                             <Settings className="w-4 h-4" />
                         </button>

@@ -54,7 +54,7 @@ export function Markdown({ content, className = "", isOption = false }: Markdown
     <div className={`
       prose dark:prose-invert max-w-none
       prose-p:leading-relaxed
-      prose-pre:bg-[#1a1a1a] prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10 prose-pre:rounded-xl
+      prose-pre:bg-[#1D1E23] prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10 prose-pre:rounded-xl
       prose-code:before:content-none prose-code:after:content-none
       ${isOption
         ? "prose-code:text-white prose-code:bg-white/20 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:font-black"

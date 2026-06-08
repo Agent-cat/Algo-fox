@@ -190,7 +190,7 @@ export default function CategoryCard({
           "w-full transition-all group flex",
           isSubCategory
             ? "bg-transparent border-none py-1.5 hover:bg-gray-100/70 dark:hover:bg-white/4 rounded-lg group/sub"
-            : "bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-white dark:hover:bg-white/2 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
+            : "bg-white/80 dark:bg-[#1D1E23]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-white dark:hover:bg-white/2 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
         )}
       >
         <motion.button

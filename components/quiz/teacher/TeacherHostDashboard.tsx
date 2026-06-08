@@ -243,7 +243,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
         </div>
       </div>
       {/* Top bar */}
-      <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#222] px-4 sm:px-8 py-3">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#24262C]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#222] px-4 sm:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Live Quiz</div>
@@ -275,7 +275,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
           {/* Left column: QR + join link + participants */}
           <div className="space-y-4">
             {/* QR Code card */}
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
               <div className="flex items-center gap-2 mb-4">
                 <QrCode className="w-4 h-4 text-orange-500" />
                 <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Join Code</span>
@@ -284,10 +284,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                 {qrDataUrl ? (
                   <img src={qrDataUrl} alt="QR Code" className="w-40 h-40 rounded-xl" />
                 ) : (
-                  <div className="w-40 h-40 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl animate-pulse" />
+                  <div className="w-40 h-40 bg-gray-100 dark:bg-[#1D1E23] rounded-xl animate-pulse" />
                 )}
               </div>
-              <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2a2a2a] rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#2a2a2a] rounded-xl px-3 py-2">
                 <span className="flex-1 text-xs font-mono text-gray-600 dark:text-gray-400 truncate">{joinUrl}</span>
                 <button onClick={copyLink} className="text-gray-400 hover:text-orange-500 transition-colors shrink-0">
                   <Copy className="w-3.5 h-3.5" />
@@ -300,7 +300,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
             </div>
 
             {/* Participants list */}
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Participants</span>
                 <span className="font-black font-mono text-sm text-orange-600 dark:text-orange-400">{participants.length}</span>
@@ -310,7 +310,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                   <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Waiting for participants...</p>
                 ) : (
                   participants.map((p) => (
-                    <div key={p.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1a1a1a]">
+                    <div key={p.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1D1E23]">
                       <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300 truncate font-medium">{p.name}</span>
                     </div>
@@ -323,7 +323,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
           {/* Center: main quiz controls */}
           <div className="space-y-4">
             {phase === "lobby" && (
-              <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-8 text-center">
+              <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-8 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-500/15 flex items-center justify-center mx-auto mb-6">
                   <Play className="w-8 h-8 text-orange-600 dark:text-orange-400" />
                 </div>
@@ -347,7 +347,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
             )}
 
             {(phase === "question" || phase === "review") && (
-              <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-6">
+              <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-6">
                 {/* Question header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -372,7 +372,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
 
                 {/* Answer count during question */}
                 {phase === "question" && (
-                  <div className="flex items-center justify-between mb-4 px-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2a2a2a]">
+                  <div className="flex items-center justify-between mb-4 px-4 py-3 bg-gray-50 dark:bg-[#1D1E23] rounded-xl border border-gray-100 dark:border-[#2a2a2a]">
                     <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Answers received</span>
                     <span className="font-black font-mono text-orange-600 dark:text-orange-400">
                       {answerCount} / {participants.length}
@@ -405,7 +405,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                     {options.map((opt, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-3 px-4 py-3 border border-gray-200 dark:border-[#2a2a2a] rounded-xl bg-gray-50 dark:bg-[#1a1a1a]"
+                        className="flex items-center gap-3 px-4 py-3 border border-gray-200 dark:border-[#2a2a2a] rounded-xl bg-gray-50 dark:bg-[#1D1E23]"
                       >
                         <span className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] flex items-center justify-center text-sm font-black text-gray-500 dark:text-gray-400 shrink-0">
                           {OPTION_LABELS[i] ?? i + 1}
@@ -447,7 +447,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
             )}
 
             {phase === "ended" && (
-              <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-8 text-center">
+              <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-8 text-center">
                 <div className="text-5xl mb-4">🏆</div>
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Quiz Completed!</h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-8">{participants.length} participants completed the quiz</p>
@@ -473,7 +473,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
 
           {/* Right column: Leaderboard */}
           <div>
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5 sticky top-20">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5 sticky top-20">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Leaderboard</span>
               </div>

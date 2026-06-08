@@ -8,6 +8,7 @@ import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import AptitudeClient from "./_components/AptitudeClient";
 import { Metadata } from "next";
+import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 
 export const metadata:Metadata = {
     title: "Aptitude",
@@ -30,7 +31,7 @@ async function AptitudeContent() {
     if (allocatedCourses.success && !allocatedCourses.isPrivileged) {
         if (!allocatedCourses.domains.includes("APTITUDE")) {
             return (
-                <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center px-4">
+                <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center px-4">
                     <div className="max-w-md text-center">
                         <div className="mb-6">
                             <svg className="w-20 h-20 mx-auto text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,15 +69,7 @@ async function AptitudeContent() {
 
 export default async function AptitudePage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
-            <div className="text-center space-y-4">
-                <div className="relative">
-                    <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
-                    <div className="absolute inset-0 h-10 w-10 border-[3px] border-transparent border-b-orange-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading Aptitude...</p>
-            </div>
-        </div>}>
+        <Suspense fallback={<ProblemListSkeleton />}>
             <AptitudeContent />
         </Suspense>
     );

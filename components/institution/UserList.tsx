@@ -62,8 +62,8 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
 
     if (users.length === 0) {
         return (
-            <div className="text-center py-20 bg-white dark:bg-[#141414] border border-dashed border-gray-200 dark:border-[#262626] rounded-2xl">
-                <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-20 bg-white dark:bg-[#24262C] border border-dashed border-gray-200 dark:border-[#262626] rounded-2xl">
+                <div className="w-16 h-16 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center mx-auto mb-4">
                     <UsersIcon role={role} className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">No {role.toLowerCase().replace("_", " ")}s found</h3>
@@ -80,7 +80,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {users.map((user) => (
-                    <div key={user.id} className="group bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 dark:hover:border-orange-500/20 relative overflow-hidden">
+                    <div key={user.id} className="group bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 dark:hover:border-orange-500/20 relative overflow-hidden">
                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                              <button
                                 onClick={() => handleDelete(user.id)}
@@ -93,7 +93,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                         </div>
 
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] flex items-center justify-center overflow-hidden shadow-inner">
+                            <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] flex items-center justify-center overflow-hidden shadow-inner">
                                 {user.image ? (
                                     <img src={user.image} alt={user.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                 ) : (
@@ -110,7 +110,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                         </div>
 
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between text-sm py-2 border-t border-gray-50 dark:border-[#1a1a1a]">
+                            <div className="flex items-center justify-between text-sm py-2 border-t border-gray-50 dark:border-[#1D1E23]">
                                 <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">Joined</span>
                                 <div className="flex items-center gap-1.5 font-bold text-gray-700 dark:text-gray-300 text-xs">
                                     <Calendar className="w-3 h-3 text-gray-400" />
@@ -119,7 +119,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                             </div>
 
                             {role === "TEACHER" && (
-                                <div className="flex items-center justify-between text-sm py-2 border-t border-gray-50 dark:border-[#1a1a1a]">
+                                <div className="flex items-center justify-between text-sm py-2 border-t border-gray-50 dark:border-[#1D1E23]">
                                     <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">Classrooms</span>
                                     <div className="flex items-center gap-1.5 font-bold text-gray-700 dark:text-gray-300 text-xs">
                                         <BookOpen className="w-3 h-3 text-gray-400" />
@@ -151,7 +151,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                         <button
                             onClick={() => onPageChange?.(pagination.current - 1)}
                             disabled={pagination.current <= 1}
-                            className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                            className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
                         >
                             <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         </button>
@@ -159,7 +159,7 @@ export default function UserList({ users, role, pagination, onPageChange, onRefr
                         <button
                             onClick={() => onPageChange?.(pagination.current + 1)}
                             disabled={pagination.current >= pagination.pages}
-                            className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                            className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
                         >
                             <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         </button>

@@ -29,10 +29,10 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
     return (
         <motion.div
             whileHover={{ y: -5 }}
-            className="group bg-white dark:bg-[#111111] border border-dashed border-gray-300 dark:border-white/10 overflow-hidden transition-all duration-500 shadow-sm hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col h-full rounded-b-3xl rounded-t-none"
+            className="group bg-white dark:bg-[#1D1E23] border border-dashed border-gray-300 dark:border-white/10 overflow-hidden transition-all duration-500 shadow-sm hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col h-full rounded-b-3xl rounded-t-none"
         >
             {/* Image Section - No rounding at top as requested */}
-            <div className="relative aspect-video overflow-hidden bg-gray-50 dark:bg-[#0a0a0a]">
+            <div className="relative aspect-video overflow-hidden bg-gray-50 dark:bg-[#1D1E23]">
                 {course.image ? (
                     <Image
                         src={course.image}

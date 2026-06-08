@@ -42,7 +42,7 @@ export function CircularProgress({
                 cy="120"
                 r={radius}
                 fill="none"
-                className="stroke-gray-100 dark:stroke-[#262626]"
+                className="stroke-gray-100 dark:stroke-white/5"
                 strokeWidth={strokeWidth}
             />
 

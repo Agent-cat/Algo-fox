@@ -48,8 +48,8 @@ export default function InviteCard({ invite, code, user }: InviteCardProps) {
 
     if (!user) {
         return (
-            <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-3xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-none text-center">
-                <div className="w-20 h-20 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-inner border border-gray-100 dark:border-[#262626]">
+            <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-3xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-none text-center">
+                <div className="w-20 h-20 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-inner border border-gray-100 dark:border-[#262626]">
                     {invite.institutionLogo ? (
                         <img src={invite.institutionLogo} alt={invite.institutionName} className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
                     ) : (
@@ -75,7 +75,7 @@ export default function InviteCard({ invite, code, user }: InviteCardProps) {
                     </Link>
                     <Link
                         href={`/signup?callbackUrl=/invite/${code}`}
-                        className="block w-full py-4 bg-gray-50 dark:bg-[#1a1a1a] text-gray-900 dark:text-white font-bold rounded-xl text-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors border border-gray-200 dark:border-[#333]"
+                        className="block w-full py-4 bg-gray-50 dark:bg-[#1D1E23] text-gray-900 dark:text-white font-bold rounded-xl text-center hover:bg-gray-100 dark:hover:bg-[#262626] transition-colors border border-gray-200 dark:border-[#333]"
                     >
                         Create Account
                     </Link>
@@ -85,8 +85,8 @@ export default function InviteCard({ invite, code, user }: InviteCardProps) {
     }
 
     return (
-        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-3xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-none text-center">
-             <div className="w-20 h-20 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-inner border border-gray-100 dark:border-[#262626] relative">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-3xl p-8 shadow-2xl shadow-gray-200/50 dark:shadow-none text-center">
+             <div className="w-20 h-20 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-inner border border-gray-100 dark:border-[#262626] relative">
                 {invite.institutionLogo ? (
                     <img src={invite.institutionLogo} alt={invite.institutionName} className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
                 ) : (
@@ -94,7 +94,7 @@ export default function InviteCard({ invite, code, user }: InviteCardProps) {
                         {invite.institutionName[0]}
                     </span>
                 )}
-                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 rounded-full border-4 border-white dark:border-[#141414]">
+                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 rounded-full border-4 border-white dark:border-[#24262C]">
                     <User className="w-3 h-3" />
                 </div>
             </div>
@@ -109,7 +109,7 @@ export default function InviteCard({ invite, code, user }: InviteCardProps) {
                 }
             </p>
 
-            <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-xl p-4 mb-8 flex items-center gap-3 text-left">
+            <div className="bg-gray-50 dark:bg-[#1D1E23] rounded-xl p-4 mb-8 flex items-center gap-3 text-left">
                 <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center overflow-hidden">
                     {user.image ? <img src={user.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : user.name?.[0]}
                 </div>

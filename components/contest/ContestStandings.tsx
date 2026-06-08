@@ -82,8 +82,8 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
 
     if (students.length === 0) {
         return (
-            <div className="bg-white dark:bg-[#141414] rounded-lg border border-gray-200 dark:border-[#262626] p-12 text-center">
-                <div className="bg-gray-100 dark:bg-[#1a1a1a] p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <div className="bg-white dark:bg-[#24262C] rounded-lg border border-gray-200 dark:border-[#262626] p-12 text-center">
+                <div className="bg-gray-100 dark:bg-[#1D1E23] p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Trophy className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">The arena is silent...</h3>
@@ -156,17 +156,17 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-[#141414] rounded-lg border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-white dark:bg-[#24262C] rounded-lg border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden flex flex-col">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1000px] table-fixed">
                         <thead>
-                            <tr className="bg-gray-50/80 dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-[#262626]">
+                            <tr className="bg-gray-50/80 dark:bg-[#24262C] border-b border-gray-200 dark:border-[#262626]">
                                 {/* Sticky Rank */}
-                                <th className="sticky left-0 z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[70px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
+                                <th className="sticky left-0 z-20 bg-gray-50/80 dark:bg-[#24262C] px-4 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[70px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
                                     <div className="flex items-center justify-center">Rank</div>
                                 </th>
                                 {/* Sticky Warrior */}
-                                <th className="sticky left-[70px] z-20 bg-gray-50/80 dark:bg-[#0d0d0d] px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[250px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
+                                <th className="sticky left-[70px] z-20 bg-gray-50/80 dark:bg-[#24262C] px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest w-[250px] border-r border-gray-200 dark:border-gray-800 backdrop-blur-sm">
                                     Warrior
                                 </th>
                                 <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center w-[100px] border-r border-gray-200 dark:border-gray-800">
@@ -196,7 +196,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-[#1a1a1a]">
+                        <tbody className="divide-y divide-gray-100 dark:divide-[#1D1E23]">
                             {students.map((student: Student, index: number) => {
                                 const actualRank = (currentPage - 1) * 50 + index;
                                 return (
@@ -209,7 +209,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                         }`}
                                     >
                                         <td className={`sticky left-0 z-10 px-4 py-4 border-r border-gray-200 dark:border-gray-800 ${
-                                            student.id === currentUserId ? "bg-orange-50/30 dark:bg-orange-500/5 shadow-inner" : "bg-white dark:bg-[#141414]"
+                                            student.id === currentUserId ? "bg-orange-50/30 dark:bg-orange-500/5 shadow-inner" : "bg-white dark:bg-[#24262C]"
                                         }`}>
                                             <div className="flex items-center justify-center">
                                                 {actualRank === 0 ? (
@@ -232,10 +232,10 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                             </div>
                                         </td>
                                         <td className={`sticky left-[70px] z-10 px-6 py-4 border-r border-gray-200 dark:border-gray-800 ${
-                                            student.id === currentUserId ? "bg-orange-50/30 dark:bg-orange-500/5 shadow-inner" : "bg-white dark:bg-[#141414]"
+                                            student.id === currentUserId ? "bg-orange-50/30 dark:bg-orange-500/5 shadow-inner" : "bg-white dark:bg-[#24262C]"
                                         }`}>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626]">
+                                                <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626]">
                                                     {student.image ? (
                                                         <img
                                                             src={student.image}
@@ -244,7 +244,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                                             referrerPolicy="no-referrer"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-[#1a1a1a] text-gray-400">
+                                                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-[#1D1E23] text-gray-400">
                                                             <User className="w-4 h-4" />
                                                         </div>
                                                     )}
@@ -328,7 +328,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                    <div className="px-6 py-4 bg-gray-50/50 dark:bg-[#0d0d0d] border-t border-gray-200 dark:border-[#262626] flex items-center justify-between">
+                    <div className="px-6 py-4 bg-gray-50/50 dark:bg-[#24262C] border-t border-gray-200 dark:border-[#262626] flex items-center justify-between">
                         <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">
                             Showing <span className="text-gray-900 dark:text-white">{(currentPage - 1) * 50 + 1} - {Math.min(currentPage * 50, totalStudents)}</span> of {totalStudents}
                         </div>
@@ -340,7 +340,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                     router.push(`/contest/${contestId}/standings?${params.toString()}`);
                                 }}
                                 disabled={currentPage === 1}
-                                className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
+                                className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#24262C] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
@@ -365,7 +365,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                             className={`w-8 h-8 rounded-lg text-xs font-black transition-all ${
                                                 currentPage === pageNum
                                                 ? "bg-gray-900 dark:bg-white text-white dark:text-black shadow-md"
-                                                : "bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400"
+                                                : "bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400"
                                             }`}
                                         >
                                             {pageNum}
@@ -381,7 +381,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                     router.push(`/contest/${contestId}/standings?${params.toString()}`);
                                 }}
                                 disabled={currentPage === totalPages}
-                                className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
+                                className="p-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#24262C] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-colors"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </button>

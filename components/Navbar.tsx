@@ -98,7 +98,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     const isImpersonating = !!session?.session?.impersonatedBy;
 
     return (
-        <nav className={`fixed ${isImpersonating ? 'top-10' : 'top-0'} left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#121212] backdrop-blur-md border-b border-dashed border-gray-200 dark:border-white/10 transition-all duration-300 font-navbar`}>
+        <nav className={`fixed ${isImpersonating ? 'top-10' : 'top-0'} left-0 right-0 z-50 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b border-dashed border-gray-200 dark:border-white/10 transition-all duration-300 font-navbar`}>
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
                 <div className="flex items-center">
                     <Link href="/" className="text-xl font-bold flex items-center gap-2 group">
@@ -151,7 +151,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                             <div className="relative">
                                                 <button
                                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                                                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D1E23] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
                                                 >
                                                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{session.user.name}</span>
                                                     <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
@@ -174,20 +174,20 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                                 {isDropdownOpen && (
                                                     <>
                                                         <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                                                        <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-lg z-50 p-1">
-                                                            <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                        <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl shadow-lg z-50 p-1">
+                                                            <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 My Dashboard
                                                             </Link>
-                                                            <Link href="/bookmarks" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            <Link href="/bookmarks" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 Bookmarks
                                                             </Link>
-                                                            <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            <Link href="/dashboard/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 My Classrooms
                                                             </Link>
-                                                            <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            <Link href="/my-assignments" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 My Assignments
                                                             </Link>
-                                                            <Link href="/leaderboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                            <Link href="/leaderboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 Leaderboard
                                                             </Link>
 
@@ -200,7 +200,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
 
                                                             {isTeacher && (
                                                                 <>
-                                                                    <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                    <Link href="/dashboard/teacher/classrooms" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                         Teacher Dashboard
                                                                     </Link>
                                                                     <Link href="/dashboard/teacher/quiz" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg font-semibold">
@@ -210,13 +210,13 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                                             )}
 
                                                             {isInstitutionManager && (
-                                                                <Link href="/dashboard/institution" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                <Link href="/dashboard/institution" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                     Institution
                                                                 </Link>
                                                             )}
 
                                                             {(isAdmin || isContestManager) && (
-                                                                <Link href="/dashboard/contests" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg">
+                                                                <Link href="/dashboard/contests" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                     Contest Management
                                                                 </Link>
                                                             )}
@@ -286,7 +286,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
 
             {/* MOBILE MENU DROPDOWN */}
             {isMenuOpen && (
-                <div className="md:hidden absolute top-16 left-0 w-full bg-[#fafafa] dark:bg-[#121212] border-b border-gray-100 dark:border-[#262626] p-6 shadow-xl animate-fadeIn">
+                <div className="md:hidden absolute top-16 left-0 w-full bg-[#fafafa] dark:bg-[#1D1E23] border-b border-gray-100 dark:border-[#262626] p-6 shadow-xl animate-fadeIn">
                     <div className="flex flex-col gap-4">
                         {session ? (
                             <>

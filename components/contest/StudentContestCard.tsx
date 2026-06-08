@@ -206,7 +206,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
         ) : isPast ? (
           <Link
             href={`/contest/${contest.id}/standings`}
-            className="flex items-center justify-center gap-2 w-full py-3 bg-gray-50/50 dark:bg-[#1a1a1a]/50 backdrop-blur-md hover:bg-white dark:hover:bg-[#262626] text-gray-900 dark:text-white font-semibold uppercase text-[11px] tracking-wider rounded-xl transition-all border border-gray-200/50 dark:border-[#333]/50 active:scale-[0.98]"
+            className="flex items-center justify-center gap-2 w-full py-3 bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-md hover:bg-white dark:hover:bg-[#262626] text-gray-900 dark:text-white font-semibold uppercase text-[11px] tracking-wider rounded-xl transition-all border border-gray-200/50 dark:border-[#333]/50 active:scale-[0.98]"
           >
             <Trophy className="w-3.5 h-3.5" />
             Archives
@@ -214,7 +214,7 @@ export function StudentContestCard({ contest }: StudentContestCardProps) {
         ) : (
           <Link
             href={`/contest/${contest.id}`}
-            className="flex items-center justify-center gap-2 w-full py-3 bg-white/20 dark:bg-[#1a1a1a]/20 backdrop-blur-md hover:bg-white/50 dark:hover:bg-[#1a1a1a]/80 text-gray-400 hover:text-orange-500 font-semibold uppercase text-[11px] tracking-wider rounded-xl transition-all border border-dashed border-gray-200/50 dark:border-[#333]/50 active:scale-[0.98]"
+            className="flex items-center justify-center gap-2 w-full py-3 bg-white/20 dark:bg-[#1D1E23]/20 backdrop-blur-md hover:bg-white/50 dark:hover:bg-[#1D1E23]/80 text-gray-400 hover:text-orange-500 font-semibold uppercase text-[11px] tracking-wider rounded-xl transition-all border border-dashed border-gray-200/50 dark:border-[#333]/50 active:scale-[0.98]"
           >
               <Clock className="w-3.5 h-3.5" />
               Not Started

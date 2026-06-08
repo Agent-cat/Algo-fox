@@ -178,7 +178,7 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
                         value={banReason}
                         onChange={(e) => setBanReason(e.target.value)}
                         placeholder="Violation of terms..."
-                        className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
+                        className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white"
                     />
                 </div>
                 <DialogFooter>
@@ -200,7 +200,7 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
                 </DialogHeader>
                 <div className="py-4">
                     <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Role</label>
-                    <Select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white">
+                    <Select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white">
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                         <option value="INSTITUTION_MANAGER">Institution Manager</option>

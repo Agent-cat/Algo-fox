@@ -140,7 +140,7 @@ export default function ModuleManager({ course }: any) {
     return (
         <div className="space-y-8 pb-20">
             {/* Top Navigation & Add Module */}
-            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#262626] rounded-2xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-2xl p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center">
@@ -161,7 +161,7 @@ export default function ModuleManager({ course }: any) {
                                 onChange={(e) => setNewModuleName(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleAddModule()}
                                 placeholder="Core Module Title..."
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] border dark:border-[#262626] rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#1D1E23] border dark:border-[#262626] rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
                             />
                         </div>
                         <button
@@ -178,7 +178,7 @@ export default function ModuleManager({ course }: any) {
             {/* Module Hierarchy */}
             <div className="space-y-4">
                 {moduleTree.map((module: any) => (
-                    <div key={module.id} className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+                    <div key={module.id} className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
                         <div className="p-5 flex items-center justify-between bg-gray-50/50 dark:bg-[#161616]/50 border-b border-gray-100 dark:border-[#262626]">
                             <div className="flex items-center gap-4 flex-1 mr-4">
                                 <button
@@ -196,7 +196,7 @@ export default function ModuleManager({ course }: any) {
                                             onChange={(e) => setEditingModuleName(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleUpdateModule()}
                                             autoFocus
-                                            className="px-3 py-1 bg-white dark:bg-[#111] border border-orange-500/50 rounded text-xs font-bold uppercase tracking-tight outline-none w-full max-w-sm"
+                                            className="px-3 py-1 bg-white dark:bg-[#1D1E23] border border-orange-500/50 rounded text-xs font-bold uppercase tracking-tight outline-none w-full max-w-sm"
                                         />
                                         <button onClick={handleUpdateModule} disabled={isUpdatingModule} className="p-1 text-green-500 hover:bg-green-50 dark:hover:bg-green-500/10 rounded">
                                             {isUpdatingModule ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
@@ -265,7 +265,7 @@ export default function ModuleManager({ course }: any) {
                                 {module.children.length > 0 && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {module.children.map((sub: any) => (
-                                            <div key={sub.id} className="p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#262626] group/sub transition-all hover:border-blue-500/20">
+                                            <div key={sub.id} className="p-4 bg-gray-50 dark:bg-[#1D1E23] rounded-xl border border-gray-100 dark:border-[#262626] group/sub transition-all hover:border-blue-500/20">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div className="flex items-center gap-3 flex-1 mr-2">
                                                         <BookOpen className="w-4 h-4 text-blue-500" />
@@ -277,7 +277,7 @@ export default function ModuleManager({ course }: any) {
                                                                     onChange={(e) => setEditingModuleName(e.target.value)}
                                                                     onKeyDown={(e) => e.key === 'Enter' && handleUpdateModule()}
                                                                     autoFocus
-                                                                    className="px-2 py-0.5 bg-white dark:bg-[#111] border border-blue-500/50 rounded text-[11px] font-bold uppercase tracking-tight outline-none w-full"
+                                                                    className="px-2 py-0.5 bg-white dark:bg-[#1D1E23] border border-blue-500/50 rounded text-[11px] font-bold uppercase tracking-tight outline-none w-full"
                                                                 />
                                                                 <button onClick={handleUpdateModule} disabled={isUpdatingModule} className="p-1 text-green-500 hover:bg-green-50 dark:hover:bg-green-500/10 rounded">
                                                                     <Check className="w-3 h-3" />
@@ -321,7 +321,7 @@ export default function ModuleManager({ course }: any) {
                                                 {/* Submodule Problems */}
                                                 <div className="space-y-1.5">
                                                     {sub.categoryProblems.map(({ problem }: any) => (
-                                                        <div key={problem.id} className="flex items-center justify-between p-2 bg-white dark:bg-[#111] rounded-lg border border-gray-50 dark:border-[#262626] text-[11px] group/p transition-all hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">
+                                                        <div key={problem.id} className="flex items-center justify-between p-2 bg-white dark:bg-[#1D1E23] rounded-lg border border-gray-50 dark:border-[#262626] text-[11px] group/p transition-all hover:bg-gray-50 dark:hover:bg-[#1D1E23]">
                                                             <span className="font-medium text-gray-600 dark:text-gray-400 truncate max-w-[150px]">{problem.title}</span>
                                                             <div className="flex items-center gap-1 opacity-0 group-hover/p:opacity-100 transition-all">
                                                                 <Link
@@ -362,7 +362,7 @@ export default function ModuleManager({ course }: any) {
                                                                 value={searchQuery}
                                                                 onChange={(e) => handleSearch(e.target.value)}
                                                                 placeholder="Search pool..."
-                                                                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-lg text-[10px] font-bold outline-none ring-1 ring-transparent focus:ring-blue-500/20"
+                                                                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-lg text-[10px] font-bold outline-none ring-1 ring-transparent focus:ring-blue-500/20"
                                                             />
                                                         </div>
                                                         <div className="space-y-1.5 max-h-40 overflow-y-auto scrollbar-hide">
@@ -397,7 +397,7 @@ export default function ModuleManager({ course }: any) {
                                                 onChange={(e) => setSubmoduleInput(prev => prev ? { ...prev, name: e.target.value } : null)}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleAddModule(module.id)}
                                                 placeholder="Submodule name..."
-                                                className="flex-1 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-lg text-xs font-bold outline-none"
+                                                className="flex-1 px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#333] rounded-lg text-xs font-bold outline-none"
                                             />
                                             <button
                                                 onClick={() => handleAddModule(module.id)}
@@ -427,7 +427,7 @@ export default function ModuleManager({ course }: any) {
                                                     value={searchQuery}
                                                     onChange={(e) => handleSearch(e.target.value)}
                                                     placeholder="Search from problem pool..."
-                                                    className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20"
+                                                    className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20"
                                                 />
                                             </div>
                                             <button
@@ -442,7 +442,7 @@ export default function ModuleManager({ course }: any) {
                                             {isSearching ? (
                                                 <div className="py-8 text-center col-span-full"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></div>
                                             ) : searchResults.map((p) => (
-                                                <div key={p.id} className="flex items-center justify-between p-3 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#262626] hover:border-blue-500/30 transition-all group/item">
+                                                <div key={p.id} className="flex items-center justify-between p-3 bg-white dark:bg-[#1D1E23] rounded-xl border border-gray-100 dark:border-[#262626] hover:border-blue-500/30 transition-all group/item">
                                                     <div className="flex flex-col">
                                                         <span className="text-[11px] font-bold text-gray-900 dark:text-white uppercase tracking-tight">{p.title}</span>
                                                         <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{p.difficulty} • {p.domain}</span>
@@ -464,7 +464,7 @@ export default function ModuleManager({ course }: any) {
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Core Module Items</p>
                                     <div className="grid grid-cols-1 gap-2">
                                         {module.categoryProblems.map(({ problem }: any) => (
-                                            <div key={problem.id} className="p-4 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl flex items-center justify-between group/item transition-all hover:border-orange-500/20">
+                                            <div key={problem.id} className="p-4 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl flex items-center justify-between group/item transition-all hover:border-orange-500/20">
                                                 <div className="flex items-center gap-4">
                                                     <GripVertical className="w-4 h-4 text-gray-200 group-hover/item:text-orange-500 cursor-grab" />
                                                     <div>
@@ -518,8 +518,8 @@ export default function ModuleManager({ course }: any) {
                 ))}
 
                 {moduleTree.length === 0 && (
-                    <div className="py-24 text-center bg-white dark:bg-[#111] border-2 border-dashed border-gray-100 dark:border-[#262626] rounded-2xl">
-                        <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl flex items-center justify-center mx-auto mb-6">
+                    <div className="py-24 text-center bg-white dark:bg-[#1D1E23] border-2 border-dashed border-gray-100 dark:border-[#262626] rounded-2xl">
+                        <div className="w-16 h-16 bg-gray-50 dark:bg-[#1D1E23] rounded-xl flex items-center justify-center mx-auto mb-6">
                             <Plus className="w-8 h-8 text-gray-300" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight uppercase">Empty Board</h3>

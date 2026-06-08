@@ -33,7 +33,7 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
 
     if (classrooms.length === 0) {
         return (
-            <div className="text-center py-20 bg-gray-50/50 dark:bg-[#141414] rounded-2xl border border-dashed border-gray-200 dark:border-[#262626]">
+            <div className="text-center py-20 bg-gray-50/50 dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-200 dark:border-[#262626]">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-2">No Active Classrooms</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Create your first learning environment above.</p>
             </div>
@@ -45,7 +45,7 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
             {classrooms.map((classroom) => (
                 <div
                     key={classroom.id}
-                    className="group flex flex-col bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] p-6 rounded-md hover:border-orange-500 dark:hover:border-orange-500 shadow-sm dark:shadow-none"
+                    className="group flex flex-col bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] p-6 rounded-md hover:border-orange-500 dark:hover:border-orange-500 shadow-sm dark:shadow-none"
                 >
                     <div className="flex justify-between items-start mb-6">
                         <div className="flex flex-col">
@@ -56,19 +56,19 @@ export function TeacherClassroomList({ classrooms }: TeacherClassroomListProps) 
                                 {classroom.name}
                             </h3>
                         </div>
-                        <div className="px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase rounded">
+                        <div className="px-2 py-1 bg-gray-50 dark:bg-[#1D1E23] text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase rounded">
                             {classroom._count.students} Students
                         </div>
                     </div>
 
                     <div className="flex-grow flex flex-wrap gap-2 mb-6">
                         {classroom.subject && (
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] rounded">
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1D1E23] rounded">
                                 {classroom.subject}
                             </span>
                         )}
                         {classroom.section && (
-                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1a1a1a] rounded">
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-2 py-1 bg-gray-50 dark:bg-[#1D1E23] rounded">
                                 Sec {classroom.section}
                             </span>
                         )}

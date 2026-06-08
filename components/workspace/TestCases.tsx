@@ -219,10 +219,10 @@ const TestCases = memo(({
     const totalResults = filteredResults ? filteredResults.length : 0;
 
     return (
-        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] border-t border-gray-200/80 dark:border-[#1e1e1e]">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-t border-gray-200/80 dark:border-[#1e1e1e]">
             {/* Header - Always visible, acts as toggle */}
             <motion.div
-                className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#0d0d0d] border-b border-gray-100/80 dark:border-[#1a1a1a] cursor-pointer select-none group h-10 shrink-0"
+                className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#24262C] border-b border-gray-100/80 dark:border-[#1D1E23] cursor-pointer select-none group h-10 shrink-0"
                 onClick={onToggleCollapse}
                 whileTap={{ scale: 0.998 }}
             >
@@ -320,8 +320,8 @@ const TestCases = memo(({
                                             className={`
                                                 flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap border
                                                 ${activeTab === displayIndex
-                                                    ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#2a2a2a] shadow-sm'
-                                                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300'
+                                                    ? 'bg-gray-100 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#2a2a2a] shadow-sm'
+                                                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#24262C] hover:text-gray-700 dark:hover:text-gray-300'
                                                 }
                                                 ${getStatusStyles()}
                                             `}
@@ -379,8 +379,8 @@ const TestCases = memo(({
                                             className={`
                                                 flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap border
                                                 ${activeTab === displayIndex
-                                                    ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#2a2a2a] shadow-sm'
-                                                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-700 dark:hover:text-gray-300'
+                                                    ? 'bg-gray-100 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-[#2a2a2a] shadow-sm'
+                                                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-[#24262C] hover:text-gray-700 dark:hover:text-gray-300'
                                                 }
                                                 ${getStatusStyles()}
                                             `}

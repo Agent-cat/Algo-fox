@@ -196,7 +196,7 @@ const WorkspaceHeader = memo(({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="h-14 bg-[#fafafa] dark:bg-[#121212] border-b border-dashed border-gray-300/80 dark:border-white/10 flex items-center justify-between px-4 z-10 relative"
+      className="h-14 bg-[#fafafa] dark:bg-[#1D1E23] border-b border-dashed border-gray-300/80 dark:border-white/10 flex items-center justify-between px-4 z-10 relative"
     >
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3' : ''}`}>
@@ -205,7 +205,7 @@ const WorkspaceHeader = memo(({
             <motion.button
               id="problem-list-toggle"
               onClick={onToggleSidebar}
-              className="p-2 hover:bg-gray-100/50 dark:hover:bg-white/3 rounded-xl text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-300 border border-transparent shadow-none group"
+              className="p-2 hover:bg-gray-100/50 dark:hover:bg-white/3 rounded-xl text-gray-500 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-300 border border-transparent shadow-none group cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -258,7 +258,7 @@ const WorkspaceHeader = memo(({
             {/* NAVIGATION_BUTTON_ALREADY_MOVED_UP */}
             <Link
               href={getProblemListUrl()}
-              className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-[#141414]"
+              className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-[#24262C]"
             >
               {courseId ? "Course Home" : "Problem List"}
             </Link>
@@ -271,10 +271,10 @@ const WorkspaceHeader = memo(({
             {!courseId && (
               <>
                 <span className="text-gray-200 dark:text-gray-700 select-none">|</span>
-                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#141414] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
+                <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-[#24262C] rounded-lg p-0.5 border border-gray-100 dark:border-[#1e1e1e]">
                   <CustomTooltip content="Previous Problem" shortcut="Alt+ArrowLeft" side="bottom">
                     <motion.button
-                      className={`p-1.5 rounded-md transition-colors ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                      className={`p-1.5 rounded-md transition-colors cursor-pointer ${prevProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#24262C] text-gray-500 hover:text-orange-500 dark:hover:text-orange-500 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
                       disabled={!prevProblemSlug}
                       onClick={() => prevProblemSlug && router.push(getPrevUrl())}
                       whileHover={prevProblemSlug ? { scale: 1.1 } : {}}
@@ -285,7 +285,7 @@ const WorkspaceHeader = memo(({
                   </CustomTooltip>
                   <CustomTooltip content="Next Problem" shortcut="Alt+ArrowRight" side="bottom">
                     <motion.button
-                      className={`p-1.5 rounded-md transition-colors ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+                      className={`p-1.5 rounded-md transition-colors cursor-pointer ${nextProblemSlug ? 'hover:bg-[#fafafa] dark:hover:bg-[#24262C] text-gray-500 hover:text-orange-500 dark:hover:text-orange-500 hover:shadow-sm' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
                       disabled={!nextProblemSlug}
                       onClick={() => nextProblemSlug && router.push(getNextUrl())}
                       whileHover={nextProblemSlug ? { scale: 1.1 } : {}}
@@ -311,7 +311,7 @@ const WorkspaceHeader = memo(({
                     }
                   }}
                   disabled={isRandomizing}
-                  className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg text-gray-500 transition-colors ${isRandomizing ? 'opacity-50' : ''}`}
+                  className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg text-gray-500 transition-colors cursor-pointer ${isRandomizing ? 'opacity-50' : ''}`}
                   whileHover={{ scale: 1.08}}
                   whileTap={{ scale: 0.9 }}
                   // transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -342,9 +342,9 @@ const WorkspaceHeader = memo(({
                 id="run-button"
                 className={`
                   flex items-center gap-2 px-5 py-2
-                  bg-gray-100 dark:bg-[#141414] hover:bg-gray-200 dark:hover:bg-[#1c1c1c]
+                  bg-gray-100 dark:bg-[#24262C] hover:bg-gray-200 dark:hover:bg-[#2a2d35]
                   text-gray-700 dark:text-gray-300 text-sm font-bold rounded-lg
-                  transition-colors duration-200 disabled:opacity-50
+                  transition-colors duration-200 disabled:opacity-50 cursor-pointer
                   border border-gray-200/80 dark:border-[#262626]
                   ${contestId ? 'shadow-sm' : ''}
                   ${(isPending || session?.user?.role === "USER") ? 'cursor-not-allowed border-orange-500/20 shadow-orange-500/5' : ''}
@@ -374,9 +374,9 @@ const WorkspaceHeader = memo(({
                 id="submit-button"
                 onClick={session?.user?.role === "USER" ? () => toast.error("Please subscribe to use this feature") : onSubmit}
                 disabled={isSubmitting}
-                className={`flex items-center gap-2 px-7 py-2 text-sm font-black uppercase tracking-wider rounded-lg shadow-lg transition-colors ${
+                className={`flex items-center gap-2 px-7 py-2 text-sm font-black uppercase tracking-wider rounded-lg shadow-lg transition-colors cursor-pointer ${
                   session?.user?.role === "USER"
-                    ? 'bg-gray-100 dark:bg-[#141414] text-gray-400 dark:text-gray-600 border border-gray-200/80 dark:border-[#262626] shadow-none cursor-not-allowed'
+                    ? 'bg-gray-100 dark:bg-[#24262C] text-gray-400 dark:text-gray-600 border border-gray-200/80 dark:border-[#262626] shadow-none cursor-not-allowed'
                     : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-500/20'
                 }`}
                 whileHover={session?.user?.role === "USER" ? {} : { y: -1 }}
@@ -415,7 +415,7 @@ const WorkspaceHeader = memo(({
                   <div className="relative" ref={profileRef}>
                     <motion.button
                       onClick={() => setProfileOpen(!isProfileOpen)}
-                      className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                      className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D1E23] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626] cursor-pointer"
                       whileTap={{ scale: 0.97 }}
                     >
                       <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden md:block">
@@ -423,7 +423,7 @@ const WorkspaceHeader = memo(({
                       </span>
                       <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#121212] bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
+                        className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#1D1E23] bg-gray-100 dark:bg-[#1D1E23] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
                       >
                         {session.user.image ? (
                           <img
@@ -444,12 +444,12 @@ const WorkspaceHeader = memo(({
                           initial={{ opacity: 0, y: 8, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                          className="absolute right-0 top-full mt-2 w-48 bg-[#fafafa] dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
+                          className="absolute right-0 top-full mt-2 w-48 bg-[#fafafa] dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl shadow-black/5 dark:shadow-black/20 p-1 z-50 origin-top-right"
                         >
                           {(session.user as any).role === "ADMIN" && (
                             <Link
                               href="/admin"
-                              className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
+                              className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg transition-colors"
                               onClick={() => setProfileOpen(false)}
                             >
                               Admin Panel
@@ -457,7 +457,7 @@ const WorkspaceHeader = memo(({
                           )}
                           <Link
                             href="/dashboard"
-                            className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
+                            className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg transition-colors"
                             onClick={() => setProfileOpen(false)}
                           >
                             Dashboard

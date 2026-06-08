@@ -17,10 +17,10 @@ import { useWorkspaceSubmission } from '@/hooks/workspace/use-workspace-submissi
 
 // Components
 import WorkspaceHeader from './WorkspaceHeader';
-import ProblemDescription from './ProblemDescription';
-import CodeEditor from './CodeEditor';
-import TestCases from './TestCases';
 import ProblemTour from '../tour/ProblemTour';
+import ProblemSkeleton from './ProblemSkeleton';
+import EditorSkeleton from './EditorSkeleton';
+import TestCasesSkeleton from './TestCasesSkeleton';
 import { WorkspaceModals } from './WorkspaceModals';
 import { WorkspaceSidebars } from './WorkspaceSidebars';
 import CodeFileTabs from './CodeFileTabs';
@@ -29,6 +29,21 @@ import { getParticipationStatus } from '@/actions/contest';
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null,
     ssr: false
+});
+
+const ProblemDescription = dynamic(() => import('./ProblemDescription'), {
+    ssr: false,
+    loading: () => <ProblemSkeleton />
+});
+
+const CodeEditor = dynamic(() => import('./CodeEditor'), {
+    ssr: false,
+    loading: () => <EditorSkeleton />
+});
+
+const TestCases = dynamic(() => import('./TestCases'), {
+    ssr: false,
+    loading: () => <TestCasesSkeleton />
 });
 
 interface FunctionTemplate {
@@ -473,7 +488,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
     if (!mainHydrated || !verticalHydrated) return null;
 
     return (
-        <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
+        <div className="h-screen w-full bg-[#fafafa] dark:bg-[#1D1E23] flex flex-col overflow-hidden animate-fadeIn">
             {!contestId && <ProblemTour />}
             <WorkspaceModals
                 isSettingsOpen={isSettingsOpen}
@@ -523,7 +538,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 onToggleSidebar={handleToggleSidebar}
                 problemId={problem.id}
             />
-            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#0a0a0a]">
+            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#1D1E23]">
                 <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={8} snapOffset={30} onDragEnd={setMainSizes}>
                     <div id="problem-description" className="h-full overflow-hidden border-l border-dashed border-gray-400 dark:border-white/10">
                         <ProblemDescription
@@ -559,7 +574,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                     allowedLanguages={problem.allowedLanguages}
                                   />
                             </div>
-                            <div id="test-cases" className="overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
+                            <div id="test-cases" className="overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
                                 <TestCases
                                     cases={problem.testCases}
                                     customCases={customTestCases}
@@ -604,7 +619,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                     .gutter:hover::after { opacity: 1; background-color: #f97316; height: 32px; width: 4px; }
                     .gutter.gutter-vertical:hover::after { width: 32px; height: 4px; }
                     .dark .gutter::after { background-color: rgba(255, 255, 255, 0.3); }
-                    .dark .gutter:hover::after { background-color: #f97316; }
+                    .dark .gutter:hover { background-color: rgba(255, 121, 198, 0.15) !important; }
+                    .dark .gutter:hover::after { background-color: #ff79c6; }
                 `}</style>
             </div>
         </div>

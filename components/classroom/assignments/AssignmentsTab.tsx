@@ -110,7 +110,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                     {assignments.map(assignment => (
                         <div
                             key={assignment.id}
-                            className="bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all group relative cursor-pointer shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
+                            className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all group relative cursor-pointer shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
                             onClick={() => isTeacher && setSelectedAssignmentId(assignment.id)}
                         >
                             <div className="flex items-start justify-between mb-6">

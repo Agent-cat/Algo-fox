@@ -127,7 +127,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="Instructions for students..."
-                                className="flex min-h-[80px] w-full rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex min-h-[80px] w-full rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                         </div>
 
@@ -139,7 +139,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
                                     type="datetime-local"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] pl-10 pr-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                                    className="flex h-10 w-full rounded-md border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] pl-10 pr-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                                 />
                             </div>
                         </div>
@@ -165,7 +165,7 @@ export function CreateAssignmentModal({ isOpen, onClose, classroomId, onSuccess 
 
                             {/* Search Results Dropdown */}
                             {searchResults.length > 0 && (
-                                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                     {searchResults.map(problem => (
                                         <button
                                             key={problem.id}

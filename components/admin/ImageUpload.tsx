@@ -82,7 +82,7 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" }:
                             <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
                         ) : (
                             <>
-                                <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-sm group-hover/upload:scale-110 transition-transform">
+                                <div className="p-4 bg-white dark:bg-[#1D1E23] rounded-2xl shadow-sm group-hover/upload:scale-110 transition-transform">
                                     <Upload className="w-6 h-6 text-gray-400 group-hover/upload:text-orange-500" />
                                 </div>
                                 <div className="text-center">

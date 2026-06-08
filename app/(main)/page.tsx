@@ -69,7 +69,7 @@ export default async function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] text-black dark:text-white font-sans pt-20 relative overflow-hidden">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans pt-20 relative overflow-hidden">
       {/* Animated Code Snippets Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08] dark:opacity-[0.12]">
         {codeSnippets.map((snippet, index) => (
@@ -84,7 +84,7 @@ export default async function Home() {
               animationDelay: snippet.position.delay,
             }}
           >
-            <div className="bg-white/50 dark:bg-[#1a1a1a]/50 rounded-lg p-4 border-2 border-orange-500/30 backdrop-blur-[2px] shadow-lg">
+            <div className="bg-white/50 dark:bg-[#1D1E23]/50 rounded-lg p-4 border-2 border-orange-500/30 backdrop-blur-[2px] shadow-lg">
               <div className="text-orange-500 mb-2 text-xs font-bold uppercase tracking-wider">
                 {snippet.language}
               </div>

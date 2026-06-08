@@ -21,7 +21,7 @@ export default function CourseForm({ course, isEdit = false }: CourseFormProps) 
             <div className="flex items-center gap-4">
                 <Link
                     href="/admin/courses"
-                    className="p-3 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-2xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="p-3 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-2xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
@@ -39,7 +39,7 @@ export default function CourseForm({ course, isEdit = false }: CourseFormProps) 
                 <input type="hidden" name="image" value={imageUrl} />
 
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] p-8 space-y-6">
+                    <div className="bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] p-8 space-y-6">
                         <ImageUpload
                             value={imageUrl}
                             onChange={setImageUrl}
@@ -130,7 +130,7 @@ export default function CourseForm({ course, isEdit = false }: CourseFormProps) 
                 </div>
 
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] p-8 space-y-8">
+                    <div className="bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-[2.5rem] p-8 space-y-8">
                         <div className="space-y-4">
                             <label className="text-sm font-bold text-gray-500 uppercase tracking-widest px-1">Settings</label>
                             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#262626] rounded-2xl border border-transparent hover:border-orange-500/20 transition-all group">

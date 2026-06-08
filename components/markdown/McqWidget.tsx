@@ -45,7 +45,7 @@ export default function McqWidget({ data }: McqWidgetProps) {
   const isCorrect = selectedOption?.isCorrect;
 
   return (
-    <div className="my-6 p-6 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#111111]/50 not-prose">
+    <div className="my-6 p-6 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1D1E23]/50 not-prose">
         <div className="mb-4 text-base font-semibold text-gray-900 dark:text-gray-100">
             {/* Render question with markdown support just in case */}
             <Markdown>{question}</Markdown>
@@ -53,7 +53,7 @@ export default function McqWidget({ data }: McqWidgetProps) {
 
         <div className="grid grid-cols-1 gap-3">
             {options.map((option, idx) => {
-                let statusClass = "border-gray-200 dark:border-[#333] hover:border-orange-200 dark:hover:border-orange-500/30 hover:bg-white dark:hover:bg-[#1a1a1a]";
+                let statusClass = "border-gray-200 dark:border-[#333] hover:border-orange-200 dark:hover:border-orange-500/30 hover:bg-white dark:hover:bg-[#1D1E23]";
 
                 if (isSubmitted) {
                     if (option.isCorrect) {
@@ -83,7 +83,7 @@ export default function McqWidget({ data }: McqWidgetProps) {
                                 isSubmitted && option.isCorrect ? "bg-emerald-500 border-emerald-500 text-white" :
                                 isSubmitted && option.id === selectedOptionId && !option.isCorrect ? "bg-red-500 border-red-500 text-white" :
                                 selectedOptionId === option.id ? "bg-orange-500 border-orange-500 text-white" :
-                                "bg-gray-100 dark:bg-[#1a1a1a] border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 group-hover:border-orange-300 dark:group-hover:border-orange-500/30"
+                                "bg-gray-100 dark:bg-[#1D1E23] border-gray-200 dark:border-[#333] text-gray-500 dark:text-gray-400 group-hover:border-orange-300 dark:group-hover:border-orange-500/30"
                             )}>
                                 {String.fromCharCode(65 + idx)}
                             </div>

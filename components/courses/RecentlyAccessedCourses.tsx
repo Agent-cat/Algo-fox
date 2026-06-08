@@ -28,7 +28,7 @@ export function RecentlyAccessedCourses({ enrollments }: RecentlyAccessedCourses
                         href={`/courses/${en.course.slug}`}
                         className="flex-none w-[280px] md:w-[320px] group snap-start"
                     >
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-100 dark:border-[#262626] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 group-hover:-translate-y-2 flex flex-col h-full border-b-4 border-b-orange-500/50">
+                        <div className="bg-white dark:bg-[#1D1E23] rounded-3xl border border-gray-100 dark:border-[#262626] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 group-hover:-translate-y-2 flex flex-col h-full border-b-4 border-b-orange-500/50">
                             <div className="relative aspect-16/10 overflow-hidden">
                                 {en.course.image ? (
                                     <Image
@@ -38,7 +38,7 @@ export function RecentlyAccessedCourses({ enrollments }: RecentlyAccessedCourses
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-linear-to-br from-gray-50 to-gray-100 dark:from-[#1a1a1a] dark:to-[#262626] flex items-center justify-center">
+                                    <div className="w-full h-full bg-linear-to-br from-gray-50 to-gray-100 dark:from-[#1D1E23] dark:to-[#262626] flex items-center justify-center">
                                         <BookOpen className="w-10 h-10 text-gray-200 dark:text-[#333]" />
                                     </div>
                                 )}

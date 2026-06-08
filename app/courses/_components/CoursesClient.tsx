@@ -83,7 +83,7 @@ export default function CoursesClient({ courses, enrollments }: CoursesClientPro
                                     );
                                 })
                             ) : (
-                                <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] rounded-3xl border border-dashed border-gray-200 dark:border-[#262626] text-center">
+                                <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1D1E23] rounded-3xl border border-dashed border-gray-200 dark:border-[#262626] text-center">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                                         {mode === "practice" ? "No Enrolled Courses" : "No Courses Found"}
                                     </h3>

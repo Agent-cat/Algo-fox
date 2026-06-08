@@ -19,17 +19,17 @@ export function UserProfileCard(props: UserProfileCardProps) {
     const { name, email, image, bio, role, institutionName, readonly } = props;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <div className="flex flex-col items-center text-center">
                 <div className="relative w-24 h-24 mb-4">
-                    <div className="w-full h-full rounded-full bg-orange-50 dark:bg-[#1a1a1a] border-4 border-orange-100 dark:border-orange-500/10 flex items-center justify-center overflow-hidden text-2xl font-bold text-orange-600 dark:text-orange-500">
+                    <div className="w-full h-full rounded-full bg-orange-50 dark:bg-[#1D1E23] border-4 border-orange-100 dark:border-orange-500/10 flex items-center justify-center overflow-hidden text-2xl font-bold text-orange-600 dark:text-orange-500">
                         {image ? (
                             <img src={image} alt={name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             name?.charAt(0).toUpperCase()
                         )}
                     </div>
-                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-[#141414]" title="Online" />
+                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-[#24262C]" title="Online" />
                 </div>
 
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">{name}</h2>

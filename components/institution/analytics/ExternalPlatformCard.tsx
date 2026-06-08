@@ -88,7 +88,7 @@ export function ExternalPlatformCard({ student }: ExternalPlatformCardProps) {
     const connectedCount = platforms.filter((p) => p.handle).length;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 flex flex-col gap-5 hover:shadow-lg transition-shadow duration-300 h-full">
+        <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] p-6 flex flex-col gap-5 hover:shadow-lg transition-shadow duration-300 h-full">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
 
     if (!isConnected) {
         return (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1a1a1a] opacity-50">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1D1E23] opacity-50">
                 <div className={`shrink-0 ${platform.color}`}>{platform.logo}</div>
                 <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -135,7 +135,7 @@ function PlatformRow({ platform }: { platform: PlatformData }) {
     }
 
     return (
-        <div className="group flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1a1a1a] hover:bg-gray-100 dark:hover:bg-[#222222] transition-colors">
+        <div className="group flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#1D1E23] hover:bg-gray-100 dark:hover:bg-[#222222] transition-colors">
             <div className={`shrink-0 ${platform.color}`}>{platform.logo}</div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">

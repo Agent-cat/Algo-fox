@@ -59,7 +59,7 @@ export const ContestTimer = memo(({ endTime, contestId }: ContestTimerProps) => 
         <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center px-4 py-1.5 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border border-gray-200 dark:border-[#262626] ml-4 transition-colors"
+            className="flex flex-col items-center justify-center px-4 py-1.5 bg-gray-100 dark:bg-[#1D1E23] rounded-lg border border-gray-200 dark:border-[#262626] ml-4 transition-colors"
         >
             <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-0.5 whitespace-nowrap">Time Left</span>
             <span className="text-sm font-mono font-bold text-gray-900 dark:text-gray-100 leading-none tabular-nums">{timeLeft}</span>

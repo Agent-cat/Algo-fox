@@ -79,7 +79,7 @@ export default function CreateUserDialog() {
                             placeholder="John Doe"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
+                            className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
@@ -90,7 +90,7 @@ export default function CreateUserDialog() {
                             placeholder="john@example.com"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
+                            className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
@@ -101,7 +101,7 @@ export default function CreateUserDialog() {
                             placeholder="••••••••"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
+                            className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white"
                         />
                     </div>
                     <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function CreateUserDialog() {
                         <Select
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="bg-white dark:bg-[#1a1a1a] dark:border-[#333] dark:text-white"
+                            className="bg-white dark:bg-[#1D1E23] dark:border-[#333] dark:text-white"
                         >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>

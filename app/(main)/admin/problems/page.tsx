@@ -69,7 +69,7 @@ export default function AdminProblemsPage() {
                     { label: "Actions", className: "text-right" }
                 ]}
                 renderItem={(problem) => (
-                    <tr key={problem.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
+                    <tr key={problem.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
                         <td className="px-6 py-4">
                             <div className="font-semibold text-gray-900 dark:text-gray-100">{problem.title}</div>
                             <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{problem.slug}</div>
@@ -82,7 +82,7 @@ export default function AdminProblemsPage() {
                         <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                                 {problem.hidden ? (
-                                    <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#1a1a1a] px-2.5 py-1 rounded-full border border-gray-200 dark:border-[#333]">
+                                    <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#1D1E23] px-2.5 py-1 rounded-full border border-gray-200 dark:border-[#333]">
                                         <EyeOff className="w-3.5 h-3.5" /> Hidden
                                     </span>
                                 ) : (

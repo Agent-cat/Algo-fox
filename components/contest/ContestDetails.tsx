@@ -211,7 +211,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                 </>
             )}
 
-            <div className="min-h-screen bg-white dark:bg-[#121212] py-8">
+            <div className="min-h-screen bg-white dark:bg-[#1D1E23] py-8">
                 <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
                     {/* Header */}
                     <div className="mb-8">
@@ -289,7 +289,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                     </div>
 
                     {!hasStarted && !contest.canManage ? (
-                        <div className="text-center py-20 border border-gray-200 dark:border-[#262626] rounded-lg bg-white dark:bg-[#141414]">
+                        <div className="text-center py-20 border border-gray-200 dark:border-[#262626] rounded-lg bg-white dark:bg-[#24262C]">
                             <Lock className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Problems Locked</h3>
                             <p className="text-gray-500 dark:text-gray-400">
@@ -305,9 +305,9 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                     const isLocked = !section.isUnlocked && contest.mode === "SEQUENTIAL";
 
                                     return (
-                                        <div key={section.id} className={`border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden bg-white dark:bg-[#141414] ${isLocked ? 'opacity-60 grayscale-[0.2]' : ''}`}>
+                                        <div key={section.id} className={`border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden bg-white dark:bg-[#24262C] ${isLocked ? 'opacity-60 grayscale-[0.2]' : ''}`}>
                                             {/* Section Header */}
-                                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+                                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1D1E23]">
                                                 <div className="flex items-center gap-3">
                                                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{section.title}</h3>
                                                     {isLocked && <Lock className="w-4 h-4 text-gray-500" />}
@@ -379,7 +379,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                                                         }}
                                                                         className={`grid grid-cols-12 gap-4 px-6 py-4 items-center transition-all duration-200 ${
                                                                             canAccess && !isLocked && (hasStarted || contest.canManage) && !isBlockedByCompletion
-                                                                            ? "hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] cursor-pointer"
+                                                                            ? "hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] cursor-pointer"
                                                                             : isBlockedByCompletion ? "opacity-75 bg-emerald-50/30 dark:bg-emerald-500/5 cursor-not-allowed" : "opacity-50 cursor-not-allowed"
                                                                         }`}
                                                                     >
@@ -422,7 +422,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                                     )
                                 })
                             ) : (
-                                <div className="text-center py-20 border border-gray-200 dark:border-[#262626] rounded-lg bg-gray-50 dark:bg-[#141414]">
+                                <div className="text-center py-20 border border-gray-200 dark:border-[#262626] rounded-lg bg-gray-50 dark:bg-[#24262C]">
                                     <p className="text-gray-500 dark:text-gray-400">No sections found for this contest.</p>
                                 </div>
                             )}
@@ -434,7 +434,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
             {/* Section Submission Confirmation Modal */}
             {showSectionConfirmModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626]">
                         <div className="flex items-center gap-3 mb-4 text-orange-600 dark:text-orange-400">
                             <AlertCircle className="w-8 h-8" />
                             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Submit Section?</h3>
@@ -447,7 +447,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setShowSectionConfirmModal(false); setSectionIdToSubmit(null); }}
-                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
                             >
                                 Cancel
                             </button>
@@ -466,7 +466,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
             {/* End Contest Confirmation Modal */}
             {showEndModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#141414] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
+                    <div className="bg-white dark:bg-[#24262C] rounded-xl shadow-2xl w-full max-w-md p-6 border border-gray-100 dark:border-[#262626] transform scale-100 transition-all">
                         <div className="flex items-center gap-3 mb-4 text-red-600 dark:text-red-400">
                             <ShieldAlert className="w-8 h-8" />
                             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">End Contest Session?</h3>
@@ -483,14 +483,14 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
                             placeholder="Type 'end' to confirm"
                             value={endConfirmText}
                             onChange={(e) => setEndConfirmText(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg mb-6 bg-gray-50 dark:bg-[#1a1a1a] focus:bg-white dark:focus:bg-[#0a0a0a] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal text-gray-900 dark:text-gray-100"
+                            className="w-full px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg mb-6 bg-gray-50 dark:bg-[#1D1E23] focus:bg-white dark:focus:bg-[#1D1E23] focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-mono text-center uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal text-gray-900 dark:text-gray-100"
                             autoFocus
                         />
 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setShowEndModal(false); setEndConfirmText(""); }}
-                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                                className="flex-1 px-4 py-3 border border-gray-200 dark:border-[#262626] rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
                             >
                                 Cancel
                             </button>

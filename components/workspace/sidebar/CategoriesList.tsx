@@ -58,7 +58,7 @@ function CategoryItem({
         <div className={cn(
             "transition-all duration-300",
             level === 0
-                ? "mb-4 border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121212]/40 backdrop-blur-sm shadow-sm rounded-2xl overflow-hidden"
+                ? "mb-4 border border-gray-100 dark:border-white/5 bg-white dark:bg-[#1D1E23]/40 backdrop-blur-sm shadow-sm rounded-2xl overflow-hidden"
                 : "ml-4 border-l-2 border-gray-100 dark:border-white/5 mt-1"
         )}>
             <button

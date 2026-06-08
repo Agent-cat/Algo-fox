@@ -66,7 +66,7 @@ async function AdminDashboardStats() {
                 {stats.map((stat) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={stat.label} className={`relative group bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-white/10 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}>
+                        <div key={stat.label} className={`relative group bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-300 dark:border-white/10 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}>
                             <div className="flex items-center justify-between mb-4">
                                 <div className={`p-2.5 ${stat.bg} rounded-xl`}>
                                     <Icon className={`w-5 h-5 ${stat.color}`} />
@@ -85,7 +85,7 @@ async function AdminDashboardStats() {
             {/* Structured Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {actions.map((group) => (
-                    <div key={group.title} className="bg-white/50 dark:bg-[#141414]/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 p-6 flex flex-col h-full">
+                    <div key={group.title} className="bg-white/50 dark:bg-[#24262C]/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 p-6 flex flex-col h-full">
                         <h2 className="text-md font-black text-gray-900 dark:text-gray-100 mb-6 uppercase tracking-widest flex items-center gap-2">
                              <div className="w-2 h-2 rounded-full bg-orange-500" />
                              {group.title}
@@ -95,7 +95,7 @@ async function AdminDashboardStats() {
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    className="flex items-center justify-between p-4 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-2xl hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all group"
+                                    className="flex items-center justify-between p-4 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-2xl hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-all group"
                                 >
                                     <span className="font-bold text-sm text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400">{link.name}</span>
                                     <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />

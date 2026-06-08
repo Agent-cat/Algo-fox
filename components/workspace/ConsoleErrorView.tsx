@@ -48,10 +48,10 @@ export const ConsoleErrorView = React.memo(({
 
             {/* Error Message - Terminal Box */}
             <div className="relative group">
-                <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-red-500/80 uppercase tracking-widest z-10 transition-colors group-hover:text-red-500">
+                <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#1D1E23] text-[10px] font-bold text-red-500/80 uppercase tracking-widest z-10 transition-colors group-hover:text-red-500">
                     Console Output
                 </div>
-                <div className="w-full bg-red-500/5 dark:bg-[#0d0d0d] border border-red-500/20 rounded-lg p-5 font-mono text-sm text-red-900 dark:text-red-50/90 whitespace-pre-wrap overflow-x-auto leading-relaxed shadow-lg shadow-red-500/5 min-h-[120px]">
+                <div className="w-full bg-red-500/5 dark:bg-[#24262C] border border-red-500/20 rounded-lg p-5 font-mono text-sm text-red-900 dark:text-red-50/90 whitespace-pre-wrap overflow-x-auto leading-relaxed shadow-lg shadow-red-500/5 min-h-[120px]">
                     {!hasErrors ? (
                         <div className="h-full flex items-center justify-center text-gray-600 italic">
                             No errors reported.

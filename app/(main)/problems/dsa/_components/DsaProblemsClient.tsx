@@ -109,7 +109,7 @@ export default function DsaProblemsClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8"
+            className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8"
         >
             <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
                 {/* Page Header */}
@@ -150,7 +150,7 @@ export default function DsaProblemsClient({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.15 }}
-                    className="bg-[#fafafa] dark:bg-[#121212] rounded-2xl overflow-hidden"
+                    className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-2xl overflow-hidden"
                 >
                     {mode === "practice" ? (
                         <>

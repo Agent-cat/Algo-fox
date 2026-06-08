@@ -89,10 +89,10 @@ export default function DriverCodeModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-4xl h-[80vh] bg-white dark:bg-[#141414] rounded-xl shadow-2xl border border-gray-200 dark:border-[#262626] overflow-hidden flex flex-col"
+            className="w-full max-w-4xl h-[80vh] bg-white dark:bg-[#24262C] rounded-xl shadow-2xl border border-gray-200 dark:border-[#262626] overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1a1a1a]">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1D1E23]">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
                     <Code2 className="w-5 h-5 text-orange-600 dark:text-orange-500" />
@@ -144,7 +144,7 @@ export default function DriverCodeModal({
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-3 bg-gray-50 dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-[#262626] flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+            <div className="px-6 py-3 bg-gray-50 dark:bg-[#1D1E23] border-t border-gray-100 dark:border-[#262626] flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                 <p>Read-only mode</p>
                 <button
                     onClick={onClose}

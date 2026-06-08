@@ -220,7 +220,7 @@ function DsaCategoryProblemsContent() {
           <div className="flex gap-3">
             <button
               onClick={() => setMode("add-concept")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-900 dark:text-white font-semibold rounded-xl transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-[#1D1E23] hover:bg-gray-200 dark:hover:bg-[#262626] text-gray-900 dark:text-white font-semibold rounded-xl transition-all"
             >
               <BookText className="w-4 h-4" />
               Add Concept
@@ -235,7 +235,7 @@ function DsaCategoryProblemsContent() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
           {isLoading ? (
             <div className="p-20 flex flex-col items-center justify-center gap-4">
               <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-full">
@@ -245,7 +245,7 @@ function DsaCategoryProblemsContent() {
             </div>
           ) : problems.length === 0 ? (
             <div className="p-20 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
                   <Plus className="w-6 h-6 text-gray-400" />
               </div>
               <h3 className="text-gray-900 dark:text-white font-semibold mb-1">No problems yet</h3>
@@ -262,7 +262,7 @@ function DsaCategoryProblemsContent() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626]">
+                  <tr className="bg-gray-50 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#262626]">
                     <th className="px-6 py-4 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Title
                     </th>
@@ -278,7 +278,7 @@ function DsaCategoryProblemsContent() {
                   {problems.map((problem) => (
                     <tr
                       key={problem.id}
-                      className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group"
+                      className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group"
                     >
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900 dark:text-white">{problem.title}</div>

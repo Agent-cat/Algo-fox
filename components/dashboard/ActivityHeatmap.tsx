@@ -85,7 +85,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
 
     // 3. Color scale
     const getIntensityClass = (count: number) => {
-        if (count === 0) return "bg-gray-100 dark:bg-[#262626]";
+        if (count === 0) return "bg-gray-100 dark:bg-white/5";
         if (count <= 2) return "bg-orange-200 dark:bg-orange-900/50";
         if (count <= 5) return "bg-orange-300 dark:bg-orange-700";
         if (count <= 8) return "bg-orange-400 dark:bg-orange-600";
@@ -162,7 +162,7 @@ function ActivityHeatmap({ submissions }: ActivityHeatmapProps) {
                 <div className="flex items-center gap-2 mt-4 text-xs text-gray-400 dark:text-gray-500 justify-end mr-4">
                     <span>Less</span>
                     <div className="flex gap-[3px]">
-                        <div className="w-3 h-3 rounded-[2px] bg-gray-100 dark:bg-[#262626]" />
+                        <div className="w-3 h-3 rounded-[2px] bg-gray-100 dark:bg-white/5" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-200 dark:bg-orange-900/50" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-300 dark:bg-orange-700" />
                         <div className="w-3 h-3 rounded-[2px] bg-orange-400 dark:bg-orange-600" />

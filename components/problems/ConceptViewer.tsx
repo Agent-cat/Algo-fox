@@ -76,7 +76,7 @@ export default function ConceptViewer({
     };
 
     return (
-        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#121212] flex flex-col">
+        <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#1D1E23] flex flex-col">
             <WorkspaceSidebars
                 isSidebarOpen={isSidebarOpen}
                 handleCloseSidebar={() => setIsSidebarOpen(false)}
@@ -109,7 +109,7 @@ export default function ConceptViewer({
                 />
                 <div className="w-full max-w-none px-4 md:px-8">
                     {/* Header */}
-                    <div className="px-6 py-6 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#141414]">
+                    <div className="px-6 py-6 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#24262C]">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-3">
                                 <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
@@ -140,9 +140,9 @@ export default function ConceptViewer({
                             prose-li:text-gray-700 dark:prose-li:text-gray-300
                             prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
                             prose-code:text-orange-600 dark:prose-code:text-orange-400 prose-code:bg-orange-50 dark:prose-code:bg-orange-950/30 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
-                            prose-pre:bg-white dark:prose-pre:bg-[#121212] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
+                            prose-pre:bg-white dark:prose-pre:bg-[#1D1E23] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
                             prose-img:rounded-lg prose-img:border prose-img:border-gray-100 dark:prose-img:border-[#262626] prose-img:my-6
-                            prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1a1a1a] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6">
+                            prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1D1E23] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6">
                             <Markdown
                                 remarkPlugins={[
                                     remarkGfm,
@@ -176,7 +176,7 @@ export default function ConceptViewer({
                     </div>
 
                     {/* Footer Action */}
-                    <div className="px-8 py-6 bg-gray-50/50 dark:bg-[#1a1a1a]/50 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between">
+                    <div className="px-8 py-6 bg-gray-50/50 dark:bg-[#1D1E23]/50 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between">
                         <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                             {isSolved ? "You have completed this concept." : "Read through the material?"}
                         </div>

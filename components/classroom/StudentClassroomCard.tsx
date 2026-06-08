@@ -30,7 +30,7 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
         >
             <Link
                 href={`/dashboard/classrooms/${classroom.id}`}
-                className="flex flex-col h-full bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none hover:border-orange-500/50 transition-all duration-500 group relative overflow-hidden"
+                className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none hover:border-orange-500/50 transition-all duration-500 group relative overflow-hidden"
             >
                 {/* Protocol Header */}
                 <div className="flex items-start justify-between mb-8 relative z-10">

@@ -45,7 +45,7 @@ const TIER_CONFIG: Record<
     beginner: {
         label: "Beginner",
         className:
-            "bg-gray-50 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-[#262626]",
+            "bg-gray-50 dark:bg-[#1D1E23] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-[#262626]",
         dotClass: "bg-gray-400",
     },
 };
@@ -119,7 +119,7 @@ export function StudentsOverview({
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Page Header + Quick Stats */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-[#141414] border border-dashed border-gray-200 dark:border-[#262626] rounded-3xl p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-[#24262C] border border-dashed border-gray-200 dark:border-[#262626] rounded-3xl p-6 lg:p-8">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center">
@@ -156,8 +156,8 @@ export function StudentsOverview({
             </div>
 
             {/* Search + Filters Glass Bar */}
-            <div className="sticky top-0 z-10 py-2 -mx-2 px-2 bg-gray-50/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md">
-                <div className="flex flex-col lg:flex-row gap-4 p-4 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm">
+            <div className="sticky top-0 z-10 py-2 -mx-2 px-2 bg-gray-50/80 dark:bg-[#1D1E23]/80 backdrop-blur-md">
+                <div className="flex flex-col lg:flex-row gap-4 p-4 bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm">
                     {/* Search */}
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -166,7 +166,7 @@ export function StudentsOverview({
                             placeholder="Identify a student by name, email, or department..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-[#1a1a1a] border border-transparent focus:bg-white dark:focus:bg-[#0a0a0a] focus:border-orange-500/50 rounded-xl text-gray-900 dark:text-gray-100 placeholder:text-gray-400 transition-all font-medium"
+                            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-[#1D1E23] border border-transparent focus:bg-white dark:focus:bg-[#1D1E23] focus:border-orange-500/50 rounded-xl text-gray-900 dark:text-gray-100 placeholder:text-gray-400 transition-all font-medium"
                         />
                     </div>
 
@@ -177,7 +177,7 @@ export function StudentsOverview({
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Filters</span>
                         </div>
 
-                        <div className="flex bg-gray-100 dark:bg-[#1a1a1a] p-1 rounded-xl">
+                        <div className="flex bg-gray-100 dark:bg-[#1D1E23] p-1 rounded-xl">
                             <button
                                 onClick={() => setSelectedTier("all")}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
@@ -207,7 +207,7 @@ export function StudentsOverview({
                             <select
                                 value={selectedBranch}
                                 onChange={(e) => setSelectedBranch(e.target.value)}
-                                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-[#1a1a1a] border-none rounded-xl text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-orange-500/20"
+                                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-[#1D1E23] border-none rounded-xl text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-orange-500/20"
                             >
                                 <option value="all">All Departments</option>
                                 {branches.map((b) => (
@@ -220,7 +220,7 @@ export function StudentsOverview({
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value === "all" ? "all" : Number(e.target.value))}
-                                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-[#1a1a1a] border-none rounded-xl text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-orange-500/20"
+                                className="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-[#1D1E23] border-none rounded-xl text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-orange-500/20"
                             >
                                 <option value="all">All Batches</option>
                                 {years.map((y) => (
@@ -234,8 +234,8 @@ export function StudentsOverview({
 
             {/* Student List */}
             {filtered.length === 0 ? (
-                <div className="text-center py-32 bg-white dark:bg-[#141414] rounded-3xl border border-dashed border-gray-200 dark:border-[#262626]">
-                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="text-center py-32 bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-200 dark:border-[#262626]">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Users className="w-8 h-8 text-gray-300 dark:text-gray-600" />
                     </div>
                     <p className="text-lg font-black text-gray-400 dark:text-gray-500">
@@ -279,7 +279,7 @@ function StudentCard({
     return (
         <button
             onClick={onClick}
-            className="group w-full bg-white dark:bg-[#141414] border border-dashed border-gray-200 dark:border-[#262626] rounded-3xl p-4 md:p-6 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-1 hover:border-orange-500/40 transition-all duration-300 relative overflow-hidden text-left"
+            className="group w-full bg-white dark:bg-[#24262C] border border-dashed border-gray-200 dark:border-[#262626] rounded-3xl p-4 md:p-6 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-1 hover:border-orange-500/40 transition-all duration-300 relative overflow-hidden text-left"
         >
             <div className="flex flex-col md:flex-row md:items-center gap-6">
                 {/* Ranking & Avatar */}
@@ -290,7 +290,7 @@ function StudentCard({
                     </div>
 
                     <div className="relative">
-                        <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-[#262626] flex items-center justify-center overflow-hidden group-hover:border-orange-500/30 transition-colors">
+                        <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-[#1D1E23] border-2 border-gray-200 dark:border-[#262626] flex items-center justify-center overflow-hidden group-hover:border-orange-500/30 transition-colors">
                             {student.image ? (
                                 <img
                                     src={student.image}
@@ -304,7 +304,7 @@ function StudentCard({
                                 </span>
                             )}
                         </div>
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-white dark:border-[#141414] ${tier.dotClass} shadow-sm`} />
+                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-white dark:border-[#24262C] ${tier.dotClass} shadow-sm`} />
                     </div>
                 </div>
 
@@ -391,7 +391,7 @@ function StatMini({
     color: string;
 }) {
     return (
-        <div className="bg-gray-50 dark:bg-[#1a1a1a] rounded-xl p-2 text-center">
+        <div className="bg-gray-50 dark:bg-[#1D1E23] rounded-xl p-2 text-center">
             <div className={`flex items-center justify-center gap-1 ${color} mb-0.5`}>
                 {icon}
             </div>

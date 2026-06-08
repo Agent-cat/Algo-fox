@@ -19,7 +19,7 @@ export default async function CreateQuizPage() {
 
   if (classrooms.length === 0) {
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center p-8">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#24262C] flex items-center justify-center p-8">
         <div className="max-w-md text-center space-y-4">
           <div className="text-4xl">🏫</div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white">No Classrooms Yet</h2>
@@ -38,7 +38,7 @@ export default async function CreateQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#24262C] relative overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         <div className="mb-8">
@@ -56,7 +56,7 @@ export default async function CreateQuizPage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-6 sm:p-8">
+        <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-6 sm:p-8">
           <QuizCreateForm classrooms={classrooms.map((c) => ({ id: c.id, name: c.name, section: c.section ?? undefined, studentCount: (c as any)._count?.students ?? 0 }))} />
         </div>
       </div>

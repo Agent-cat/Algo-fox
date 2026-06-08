@@ -180,8 +180,8 @@ export function StudentInsightsDashboard({ student }: StudentInsightsDashboardPr
                         }}
                     />
 
-                    <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
-                        <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+                    <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                        <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1D1E23]">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                 Submission Activity
                             </h2>

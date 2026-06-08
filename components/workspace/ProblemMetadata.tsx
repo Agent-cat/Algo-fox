@@ -130,7 +130,7 @@ export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProb
                 {problem.tags?.map((tag) => (
                     <div
                         key={tag.slug}
-                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
+                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
                     >
                         {tag.name.toLowerCase()}
                     </div>

@@ -22,7 +22,7 @@ export function ContestPageClient({ internalContests, externalContests, paginati
     const [viewMode, setViewMode] = useState<"internal" | "calendar">("internal");
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8 px-4 sm:px-6 lg:px-8">
              {/* Header Section */}
              <div className="max-w-7xl mx-auto relative group">
                 {/* Background Glow */}
@@ -38,7 +38,7 @@ export function ContestPageClient({ internalContests, externalContests, paginati
 
                     {/* View Toggle - Centered */}
                     <div className="flex justify-center">
-                        <div className="bg-white/80 dark:bg-[#141414]/80 backdrop-blur-md p-1 rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm flex items-center gap-1">
+                        <div className="bg-white/80 dark:bg-[#24262C]/80 backdrop-blur-md p-1 rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm flex items-center gap-1">
                             <button
                                 onClick={() => setViewMode("internal")}
                                 className={`relative px-6 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${

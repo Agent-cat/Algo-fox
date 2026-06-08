@@ -141,7 +141,7 @@ export default function InvitesPage() {
       {/* Create Section */}
       <div
         id="create-section"
-        className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 shadow-sm"
+        className="bg-white dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm"
       >
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
           <div className="p-1.5 bg-orange-100 dark:bg-orange-900/20 rounded-lg text-orange-600 dark:text-orange-400">
@@ -158,7 +158,7 @@ export default function InvitesPage() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as any)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#24262C] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
             >
               <option value="TEACHER">Teacher</option>
               <option value="CONTEST_MANAGER">Contest Manager</option>
@@ -180,7 +180,7 @@ export default function InvitesPage() {
                 )
               }
               placeholder="Unlimited"
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#24262C] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
             />
           </div>
 
@@ -192,7 +192,7 @@ export default function InvitesPage() {
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-[#24262C] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none"
             />
           </div>
 
@@ -215,10 +215,10 @@ export default function InvitesPage() {
         {invites.map((invite) => (
           <div
             key={invite.id}
-            className={`group relative bg-white dark:bg-[#141414] border rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+            className={`group relative bg-white dark:bg-[#24262C] border rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
               !invite.isActive
-                ? "border-gray-200 dark:border-[#262626] opacity-75"
-                : "border-gray-200 dark:border-[#262626] hover:border-orange-500/30"
+                ? "border-gray-200 dark:border-white/5 opacity-75"
+                : "border-gray-200 dark:border-white/5 hover:border-orange-500/30"
             }`}
           >
             <div className="flex justify-between items-start mb-4">
@@ -253,7 +253,7 @@ export default function InvitesPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 bg-gray-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-gray-100 dark:border-[#262626] group-hover:border-orange-200 dark:group-hover:border-orange-500/20 transition-colors">
+              <div className="flex items-center gap-3 bg-gray-50 dark:bg-[#24262C] p-3 rounded-xl border border-gray-100 dark:border-white/5 group-hover:border-orange-200 dark:group-hover:border-orange-500/20 transition-colors">
                 <div className="p-2 bg-white dark:bg-[#262626] rounded-lg shadow-sm">
                   <LinkIcon className="w-4 h-4 text-gray-500" />
                 </div>
@@ -298,8 +298,8 @@ export default function InvitesPage() {
       </div>
 
       {invites.length === 0 && !isLoading && (
-        <div className="text-center py-24 bg-gray-50 dark:bg-[#141414]/50 border border-dashed border-gray-200 dark:border-[#262626] rounded-3xl">
-          <div className="w-16 h-16 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+        <div className="text-center py-24 bg-gray-50 dark:bg-[#24262C]/50 border border-dashed border-gray-200 dark:border-white/5 rounded-3xl">
+          <div className="w-16 h-16 bg-white dark:bg-[#24262C] rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
             <LinkIcon className="w-6 h-6 text-gray-300 dark:text-gray-600" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">

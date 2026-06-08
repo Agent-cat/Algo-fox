@@ -74,7 +74,7 @@ export default function JoinPage({ params }: Props) {
           </div>
           <h1 className="text-3xl font-black text-white">
             {quizTitle ?? (
-              <span className="inline-block w-48 h-8 bg-[#1a1a1a] rounded-lg animate-pulse" />
+              <span className="inline-block w-48 h-8 bg-[#1D1E23] rounded-lg animate-pulse" />
             )}
           </h1>
           <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
@@ -90,7 +90,7 @@ export default function JoinPage({ params }: Props) {
         ) : !session ? (
           /* Not logged in */
           <div className="space-y-4">
-            <div className="px-5 py-4 bg-[#141414] border border-[#2a2a2a] rounded-2xl text-center space-y-3">
+            <div className="px-5 py-4 bg-[#24262C] border border-[#2a2a2a] rounded-2xl text-center space-y-3">
               <p className="text-gray-400 text-sm">Sign in with your account to join this quiz.</p>
             </div>
             <a
@@ -104,7 +104,7 @@ export default function JoinPage({ params }: Props) {
         ) : (
           /* Logged in */
           <div className="space-y-4">
-            <div className="px-5 py-4 bg-[#141414] border border-[#2a2a2a] rounded-2xl flex items-center gap-4">
+            <div className="px-5 py-4 bg-[#24262C] border border-[#2a2a2a] rounded-2xl flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
                 <span className="text-lg font-black text-orange-400">
                   {session.user.name?.[0]?.toUpperCase()}

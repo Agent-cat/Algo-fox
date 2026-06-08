@@ -40,7 +40,7 @@ export default function InstitutionSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#141414] border-r border-gray-200 dark:border-[#262626] overflow-y-auto font-mono scrollbar-hide">
+    <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-[#262626] overflow-y-auto font-mono scrollbar-hide">
       <nav className="px-5 space-y-1">
         {sidebarItems.map((item, index) => {
           if (item.type === "header") {
@@ -64,7 +64,7 @@ export default function InstitutionSidebar() {
                 flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
                 ${isActive
                   ? "text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23]"
                 }
               `}
             >

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function ProblemsSelectionPage() {
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight sm:text-5xl mb-4">

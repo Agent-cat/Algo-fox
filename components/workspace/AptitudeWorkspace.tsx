@@ -90,7 +90,7 @@ export default function AptitudeWorkspace({
 
     if (!mainHydrated) {
         return (
-            <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
                 <div className="text-center space-y-4">
                     <div className="relative">
                         <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
@@ -103,7 +103,7 @@ export default function AptitudeWorkspace({
     }
 
     return (
-        <div className="h-screen w-full bg-[#fafafa] dark:bg-[#121212] flex flex-col overflow-hidden animate-fadeIn">
+        <div className="h-screen w-full bg-[#fafafa] dark:bg-[#1D1E23] flex flex-col overflow-hidden animate-fadeIn">
             <ProblemTour />
 
             <ProblemSidebar
@@ -139,7 +139,7 @@ export default function AptitudeWorkspace({
                 points={pointsGained}
             />
 
-            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#0a0a0a]">
+            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#1D1E23]">
                 <Split
                     className="split flex h-full w-full"
                     sizes={mainSizes}
@@ -162,7 +162,7 @@ export default function AptitudeWorkspace({
                     </div>
 
                     {/* RIGHT SIDE: MCQ INTERFACE */}
-                    <div className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#121212] border-r border-dashed border-gray-400 dark:border-white/10">
+                    <div className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r border-dashed border-gray-400 dark:border-white/10">
                         <AptitudeMCQPanel
                             problem={problem}
                             isSolved={isSolved}
@@ -211,17 +211,17 @@ export default function AptitudeWorkspace({
                     background-color: transparent;
                 }
                 .dark .gutter:hover {
-                    background-color: rgba(234, 88, 12, 0.15) !important;
+                    background-color: rgba(255, 121, 198, 0.15) !important;
                 }
                 .dark .gutter:active {
-                    background-color: rgba(234, 88, 12, 0.3) !important;
+                    background-color: rgba(255, 121, 198, 0.3) !important;
                 }
                 .dark .gutter:hover::after {
-                    background: #ea580c !important;
-                    box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);
+                    background: #ff79c6 !important;
+                    box-shadow: 0 0 10px rgba(255, 121, 198, 0.3);
                 }
                 .dark .gutter:active::after {
-                    background: #f97316 !important;
+                    background: #ff79c6 !important;
                 }
                 .gutter.gutter-horizontal {
                     cursor: col-resize;

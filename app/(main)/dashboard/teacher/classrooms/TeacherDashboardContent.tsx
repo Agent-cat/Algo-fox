@@ -15,7 +15,7 @@ export function TeacherDashboardContent({ classrooms, institutionId }: TeacherDa
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#24262C] relative overflow-hidden">
             <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
                 {/* Header Section */}

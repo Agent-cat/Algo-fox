@@ -57,7 +57,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 dark:bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-[#141414] w-full max-w-lg overflow-hidden border border-gray-100 dark:border-[#262626] rounded-md shadow-2xl dark:shadow-black/50 animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-white dark:bg-[#24262C] w-full max-w-lg overflow-hidden border border-gray-100 dark:border-[#262626] rounded-md shadow-2xl dark:shadow-black/50 animate-in fade-in zoom-in-95 duration-300">
                 <div className="px-8 py-6 border-b border-gray-50 dark:border-[#262626] flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-black dark:text-white tracking-tight">New Classroom</h2>
@@ -79,7 +79,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                         </label>
                         <input
                             {...register("name")}
-                            className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                            className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1D1E23] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                             placeholder="e.g. Data Structures"
                         />
                         {errors.name && <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">{errors.name.message}</p>}
@@ -93,7 +93,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                             </label>
                             <input
                                 {...register("subject")}
-                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1D1E23] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. CS-101"
                             />
                         </div>
@@ -105,7 +105,7 @@ export function CreateClassroomDialog({ isOpen, onClose, institutionId }: Create
                             </label>
                             <input
                                 {...register("section")}
-                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
+                                className="w-full px-4 py-2 bg-gray-50/50 dark:bg-[#1D1E23] border border-gray-100 dark:border-[#333] rounded-md focus:border-orange-500 focus:outline-none font-bold text-sm placeholder:text-gray-200 dark:placeholder:text-gray-700 text-black dark:text-white"
                                 placeholder="e.g. A"
                             />
                         </div>

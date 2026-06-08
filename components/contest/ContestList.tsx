@@ -32,7 +32,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
 
         if (now >= start && now <= end) return { label: "Live", color: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10" };
         if (now < start) return { label: "Upcoming", color: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10" };
-        return { label: "Ended", color: "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-[#1a1a1a]" };
+        return { label: "Ended", color: "text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-[#1D1E23]" };
     };
 
     const getDuration = (start: Date, end: Date) => {
@@ -65,7 +65,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                         placeholder="Search contests..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#333] bg-white dark:bg-[#141414] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#333] bg-white dark:bg-[#24262C] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
                     />
                 </div>
 
@@ -82,7 +82,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
 
             {/* Table */}
             {filteredContests.length === 0 ? (
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-16 text-center">
+                <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] p-16 text-center">
                     <Trophy className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No contests found</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -90,11 +90,11 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                     </p>
                 </div>
             ) : (
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] overflow-hidden">
+                <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626]">
+                                <tr className="bg-gray-50 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#262626]">
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Contest</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Start Time</th>
@@ -108,7 +108,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                                 {filteredContests.map((contest) => {
                                     const status = getStatus(contest);
                                     return (
-                                        <tr key={contest.id} className="hover:bg-gray-50 dark:hover:bg-[#1a1a1a]">
+                                        <tr key={contest.id} className="hover:bg-gray-50 dark:hover:bg-[#1D1E23]">
                                             <td className="px-6 py-4">
                                                 <div>
                                                     <div className="text-sm font-semibold text-gray-900 dark:text-gray-200">{contest.title}</div>
@@ -201,7 +201,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-md bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                         >
                             <div className="p-8 text-center">
                                 <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -216,7 +216,7 @@ export function ContestList({ contests, userRole }: ContestListProps) {
                                 </p>
                             </div>
 
-                            <div className="flex bg-gray-50/50 dark:bg-[#141414]/50 border-t border-gray-100 dark:border-white/5">
+                            <div className="flex bg-gray-50/50 dark:bg-[#24262C]/50 border-t border-gray-100 dark:border-white/5">
                                 <button
                                     onClick={() => setConfirmDelete(null)}
                                     disabled={!!isDeleting}

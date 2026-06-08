@@ -56,7 +56,7 @@ export default function SubscriptionClient() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#121212] pt-24 pb-16 px-6">
+    <div className="min-h-screen bg-white dark:bg-[#1D1E23] pt-24 pb-16 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Simple Header */}
         <div className="text-center mb-10 space-y-3">
@@ -129,7 +129,7 @@ export default function SubscriptionClient() {
               transition={{ delay: idx * 0.1 }}
               className={`relative flex flex-col p-8 rounded-xl border transition-all duration-500 ${
                 plan.popular
-                  ? "bg-white dark:bg-[#1a1a1a] border-orange-500 shadow-xl shadow-orange-500/10 z-10 scale-[1.03]"
+                  ? "bg-white dark:bg-[#1D1E23] border-orange-500 shadow-xl shadow-orange-500/10 z-10 scale-[1.03]"
                   : "bg-gray-50 dark:bg-white/2 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10"
               }`}
             >

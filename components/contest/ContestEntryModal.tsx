@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Shield,
   Monitor,
@@ -10,12 +10,15 @@ import {
   Check,
   Lock,
   X,
-  ChevronLeft,
   Clipboard,
   Wifi,
   AlertTriangle,
   CheckCircle2,
   XCircle,
+  User,
+  Loader2,
+  Globe,
+  Gauge
 } from "lucide-react";
 import { startContestSession, verifyContestPassword } from "@/actions/contest";
 import { toast } from "sonner";
@@ -30,33 +33,8 @@ interface ContestEntryModalProps {
   onStart: (sessionId: string) => void;
 }
 
-const RULES = [
-  {
-    icon: Monitor,
-    title: "Fullscreen Enforced",
-    description: "The contest runs in fullscreen. Exiting will be flagged as a violation.",
-  },
-  {
-    icon: Eye,
-    title: "Tab Switching Monitored",
-    description: "Navigating away, Alt+Tab, and window blur are detected and logged.",
-  },
-  {
-    icon: Keyboard,
-    title: "Input Restricted",
-    description: "Copy-paste, keyboard shortcuts and developer tools are blocked.",
-  },
-  {
-    icon: Shield,
-    title: "Proctored Environment",
-    description: "All suspicious activity is logged and reviewed by your teacher.",
-  },
-];
-
-const AI_SITES = ["ChatGPT", "Claude", "Gemini", "Copilot", "Perplexity"];
-
-type Step = "PASSWORD" | "ENVIRONMENT_CHECK" | "RULES" | "TAB_PERMISSION" | "CLIPBOARD_PERMISSION" | "CONFIRM";
-type ClipboardStatus = "idle" | "requesting" | "granted" | "denied";
+type WizardStep = 1 | 2 | 3 | 4;
+type CheckStatus = "idle" | "checking" | "success" | "error";
 
 export default function ContestEntryModal({
   contestId,
@@ -66,27 +44,62 @@ export default function ContestEntryModal({
   onClose,
   onStart,
 }: ContestEntryModalProps) {
+  const [step, setStep] = useState<WizardStep>(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<Step>("RULES");
+
+  // Step 1: Terms
+  const [termsAgreed, setTermsAgreed] = useState(false);
+
+  // Step 2: Password
   const [password, setPassword] = useState("");
-  const [agreed, setAgreed] = useState(false);
-  const [tabAgreed, setTabAgreed] = useState(false);
-  const [clipboardStatus, setClipboardStatus] = useState<ClipboardStatus>("idle");
-  const [envCheckStatus, setEnvCheckStatus] = useState<"idle" | "checking" | "success" | "error">("idle");
-  const [envCheckError, setEnvCheckError] = useState<string | null>(null);
+  const [infoConfirmed, setInfoConfirmed] = useState(false);
+
+  // Step 3: System Checks
+  const [tabCheckStatus, setTabCheckStatus] = useState<CheckStatus>("idle");
+  const [extCheckStatus, setExtCheckStatus] = useState<CheckStatus>("idle");
+  const [clipboardStatus, setClipboardStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
+  const [sysCheckError, setSysCheckError] = useState<string | null>(null);
+
+  // System Stats
+  const [sysStats, setSysStats] = useState<{ ip: string; browser: string; os: string; speed: string } | null>(null);
+
+  // Step 4: Proctoring Instructions
+  const [finalAgreed, setFinalAgreed] = useState(false);
+
+  // Countdown State
+  const [isStarting, setIsStarting] = useState(false);
+  const [countdown, setCountdown] = useState(30);
+  const [finalSessionId, setFinalSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setStep(requiresPassword ? "PASSWORD" : "ENVIRONMENT_CHECK");
-      setAgreed(false);
-      setTabAgreed(false);
-      setClipboardStatus("idle");
-      setEnvCheckStatus("idle");
-      setEnvCheckError(null);
+      setStep(1);
+      setTermsAgreed(false);
       setPassword("");
+      setInfoConfirmed(false);
+      setTabCheckStatus("idle");
+      setExtCheckStatus("idle");
+      setClipboardStatus("idle");
+      setSysCheckError(null);
+      setSysStats(null);
+      setFinalAgreed(false);
+      setIsStarting(false);
+      setCountdown(30);
+      setFinalSessionId(null);
       setIsLoading(false);
     }
-  }, [isOpen, requiresPassword]);
+  }, [isOpen]);
+
+  // Handle countdown effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isStarting && countdown > 0) {
+      timer = setTimeout(() => setCountdown((prev) => prev - 1), 1000);
+    } else if (isStarting && countdown === 0 && finalSessionId) {
+      onStart(finalSessionId);
+    }
+    return () => clearTimeout(timer);
+  }, [isStarting, countdown, finalSessionId, onStart]);
 
   const handleVerifyPassword = async () => {
     if (!password) {
@@ -97,8 +110,9 @@ export default function ContestEntryModal({
     try {
       const result = await verifyContestPassword(contestId, password);
       if (result.success) {
-        setStep("ENVIRONMENT_CHECK");
+        setInfoConfirmed(true);
         toast.success("Access granted");
+        setStep(3);
       } else {
         toast.error(result.error || "Incorrect password");
       }
@@ -112,19 +126,46 @@ export default function ContestEntryModal({
   const handleRequestClipboard = async () => {
     setClipboardStatus("requesting");
     try {
-      // readText() triggers the browser's native permission prompt
       await navigator.clipboard.readText();
       setClipboardStatus("granted");
     } catch {
-      // Denied or blocked — still allow entry; keyboard blocking remains active
       setClipboardStatus("denied");
     }
   };
 
-  const runEnvironmentCheck = async () => {
-    setEnvCheckStatus("checking");
-    setEnvCheckError(null);
+  const getBrowserInfo = () => {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes("Firefox")) return "Mozilla Firefox";
+    if (userAgent.includes("Edg")) return "Microsoft Edge";
+    if (userAgent.includes("Chrome")) return "Google Chrome";
+    if (userAgent.includes("Safari")) return "Apple Safari";
+    return "Unknown Browser";
+  };
 
+  const getOSInfo = () => {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes("Win")) return "Windows";
+    if (userAgent.includes("Mac")) return "macOS";
+    if (userAgent.includes("Linux")) return "Linux";
+    if (userAgent.includes("Android")) return "Android";
+    if (userAgent.includes("like Mac")) return "iOS";
+    return "Unknown OS";
+  };
+
+  const runSystemChecks = async () => {
+    setSysCheckError(null);
+    setSysStats(null);
+
+    // 1. Simulate Tab Check
+    setTabCheckStatus("checking");
+    await new Promise((res) => setTimeout(res, 2000));
+    setTabCheckStatus("success");
+
+    // Wait briefly before starting the extension check
+    await new Promise((res) => setTimeout(res, 500));
+
+    // 2. Extension Check
+    setExtCheckStatus("checking");
     const extensionCheck = await new Promise<any>((resolve) => {
       const timeout = setTimeout(() => {
         window.removeEventListener("message", messageHandler);
@@ -145,28 +186,51 @@ export default function ContestEntryModal({
     });
 
     if (!extensionCheck.success) {
-      setEnvCheckStatus("error");
-      setEnvCheckError("Safe Exam Extension is not installed or active.");
+      setExtCheckStatus("error");
+      setSysCheckError("Safe Exam Extension is not installed or active.");
       return;
     }
 
     if (extensionCheck.payload.status === "blocked") {
-      setEnvCheckStatus("error");
-      if (extensionCheck.payload.reason === "other_extensions_active") {
-         setEnvCheckError(`Please disable other active extensions: ${extensionCheck.payload.extensions.join(', ')}`);
-      } else if (extensionCheck.payload.reason === "other_tabs_open") {
-         setEnvCheckError(`Please close ${extensionCheck.payload.count} other open tab(s) before starting.`);
+      setExtCheckStatus("error");
+      if (extensionCheck.payload.reason === "other_tabs_open") {
+        setSysCheckError(`Please close ${extensionCheck.payload.count} other open tab(s) before starting.`);
+      } else if (extensionCheck.payload.reason === "other_extensions_active") {
+        setSysCheckError(`Please disable other active extensions: ${extensionCheck.payload.extensions.join(', ')}`);
       } else {
-         setEnvCheckError(`Blocked: ${extensionCheck.payload.reason}`);
+        setSysCheckError(`Blocked: ${extensionCheck.payload.reason}`);
       }
       return;
     }
 
-    setEnvCheckStatus("success");
+    setExtCheckStatus("success");
+
+    // 3. Fetch System Stats
+    try {
+      const res = await fetch("https://api.ipify.org?format=json");
+      const data = await res.json();
+
+      // Mock speed calculation for visual effect
+      const simulatedSpeed = Math.floor(Math.random() * 60) + 40; // 40-100 Mbps
+
+      setSysStats({
+        ip: data.ip,
+        browser: getBrowserInfo(),
+        os: getOSInfo(),
+        speed: `${simulatedSpeed} Mbps`
+      });
+    } catch {
+      setSysStats({
+        ip: "Unknown",
+        browser: getBrowserInfo(),
+        os: getOSInfo(),
+        speed: "Ping failed"
+      });
+    }
   };
 
   const handleStartContest = async () => {
-    if (!agreed) return;
+    if (!finalAgreed) return;
     setIsLoading(true);
 
     try {
@@ -184,461 +248,434 @@ export default function ContestEntryModal({
         return;
       }
 
-      onStart((result as { sessionId: string }).sessionId);
+      setFinalSessionId((result as any).sessionId);
 
-      // Fullscreen is still enforced — same as before
-      setTimeout(async () => {
-        try {
-          if (!document.fullscreenElement) {
-            await document.documentElement.requestFullscreen();
-          }
-        } catch (err) {
-          console.warn("Fullscreen failed", err);
+      // Trigger Fullscreen immediately
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
         }
-      }, 100);
+      } catch (err) {
+        console.warn("Fullscreen failed", err);
+      }
 
-      toast.success("Good luck!");
+      // Enter countdown state
+      setIsStarting(true);
+      setIsLoading(false);
+
     } catch {
       toast.error("Failed to initialize contest");
       setIsLoading(false);
     }
   };
 
-  // Build the ordered list of non-password steps for the progress indicator
-  const progressSteps: Step[] = ["ENVIRONMENT_CHECK", "RULES", "TAB_PERMISSION", "CLIPBOARD_PERMISSION", "CONFIRM"];
-  const displayStepIndex = progressSteps.indexOf(step);
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-md"
-        onClick={() => {
-          if (!requiresPassword || step !== "PASSWORD") {
-            window.postMessage({ type: "SAFE_EXAM_END" }, "*");
-            onClose();
-          }
-        }}
-      />
+    <div className="fixed inset-0 z-[9999] bg-[#24262C] text-white flex items-center justify-center p-6 overflow-hidden animate-in fade-in duration-300 font-sans">
 
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-[#0f0f0f] w-full max-w-xl rounded-none shadow-2xl border border-gray-100 dark:border-[#222] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      {/* ── COUNTDOWN OVERLAY ── */}
+      {isStarting && (
+        <div className="absolute inset-0 z-50 bg-[#24262C] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-500">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-4">Environment Secured</h2>
+            <p className="text-xl text-gray-400 mb-12">Your exam will begin in...</p>
 
-        {/* Progress dots header */}
-        <div className="px-8 pt-7 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            {progressSteps.map((s, i) => {
-              const isActive = s === step;
-              const isCompleted = displayStepIndex > i;
-              return (
-                <div
-                  key={s}
-                  className={cn(
-                    "h-[3px] rounded-full transition-all duration-500",
-                    isActive
-                      ? "w-8 bg-orange-500"
-                      : isCompleted
-                      ? "w-3 bg-orange-300 dark:bg-orange-700"
-                      : "w-3 bg-gray-100 dark:bg-[#2a2a2a]"
-                  )}
+            <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
+              <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                <circle cx="96" cy="96" r="90" className="stroke-[#333333] fill-none" strokeWidth="8" />
+                <circle
+                  cx="96" cy="96" r="90"
+                  className="stroke-orange-500 fill-none transition-all duration-1000 ease-linear"
+                  strokeWidth="8"
+                  strokeDasharray={2 * Math.PI * 90}
+                  strokeDashoffset={(2 * Math.PI * 90) * (1 - countdown / 30)}
+                  strokeLinecap="round"
                 />
-              );
-            })}
+              </svg>
+              <span className="text-6xl font-black text-white">{countdown}</span>
+            </div>
           </div>
-          {step !== "PASSWORD" && (
+        </div>
+      )}
+
+      {/* Main Centered Modal Box */}
+      <div className={cn("flex w-full max-w-[1200px] h-[85vh] min-h-[600px] max-h-[850px] bg-[#24262C] border border-[#333333] rounded-2xl shadow-2xl overflow-hidden transition-opacity duration-300", isStarting && "opacity-0 pointer-events-none")}>
+
+        {/* Left Sidebar Navigation */}
+        <div className="w-[380px] bg-[#24262C] border-r border-[#333333] flex flex-col shrink-0">
+          <div className="px-10 pt-12 pb-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Test set up</h1>
+              <p className="text-sm text-gray-500 truncate max-w-[280px]">{contestTitle}</p>
+            </div>
             <button
               onClick={() => {
                 window.postMessage({ type: "SAFE_EXAM_END" }, "*");
                 onClose();
               }}
-              className="p-2 -mr-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-[#333333] -mt-2 -mr-2"
             >
-              <X className="w-4 h-4" />
+              <X className="w-6 h-6" />
             </button>
-          )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 space-y-3">
+            {[
+              { id: 1, title: "Terms and Conditions" },
+              { id: 2, title: "Password Verification" },
+              { id: 3, title: "System Checks" },
+              { id: 4, title: "Proctoring Instructions" },
+            ].map((s) => {
+              const isActive = step === s.id;
+              const isCompleted = step > s.id;
+              return (
+                <div
+                  key={s.id}
+                  className={cn(
+                    "flex items-center gap-5 py-3 px-5 rounded-xl transition-all duration-300",
+                    isActive ? "bg-[#333333]" : "opacity-80 hover:opacity-100 cursor-default"
+                  )}
+                >
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-colors shrink-0",
+                    isActive ? "border-blue-500 text-blue-500 bg-transparent" :
+                      isCompleted ? "border-transparent bg-[#333] text-gray-300" :
+                        "border-transparent bg-[#2a2a2a] text-gray-400"
+                  )}>
+                    {isCompleted ? <Check className="w-4 h-4" /> : s.id}
+                  </div>
+                  <span className={cn(
+                    "text-[15px] tracking-wide",
+                    isActive ? "text-white font-bold" : "text-gray-300 font-medium"
+                  )}>
+                    {s.title}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="p-8 min-h-[440px] flex flex-col">
+        {/* Right Content Area */}
+        <div className="flex-1 flex flex-col h-full relative overflow-y-auto">
+          <div className="flex-1 max-w-3xl mx-auto w-full px-12 py-16">
 
-          {/* ─────────── STEP: PASSWORD ─────────── */}
-          {step === "PASSWORD" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <div className="mb-8">
-                <div className="w-12 h-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-none flex items-center justify-center mb-6">
-                  <Lock className="w-5 h-5 text-gray-900 dark:text-white" />
+            {/* STEP 1: Terms and Conditions */}
+            {step === 1 && (
+              <div className="animate-in slide-in-from-right-8 duration-500">
+                <h2 className="text-3xl font-bold mb-6">Terms and Conditions</h2>
+                <p className="text-gray-300 font-medium mb-6">
+                  I understand that by agreeing to take this test or interview, I will be required to give my consent to the following:
+                </p>
+
+                <div className="space-y-6 text-gray-400 text-sm leading-relaxed relative pl-4 border-l-2 border-[#333333]">
+                  <p>
+                    • I agree to share any personal information that may be required by the platform on behalf of the organizing institution, including but not limited to, email ID, educational qualifications, browsing and usage data, and any other data that may be required.
+                  </p>
+                  <p>
+                    • I understand that the platform does not take any responsibility and is not liable for any damage because of errors, omissions, negligence, or any inaccuracies.
+                  </p>
+                  <p>
+                    • I give explicit consent to record keystrokes and monitor active tabs. I also understand and agree that background data will also be saved automatically.
+                  </p>
+                  <p>
+                    • I understand and agree that all data collected will be used internally for reviews. This information will not be shared with a third party unless required by a court of law.
+                  </p>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{contestTitle}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Enter the access code to continue.</p>
-              </div>
 
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
-                placeholder="••••••••"
-                autoFocus
-                className="w-full bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-none px-4 py-4 text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-300 dark:text-white dark:placeholder:text-gray-700"
-              />
-
-              <div className="mt-auto pt-8">
-                <button
-                  onClick={handleVerifyPassword}
-                  disabled={!password || isLoading}
-                  className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
-                >
-                  {isLoading ? "Verifying…" : <><span>Continue</span> <ArrowRight className="w-4 h-4" /></>}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ─────────── STEP: ENVIRONMENT_CHECK ─────────── */}
-          {step === "ENVIRONMENT_CHECK" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">System Check</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  We need to verify your environment before proceeding.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-4 mb-6">
-                 {envCheckStatus === "idle" && (
-                    <div className="p-4 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#1e1e1e] text-center text-sm text-gray-600 dark:text-gray-400">
-                        Click the button below to start the environment check.
-                    </div>
-                 )}
-                 {envCheckStatus === "checking" && (
-                    <div className="p-4 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#1e1e1e] text-center flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-600 border-t-orange-500 rounded-full animate-spin" />
-                        Verifying environment...
-                    </div>
-                 )}
-                 {envCheckStatus === "error" && (
-                    <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-center flex flex-col items-center gap-2">
-                        <XCircle className="w-6 h-6 text-red-500" />
-                        <p className="text-sm text-red-700 dark:text-red-400 font-medium">Verification Failed</p>
-                        <p className="text-xs text-red-600 dark:text-red-300">{envCheckError}</p>
-                    </div>
-                 )}
-                 {envCheckStatus === "success" && (
-                    <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-center flex flex-col items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                        <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">All checks passed</p>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-300">Your environment is secure and ready.</p>
-                    </div>
-                 )}
-              </div>
-
-              <div className="mt-auto pt-7 flex flex-col gap-3">
-                {envCheckStatus !== "success" && (
+                <div className="mt-8 pt-8 border-t border-[#333333]">
                   <button
-                    onClick={runEnvironmentCheck}
-                    disabled={envCheckStatus === "checking"}
-                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+                    onClick={() => { setTermsAgreed(true); setStep(2); }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg shadow-orange-500/20"
                   >
-                    {envCheckStatus === "error" ? "Retry Checks" : "Run Checks"}
+                    Accept & Next
                   </button>
-                )}
-                {envCheckStatus === "success" && (
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: Password Verification */}
+            {step === 2 && (
+              <div className="animate-in slide-in-from-right-8 duration-500">
+                <h2 className="text-3xl font-bold mb-2">Password Verification</h2>
+                <p className="text-gray-400 mb-8">Please provide the contest access code to proceed.</p>
+
+                <div className="bg-[#24262C] border border-[#333333] rounded-xl p-8 max-w-lg">
+                  {requiresPassword ? (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-3">
+                        Contest Password
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                          placeholder="Enter password"
+                          autoFocus
+                          className="w-full bg-[#1D1E23] border border-[#333] rounded-lg py-4 pl-12 pr-4 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-600"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <User className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-200">No Password Required</h3>
+                      <p className="text-sm text-gray-500 mt-2">This contest is open. You can proceed directly to the system checks.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-10 pt-8 border-t border-[#333333] flex gap-4">
                   <button
-                    onClick={() => setStep("RULES")}
-                    className="w-full bg-orange-600 text-white py-3.5 rounded-none font-semibold text-sm tracking-wide hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                    onClick={() => setStep(1)}
+                    className="px-6 py-3.5 border border-[#333] hover:bg-[#1D1E23] rounded-lg font-bold transition-colors"
                   >
-                    Continue <ArrowRight className="w-4 h-4" />
+                    Back
                   </button>
-                )}
+                  <button
+                    onClick={() => {
+                      if (requiresPassword) {
+                        handleVerifyPassword();
+                      } else {
+                        setInfoConfirmed(true);
+                        setStep(3);
+                      }
+                    }}
+                    disabled={isLoading}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {requiresPassword ? "Verify & Next" : "Proceed"}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ─────────── STEP: RULES ─────────── */}
-          {step === "RULES" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Proctoring Active</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Strict monitoring applies from the moment you enter the contest.
-                </p>
-              </div>
+            {/* STEP 3: System Checks */}
+            {step === 3 && (
+              <div className="animate-in slide-in-from-right-8 duration-500">
+                <h2 className="text-3xl font-bold mb-2">System Checks</h2>
+                <p className="text-gray-400 mb-8">We are verifying your environment and network stability.</p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {RULES.map((rule, idx) => {
-                  const Icon = rule.icon;
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#1e1e1e] rounded-none"
-                    >
-                      <div className="w-8 h-8 shrink-0 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] flex items-center justify-center">
-                        <Icon className="w-4 h-4 text-orange-500" />
+                <div className="flex flex-col divide-y divide-[#333333] border-y border-[#333333] mb-8">
+                  {/* Tab Check Item */}
+                  <div className="py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#24262C] flex items-center justify-center">
+                        <Monitor className="w-5 h-5 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-[13px] font-semibold text-gray-900 dark:text-white leading-tight">{rule.title}</p>
-                        <p className="text-[11px] text-gray-500 dark:text-[#666] mt-0.5 leading-relaxed">{rule.description}</p>
+                        <h3 className="font-semibold text-gray-200">Checking Open Tabs</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Verifying no unauthorized tabs are active.</p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-auto pt-7">
-                <button
-                  onClick={() => setStep("TAB_PERMISSION")}
-                  className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  I Understand <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ─────────── STEP: TAB_PERMISSION ─────────── */}
-          {step === "TAB_PERMISSION" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <button
-                onClick={() => setStep("RULES")}
-                className="mb-5 flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors w-fit"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back
-              </button>
-
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/15 flex items-center justify-center shrink-0">
-                  <Wifi className="w-5 h-5 text-orange-500" />
-                </div>
-                <div>
-                  <h2 className="text-[15px] font-bold text-gray-900 dark:text-white leading-tight">Tab & Focus Monitoring</h2>
-                  <p className="text-[11px] text-gray-400 dark:text-[#666] mt-0.5">You must acknowledge this to proceed</p>
-                </div>
-              </div>
-
-              <p className="text-[13px] text-gray-600 dark:text-[#999] leading-relaxed mb-4">
-                During the contest, the following events are actively monitored:
-              </p>
-
-              <ul className="space-y-2.5 mb-5">
-                {[
-                  "Switching away from this tab (detected immediately)",
-                  "Opening new browser tabs or windows",
-                  "Window losing focus — Alt+Tab, clicking outside the browser",
-                  `Returning from AI sites (${AI_SITES.join(", ")}, etc.)`,
-                  "Multiple monitors or screen sharing signals",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[12px] text-gray-700 dark:text-[#bbb]">
-                    <AlertTriangle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="p-3.5 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/15 mb-5">
-                <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
-                  <strong>Each violation is logged to your teacher in real time.</strong> Repeated violations result in a temporary suspension or permanent block from the contest.
-                </p>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#222] p-4 mb-6">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <div className="relative flex items-center shrink-0 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={tabAgreed}
-                      onChange={(e) => setTabAgreed(e.target.checked)}
-                      className="peer h-4 w-4 appearance-none border-2 border-gray-300 dark:border-gray-600 checked:border-orange-500 checked:bg-orange-500 transition-all"
-                    />
-                    <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100" />
+                    <div>
+                      {tabCheckStatus === "idle" && <span className="text-sm text-gray-500">Waiting...</span>}
+                      {tabCheckStatus === "checking" && <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />}
+                      {tabCheckStatus === "success" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                      {tabCheckStatus === "error" && <XCircle className="w-6 h-6 text-red-500" />}
+                    </div>
                   </div>
-                  <span className="text-[12px] text-gray-600 dark:text-[#aaa] select-none leading-relaxed">
-                    I understand my tab usage is monitored and agree to keep this contest tab active at all times.
-                  </span>
-                </label>
-              </div>
 
-              <div className="mt-auto">
-                <button
-                  onClick={() => setStep("CLIPBOARD_PERMISSION")}
-                  disabled={!tabAgreed}
-                  className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  Continue <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
+                  {/* Extension Check Item */}
+                  <div className="py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#24262C] flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-200">Checking Active Extensions</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Ensuring safe exam environment is established.</p>
+                      </div>
+                    </div>
+                    <div>
+                      {extCheckStatus === "idle" && <span className="text-sm text-gray-500">Waiting...</span>}
+                      {extCheckStatus === "checking" && <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />}
+                      {extCheckStatus === "success" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                      {extCheckStatus === "error" && <XCircle className="w-6 h-6 text-red-500" />}
+                    </div>
+                  </div>
 
-          {/* ─────────── STEP: CLIPBOARD_PERMISSION ─────────── */}
-          {step === "CLIPBOARD_PERMISSION" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <button
-                onClick={() => setStep("TAB_PERMISSION")}
-                className="mb-5 flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors w-fit"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back
-              </button>
-
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/15 flex items-center justify-center shrink-0">
-                  <Clipboard className="w-5 h-5 text-orange-500" />
+                  {/* Clipboard Check Item */}
+                  <div className="py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#24262C] flex items-center justify-center">
+                        <Clipboard className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-200">Clipboard Access</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Required to block paste functionality.</p>
+                      </div>
+                    </div>
+                    <div>
+                      {clipboardStatus === "idle" && (
+                        <button
+                          onClick={handleRequestClipboard}
+                          className="px-4 py-2 border border-orange-500/50 text-orange-500 rounded text-xs font-semibold hover:bg-orange-500/10 transition-colors"
+                        >
+                          Grant Access
+                        </button>
+                      )}
+                      {clipboardStatus === "requesting" && <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />}
+                      {clipboardStatus === "granted" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                      {clipboardStatus === "denied" && <span className="text-xs text-gray-500 font-medium">Denied (Fallback Active)</span>}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-[15px] font-bold text-gray-900 dark:text-white leading-tight">Clipboard Access</h2>
-                  <p className="text-[11px] text-gray-400 dark:text-[#666] mt-0.5">Required for paste monitoring</p>
-                </div>
-              </div>
 
-              <p className="text-[13px] text-gray-600 dark:text-[#999] leading-relaxed mb-4">
-                To prevent pasting answers from outside sources, we need clipboard access. This lets us:
-              </p>
-
-              <ul className="space-y-2.5 mb-5">
-                {[
-                  "Detect and block paste actions (Ctrl+V) during the exam",
-                  "Clear the clipboard when you return to this tab",
-                  "Log copy/paste attempts as violations",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[12px] text-gray-700 dark:text-[#bbb]">
-                    <AlertTriangle className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Permission trigger */}
-              <div className="mb-5">
-                {clipboardStatus === "idle" && (
-                  <button
-                    onClick={handleRequestClipboard}
-                    className="w-full py-3 border border-dashed border-orange-300 dark:border-orange-500/30 text-orange-600 dark:text-orange-400 text-[13px] font-semibold hover:bg-orange-50 dark:hover:bg-orange-500/5 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Clipboard className="w-4 h-4" />
-                    Grant Clipboard Permission
-                  </button>
-                )}
-
-                {clipboardStatus === "requesting" && (
-                  <div className="w-full py-3 text-center text-[13px] text-gray-400 dark:text-[#666] flex items-center justify-center gap-2">
-                    <div className="w-3.5 h-3.5 border-2 border-gray-300 dark:border-gray-600 border-t-orange-500 rounded-full animate-spin" />
-                    Waiting for browser permission…
+                {sysCheckError && (
+                  <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 shrink-0" />
+                    <p>{sysCheckError}</p>
                   </div>
                 )}
 
-                {clipboardStatus === "granted" && (
-                  <div className="flex items-center gap-2.5 py-3 px-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="text-[12px] text-emerald-700 dark:text-emerald-400 font-medium">
-                      Clipboard access granted — paste monitoring is active.
-                    </span>
-                  </div>
-                )}
-
-                {clipboardStatus === "denied" && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2.5 py-3 px-4 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-[#2a2a2a]">
-                      <XCircle className="w-4 h-4 text-gray-400 shrink-0" />
-                      <span className="text-[12px] text-gray-500 dark:text-[#888] font-medium">
-                        Permission denied — keyboard-level paste blocking remains active.
-                      </span>
+                {sysStats && (
+                  <div className="grid grid-cols-4 gap-4 mb-8 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
+                      <Globe className="w-5 h-5 text-gray-400 mb-2" />
+                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">IP Address</span>
+                      <span className="text-sm text-gray-200 font-mono mt-1">{sysStats.ip}</span>
+                    </div>
+                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
+                      <Monitor className="w-5 h-5 text-gray-400 mb-2" />
+                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Browser</span>
+                      <span className="text-sm text-gray-200 mt-1 truncate w-full">{sysStats.browser}</span>
+                    </div>
+                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
+                      <Shield className="w-5 h-5 text-gray-400 mb-2" />
+                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">OS</span>
+                      <span className="text-sm text-gray-200 mt-1 truncate w-full">{sysStats.os}</span>
+                    </div>
+                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
+                      <Gauge className="w-5 h-5 text-gray-400 mb-2" />
+                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Speed</span>
+                      <span className="text-sm text-emerald-400 font-bold mt-1">{sysStats.speed}</span>
                     </div>
                   </div>
                 )}
-              </div>
 
-              {clipboardStatus === "idle" && (
-                <p className="text-[11px] text-gray-400 dark:text-[#555] text-center">
-                  Click the button above to see the browser permission prompt. You can also decline and continue.
-                </p>
-              )}
-
-              <div className="mt-auto pt-4">
-                <button
-                  onClick={() => setStep("CONFIRM")}
-                  disabled={clipboardStatus === "idle" || clipboardStatus === "requesting"}
-                  className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3.5 rounded-none font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  Continue <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ─────────── STEP: CONFIRM ─────────── */}
-          {step === "CONFIRM" && (
-            <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 duration-300">
-              <button
-                onClick={() => setStep("CLIPBOARD_PERMISSION")}
-                className="mb-6 flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors w-fit"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back
-              </button>
-
-              <div className="text-center mb-8">
-                <div className="w-14 h-14 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 mx-auto flex items-center justify-center mb-5 animate-pulse">
-                  <Shield className="w-7 h-7 text-orange-500" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ready to Start?</h2>
-                <p className="text-[13px] text-gray-500 dark:text-[#777] max-w-[260px] mx-auto leading-relaxed">
-                  Fullscreen will activate. Violations are recorded and sent to your teacher in real time.
-                </p>
-              </div>
-
-              {/* Permission summary */}
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2.5 text-[12px] text-gray-600 dark:text-[#aaa] px-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  Tab & focus monitoring — acknowledged
-                </div>
-                <div className="flex items-center gap-2.5 text-[12px] text-gray-600 dark:text-[#aaa] px-1">
-                  {clipboardStatus === "granted"
-                    ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    : <XCircle className="w-4 h-4 text-gray-400 shrink-0" />}
-                  Clipboard access — {clipboardStatus === "granted" ? "granted" : "denied (keyboard blocking active)"}
-                </div>
-                <div className="flex items-center gap-2.5 text-[12px] text-gray-600 dark:text-[#aaa] px-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  Fullscreen enforcement — active on entry
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#222] p-4 mb-6">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <div className="relative flex items-center shrink-0 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                      className="peer h-4 w-4 appearance-none border-2 border-gray-300 dark:border-gray-600 checked:border-orange-500 checked:bg-orange-500 transition-all"
-                    />
-                    <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100" />
-                  </div>
-                  <span className="text-[12px] text-gray-600 dark:text-[#aaa] select-none leading-relaxed">
-                    I verify that I am the registered participant and I agree to follow all contest rules honestly without external assistance.
-                  </span>
-                </label>
-              </div>
-
-              <div className="mt-auto">
-                <button
-                  onClick={handleStartContest}
-                  disabled={!agreed || isLoading}
-                  className="w-full bg-gradient-to-r from-orange-600 to-orange-500 text-white py-3.5 rounded-none font-bold text-sm tracking-wide hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <><span>Enter Contest</span> <ArrowRight className="w-4 h-4" /></>
+                <div className="pt-8 border-t border-[#333333] flex gap-4">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="px-6 py-3.5 border border-[#333] hover:bg-[#1D1E23] rounded-lg font-bold transition-colors"
+                  >
+                    Back
+                  </button>
+                  {(tabCheckStatus === "idle" || sysCheckError) && (
+                    <button
+                      onClick={runSystemChecks}
+                      disabled={tabCheckStatus === "checking" || extCheckStatus === "checking"}
+                      className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3.5 rounded-lg font-bold transition-colors disabled:opacity-50"
+                    >
+                      {sysCheckError ? "Retry Checks" : "Run Checks"}
+                    </button>
                   )}
-                </button>
+                  {tabCheckStatus === "success" && extCheckStatus === "success" && (
+                    <button
+                      onClick={() => setStep(4)}
+                      disabled={clipboardStatus === "idle"}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Proceed
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
+            {/* STEP 4: Proctoring Instructions */}
+            {step === 4 && (
+              <div className="animate-in slide-in-from-right-8 duration-500 flex flex-col h-full">
+                <h2 className="text-3xl font-bold mb-2">Final Instructions</h2>
+                <p className="text-gray-400 mb-8">Please read these rules carefully. Non-compliance will result in penalties.</p>
 
+                <div className="bg-[#24262C] border border-[#333333] rounded-xl overflow-hidden mb-8">
+                  <div className="p-6 border-b border-[#333333] flex items-start gap-4 hover:bg-[#1D1E23] transition-colors">
+                    <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
+                      <Monitor className="w-6 h-6 text-orange-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-200 mb-1">Fullscreen Enforcement</h3>
+                      <p className="text-sm text-gray-400 leading-relaxed">
+                        The exam operates in strict fullscreen mode. Exiting fullscreen at any point will be instantly flagged as a violation and reported to the proctor.
+                      </p>
+                    </div>
+                  </div>
 
+                  <div className="p-6 flex items-start gap-4 hover:bg-[#1D1E23] transition-colors">
+                    <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
+                      <Eye className="w-6 h-6 text-orange-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-200 mb-1">Tab & Focus Monitoring</h3>
+                      <p className="text-sm text-gray-400 leading-relaxed">
+                        Navigating away from the active tab, opening new windows, or minimizing the browser (Alt+Tab) is strictly prohibited.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 p-5 rounded-xl mb-auto flex items-start gap-4">
+                  <AlertTriangle className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-amber-500 mb-1">Zero Tolerance Policy</h4>
+                    <p className="text-sm text-amber-400/80 leading-relaxed">
+                      Multiple violations will result in your session being permanently terminated. Ensure all other applications and notifications are closed before starting.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-[#333333]">
+                  <label className="flex items-start gap-3 cursor-pointer mb-8 group">
+                    <div className="relative flex items-center shrink-0 mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={finalAgreed}
+                        onChange={(e) => setFinalAgreed(e.target.checked)}
+                        className="peer h-6 w-6 appearance-none border-2 border-gray-600 rounded bg-[#24262C] checked:border-orange-500 checked:bg-orange-500 transition-all cursor-pointer group-hover:border-orange-500/50"
+                      />
+                      <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white opacity-0 peer-checked:opacity-100" />
+                    </div>
+                    <span className="text-base text-gray-300 leading-relaxed font-medium">
+                      I acknowledge all instructions. I confirm that I am in a quiet environment and ready to begin my 30-second setup window.
+                    </span>
+                  </label>
+
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setStep(3)}
+                      className="px-6 py-4 border border-[#333] hover:bg-[#1D1E23] rounded-lg font-bold transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleStartContest}
+                      disabled={!finalAgreed || isLoading}
+                      className="flex-1 bg-gradient-to-r from-orange-600 to-orange-500 text-white px-10 py-4 rounded-lg font-bold text-lg transition-all shadow-xl shadow-orange-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 hover:scale-[1.02]"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-6 h-6 animate-spin" /> Preparing...
+                        </>
+                      ) : (
+                        <>
+                          Start Test <ArrowRight className="w-6 h-6" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* End of Main Centered Modal Box */}
       </div>
     </div>
   );

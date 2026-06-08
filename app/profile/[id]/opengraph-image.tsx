@@ -21,7 +21,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         <div
           style={{
             fontSize: 48,
-            background: "#121212",
+            background: "#1D1E23",
             width: "100%",
             height: "100%",
             display: "flex",
@@ -45,7 +45,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     (
       <div
         style={{
-          background: "linear-gradient(to bottom right, #121212, #1a1a1a)",
+          background: "linear-gradient(to bottom right, #1D1E23, #1D1E23)",
           width: "100%",
           height: "100%",
           display: "flex",

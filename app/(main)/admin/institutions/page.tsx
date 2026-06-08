@@ -72,9 +72,9 @@ export default function InstitutionsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#121212] pb-12 transition-colors">
+        <div className="min-h-screen bg-white dark:bg-[#1D1E23] pb-12 transition-colors">
             {/* Header */}
-            <div className="bg-white dark:bg-[#121212] border-b border-gray-200 dark:border-[#262626]">
+            <div className="bg-white dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#262626]">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <div className="flex items-center justify-between">
                         <div>
@@ -102,16 +102,16 @@ export default function InstitutionsPage() {
                         placeholder="Search institutions, domains, or managers..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm text-gray-900 dark:text-white placeholder:text-gray-400"
+                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm text-gray-900 dark:text-white placeholder:text-gray-400"
                     />
                 </div>
 
                 {/* Table Container */}
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] overflow-hidden rounded-lg">
+                <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] overflow-hidden rounded-lg">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626]">
+                                <tr className="bg-gray-50 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#262626]">
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Institution</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Domain</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-center">Users</th>
@@ -133,7 +133,7 @@ export default function InstitutionsPage() {
                                     filteredInstitutions.map((inst) => (
                                         <tr
                                             key={inst.id}
-                                            className="hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors"
+                                            className="hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors"
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">

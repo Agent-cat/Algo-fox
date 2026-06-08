@@ -23,7 +23,7 @@ function formatDate(date: Date) {
 function DeltaIndicator({ current, previous }: { current: number; previous: number }) {
     if (previous === 0 && current === 0) {
         return (
-            <span className="flex items-center gap-1 text-xs font-bold text-gray-400 bg-gray-100 dark:bg-[#1a1a1a] px-2.5 py-1 rounded-full">
+            <span className="flex items-center gap-1 text-xs font-bold text-gray-400 bg-gray-100 dark:bg-[#1D1E23] px-2.5 py-1 rounded-full">
                 <Minus className="w-3 h-3" />
                 No change
             </span>
@@ -90,7 +90,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
             : 0;
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-3xl border border-dashed border-gray-300 dark:border-[#262626] p-6 flex flex-col gap-6 hover:shadow-2xl hover:shadow-orange-500/5 transition-all duration-500 h-full">
+        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-[#262626] p-6 flex flex-col gap-6 hover:shadow-2xl hover:shadow-orange-500/5 transition-all duration-500 h-full">
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -129,7 +129,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
 
             {/* Mini Stats Row */}
             <div className="grid grid-cols-3 gap-4">
-                <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1a1a1a] transition-all">
+                <div className="bg-gray-50/50 dark:bg-[#1D1E23]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1D1E23] transition-all">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                         Events
                     </p>
@@ -145,7 +145,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
                         {latest?.score ?? 0}
                     </p>
                 </div>
-                <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1a1a1a] transition-all">
+                <div className="bg-gray-50/50 dark:bg-[#1D1E23]/50 border border-gray-100 dark:border-[#262626] rounded-2xl p-4 text-center group hover:bg-white dark:hover:bg-[#1D1E23] transition-all">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                         Peak
                     </p>
@@ -158,7 +158,7 @@ export function ContestPerformanceCard({ data }: ContestPerformanceCardProps) {
             {/* Chart */}
             {chartData.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center mb-4">
                         <Trophy className="w-8 h-8 text-gray-200 dark:text-gray-700" />
                     </div>
                     <p className="text-base font-black text-gray-300 dark:text-gray-600">

@@ -29,27 +29,27 @@
 }
 
 .dark {
-  --background: #0f0f0f;
+  --background: #1D1E23;
   --foreground: #f5f5f5;
-  --toast-bg: #1a1a1a;
+  --toast-bg: #24262C;
   --toast-color: #f5f5f5;
-  --toast-border: #ea580c;
+  --toast-border: #ff79c6;
 
   /* shadcn/ui compatible variables */
-  --card: #141414;
+  --card: #24262C;
   --card-foreground: #f5f5f5;
   --primary: #ea580c;
   --primary-foreground: #ffffff;
-  --secondary: #262626;
+  --secondary: #24262C;
   --secondary-foreground: #f5f5f5;
-  --muted: #1a1a1a;
+  --muted: #24262C;
   --muted-foreground: #a3a3a3;
-  --accent: #1a1a1a;
+  --accent: #24262C;
   --accent-foreground: #f5f5f5;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #262626;
-  --input: #262626;
+  --border: #24262C;
+  --input: #24262C;
   --ring: #ea580c;
 }
 
@@ -180,8 +180,8 @@ body {
 
 .dark .bg-grid {
   background-image:
-    linear-gradient(to right, #262626 1px, transparent 1px),
-    linear-gradient(to bottom, #262626 1px, transparent 1px);
+    linear-gradient(to right, #24262C 1px, transparent 1px),
+    linear-gradient(to bottom, #24262C 1px, transparent 1px);
 }
 
 /* Custom syntax highlighting that adapts to theme */

@@ -46,7 +46,7 @@ export default function CourseDetailClient({
             className="space-y-12"
         >
             {/* Theme-Aware Header Card matching Navbar */}
-            <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-200 dark:border-white/15 rounded-3xl relative overflow-hidden group shadow-xs">
+            <div className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-200 dark:border-white/15 rounded-3xl relative overflow-hidden group shadow-xs">
                 {/* Technical Grid Background */}
                 <div
                     className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
@@ -113,7 +113,7 @@ export default function CourseDetailClient({
 
                     {/* Course Image Integration */}
                     <div className="w-full lg:w-[440px] shrink-0">
-                        <div className="relative aspect-16/10 overflow-hidden bg-gray-50 dark:bg-[#1a1a1a] transition-colors duration-500">
+                        <div className="relative aspect-16/10 overflow-hidden bg-gray-50 dark:bg-[#1D1E23] transition-colors duration-500">
                             {course.image ? (
                                 <Image
                                     src={course.image}

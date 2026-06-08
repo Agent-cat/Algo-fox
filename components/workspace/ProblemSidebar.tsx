@@ -237,7 +237,7 @@ export default function ProblemSidebar({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 35 }}
-            className="absolute top-0 left-0 bottom-0 w-[550px] max-w-[95vw] z-50 shadow-2xl bg-white dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-white/5"
+            className="absolute top-0 left-0 bottom-0 w-[550px] max-w-[95vw] z-50 shadow-2xl bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-white/5"
           >
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header section with Title and Close button */}
@@ -306,10 +306,10 @@ export default function ProblemSidebar({
                             onChange={(e) => setDifficulty(e.target.value || undefined)}
                             className="appearance-none flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-orange-500/30 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all focus:outline-none cursor-pointer pr-8"
                         >
-                            <option value="" className="bg-white dark:bg-[#0d0d0d]">Difficulty</option>
-                            <option value="EASY" className="bg-white dark:bg-[#0d0d0d]">Easy</option>
-                            <option value="MEDIUM" className="bg-white dark:bg-[#0d0d0d]">Medium</option>
-                            <option value="HARD" className="bg-white dark:bg-[#0d0d0d]">Hard</option>
+                            <option value="" className="bg-white dark:bg-[#24262C]">Difficulty</option>
+                            <option value="EASY" className="bg-white dark:bg-[#24262C]">Easy</option>
+                            <option value="MEDIUM" className="bg-white dark:bg-[#24262C]">Medium</option>
+                            <option value="HARD" className="bg-white dark:bg-[#24262C]">Hard</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none group-hover:text-orange-500 transition-colors" />
                     </div>
@@ -320,9 +320,9 @@ export default function ProblemSidebar({
                             onChange={(e) => setSortBy(e.target.value)}
                             className="appearance-none flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-orange-500/30 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all focus:outline-none cursor-pointer pr-8"
                         >
-                            <option value="newest" className="bg-white dark:bg-[#0d0d0d]">Newest</option>
-                            <option value="oldest" className="bg-white dark:bg-[#0d0d0d]">Oldest</option>
-                            <option value="title" className="bg-white dark:bg-[#0d0d0d]">Title</option>
+                            <option value="newest" className="bg-white dark:bg-[#24262C]">Newest</option>
+                            <option value="oldest" className="bg-white dark:bg-[#24262C]">Oldest</option>
+                            <option value="title" className="bg-white dark:bg-[#24262C]">Title</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none group-hover:text-orange-500 transition-colors" />
                     </div>

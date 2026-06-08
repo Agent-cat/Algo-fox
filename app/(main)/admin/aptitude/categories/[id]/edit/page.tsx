@@ -101,7 +101,7 @@ function EditAptitudeCategoryContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
@@ -130,7 +130,7 @@ function EditAptitudeCategoryContent() {
         </Link>
 
         {/* Card Container */}
-        <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
           <div className="p-8 border-b border-gray-100 dark:border-[#262626]">
              <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Edit Aptitude Category</h1>
              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Update category details and order.</p>
@@ -147,7 +147,7 @@ function EditAptitudeCategoryContent() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="e.g., Numerical Ability"
               />
             </div>
@@ -162,7 +162,7 @@ function EditAptitudeCategoryContent() {
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-mono text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-mono text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="numerical-ability"
               />
                <p className="text-xs text-gray-500 dark:text-gray-500">URL-friendly identifier</p>
@@ -177,7 +177,7 @@ function EditAptitudeCategoryContent() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all resize-none"
+                className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all resize-none"
                 placeholder="Brief description of this category..."
               />
             </div>
@@ -191,7 +191,7 @@ function EditAptitudeCategoryContent() {
                 value={formData.parentId}
                 onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
                 disabled={isParentsLoading}
-                className="w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-50"
               >
                 <option value="">None (Top-level)</option>
                 {parentCategories.map((cat) => (
@@ -211,7 +211,7 @@ function EditAptitudeCategoryContent() {
                 id="order"
                 value={formData.order}
                 onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 placeholder="0"
               />
               <p className="mt-1 text-[10px] text-gray-500 italic">Lower numbers appear first within the same level</p>
@@ -227,7 +227,7 @@ function EditAptitudeCategoryContent() {
               </button>
               <Link
                 href="/admin/aptitude/categories"
-                className="px-6 py-3 bg-transparent hover:bg-gray-50 dark:hover:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 font-bold text-sm rounded-xl transition-all"
+                className="px-6 py-3 bg-transparent hover:bg-gray-50 dark:hover:bg-[#1D1E23] text-gray-600 dark:text-gray-400 font-bold text-sm rounded-xl transition-all"
               >
                 Cancel
               </Link>
@@ -242,7 +242,7 @@ function EditAptitudeCategoryContent() {
 export default function EditAptitudeCategoryPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen pt-24 pb-12 px-6 bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     }>

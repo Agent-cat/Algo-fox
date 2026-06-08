@@ -130,7 +130,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center h-full py-20 bg-[#f0f0f0] dark:bg-[#121212]">
+            <div className="flex flex-col items-center justify-center h-full py-20 bg-[#f0f0f0] dark:bg-[#1D1E23]">
                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-4" />
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Compiling Performance Data...</p>
             </div>
@@ -139,7 +139,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
 
     if (data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-full py-20 bg-[#f0f0f0] dark:bg-[#121212] text-center px-6">
+            <div className="flex flex-col items-center justify-center h-full py-20 bg-[#f0f0f0] dark:bg-[#1D1E23] text-center px-6">
                 <LayoutDashboard className="w-12 h-12 text-gray-300 dark:text-gray-700 mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-tight">No Contest Records</h3>
                 <p className="text-xs text-gray-500 mt-1 max-w-xs uppercase font-medium tracking-wide">Establish classroom contests to generate performance tracking reports.</p>
@@ -148,9 +148,9 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#f0f0f0] dark:bg-[#121212]">
+        <div className="flex flex-col h-full bg-[#f0f0f0] dark:bg-[#1D1E23]">
             {/* Header / Controls */}
-            <div className="bg-[#f0f0f0] dark:bg-[#111]/40 border-b border-gray-200 dark:border-white/5 p-6 flex flex-col md:flex-row items-center gap-4">
+            <div className="bg-[#f0f0f0] dark:bg-[#1D1E23]/40 border-b border-gray-200 dark:border-white/5 p-6 flex flex-col md:flex-row items-center gap-4">
                 <div className="relative group flex-1 w-full">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
@@ -158,7 +158,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
                         placeholder="Search student or branch..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/50 dark:bg-[#111]/40 backdrop-blur-sm border border-gray-200 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-medium focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                        className="w-full bg-white/50 dark:bg-[#1D1E23]/40 backdrop-blur-sm border border-gray-200 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-medium focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
                     />
                 </div>
 
@@ -188,9 +188,9 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
             <div className="flex-1 overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="border-b border-gray-200/50 dark:border-white/5 bg-gray-50/50 dark:bg-[#111]/90">
-                            <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-[#111] z-30">#</th>
-                            <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-80 bg-gray-50 dark:bg-[#111] z-30">Student Profile</th>
+                        <tr className="border-b border-gray-200/50 dark:border-white/5 bg-gray-50/50 dark:bg-[#1D1E23]/90">
+                            <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-[#1D1E23] z-30">#</th>
+                            <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-80 bg-gray-50 dark:bg-[#1D1E23] z-30">Student Profile</th>
                             <th className="px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 min-w-[150px]">College ID</th>
                             <th className="px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 min-w-[150px]">Branch</th>
 
@@ -211,7 +211,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
                                 const isEven = index % 2 === 0;
 
                                 const rowClass = isEven ? "bg-black/[0.03] dark:bg-white/[0.02]" : "bg-transparent";
-                                const stickyClass = isEven ? "bg-[#e5e5e5] dark:bg-[#161616]" : "bg-[#f0f0f0] dark:bg-[#121212]";
+                                const stickyClass = isEven ? "bg-[#e5e5e5] dark:bg-[#161616]" : "bg-[#f0f0f0] dark:bg-[#1D1E23]";
 
                                 return (
                                     <motion.tr
@@ -272,7 +272,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
             </div>
 
             {/* Pagination */}
-            <div className="bg-gray-50/30 dark:bg-[#111]/80 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-200 dark:border-white/5 font-mono">
+            <div className="bg-gray-50/30 dark:bg-[#1D1E23]/80 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-200 dark:border-white/5 font-mono">
                 <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
                     Entries <span className="text-gray-900 dark:text-white">{(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)}</span> of {filteredData.length}
                 </p>

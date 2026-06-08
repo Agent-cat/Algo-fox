@@ -79,8 +79,8 @@ export function InstitutionClassroomsContent({
           <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
         </div>
       ) : classrooms.length === 0 ? (
-        <div className="text-center py-20 bg-white dark:bg-[#141414] border border-dashed border-gray-200 dark:border-[#262626] rounded-2xl">
-          <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="text-center py-20 bg-white dark:bg-[#24262C] border border-dashed border-gray-200 dark:border-white/5 rounded-2xl">
+          <div className="w-16 h-16 bg-gray-50 dark:bg-[#24262C] rounded-full flex items-center justify-center mx-auto mb-4">
             <Tent className="w-6 h-6 text-gray-300 dark:text-gray-600" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -96,7 +96,7 @@ export function InstitutionClassroomsContent({
             <Link
               href={`/dashboard/classrooms/${classroom.id}`}
               key={classroom.id}
-              className="group bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 dark:hover:border-orange-500/20"
+              className="group bg-white dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 dark:hover:border-orange-500/20"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-orange-50 dark:bg-orange-900/10 text-orange-600 dark:text-orange-400 rounded-xl">
@@ -114,7 +114,7 @@ export function InstitutionClassroomsContent({
                 {classroom.subject || "General"}
               </p>
 
-              <div className="space-y-3 pt-4 border-t border-gray-50 dark:border-[#1a1a1a]">
+              <div className="space-y-3 pt-4 border-t border-gray-50 dark:border-[#24262C]">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <User className="w-4 h-4" />
@@ -154,7 +154,7 @@ export function InstitutionClassroomsContent({
           <button
             onClick={() => loadPage(pagination.current - 1)}
             disabled={pagination.current === 1 || isLoading}
-            className="p-3 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
+            className="p-3 bg-white dark:bg-[#24262C] border border-gray-200 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -170,7 +170,7 @@ export function InstitutionClassroomsContent({
           <button
             onClick={() => loadPage(pagination.current + 1)}
             disabled={pagination.current === pagination.pages || isLoading}
-            className="p-3 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
+            className="p-3 bg-white dark:bg-[#24262C] border border-gray-200 dark:border-white/5 rounded-xl hover:border-orange-500 disabled:opacity-30 disabled:hover:border-gray-200 transition-colors"
           >
             <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>

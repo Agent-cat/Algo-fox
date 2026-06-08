@@ -63,7 +63,7 @@ function SignInContent() {
 
   if (!mounted || isPending) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -74,7 +74,7 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-white dark:bg-[#1D1E23]">
       {/* Back Button */}
       <div className="absolute top-8 left-8 z-20">
         <Link href="/" className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors font-medium">
@@ -84,7 +84,7 @@ function SignInContent() {
       </div>
 
       <div
-        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#121212] shadow-2xl z-10 relative overflow-hidden"
+        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#1D1E23] shadow-2xl z-10 relative overflow-hidden"
       >
         <div className="space-y-8">
           <div className="text-center">
@@ -150,7 +150,7 @@ function SignInContent() {
 export default function SignIn() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>

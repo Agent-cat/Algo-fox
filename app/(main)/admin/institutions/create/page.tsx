@@ -76,7 +76,7 @@ export default function CreateInstitutionPage() {
   };
 
   return (
-    <div className="min-h-screen dark:bg-[#121212] pb-20 transition-colors duration-300">
+    <div className="min-h-screen dark:bg-[#1D1E23] pb-20 transition-colors duration-300">
       <div className="max-w-xl mx-auto px-6">
         {/* Navigation */}
         <motion.div
@@ -110,7 +110,7 @@ export default function CreateInstitutionPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden"
+          className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] shadow-sm overflow-hidden"
         >
           <form onSubmit={form.handleSubmit(onSubmit)} className="p-8 space-y-6">
             <div className="space-y-4">
@@ -125,7 +125,7 @@ export default function CreateInstitutionPage() {
                   <input
                     {...form.register("name")}
                     onChange={onNameChange}
-                    className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
+                    className="w-full bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
                     placeholder="e.g. Stanford University"
                   />
                 </div>
@@ -146,7 +146,7 @@ export default function CreateInstitutionPage() {
                   </div>
                   <input
                     {...form.register("slug")}
-                    className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100 font-mono"
+                    className="w-full bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100 font-mono"
                     placeholder="campus-slug"
                   />
                 </div>
@@ -168,7 +168,7 @@ export default function CreateInstitutionPage() {
                     </div>
                     <input
                       {...form.register("domain")}
-                      className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
+                      className="w-full bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
                       placeholder="university.edu"
                     />
                   </div>
@@ -184,7 +184,7 @@ export default function CreateInstitutionPage() {
                     </div>
                     <input
                       {...form.register("logo")}
-                      className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
+                      className="w-full bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all text-gray-900 dark:text-gray-100"
                       placeholder="https://..."
                     />
                   </div>

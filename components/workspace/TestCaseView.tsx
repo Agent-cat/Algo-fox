@@ -85,7 +85,7 @@ export const TestCaseView = React.memo(({
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center p-10 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-[#262626] rounded-xl bg-gray-50/30 dark:bg-[#0d0d0d]/30"
+                    className="flex flex-col items-center justify-center p-10 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-[#262626] rounded-xl bg-gray-50/30 dark:bg-[#24262C]/30"
                 >
                     <Lock className="w-8 h-8 mb-3 opacity-40" />
                     <span className="text-sm font-medium">
@@ -96,7 +96,7 @@ export const TestCaseView = React.memo(({
                 <>
                     {/* Input Box */}
                     <div className="relative group">
-                        <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
+                        <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#1D1E23] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
                             Input
                         </div>
                         {isCustom && customIdx !== undefined ? (
@@ -117,7 +117,7 @@ export const TestCaseView = React.memo(({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Actual Box */}
                         <div className="relative group">
-                            <div className={`absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold uppercase tracking-widest z-10 ${
+                            <div className={`absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#1D1E23] text-[10px] font-bold uppercase tracking-widest z-10 ${
                                 result?.status === 'ACCEPTED' ? 'text-emerald-500/80' :
                                 result?.status === 'WRONG_ANSWER' ? 'text-red-500/80' : 'text-gray-400 dark:text-gray-500'
                             }`}>
@@ -138,7 +138,7 @@ export const TestCaseView = React.memo(({
 
                         {/* Expected Box */}
                         <div className="relative group">
-                            <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#121212] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
+                            <div className="absolute -top-2.5 left-3 px-2 bg-[#fafafa] dark:bg-[#1D1E23] text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest z-10">
                                 Expected Output
                             </div>
                             {isCustom && customIdx !== undefined ? (

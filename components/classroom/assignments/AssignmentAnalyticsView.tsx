@@ -117,7 +117,7 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-6 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
+                <div className="p-6 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
                     <div className="text-sm text-gray-500 mb-1 font-medium">Completion Rate</div>
                     <div className="text-3xl font-black text-gray-900 dark:text-white">
                         {Math.round((fullyCompleted / totalStudents) * 100) || 0}%
@@ -126,7 +126,7 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
                         {fullyCompleted} of {totalStudents} students completed all problems
                     </div>
                 </div>
-                <div className="p-6 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
+                <div className="p-6 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
                     <div className="text-sm text-gray-500 mb-1 font-medium">Avg. Progress</div>
                     <div className="text-3xl font-black text-gray-900 dark:text-white">
                         {Math.round(avgProgress)}%
@@ -135,7 +135,7 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
                         <div className="h-full bg-orange-500 rounded-full transition-all" style={{ width: `${avgProgress}%` }} />
                     </div>
                 </div>
-                <div className="p-6 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
+                <div className="p-6 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl shadow-sm">
                     <div className="text-sm text-gray-500 mb-1 font-medium">Pending</div>
                     <div className="text-3xl font-black text-orange-600 dark:text-orange-500">
                         {totalStudents - fullyCompleted}
@@ -145,7 +145,7 @@ export function AssignmentAnalyticsView({ assignmentId, classroomId, onBack }: A
             </div>
 
             {/* Student List */}
-            <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#262626] rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-gray-50 dark:border-[#262626] flex items-center justify-between gap-4">
                     <h3 className="font-bold text-gray-900 dark:text-white">Student Progress ({filteredAnalytics.length})</h3>
                     <div className="relative w-64">

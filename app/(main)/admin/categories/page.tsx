@@ -88,7 +88,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#121212] transition-colors">
+    <div className="min-h-screen pt-24 pb-12 px-6 bg-white dark:bg-[#1D1E23] transition-colors">
       <div className="max-w-6xl mx-auto ml-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
@@ -96,7 +96,7 @@ export default function AdminCategoriesPage() {
             <p className="text-gray-500 dark:text-gray-400">Manage categories and hierarchy for the Learn mode.</p>
           </div>
           <div className="flex items-center gap-3">
-             <div className="flex p-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626]">
+             <div className="flex p-1 bg-gray-100 dark:bg-[#1D1E23] rounded-xl border border-gray-200 dark:border-[#262626]">
                 {[
                   { id: "DSA", label: "DSA", icon: LayoutGrid },
                   { id: "SQL", label: "SQL", icon: Hash },
@@ -126,7 +126,7 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
           {isLoading ? (
             <div className="p-12 flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
@@ -139,7 +139,7 @@ export default function AdminCategoriesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-[#1a1a1a] border-b border-gray-100 dark:border-[#262626]">
+                  <tr className="bg-gray-50 dark:bg-[#1D1E23] border-b border-gray-100 dark:border-[#262626]">
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name & Level</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Order</th>
@@ -149,7 +149,7 @@ export default function AdminCategoriesPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-[#262626]">
                   {categories.map((category) => (
-                    <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a] transition-colors group">
+                    <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1">
                           {category.level && category.level > 0 ? (
@@ -173,7 +173,7 @@ export default function AdminCategoriesPage() {
                         <span className="text-xs font-mono text-gray-400">{category.order}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1a1a1a] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#1D1E23] px-3 py-1 rounded-full border border-gray-200 dark:border-[#262626]">
                           {category._count.categoryProblems} problems
                         </span>
                       </td>

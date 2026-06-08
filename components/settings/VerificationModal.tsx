@@ -118,7 +118,7 @@ export function VerificationModal({ platform, handle, onClose, onSuccess }: Veri
                                 Paste this code in your <strong>{fieldName}</strong>
                             </p>
 
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-lg mt-3 mx-auto w-3/4">
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-lg mt-3 mx-auto w-3/4">
                                 <code className="flex-1 text-center font-mono text-base font-bold text-gray-900 dark:text-gray-100">
                                     {verificationCode}
                                 </code>

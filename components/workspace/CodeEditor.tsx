@@ -13,6 +13,9 @@ import {
 import { ProblemDomain } from "@prisma/client";
 import { useTheme } from "next-themes";
 import { EditorToolbar } from "./EditorToolbar";
+import draculaTheme from "./dracula.json";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../ui/dialog";
+import { Button } from "../ui/button";
 
 // Dynamically import Monaco Editor to prevent SSR issues
 const Editor = dynamic(
@@ -21,7 +24,7 @@ const Editor = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
+        <Loader2 className="w-6 h-6 text-[#bd93f9] animate-spin" />
       </div>
     ),
   }
@@ -82,9 +85,11 @@ const CodeEditor = memo(({
   // Get system theme
   const { resolvedTheme } = useTheme();
 
-  // Determine the effective Monaco theme - use system dark mode if settings.theme not explicitly set
+  // Determine the effective Monaco theme
   const effectiveTheme =
-    settings?.theme || (resolvedTheme === "dark" ? "vs-dark" : "vs-light");
+    settings?.theme === "vs-light" 
+      ? "vs-light" 
+      : (settings?.theme === "vs-dark" ? "dracula" : (resolvedTheme === "dark" ? "dracula" : "vs-light"));
 
   // Filter languages based on domain and allowed languages
   const availableLanguages = React.useMemo(() => {
@@ -212,6 +217,7 @@ const CodeEditor = memo(({
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDriverCodeModalOpen, setIsDriverCodeModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const decorationsRef = useRef<string[]>([]);
 
   // Track component mount state with a small delay to ensure DOM is ready
@@ -652,6 +658,7 @@ const CodeEditor = memo(({
   const handleEditorWillMount = (monaco: any) => {
     // Ensure Monaco is ready before mounting
     if (!isMounted) return;
+    monaco.editor.defineTheme('dracula', draculaTheme as any);
   };
 
   // Cleanup editor on unmount
@@ -714,7 +721,10 @@ const CodeEditor = memo(({
 
   const handleReset = useCallback(() => {
     if (readOnly) return; // Disable reset in read-only
+    setIsResetModalOpen(true);
+  }, [readOnly]);
 
+  const confirmReset = useCallback(() => {
     const resetCode = domain === "SQL" ? "" : getBoilerplate();
     setCode(resetCode);
     if (onChange) onChange(resetCode);
@@ -738,7 +748,8 @@ const CodeEditor = memo(({
         }
       );
     }
-  }, [readOnly, domain, getBoilerplate, onChange, problemId, userId, effectiveLanguageId]);
+    setIsResetModalOpen(false);
+  }, [domain, getBoilerplate, onChange, problemId, userId, effectiveLanguageId]);
 
   const handleFullScreen = useCallback(() => {
     setIsFullScreen(prev => !prev);
@@ -808,7 +819,7 @@ const CodeEditor = memo(({
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#bd93f9] animate-spin" />
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Loading your code...
               </p>
@@ -865,7 +876,7 @@ const CodeEditor = memo(({
             }}
             loading={
               <div className="flex items-center justify-center h-full">
-                <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
+                <Loader2 className="w-6 h-6 text-[#bd93f9] animate-spin" />
               </div>
             }
             onValidate={() => {}} // Suppress validation errors during disposal
@@ -873,7 +884,7 @@ const CodeEditor = memo(({
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#bd93f9] animate-spin" />
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Initializing editor...
               </p>
@@ -888,6 +899,25 @@ const CodeEditor = memo(({
         languageId={effectiveLanguageId}
         driverCode={currentDriverCode || ""}
       />
+
+      <Dialog open={isResetModalOpen} onOpenChangeAction={setIsResetModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Code</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to reset the code to default? All your current changes will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsResetModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmReset}>
+              Reset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

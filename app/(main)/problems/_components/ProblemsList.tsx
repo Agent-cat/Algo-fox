@@ -100,8 +100,8 @@ export default function ProblemsList({ allocatedDomains }: { allocatedDomains: P
             whileTap={{ scale: 0.99 }}
             className={`relative overflow-hidden rounded-xl h-80 w-full cursor-pointer shadow-lg scroll-m-20 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               course.id === "dsa"
-                ? "border border-orange-200 dark:border-orange-900/30 bg-white dark:bg-[#141414]"
-                : "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#141414]"
+                ? "border border-orange-200 dark:border-orange-900/30 bg-white dark:bg-[#24262C]"
+                : "border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#24262C]"
             }`}
           >
             {course.id === "dsa" && (

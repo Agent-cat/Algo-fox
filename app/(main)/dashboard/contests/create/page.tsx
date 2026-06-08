@@ -37,9 +37,9 @@ async function CreateContestContent() {
 
 export default async function CreateContestPage() {
     return (
-        <div className="min-h-screen bg-white dark:bg-[#121212] pb-12">
+        <div className="min-h-screen bg-white dark:bg-[#24262C] pb-12">
             {/* Header */}
-            <div className="bg-white dark:bg-[#121212] border-b border-gray-200 dark:border-[#262626]">
+            <div className="bg-white dark:bg-[#24262C] border-b border-gray-200 dark:border-white/5">
                 <div className="max-w-7xl mx-auto px-6 py-6">
                     <div className="flex items-center gap-4">
                         <Link

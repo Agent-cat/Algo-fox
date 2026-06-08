@@ -16,7 +16,7 @@ export default function UsersPage() {
                 <CreateUserDialog />
             </div>
 
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm overflow-hidden">
                 <Suspense fallback={<div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading users...</div>}>
                     <UserList />
                 </Suspense>

@@ -176,8 +176,8 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
     }
 
     return (
-        <div ref={containerRef} className={`flex flex-col gap-0 w-full ${isFullscreen ? 'h-screen bg-[#f0f0f0] dark:bg-[#121212] overflow-auto' : 'h-full bg-[#f0f0f0] dark:bg-[#121212]'}`}>
-            <div className="bg-[#f0f0f0] dark:bg-[#111]/40 border-b border-gray-200 dark:border-white/5 p-6 rounded-none flex items-center gap-4">
+        <div ref={containerRef} className={`flex flex-col gap-0 w-full ${isFullscreen ? 'h-screen bg-[#f0f0f0] dark:bg-[#1D1E23] overflow-auto' : 'h-full bg-[#f0f0f0] dark:bg-[#1D1E23]'}`}>
+            <div className="bg-[#f0f0f0] dark:bg-[#1D1E23]/40 border-b border-gray-200 dark:border-white/5 p-6 rounded-none flex items-center gap-4">
                 <div className="relative group flex-1">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
@@ -185,7 +185,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                         placeholder="Locate student by identifier or roll number..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/50 dark:bg-[#111]/40 backdrop-blur-sm border border-gray-200 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-medium focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                        className="w-full bg-white/50 dark:bg-[#1D1E23]/40 backdrop-blur-sm border border-gray-200 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-medium focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
                     />
                 </div>
 
@@ -212,10 +212,10 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="border-b border-gray-200/50 dark:border-white/5 bg-gray-50/50 dark:bg-[#111]/90">
-                                <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-[#111] z-30">#</th>
-                                <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-40 bg-gray-50 dark:bg-[#111] z-30">College ID</th>
-                                <th className="sticky left-60 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-96 bg-gray-50 dark:bg-[#111] z-30">Student Profile</th>
+                            <tr className="border-b border-gray-200/50 dark:border-white/5 bg-gray-50/50 dark:bg-[#1D1E23]/90">
+                                <th className="sticky left-0 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-20 bg-gray-50 dark:bg-[#1D1E23] z-30">#</th>
+                                <th className="sticky left-20 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-40 bg-gray-50 dark:bg-[#1D1E23] z-30">College ID</th>
+                                <th className="sticky left-60 px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 w-96 bg-gray-50 dark:bg-[#1D1E23] z-30">Student Profile</th>
                                 <th className="px-8 py-3 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 min-w-[120px]">Branch</th>
                                 <th className="px-8 py-3 text-center text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 min-w-[140px]">Problems Solved</th>
                                 <th className="px-8 py-3 text-center text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200/50 dark:border-white/5 min-w-[120px]">Academic Year</th>
@@ -247,7 +247,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                                             ? "bg-[#efe8e3] dark:bg-[#1a1614]"
                                             : isEven
                                                 ? "bg-[#e5e5e5] dark:bg-[#161616]"
-                                                : "bg-[#f0f0f0] dark:bg-[#121212]";
+                                                : "bg-[#f0f0f0] dark:bg-[#1D1E23]";
 
                                     return (
                                         <motion.tr
@@ -335,7 +335,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                 </div>
 
                 {/* Compact Pagination */}
-                <div className="bg-gray-50/30 dark:bg-[#111]/80 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-200 dark:border-white/5">
+                <div className="bg-gray-50/30 dark:bg-[#1D1E23]/80 backdrop-blur-md px-8 py-5 flex items-center justify-between border-t border-gray-200 dark:border-white/5">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
                         Displaying <span className="text-gray-900 dark:text-white">{(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredStudents.length)}</span> of {filteredStudents.length}
                     </p>

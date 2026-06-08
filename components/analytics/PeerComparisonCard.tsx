@@ -22,7 +22,7 @@ export default function PeerComparisonCard({ problemId, runtime, memory = 0 }: P
     if (!stats) return null;
 
     return (
-        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-xl p-5 shadow-sm dark:shadow-none space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl p-5 shadow-sm dark:shadow-none space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-orange-500" />
                 Submission Performance

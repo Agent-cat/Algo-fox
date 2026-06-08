@@ -82,7 +82,7 @@ export default function AdminListPage<T extends { id: string }>({
                             placeholder={searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full lg:w-80 pl-10 pr-4 py-2.5 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
+                            className="w-full lg:w-80 pl-10 pr-4 py-2.5 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-xl text-sm placeholder:text-gray-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
                         />
                         {searchQuery && (
                             <button
@@ -106,7 +106,7 @@ export default function AdminListPage<T extends { id: string }>({
             </div>
 
             {/* Content Section */}
-            <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
+            <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
 
                 {/* Search Stats / Filters Bar */}
                 <div className="px-6 py-4 border-b border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#161616] flex items-center justify-between">
@@ -130,7 +130,7 @@ export default function AdminListPage<T extends { id: string }>({
                     </div>
                 ) : filteredData.length === 0 ? (
                     <div className="p-20 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-50 dark:bg-[#1D1E23] rounded-full flex items-center justify-center border border-gray-100 dark:border-[#262626]">
                             <Search className="w-6 h-6 text-gray-400" />
                         </div>
                         <h3 className="text-gray-900 dark:text-white font-semibold mb-1">No items found</h3>
@@ -150,7 +150,7 @@ export default function AdminListPage<T extends { id: string }>({
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="border-b border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#1a1a1a]">
+                                <tr className="border-b border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#1D1E23]">
                                     {columns.map((col, idx) => (
                                         <th
                                             key={idx}

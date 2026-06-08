@@ -49,15 +49,15 @@ export function JoinClassroomClient({ classroom, code, currentUser }: JoinClassr
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#121212] p-4 relative">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#1D1E23] p-4 relative">
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-xl relative z-10"
             >
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] p-10 shadow-sm text-center rounded-none">
+                <div className="bg-white dark:bg-[#24262C] border border-gray-200 dark:border-[#262626] p-10 shadow-sm text-center rounded-none">
                     {/* Header: Teacher Avatar / Classroom Icon */}
-                    <div className="w-20 h-20 bg-gray-50 dark:bg-[#1a1a1a] mx-auto mb-8 flex items-center justify-center border border-gray-100 dark:border-[#262626] relative rounded-none">
+                    <div className="w-20 h-20 bg-gray-50 dark:bg-[#1D1E23] mx-auto mb-8 flex items-center justify-center border border-gray-100 dark:border-[#262626] relative rounded-none">
                         {classroom.teacher.image ? (
                             <img
                                 src={classroom.teacher.image}
@@ -70,7 +70,7 @@ export function JoinClassroomClient({ classroom, code, currentUser }: JoinClassr
                                 {classroom.teacher.name?.[0] || 'C'}
                             </span>
                         )}
-                        <div className="absolute -bottom-2 -right-2 bg-orange-600 text-white p-1.5 border-4 border-white dark:border-[#141414] rounded-none">
+                        <div className="absolute -bottom-2 -right-2 bg-orange-600 text-white p-1.5 border-4 border-white dark:border-[#24262C] rounded-none">
                             <School className="w-3 h-3" />
                         </div>
                     </div>
@@ -85,18 +85,18 @@ export function JoinClassroomClient({ classroom, code, currentUser }: JoinClassr
 
                     {/* Quick Info Grid */}
                     <div className="grid grid-cols-2 gap-4 mb-10 text-left">
-                        <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 p-5 border border-gray-100/50 dark:border-[#262626]/50 rounded-none">
+                        <div className="bg-gray-50/50 dark:bg-[#1D1E23]/50 p-5 border border-gray-100/50 dark:border-[#262626]/50 rounded-none">
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Subject</div>
                             <div className="font-bold text-gray-900 dark:text-white text-base">{classroom.subject || "Logic & Coding"}</div>
                         </div>
-                        <div className="bg-gray-50/50 dark:bg-[#1a1a1a]/50 p-5 border border-gray-100/50 dark:border-[#262626]/50 rounded-none">
+                        <div className="bg-gray-50/50 dark:bg-[#1D1E23]/50 p-5 border border-gray-100/50 dark:border-[#262626]/50 rounded-none">
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Section</div>
                             <div className="font-bold text-gray-900 dark:text-white text-base">{classroom.section || "General"}</div>
                         </div>
                     </div>
 
                     {/* User Info */}
-                    <div className="bg-gray-50 dark:bg-[#1a1a1a] p-4 mb-10 flex items-center gap-4 text-left border-l-4 border-orange-600 rounded-none">
+                    <div className="bg-gray-50 dark:bg-[#1D1E23] p-4 mb-10 flex items-center gap-4 text-left border-l-4 border-orange-600 rounded-none">
                         <div className="w-12 h-12 bg-gray-200 dark:bg-[#262626] flex items-center justify-center overflow-hidden rounded-none">
                             {currentUser.image ? (
                                 <img src={currentUser.image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />

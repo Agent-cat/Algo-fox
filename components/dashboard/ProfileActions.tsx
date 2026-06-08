@@ -56,7 +56,7 @@ export function ProfileActions({ user, readonly }: ProfileActionsProps) {
                 <button
                     onClick={handleSync}
                     disabled={isSyncing}
-                    className="p-2 border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors text-gray-600 dark:text-gray-400 disabled:opacity-50"
+                    className="p-2 border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors text-gray-600 dark:text-gray-400 disabled:opacity-50"
                     title="Refresh Stats & Profile"
                 >
                     <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />

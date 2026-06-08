@@ -79,9 +79,9 @@ export function SolutionForm({ problemId, onSuccess, onCancel }: SolutionFormPro
     };
 
     return (
-        <div className="flex flex-col h-full w-full bg-[#fafafa] dark:bg-[#121212] animate-in fade-in zoom-in-95 duration-300 z-50">
+        <div className="flex flex-col h-full w-full bg-[#fafafa] dark:bg-[#1D1E23] animate-in fade-in zoom-in-95 duration-300 z-50">
             {/* HEADER */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-white dark:bg-[#121212]">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-white dark:bg-[#1D1E23]">
                 <div className="flex-1 mr-8">
                     <input 
                         type="text" 
@@ -110,14 +110,14 @@ export function SolutionForm({ problemId, onSuccess, onCancel }: SolutionFormPro
             </div>
 
             {/* TAGS */}
-            <div className="flex items-center gap-4 p-4 px-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-gray-50/50 dark:bg-[#0a0a0a]">
+            <div className="flex items-center gap-4 p-4 px-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-gray-50/50 dark:bg-[#1D1E23]">
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mr-2">
                     <Plus className="w-3 h-3" />
                     Tags
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {tags.map(tag => (
-                        <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-[#1a1a1a] text-xs font-bold text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-[#262626] shadow-sm">
+                        <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white dark:bg-[#1D1E23] text-xs font-bold text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-[#262626] shadow-sm">
                             {tag}
                             <button onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors">
                                 <X className="w-3.5 h-3.5" />
@@ -136,25 +136,25 @@ export function SolutionForm({ problemId, onSuccess, onCancel }: SolutionFormPro
             </div>
 
             {/* TOOLBAR */}
-            <div className="flex items-center gap-1 p-3 px-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-white dark:bg-[#111] overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1 p-3 px-6 border-b border-gray-200 dark:border-[#1e1e1e] bg-white dark:bg-[#1D1E23] overflow-x-auto no-scrollbar">
                 <div className="flex items-center gap-1 pr-4 border-r border-gray-200 dark:border-[#262626]">
-                    <button onClick={() => insertText("# ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Heading"><Heading className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("**", "**")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Bold"><Bold className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("*", "*")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Italic"><Italic className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("# ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Heading"><Heading className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("**", "**")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Bold"><Bold className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("*", "*")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Italic"><Italic className="w-4.5 h-4.5" /></button>
                 </div>
                 <div className="flex items-center gap-1 px-4 border-r border-gray-200 dark:border-[#262626]">
-                    <button onClick={() => insertText("- ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Bullet List"><List className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("1. ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Numbered List"><ListOrdered className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("- ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Bullet List"><List className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("1. ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Numbered List"><ListOrdered className="w-4.5 h-4.5" /></button>
                 </div>
                 <div className="flex items-center gap-1 px-4 border-r border-gray-200 dark:border-[#262626]">
-                    <button onClick={() => insertText("`", "`")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Inline Code"><Code className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("```\n", "\n```")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Code Block"><Terminal className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("$$", "$$")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Math"><Sigma className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("`", "`")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Inline Code"><Code className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("```\n", "\n```")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Code Block"><Terminal className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("$$", "$$")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Math"><Sigma className="w-4.5 h-4.5" /></button>
                 </div>
                 <div className="flex items-center gap-1 pl-4">
-                    <button onClick={() => insertText("![alt text](url)", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Image"><ImageIcon className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("[text](url)", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Link"><LinkIcon className="w-4.5 h-4.5" /></button>
-                    <button onClick={() => insertText("> ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Quote"><Quote className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("![alt text](url)", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Image"><ImageIcon className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("[text](url)", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Link"><LinkIcon className="w-4.5 h-4.5" /></button>
+                    <button onClick={() => insertText("> ", "")} className="p-2.5 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-lg transition-colors text-gray-600 dark:text-gray-400" title="Quote"><Quote className="w-4.5 h-4.5" /></button>
                 </div>
             </div>
 
@@ -162,7 +162,7 @@ export function SolutionForm({ problemId, onSuccess, onCancel }: SolutionFormPro
             <div className="flex-1 flex overflow-hidden">
                 {/* EDITOR */}
                 <div className="flex-1 flex flex-col border-r border-gray-200 dark:border-[#1e1e1e]">
-                    <div className="flex items-center gap-2 px-6 py-2 bg-gray-50/30 dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-[#1e1e1e]">
+                    <div className="flex items-center gap-2 px-6 py-2 bg-gray-50/30 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#1e1e1e]">
                         <Edit3 className="w-3.5 h-3.5 text-gray-400" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Editor</span>
                     </div>
@@ -177,7 +177,7 @@ export function SolutionForm({ problemId, onSuccess, onCancel }: SolutionFormPro
 
                 {/* PREVIEW */}
                 <div className="flex-1 flex flex-col bg-white dark:bg-[#080808]">
-                    <div className="flex items-center gap-2 px-6 py-2 bg-gray-50/30 dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-[#1e1e1e]">
+                    <div className="flex items-center gap-2 px-6 py-2 bg-gray-50/30 dark:bg-[#1D1E23] border-b border-gray-200 dark:border-[#1e1e1e]">
                         <Eye className="w-3.5 h-3.5 text-gray-400" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Live Preview</span>
                     </div>

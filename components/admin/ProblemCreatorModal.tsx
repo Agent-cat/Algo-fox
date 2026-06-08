@@ -89,7 +89,7 @@ export default function ProblemCreatorModal({ moduleId, onClose }: ProblemCreato
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 md:p-8">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-            <div className="relative w-full max-w-6xl max-h-[90vh] bg-white dark:bg-[#121212] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-gray-100 dark:border-[#262626]">
+            <div className="relative w-full max-w-6xl max-h-[90vh] bg-white dark:bg-[#1D1E23] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-gray-100 dark:border-[#262626]">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex justify-between items-center bg-gray-50/50 dark:bg-white/2">
                     <div className="flex items-center gap-4">
@@ -121,7 +121,7 @@ export default function ProblemCreatorModal({ moduleId, onClose }: ProblemCreato
                                 <button
                                     key={type.id}
                                     onClick={() => handleSelectType(type)}
-                                    className="group p-8 bg-gray-50 dark:bg-[#1a1a1a] hover:bg-orange-500 rounded-4xl border border-transparent transition-all duration-300 text-left flex items-start gap-6 hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/10"
+                                    className="group p-8 bg-gray-50 dark:bg-[#1D1E23] hover:bg-orange-500 rounded-4xl border border-transparent transition-all duration-300 text-left flex items-start gap-6 hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/10"
                                 >
                                     <div className={`w-14 h-14 rounded-2xl ${type.bg} group-hover:bg-white/20 flex items-center justify-center shrink-0 transition-colors`}>
                                         <type.icon className={`w-7 h-7 ${type.color} group-hover:text-white transition-colors`} />

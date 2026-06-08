@@ -89,7 +89,7 @@ export default function CompaniesModal({
                             animate="visible"
                             exit="exit"
                             onClick={(e) => e.stopPropagation()}
-                            className="pointer-events-auto w-full max-w-2xl bg-white dark:bg-[#111111] border border-gray-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/60 overflow-hidden"
+                            className="pointer-events-auto w-full max-w-2xl bg-white dark:bg-[#1D1E23] border border-gray-200/80 dark:border-white/[0.07] rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/60 overflow-hidden"
                         >
                             {/* Header */}
                             <div className="relative px-7 pt-7 pb-5 border-b border-gray-100 dark:border-white/[0.06]">

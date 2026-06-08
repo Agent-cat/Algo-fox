@@ -19,7 +19,7 @@ export default function ModeToggle({
 }: ModeToggleProps) {
   return (
     <div className="flex justify-center">
-      <div className="relative inline-flex items-center bg-gray-100 dark:bg-[#1a1a1a] rounded-lg p-1">
+      <div className="relative z-0 inline-flex items-center bg-gray-100 dark:bg-[#1D1E23] rounded-lg p-1 border border-gray-200/50 dark:border-white/5">
         <button
           onClick={() => onModeChange("practice")}
           className={`relative z-10 px-8 py-2 hover:cursor-pointer rounded-md font-medium text-sm ${mode === "practice" ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"

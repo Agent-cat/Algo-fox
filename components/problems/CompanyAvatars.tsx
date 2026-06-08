@@ -62,7 +62,7 @@ export default function CompanyAvatars({
                     <CustomTooltip key={`${displayName}-${index}`} content={displayName}>
                         <div
                             className={cn(
-                                "rounded-full border-2 border-white dark:border-[#121212] overflow-hidden bg-white flex items-center justify-center shadow-sm shrink-0 select-none",
+                                "rounded-full border-2 border-white dark:border-[#1D1E23] overflow-hidden bg-white flex items-center justify-center shadow-sm shrink-0 select-none",
                                 avatarSize
                             )}
                         >
@@ -96,7 +96,7 @@ export default function CompanyAvatars({
                 <CustomTooltip content={remainingCompanies}>
                     <div
                         className={cn(
-                            "rounded-full border-2 border-white dark:border-[#121212] bg-gray-100 dark:bg-zinc-800 flex items-center justify-center shadow-xs shrink-0 font-bold text-[10px] text-gray-500 dark:text-gray-400 select-none cursor-default",
+                            "rounded-full border-2 border-white dark:border-[#1D1E23] bg-gray-100 dark:bg-zinc-800 flex items-center justify-center shadow-xs shrink-0 font-bold text-[10px] text-gray-500 dark:text-gray-400 select-none cursor-default",
                             avatarSize
                         )}
                     >

@@ -95,9 +95,9 @@ export default function LeaderboardPage() {
 
 
     return (
-        <div ref={containerRef} className="h-[calc(100vh-64px)] w-full flex flex-col bg-[#f0f0f0] dark:bg-[#121212] overflow-hidden">
+        <div ref={containerRef} className="h-[calc(100vh-64px)] w-full flex flex-col bg-[#f0f0f0] dark:bg-[#1D1E23] overflow-hidden">
             {/* Search Bar - Full edge-to-edge */}
-            <div className="bg-white/40 dark:bg-[#111]/40 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 flex items-center z-40">
+            <div className="bg-white/40 dark:bg-[#1D1E23]/40 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 flex items-center z-40">
                 <div className="relative group flex-1">
                     <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
@@ -141,7 +141,7 @@ export default function LeaderboardPage() {
                 )}
                 <table className="w-full border-collapse">
                     <thead className="sticky top-0 z-40">
-                        <tr className="border-b border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-[#111]/90 backdrop-blur-md">
+                        <tr className="border-b border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-[#1D1E23]/90 backdrop-blur-md">
                             <th className="sticky left-0 px-8 py-4 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 w-20 bg-inherit z-50">#</th>
                             <th className="sticky left-20 px-8 py-4 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 w-40 bg-inherit z-50">College ID</th>
                             <th className="sticky left-60 px-8 py-4 text-left text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest border-r border-gray-200 dark:border-white/10 w-96 bg-inherit z-50">Student Profile</th>
@@ -176,7 +176,7 @@ export default function LeaderboardPage() {
                                             ? "bg-[#efe8e3] dark:bg-[#1a1614]"
                                             : isEven
                                                 ? "bg-[#e5e5e5] dark:bg-[#161616]"
-                                                : "bg-[#f0f0f0] dark:bg-[#121212]";
+                                                : "bg-[#f0f0f0] dark:bg-[#1D1E23]";
 
                                     return (
                                         <motion.tr
@@ -251,7 +251,7 @@ export default function LeaderboardPage() {
             </div>
 
             {/* Navigation - Edge to edge bottom sticky */}
-            <div className="bg-white/80 dark:bg-[#111]/80 backdrop-blur-xl px-8 py-4 flex items-center justify-between border-t border-gray-200 dark:border-white/10 sticky bottom-0 z-50">
+            <div className="bg-white/80 dark:bg-[#1D1E23]/80 backdrop-blur-xl px-8 py-4 flex items-center justify-between border-t border-gray-200 dark:border-white/10 sticky bottom-0 z-50">
                 <div className="flex items-center gap-4">
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em]">
                         Rankings <span className="text-gray-900 dark:text-white ml-2">{(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, totalEntries)}</span> <span className="mx-2 text-gray-300">/</span> {totalEntries} Total

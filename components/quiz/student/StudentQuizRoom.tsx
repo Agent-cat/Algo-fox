@@ -221,7 +221,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
 
   if (phase === "lobby") {
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -232,7 +232,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             <p className="text-gray-500 dark:text-gray-400 font-medium">Ready when you are!</p>
           </div>
 
-          <div className="px-6 py-8 bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-200 dark:border-white/10 shadow-sm relative overflow-hidden group">
+          <div className="px-6 py-8 bg-white dark:bg-[#1D1E23] rounded-3xl border border-gray-200 dark:border-white/10 shadow-sm relative overflow-hidden group">
             <div className="relative w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/20">
               <span className="text-2xl font-black text-white">{participantName[0]?.toUpperCase()}</span>
             </div>
@@ -255,7 +255,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex flex-col text-gray-900 dark:text-white selection:bg-orange-500/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex flex-col text-gray-900 dark:text-white selection:bg-orange-500/30 selection:text-orange-200">
       <AnimatePresence mode="wait">
         {phase === "question" && (
           <motion.div
@@ -268,7 +268,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 flex items-center justify-center">
                   <span className="text-orange-500 font-black text-sm">Q</span>
                 </div>
                 <div>
@@ -296,7 +296,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 mb-8 shadow-sm relative overflow-hidden"
+                className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 mb-8 shadow-sm relative overflow-hidden"
               >
                 <Markdown content={questionText} className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight" />
               </motion.div>
@@ -318,8 +318,8 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                         ${isLocked
                           ? isSelected
                             ? "bg-orange-500 border-orange-600 text-white! ring-4 ring-orange-500/20"
-                            : "bg-gray-50 dark:bg-[#1a1a1a] opacity-40 cursor-not-allowed"
-                          : "bg-white dark:bg-[#1a1a1a] hover:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-orange-500/5 cursor-pointer shadow-sm"
+                            : "bg-gray-50 dark:bg-[#1D1E23] opacity-40 cursor-not-allowed"
+                          : "bg-white dark:bg-[#1D1E23] hover:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-orange-500/5 cursor-pointer shadow-sm"
                         }
                       `}
                     >
@@ -335,7 +335,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-[#121212]"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-[#1D1E23]"
                         >
                           <div className="w-2 h-2 bg-white rounded-full" />
                         </motion.div>
@@ -406,7 +406,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               {/* Question & Results */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
+              <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
                 <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">The Question</p>
                 <div className="mb-8">
                   <Markdown content={questionText} className="text-xl font-bold text-gray-900 dark:text-white tracking-tight" />
@@ -435,7 +435,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               {/* Leaderboard */}
-              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
+              <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Live Standings</p>
                 </div>
@@ -443,7 +443,7 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
               </div>
 
               <div className="text-center py-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-full">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-full">
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
                   <span className="text-xs font-black text-gray-500 dark:text-gray-400">Waiting for next question...</span>
                 </div>
@@ -465,18 +465,18 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
 
               {myRank && (
                 <div className="grid grid-cols-2 gap-4 mb-12">
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
+                  <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
                     <div className="text-3xl font-black text-orange-500 mb-1">{myScore}</div>
                     <div className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Total score</div>
                   </div>
-                  <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
+                  <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm">
                     <div className="text-3xl font-black text-gray-900 dark:text-white mb-1">#{myRank}</div>
                     <div className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Final Rank</div>
                   </div>
                 </div>
               )}
 
-              <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm mb-8">
+              <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm mb-8">
                 <div className="flex items-center gap-3 mb-6">
                    <p className="text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Champions Gallery</p>
                 </div>

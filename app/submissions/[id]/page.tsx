@@ -45,10 +45,10 @@ async function SubmissionContent({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] antialiased text-gray-900 dark:text-gray-100">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] antialiased text-gray-900 dark:text-gray-100">
             <div className="max-w-[1440px] mx-auto p-4 md:p-8">
                 {/* TOP BREADCRUMB / NAV */}
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-[#1a1a1a]">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-[#1D1E23]">
                     <Link
                         href={`/problems/${problem.slug}`}
                         className="group flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-all font-medium"
@@ -84,7 +84,7 @@ async function SubmissionContent({ params }: PageProps) {
                         {/* Performance Details (Plain List) */}
                         <div className="space-y-8">
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-[#1a1a1a] pb-2">Status Metrics</h4>
+                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-[#1D1E23] pb-2">Status Metrics</h4>
 
                                 {time && (
                                     <div className="flex items-center justify-between">
@@ -154,8 +154,8 @@ async function SubmissionContent({ params }: PageProps) {
                     {/* MAIN CONTENT AREA */}
                     <div className="flex-1 space-y-12 w-full">
                         {/* SOURCE CODE SECTION */}
-                        <section className="bg-white dark:bg-[#121212] border border-gray-100 dark:border-[#1a1a1a] rounded-lg overflow-hidden shadow-sm">
-                            <div className="px-6 py-3 border-b border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between bg-gray-50/30 dark:bg-white/1">
+                        <section className="bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#1D1E23] rounded-lg overflow-hidden shadow-sm">
+                            <div className="px-6 py-3 border-b border-gray-100 dark:border-[#1D1E23] flex items-center justify-between bg-gray-50/30 dark:bg-white/1">
                                 <h2 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2">
                                     <Terminal className="w-3.5 h-3.5" />
                                     Source Implementation
@@ -190,7 +190,7 @@ async function SubmissionContent({ params }: PageProps) {
                                         className={`
                                             group p-5 rounded-lg border transition-all duration-200
                                             ${tc.status === 'ACCEPTED'
-                                                ? 'bg-transparent border-gray-100 dark:border-[#1a1a1a] hover:border-emerald-500/30'
+                                                ? 'bg-transparent border-gray-100 dark:border-[#1D1E23] hover:border-emerald-500/30'
                                                 : 'bg-rose-50/30 dark:bg-rose-500/2 border-rose-100 dark:border-rose-500/20 hover:border-rose-500/40'}
                                         `}
                                     >
@@ -214,7 +214,7 @@ async function SubmissionContent({ params }: PageProps) {
                                         </div>
 
                                         {tc.errorMessage && (
-                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-black/20 rounded border border-gray-100 dark:border-[#1a1a1a] font-mono text-[10px] text-rose-400 overflow-x-auto whitespace-pre-wrap leading-relaxed opacity-90">
+                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-black/20 rounded border border-gray-100 dark:border-[#1D1E23] font-mono text-[10px] text-rose-400 overflow-x-auto whitespace-pre-wrap leading-relaxed opacity-90">
                                                 {tc.errorMessage}
                                             </div>
                                         )}
@@ -232,7 +232,7 @@ async function SubmissionContent({ params }: PageProps) {
 export default function SubmissionPage({ params }: PageProps) {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] pt-24 flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] pt-24 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
             </div>
         }>

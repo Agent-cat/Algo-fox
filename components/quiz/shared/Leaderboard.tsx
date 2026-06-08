@@ -52,7 +52,7 @@ export function Leaderboard({ entries, highlightId, compact = false }: Leaderboa
                 ? "border-orange-400 dark:border-orange-500 bg-orange-50 dark:bg-orange-500/15 ring-1 ring-orange-400/30"
                 : isTop3
                 ? rankBg[idx]
-                : "border-gray-100 dark:border-[#2a2a2a] bg-white dark:bg-[#1a1a1a]"
+                : "border-gray-100 dark:border-[#2a2a2a] bg-white dark:bg-[#1D1E23]"
               }
             `}
           >

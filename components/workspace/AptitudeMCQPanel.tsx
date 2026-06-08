@@ -200,7 +200,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                             onClick={handleCheckAnswer}
                             disabled={!selectedOption || status === "correct" || isLoading}
                             className={`px-6 py-2.5 rounded-lg font-bold text-xs transition-all shadow-md hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-1.5 ${
-                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
+                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1D1E23] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
                             } ${
                                 status === "correct" ? "hidden" : ""
                             }`}

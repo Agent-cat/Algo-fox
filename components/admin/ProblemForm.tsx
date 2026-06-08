@@ -79,14 +79,14 @@ interface ProblemFormProps {
 function MarkdownPreview({ content, placeholder }: { content: string; placeholder?: string }) {
     if (!content?.trim()) {
         return (
-            <div className="w-full h-full min-h-[460px] flex flex-col items-center justify-center text-[#738f93] bg-[#f8f9fa] dark:bg-[#111] gap-3 font-mono">
+            <div className="w-full h-full min-h-[460px] flex flex-col items-center justify-center text-[#738f93] bg-[#f8f9fa] dark:bg-[#1D1E23] gap-3 font-mono">
                 <BookOpen className="w-10 h-10 opacity-30" />
                 <span className="text-sm italic">{placeholder || "Nothing to preview yet..."}</span>
             </div>
         );
     }
     return (
-        <div className="w-full min-h-[460px] px-6 py-6 overflow-auto prose prose-base dark:prose-invert max-w-none bg-[#f8f9fa] dark:bg-[#111] text-[#39424e] dark:text-gray-300 font-mono text-[15px]
+        <div className="w-full min-h-[460px] px-6 py-6 overflow-auto prose prose-base dark:prose-invert max-w-none bg-[#f8f9fa] dark:bg-[#1D1E23] text-[#39424e] dark:text-gray-300 font-mono text-[15px]
             prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0
             prose-code:bg-gray-100 dark:prose-code:bg-[#1a1a2e] prose-code:rounded-[3px] prose-code:px-1.5 prose-code:text-[0.85em]
             prose-headings:text-[#39424e] dark:prose-headings:text-white prose-headings:font-bold prose-headings:font-mono
@@ -115,7 +115,7 @@ function MarkdownPreview({ content, placeholder }: { content: string; placeholde
                         <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
                     ),
                     pre: ({ children }) => (
-                        <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                        <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#24262C] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
                             {children}
                         </pre>
                     ),
@@ -497,14 +497,14 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     const progressPct = Math.round((currentStep / totalSteps) * 100);
 
-    const inputCls = "w-full px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-gray-900 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600";
+    const inputCls = "w-full px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-gray-900 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600";
     const labelCls = "text-[14px] font-bold text-[#39424e] dark:text-gray-300 font-mono mb-1.5 flex gap-1";
 
     return (
         <div className="w-full">
 
             {/* ── TABS NAV (HackerRank Style) ── */}
-            <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1a1a1a] rounded-[3px] mb-8">
+            <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1D1E23] rounded-[3px] mb-8">
                 {steps.map((step) => {
                     const isActive = currentStep === step.id;
                     const isClickable = step.id <= currentStep;
@@ -516,7 +516,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                             disabled={!isClickable && !isActive}
                             className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
                                 isActive
-                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#121212]"
+                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#1D1E23]"
                                 : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                         >
@@ -622,7 +622,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 className={inputCls}
                                             />
                                             {showDropdown && (
-                                                <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] shadow-lg max-h-[200px] overflow-y-auto pr-1">
+                                                <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] shadow-lg max-h-[200px] overflow-y-auto pr-1">
                                                     {filteredPredefined.map((company, idx) => (
                                                         <button
                                                             key={idx}
@@ -709,7 +709,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     </div>
 
                                     {(watch("isMcq") || isAptitude) && (
-                                        <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#444] space-y-4">
+                                        <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] space-y-4">
                                             <div className="flex items-center justify-between">
                                                 <label className="text-[10px] font-bold text-[#39424e] dark:text-gray-300 uppercase tracking-widest">MCQ Options</label>
                                                 <div className="flex items-center gap-2">
@@ -738,7 +738,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                                     className={`${inputCls} py-2 min-h-[80px] resize-y`}
                                                                 />
                                                                 {watch(`options.${idx}`) && (
-                                                                    <div className="p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#222] rounded-[3px]">
+                                                                    <div className="p-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-[3px]">
                                                                         <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Preview</div>
                                                                         <div className="prose prose-sm dark:prose-invert max-w-none">
                                                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -754,7 +754,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             </div>
                                             <div className="pt-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
-                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#121212] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
+                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#1D1E23] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
                                                     {(watch("options") && watch("answer") !== "" && watch("answer") !== undefined)
                                                         ? watch(`options.${Number(watch("answer"))}`)
                                                         : "Select correct option using radio button"}
@@ -876,7 +876,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     </div>
 
                                     {/* Preview card */}
-                                    <div className="mt-2 p-5 rounded-[3px] bg-gray-50 dark:bg-[#111] border border-gray-300 dark:border-[#444]">
+                                    <div className="mt-2 p-5 rounded-[3px] bg-gray-50 dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444]">
                                         <div className="text-xs text-gray-400 dark:text-gray-600 mb-3 font-semibold uppercase tracking-wider">Preview</div>
                                         <div className="font-bold text-gray-900 dark:text-white truncate">
                                             {titleValue || <span className="text-gray-300 dark:text-gray-700 font-normal">Problem title will appear here</span>}
@@ -914,15 +914,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 {/* Enhanced Toolbar */}
                                 <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
                                     <div className="flex items-center gap-1">
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
                                             <button type="button" onClick={() => insertMarkdown("description", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
                                             <button type="button" onClick={() => insertMarkdown("description", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
                                                 <List className="w-3.5 h-3.5" />
                                             </button>
@@ -930,7 +930,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <Code2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button
                                                 type="button"
                                                 onClick={() => descriptionFileInputRef.current?.click()}
@@ -972,11 +972,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 }}
                                                 rows={28}
                                                 placeholder={"# Problem\n\nDescribe the problem here...\n\n## Constraints\n- 1 ≤ n ≤ 10⁵\n\n## Example\n\n**Input:** nums = [2,7,11,15], target = 9\n**Output:** [0,1]"}
-                                                className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
+                                                className="w-full px-5 py-4 bg-white dark:bg-[#1D1E23] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
                                             />
                                         </div>
                                     ) : (
-                                        <div className="bg-[#f8f9fa] dark:bg-[#111] overflow-y-auto min-h-[500px]">
+                                        <div className="bg-[#f8f9fa] dark:bg-[#1D1E23] overflow-y-auto min-h-[500px]">
                                             <MarkdownPreview content={descriptionValue} placeholder="Nothing to preview yet..." />
                                         </div>
                                     )}
@@ -986,7 +986,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                             {/* SQL: Hidden Query */}
                             {domain === "SQL" && (
-                                <div className="mt-6 space-y-3 p-6 rounded-[3px] border border-dashed border-gray-300 dark:border-[#444] bg-gray-50/50 dark:bg-[#0d0d0d]">
+                                <div className="mt-6 space-y-3 p-6 rounded-[3px] border border-dashed border-gray-300 dark:border-[#444] bg-gray-50/50 dark:bg-[#24262C]">
                                     <div>
                                         <label className={labelCls}>Hidden Query <span className="normal-case font-normal text-gray-400">(Optional)</span></label>
                                         <p className="text-xs text-gray-400 dark:text-gray-600 mb-3">Prepended to the user's code before execution (e.g. schema setup).</p>
@@ -994,7 +994,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             {...register("hiddenQuery")}
                                             rows={6}
                                             placeholder={"-- CREATE TABLE employees (\n--   id INT PRIMARY KEY,\n--   name VARCHAR(100)\n-- );"}
-                                            className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none font-mono text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] resize-none"
+                                            className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none font-mono text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-[#1D1E23] resize-none"
                                         />
                                     </div>
                                 </div>
@@ -1017,15 +1017,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 {/* Enhanced Toolbar */}
                                 <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
                                     <div className="flex items-center gap-1">
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
                                             <button type="button" onClick={() => insertMarkdown("solution", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
                                             <button type="button" onClick={() => insertMarkdown("solution", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("solution", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
                                                 <List className="w-3.5 h-3.5" />
                                             </button>
@@ -1037,7 +1037,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <span className="text-[10px] uppercase">Template</span>
                                             </button>
                                         </div>
-                                        <div className="flex bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
+                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button
                                                 type="button"
                                                 onClick={() => solutionFileInputRef.current?.click()}
@@ -1072,8 +1072,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     {!solutionPreview ? (
                                         <div className="border-r border-gray-200 dark:border-[#333] relative">
                                             {(!solutionValue || solutionValue.trim() === "") && (
-                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#111]/50 backdrop-blur-[2px] z-10">
-                                                    <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-xl border border-dashed border-gray-300 dark:border-[#444] shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-[2px] z-10">
+                                                    <div className="bg-white dark:bg-[#1D1E23] p-8 rounded-xl border border-dashed border-gray-300 dark:border-[#444] shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
                                                         <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center">
                                                             <BadgeCheck className="w-10 h-10 text-orange-500" />
                                                         </div>
@@ -1100,11 +1100,11 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 }}
                                                 rows={28}
                                                 placeholder={"# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```"}
-                                                className="w-full px-5 py-4 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
+                                                className="w-full px-5 py-4 bg-white dark:bg-[#1D1E23] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
                                             />
                                         </div>
                                     ) : (
-                                        <div className="bg-[#f8f9fa] dark:bg-[#111] overflow-y-auto min-h-[500px]">
+                                        <div className="bg-[#f8f9fa] dark:bg-[#1D1E23] overflow-y-auto min-h-[500px]">
                                             <MarkdownPreview content={solutionValue} placeholder="Nothing to preview yet..." />
                                         </div>
                                     )}
@@ -1134,7 +1134,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 {fields.map((field, index) => (
                                     <div key={field.id} className="group rounded-[3px] border border-gray-300 dark:border-[#444] bg-white dark:bg-[#0f0f0f] overflow-hidden hover:border-gray-400 dark:hover:border-[#555] transition-colors shadow-sm">
                                         {/* Card header */}
-                                        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-300 dark:border-[#444] bg-gray-50/80 dark:bg-[#111]">
+                                        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-300 dark:border-[#444] bg-gray-50/80 dark:bg-[#1D1E23]">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-6 h-6 rounded-full bg-[#39424e] dark:bg-white text-white dark:text-[#39424e] flex items-center justify-center text-xs font-bold">
                                                     {index + 1}
@@ -1146,7 +1146,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                     <input
                                                         type="checkbox"
                                                         {...register(`testCases.${index}.hidden` as const)}
-                                                        className="w-3.5 h-3.5 rounded border-gray-300 dark:border-[#444] text-orange-500 focus:ring-orange-500 dark:bg-[#111] cursor-pointer"
+                                                        className="w-3.5 h-3.5 rounded border-gray-300 dark:border-[#444] text-orange-500 focus:ring-orange-500 dark:bg-[#1D1E23] cursor-pointer"
                                                     />
                                                     <span className="text-xs text-gray-500 dark:text-gray-500 font-medium">Hidden</span>
                                                 </label>
@@ -1167,7 +1167,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.input` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"nums = [2,7,11,15]\ntarget = 9"}
                                                 />
                                             </div>
@@ -1176,7 +1176,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 <textarea
                                                     {...register(`testCases.${index}.output` as const)}
                                                     rows={4}
-                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-100 resize-none"
+                                                    className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none text-sm font-mono bg-gray-50 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 resize-none"
                                                     placeholder={"[0, 1]"}
                                                 />
                                             </div>

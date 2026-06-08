@@ -45,7 +45,7 @@ export default async function BookmarksPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+        <Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
             <div className="text-center space-y-4">
                 <div className="relative">
                     <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />

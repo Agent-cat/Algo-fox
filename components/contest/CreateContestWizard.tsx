@@ -90,9 +90,9 @@ function MarkdownEditor({ label, name, register, watch, setValue, placeholder }:
             <div className="flex items-center justify-between">
                 <label className="block text-[14px] font-bold text-[#39424e] dark:text-gray-300 font-mono mb-1.5">{label}</label>
             </div>
-            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden bg-white dark:bg-[#1a1a1a]">
+            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden bg-white dark:bg-[#1D1E23]">
                 {/* Toolbar */}
-                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#111]">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1D1E23]">
                     <div className="flex items-center gap-1 text-gray-400">
                         <button type="button" onClick={() => setValue(name, value + "**bold text** ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white font-bold font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">B</span></button>
                         <button type="button" onClick={() => setValue(name, value + "*italic text* ")} className="w-8 h-8 flex items-center justify-center hover:text-[#39424e] dark:hover:text-white italic font-serif hover:bg-gray-200 dark:hover:bg-[#333] rounded-[3px] transition-colors"><span className="text-sm">i</span></button>
@@ -121,14 +121,14 @@ function MarkdownEditor({ label, name, register, watch, setValue, placeholder }:
                 {/* Editor/Preview */}
                 <div className="p-0">
                     {preview ? (
-                        <div className="p-4 prose dark:prose-invert max-w-none text-[#39424e] dark:text-gray-300 text-[15px] font-mono whitespace-pre-wrap min-h-[160px] bg-[#f8f9fa] dark:bg-[#111]">
+                        <div className="p-4 prose dark:prose-invert max-w-none text-[#39424e] dark:text-gray-300 text-[15px] font-mono whitespace-pre-wrap min-h-[160px] bg-[#f8f9fa] dark:bg-[#1D1E23]">
                             {value ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown> : <span className="text-gray-400 italic font-mono">No content provider. Rendered markdown will appear here.</span>}
                         </div>
                     ) : (
                         <textarea
                             {...register(name)}
                             rows={6}
-                            className="w-full px-4 py-3 bg-white dark:bg-[#1a1a1a] focus:outline-none transition-all text-[15px] font-mono text-[#39424e] dark:text-gray-300 resize-y min-h-[160px]"
+                            className="w-full px-4 py-3 bg-white dark:bg-[#1D1E23] focus:outline-none transition-all text-[15px] font-mono text-[#39424e] dark:text-gray-300 resize-y min-h-[160px]"
                             placeholder={placeholder}
                         />
                     )}
@@ -169,7 +169,7 @@ function TimeMaskInput({ value, onChange, disabled, placeholder }: any) {
             placeholder={placeholder || "00:00"}
             disabled={disabled}
             maxLength={5}
-            className="w-[80px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] border-r-0 rounded-l-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 tracking-widest disabled:bg-gray-100 disabled:opacity-50 dark:disabled:bg-gray-800 uppercase"
+            className="w-[80px] px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] border-r-0 rounded-l-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 tracking-widest disabled:bg-gray-100 disabled:opacity-50 dark:disabled:bg-gray-800 uppercase"
         />
     );
 }
@@ -504,7 +504,7 @@ export default function CreateContestWizard({
                                 <div>
                                     <input
                                         {...register("title")}
-                                        className="w-full max-w-[320px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm"
+                                        className="w-full max-w-[320px] px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm"
                                         placeholder="one 1774192669"
                                     />
                                     {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>}
@@ -550,7 +550,7 @@ export default function CreateContestWizard({
                                         <input
                                             type="date"
                                             {...register("startDate")}
-                                            className="w-[160px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 uppercase tracking-widest"
+                                            className="w-[160px] px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-[#39424e] dark:text-gray-300 uppercase tracking-widest"
                                         />
                                         <span className="text-[#39424e] dark:text-gray-400 font-mono font-bold text-[14px]">at</span>
                                         <div className="flex items-center group">
@@ -589,7 +589,7 @@ export default function CreateContestWizard({
                                             type="date"
                                             disabled={watch("hasNoEndTime")}
                                             {...register("endDate")}
-                                            className="w-[160px] px-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm disabled:bg-gray-100 disabled:opacity-50 text-[#39424e] dark:text-gray-300 uppercase tracking-widest"
+                                            className="w-[160px] px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm disabled:bg-gray-100 disabled:opacity-50 text-[#39424e] dark:text-gray-300 uppercase tracking-widest"
                                         />
                                         <span className="text-[#39424e] dark:text-gray-400 font-mono font-bold text-[14px]">at</span>
                                         <div className="flex items-center">
@@ -681,7 +681,7 @@ export default function CreateContestWizard({
 
                         <div className="space-y-8">
                             {sections.map((sec, sIdx) => (
-                                <div key={sec.id} className="border border-gray-200 dark:border-[#333] rounded-xl p-5 sm:p-6 bg-white dark:bg-[#1a1a1a] shadow-sm relative overflow-hidden group">
+                                <div key={sec.id} className="border border-gray-200 dark:border-[#333] rounded-xl p-5 sm:p-6 bg-white dark:bg-[#1D1E23] shadow-sm relative overflow-hidden group">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
 
                                     {/* Section Header Controls */}
@@ -726,7 +726,7 @@ export default function CreateContestWizard({
                                         <button
                                             type="button"
                                             onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("DSA"); }}
-                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#111] border border-dashed border-gray-300 dark:border-[#444] hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-xl transition-all group max-h-[140px]"
+                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#1D1E23] border border-dashed border-gray-300 dark:border-[#444] hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-xl transition-all group max-h-[140px]"
                                         >
                                             <div className="p-2 bg-orange-100 dark:bg-orange-500/10 text-orange-600 rounded-lg mb-2 group-hover:scale-110 transition-transform">
                                                 <Code className="w-5 h-5" />
@@ -736,7 +736,7 @@ export default function CreateContestWizard({
                                         <button
                                             type="button"
                                             onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("SQL"); }}
-                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#111] border border-dashed border-gray-300 dark:border-[#444] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/5 rounded-xl transition-all group max-h-[140px]"
+                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#1D1E23] border border-dashed border-gray-300 dark:border-[#444] hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/5 rounded-xl transition-all group max-h-[140px]"
                                         >
                                             <div className="p-2 bg-blue-100 dark:bg-blue-500/10 text-blue-600 rounded-lg mb-2 group-hover:scale-110 transition-transform">
                                                 <Database className="w-5 h-5" />
@@ -751,7 +751,7 @@ export default function CreateContestWizard({
                                             <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Attached Problems ({sec.problems.length})</h4>
                                             <div className="space-y-2">
                                                 {sec.problems.map((problem, index) => (
-                                                    <div key={problem.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-lg group/item hover:border-blue-300 dark:hover:border-[#444] transition-colors">
+                                                    <div key={problem.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-lg group/item hover:border-blue-300 dark:hover:border-[#444] transition-colors">
                                                         <div className="flex items-center gap-4">
                                                             <div className="w-7 h-7 flex items-center justify-center bg-white dark:bg-black/50 border border-gray-200 dark:border-[#333] rounded-md text-xs font-bold text-gray-500">
                                                                 {index + 1}
@@ -797,7 +797,7 @@ export default function CreateContestWizard({
                                         <input
                                             {...register("contestPassword")}
                                             type="text"
-                                            className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono"
+                                            className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono"
                                             placeholder={isEditing && initialData?.contestPassword ? "•••••••• (Leave blank to keep current)" : "Enter access code..."}
                                         />
                                     </div>
@@ -811,7 +811,7 @@ export default function CreateContestWizard({
                                             </label>
                                             <select
                                                 {...register("mode")}
-                                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold text-gray-800 dark:text-gray-200"
+                                                className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold text-gray-800 dark:text-gray-200"
                                             >
                                                 <option value="PARALLEL">Parallel (All Sections Open)</option>
                                                 <option value="SEQUENTIAL">Sequential (Must complete in order)</option>
@@ -830,7 +830,7 @@ export default function CreateContestWizard({
                                                 min="1"
                                                 {...register("durationMinutes", { setValueAs: v => v === '' ? undefined : Number(v) })}
                                                 placeholder="Total allowed time..."
-                                                className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-mono"
+                                                className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-mono"
                                             />
                                             <p className="text-xs text-gray-500 mt-2">
                                                 Leave blank to allow users to work until the global End Time completes.
@@ -886,7 +886,7 @@ export default function CreateContestWizard({
                                                 <textarea
                                                     {...register("allowedIPs")}
                                                     rows={3}
-                                                    className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono text-sm"
+                                                    className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-mono text-sm"
                                                     placeholder="103.25.1.10, 103.25.1.11, ..."
                                                 />
                                                 <p className="text-[11px] text-gray-500 font-serif italic">Separate multiple IP addresses with commas.</p>
@@ -901,7 +901,7 @@ export default function CreateContestWizard({
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Visibility</label>
                                     <select
                                         {...register("visibility")}
-                                        className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+                                        className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
                                     >
                                         <option value="PUBLIC">Public (Visible to everyone)</option>
                                         {institutionId && (
@@ -918,7 +918,7 @@ export default function CreateContestWizard({
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Select Classroom</label>
                                         <select
                                             {...register("classroomId")}
-                                            className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+                                            className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
                                         >
                                             <option value="">Choose a classroom...</option>
                                             {classrooms.map((c) => (
@@ -933,7 +933,7 @@ export default function CreateContestWizard({
                                     <textarea
                                         {...register("targetEmails")}
                                         rows={3}
-                                        className="w-full px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-sm"
+                                        className="w-full px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-sm"
                                         placeholder="email1@example.com, email2@example.com"
                                     />
                                     <p className="text-[10px] text-gray-400 mt-1">Leave empty to allow all eligible participants.</p>
@@ -951,8 +951,8 @@ export default function CreateContestWizard({
         <div className="max-w-6xl mx-auto px-4 py-8">
             {/* Problem Form Modal via full page override */}
             {showProblemForm && (
-                <div className="fixed inset-0 bg-white dark:bg-[#121212] z-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                    <div className="p-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between shadow-sm bg-white dark:bg-[#121212] sticky top-0 z-10 w-full">
+                <div className="fixed inset-0 bg-white dark:bg-[#1D1E23] z-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="p-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between shadow-sm bg-white dark:bg-[#1D1E23] sticky top-0 z-10 w-full">
                         <div className="flex items-center gap-4">
                             <button type="button" onClick={() => setShowProblemForm(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors flex items-center gap-2">
                                 <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-300" />
@@ -995,7 +995,7 @@ export default function CreateContestWizard({
                 </div>
 
                 {/* Tabs Navigation */}
-                <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1a1a1a] rounded-[3px] mb-8">
+                <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1D1E23] rounded-[3px] mb-8">
                     {tabs.map((tab) => (
                         <button
                             key={tab}
@@ -1003,7 +1003,7 @@ export default function CreateContestWizard({
                             onClick={() => setActiveTab(tab)}
                             className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
                                 activeTab === tab
-                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#121212]"
+                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#1D1E23]"
                                 : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
                             }`}
                         >

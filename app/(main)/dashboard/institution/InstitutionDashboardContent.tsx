@@ -129,7 +129,7 @@ export function InstitutionDashboardContent({
             </p>
           </div>
           {institutionName && (
-            <div className="flex items-center gap-3 px-5 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] rounded-full shadow-sm">
+            <div className="flex items-center gap-3 px-5 py-2.5 bg-white dark:bg-[#24262C] border border-gray-200 dark:border-white/5 rounded-full shadow-sm">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span className="font-bold text-sm text-gray-700 dark:text-gray-200">
                 {institutionName}
@@ -200,7 +200,7 @@ function StatCard({
   };
 
   return (
-    <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
+    <div className="bg-white dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 group">
       <div className="flex justify-between items-start mb-4">
         <div
           className={`w-12 h-12 rounded-xl ${colorStyles[color]} flex items-center justify-center transition-colors border`}
@@ -208,7 +208,7 @@ function StatCard({
           <Icon className="w-6 h-6" />
         </div>
         {trend && (
-          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#1a1a1a] px-2 py-1 rounded-full uppercase tracking-wide">
+          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#24262C] px-2 py-1 rounded-full uppercase tracking-wide">
             {trend}
           </span>
         )}

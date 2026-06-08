@@ -97,7 +97,7 @@ export function AssignmentDetailView({
 
           {/* Progress HUD */}
           <div className="shrink-0">
-             <div className="bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm min-w-[200px]">
+             <div className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm min-w-[200px]">
                 <div className="flex items-center justify-between mb-4">
                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Task Completion</span>
                    <span className="text-xl font-black text-gray-950 dark:text-white tabular-nums leading-none">
@@ -137,7 +137,7 @@ export function AssignmentDetailView({
                 className={`group flex items-center gap-6 p-5 rounded-2xl border transition-all duration-300 ${
                   isSolved
                     ? 'bg-gray-50/50 dark:bg-white/5 border-emerald-500/20 opacity-80'
-                    : 'bg-[#fafafa] dark:bg-[#121212] border-gray-100 dark:border-white/5 hover:border-orange-500/50 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none'
+                    : 'bg-[#fafafa] dark:bg-[#1D1E23] border-gray-100 dark:border-white/5 hover:border-orange-500/50 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none'
                 }`}
               >
                 <div className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all duration-500 ${

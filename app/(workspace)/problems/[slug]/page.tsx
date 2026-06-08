@@ -12,6 +12,7 @@ import AptitudeWorkspaceClientWrapper from "@/components/workspace/AptitudeWorks
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
+import WorkspaceSkeleton from "@/components/workspace/WorkspaceSkeleton";
 
 // MIGRATED: Removed export const revalidate = 3600 (incompatible with Cache Components)
 // Caching is now handled via "use cache" in the getProblem action with cacheLife
@@ -62,129 +63,131 @@ async function ProblemContentWithParams({
 
   // Resolve course context
   const rawCourseId = typeof courseId === 'string' ? courseId : Array.isArray(courseId) ? courseId[0] : undefined;
-
-  // Security Check: If course context provided, ensure user is enrolled or is admin
-  if (rawCourseId) {
-    const isEnrolled = session?.user ? await prisma.userCourseEnrollment.findUnique({
-      where: { userId_courseId: { userId: session.user.id, courseId: rawCourseId } }
-    }) : null;
-
-    if (!isEnrolled && session?.user?.role !== 'ADMIN') {
-        const course = await prisma.course.findUnique({
-            where: { id: rawCourseId },
-            select: { slug: true }
-        });
-        if (course) {
-            return redirect(`/courses/${course.slug}`);
-        }
-    }
-  }
-
-  // Find the course context detail
   const courseContext = (problem as any).categoryProblems?.find((cp: any) => cp.category?.courseId === rawCourseId || cp.category?.courseId);
   const activeCourseId = rawCourseId || courseContext?.category?.courseId || null;
   const courseName = courseContext?.category?.course?.title || null;
   const courseSlug = courseContext?.category?.course?.slug || null;
 
-  let isSolved = false;
-  let contestData = null;
-  let solvedProblemIds: string[] = [];
+  // Set up all independent queries to run concurrently
+  const promises: Promise<any>[] = [];
+
+  // 1. Course Enrollment Check
+  let enrollmentIdx = -1;
+  if (rawCourseId && (!session?.user || session.user.role !== 'ADMIN')) {
+    enrollmentIdx = promises.length;
+    promises.push(
+      (async () => {
+        if (!session?.user) return { redirect: `/courses/${rawCourseId}` }; // Fallback if needed
+        const isEnrolled = await prisma.userCourseEnrollment.findUnique({
+          where: { userId_courseId: { userId: session.user.id, courseId: rawCourseId } }
+        });
+        if (!isEnrolled) {
+          const course = await prisma.course.findUnique({
+            where: { id: rawCourseId },
+            select: { slug: true }
+          });
+          if (course) return { redirect: `/courses/${course.slug}` };
+        }
+        return null;
+      })()
+    );
+  }
+
+  // 2. Contest Details & Submissions
+  let contestIdx = -1;
+  let submissionsIdx = -1;
 
   if (session?.user) {
     if (contestId) {
-      const contestResponse = await getContestDetail(contestId);
-      if (contestResponse.success) {
-        if ((contestResponse.contest as any).isFinished) {
-          return redirect(`/contest/${contestId}`);
-        }
-        contestData = contestResponse.contest;
+      contestIdx = promises.length;
+      promises.push(getContestDetail(contestId));
 
-        // Contextual Check: Is this problem solved IN THIS SPECIFIC CONTEST?
-      const contestSubmission = await prisma.submission.findFirst({
-        where: {
-          problemId: problem.id,
-          userId: session.user.id,
-          status: "ACCEPTED",
-          mode: "SUBMIT",
-          contestId: contestId
-        }
-      });
-      isSolved = !!contestSubmission;
-
-        // Fetch all solved problems in this contest for the user
-        const contestSolvedSubmissions = await prisma.submission.findMany({
-          where: {
-            userId: session.user.id,
-            status: "ACCEPTED",
-            mode: "SUBMIT",
-            contestId: contestId,
-            problemId: { in: (contestResponse.contest as any).problems.map((p: any) => p.problem.id) }
-          },
-          select: { problemId: true }
-        });
-        solvedProblemIds = contestSolvedSubmissions.map(s => s.problemId);
-      } else {
-           // Fallback if contest not found
-        const submission = await prisma.submission.findFirst({
-          where: {
-          problemId: problem.id,
-          userId: session.user.id,
-          status: "ACCEPTED",
-          mode: "SUBMIT"
-          }
-      });
-      isSolved = !!submission;
-      }
+      submissionsIdx = promises.length;
+      promises.push(
+        Promise.all([
+          prisma.submission.findFirst({
+            where: { problemId: problem.id, userId: session.user.id, status: "ACCEPTED", mode: "SUBMIT", contestId }
+          }),
+          prisma.submission.findMany({
+            where: { userId: session.user.id, status: "ACCEPTED", mode: "SUBMIT", contestId },
+            select: { problemId: true }
+          })
+        ])
+      );
     } else {
-        // Global Check (Not in a contest context)
-        const submission = await prisma.submission.findFirst({
-            where: {
-            problemId: problem.id,
-            userId: session.user.id,
-            status: "ACCEPTED",
-            mode: "SUBMIT"
-            }
-        });
-        isSolved = !!submission;
-
-        // Fetch all solved problems for the user (Global)
-        const allSolved = await prisma.submission.findMany({
-            where: {
-                userId: session.user.id,
-                status: "ACCEPTED",
-                mode: "SUBMIT"
-            },
+      submissionsIdx = promises.length;
+      promises.push(
+        Promise.all([
+          prisma.submission.findFirst({
+            where: { problemId: problem.id, userId: session.user.id, status: "ACCEPTED", mode: "SUBMIT" }
+          }),
+          prisma.submission.findMany({
+            where: { userId: session.user.id, status: "ACCEPTED", mode: "SUBMIT" },
             select: { problemId: true },
             distinct: ['problemId']
-        });
-        solvedProblemIds = allSolved.map(s => s.problemId);
+          })
+        ])
+      );
     }
+  }
+
+  // 3. Course Problems
+  let courseProblemsIdx = -1;
+  if (activeCourseId) {
+    courseProblemsIdx = promises.length;
+    promises.push(
+      prisma.categoryProblem.findMany({
+        where: { category: { courseId: activeCourseId } },
+        orderBy: [{ category: { order: 'asc' } }, { order: 'asc' }],
+        select: { problemId: true }
+      })
+    );
+  }
+
+  // 4. Navigation Links
+  const nextProblemIdx = promises.length;
+  promises.push(getNextProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id));
+
+  const prevProblemIdx = promises.length;
+  promises.push(getPreviousProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id));
+
+  // WAIT FOR ALL PROMISES
+  const results = await Promise.all(promises);
+
+  // Extract Results
+  if (enrollmentIdx !== -1 && results[enrollmentIdx]?.redirect) {
+    return redirect(results[enrollmentIdx].redirect);
+  }
+
+  let contestData = null;
+  if (contestIdx !== -1) {
+    const contestResponse = results[contestIdx];
+    if (contestResponse?.success) {
+      if ((contestResponse.contest as any).isFinished) {
+        return redirect(`/contest/${contestId}`);
+      }
+      contestData = contestResponse.contest;
+    }
+  }
+
+  let isSolved = false;
+  let solvedProblemIds: string[] = [];
+  if (submissionsIdx !== -1) {
+    const [submission, allSolved] = results[submissionsIdx];
+    isSolved = !!submission;
+    solvedProblemIds = allSolved.map((s: any) => s.problemId);
   }
 
   let totalCourseProblems = 0;
   let currentCourseProblemIndex = -1;
-  if (activeCourseId) {
-    const courseProblems = await prisma.categoryProblem.findMany({
-      where: {
-        category: { courseId: activeCourseId }
-      },
-      orderBy: [
-        { category: { order: 'asc' } },
-        { order: 'asc' }
-      ],
-      select: { problemId: true }
-    });
+  if (courseProblemsIdx !== -1) {
+    const courseProblems = results[courseProblemsIdx];
     totalCourseProblems = courseProblems.length;
-    currentCourseProblemIndex = courseProblems.findIndex(cp => cp.problemId === problem.id);
+    currentCourseProblemIndex = courseProblems.findIndex((cp: any) => cp.problemId === problem.id);
   }
 
-  // NAVIGATION CONTEXT: Check if we are in a course
-  const NavigationPromises = [
-    getNextProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id),
-    getPreviousProblem(problem.createdAt, problem.domain, problem.type, activeCourseId || undefined, problem.id)
-  ];
-
-  const [nextProblemSlug, prevProblemSlug] = await Promise.all(NavigationPromises);
+  const nextProblemSlug = results[nextProblemIdx];
+  const prevProblemSlug = results[prevProblemIdx];
 
   if (problem.difficulty === "CONCEPT") {
     return (
@@ -206,7 +209,7 @@ async function ProblemContentWithParams({
   if (problem.domain === "APTITUDE") {
     return (
       <>
-        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
+        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#1D1E23] relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-30" />
           <div className="relative z-10 space-y-6">
             <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
@@ -242,7 +245,7 @@ async function ProblemContentWithParams({
   if (problem.domain === "DSA" || problem.domain === "SQL" || problem.domain === "WEBDEV" || problem.domain === "OOPS") {
     return (
       <>
-        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#121212] relative overflow-hidden">
+        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#1D1E23] relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-30" />
           <div className="relative z-10 space-y-6">
             <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
@@ -285,17 +288,7 @@ async function ProblemContentWithParams({
 
 export default function ProblemPage({ params, searchParams }: PageProps) {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="h-10 w-10 border-[3px] border-gray-200 dark:border-[#262626] border-t-orange-500 rounded-full animate-spin mx-auto" />
-            <div className="absolute inset-0 h-10 w-10 border-[3px] border-transparent border-b-orange-300 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading problem...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<WorkspaceSkeleton />}>
       <ProblemContentWithParams params={params} searchParams={searchParams} />
     </Suspense>
   );

@@ -37,7 +37,7 @@ export default function StudentQuizPage({ params }: Props) {
 
   if (isPending || (!ready && !error)) {
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
       </div>
     );
@@ -45,13 +45,13 @@ export default function StudentQuizPage({ params }: Props) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center p-6 text-gray-900 dark:text-gray-100">
+      <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center p-6 text-gray-900 dark:text-gray-100">
         <div className="text-center space-y-4 max-w-sm">
           <h1 className="text-2xl font-black">Cannot Join</h1>
           <p className="text-gray-500 dark:text-gray-400">{error}</p>
           <a
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#222222] transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#222222] transition-all"
           >
             Go to Dashboard
           </a>

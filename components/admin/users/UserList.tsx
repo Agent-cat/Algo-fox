@@ -89,12 +89,12 @@ export default function UserList() {
     return (
         <div>
             {/* Toolbar */}
-            <div className="p-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between gap-4 bg-gray-50/50 dark:bg-[#1a1a1a]">
+            <div className="p-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between gap-4 bg-gray-50/50 dark:bg-[#1D1E23]">
                 <div className="relative w-full max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
                     <Input
                         placeholder="Search users..."
-                        className="pl-9 bg-white dark:bg-[#141414] dark:border-[#333] dark:text-white dark:placeholder:text-gray-500"
+                        className="pl-9 bg-white dark:bg-[#24262C] dark:border-[#333] dark:text-white dark:placeholder:text-gray-500"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -120,7 +120,7 @@ export default function UserList() {
 
             {/* Filter Bar */}
             {isFilterOpen && (
-                <div className="p-4 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#141414] animate-in slide-in-from-top-2 duration-200">
+                <div className="p-4 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#24262C] animate-in slide-in-from-top-2 duration-200">
                     <div className="flex flex-col md:flex-row gap-6">
                         {/* Roles Filter */}
                         <div className="flex-1">
@@ -130,7 +130,7 @@ export default function UserList() {
                                     <label key={role} className="flex items-center gap-2 cursor-pointer group">
                                         <input
                                             type="checkbox"
-                                            className="w-4 h-4 rounded border-gray-300 dark:border-[#333] text-orange-600 focus:ring-orange-500 bg-white dark:bg-[#1a1a1a]"
+                                            className="w-4 h-4 rounded border-gray-300 dark:border-[#333] text-orange-600 focus:ring-orange-500 bg-white dark:bg-[#1D1E23]"
                                             checked={selectedRoles.includes(role as Role)}
                                             onChange={(e) => {
                                                 if (e.target.checked) {
@@ -153,7 +153,7 @@ export default function UserList() {
                         <div className="w-full md:w-64">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Filter by Institution</label>
                             <select
-                                className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-xs font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none uppercase tracking-tighter"
+                                className="w-full bg-gray-50 dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-lg px-3 py-2 text-xs font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none uppercase tracking-tighter"
                                 value={selectedInstitutionId}
                                 onChange={(e) => {
                                     setSelectedInstitutionId(e.target.value);
@@ -169,7 +169,7 @@ export default function UserList() {
                         </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-50 dark:border-[#1a1a1a] flex justify-end">
+                    <div className="mt-4 pt-4 border-t border-gray-50 dark:border-[#1D1E23] flex justify-end">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -225,7 +225,7 @@ export default function UserList() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="capitalize bg-white dark:bg-[#1a1a1a] shadow-sm dark:border-[#333] dark:text-gray-300">
+                                        <Badge variant="outline" className="capitalize bg-white dark:bg-[#1D1E23] shadow-sm dark:border-[#333] dark:text-gray-300">
                                             {user.role || "user"}
                                         </Badge>
                                     </TableCell>
@@ -259,13 +259,13 @@ export default function UserList() {
             </div>
 
             {/* Pagination */}
-            <div className="p-4 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1a1a1a]">
+            <div className="p-4 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1D1E23]">
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1 || loading}
-                    className="dark:bg-[#141414] dark:border-[#333] dark:text-gray-300 dark:hover:bg-[#262626]"
+                    className="dark:bg-[#24262C] dark:border-[#333] dark:text-gray-300 dark:hover:bg-[#262626]"
                 >
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Previous
@@ -278,7 +278,7 @@ export default function UserList() {
                     size="sm"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages || loading}
-                    className="dark:bg-[#141414] dark:border-[#333] dark:text-gray-300 dark:hover:bg-[#262626]"
+                    className="dark:bg-[#24262C] dark:border-[#333] dark:text-gray-300 dark:hover:bg-[#262626]"
                 >
                     Next
                     <ChevronRight className="w-4 h-4 ml-2" />

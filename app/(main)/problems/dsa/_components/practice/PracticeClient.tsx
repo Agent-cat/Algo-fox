@@ -179,7 +179,7 @@ export default function PracticeClient({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="divide-y divide-gray-50 dark:divide-[#111111]"
+                            className="divide-y divide-gray-50 dark:divide-[#1D1E23]"
                         >
                             {displayedProblems.map((problem, idx) => (
                                 <ProblemRow
@@ -203,7 +203,7 @@ export default function PracticeClient({
                             exit={{ opacity: 0 }}
                             className="text-center py-24"
                         >
-                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-[#262626] flex items-center justify-center">
+                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-50 dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] flex items-center justify-center">
                                 <Search className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                             </div>
                             <div className="text-gray-400 dark:text-gray-500 font-medium">No problems found</div>

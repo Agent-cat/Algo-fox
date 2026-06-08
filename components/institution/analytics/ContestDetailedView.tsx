@@ -76,7 +76,7 @@ export function ContestDetailedView({ studentName, studentId, performance }: Con
                     <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest">Contest Performance Log</h3>
                  </div>
 
-                 <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden">
+                 <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#151515]">
@@ -99,7 +99,7 @@ export function ContestDetailedView({ studentName, studentId, performance }: Con
                                     }
 
                                     return (
-                                        <tr key={idx} className={`hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group ${entry.isBlocked ? 'bg-red-500/2' : ''}`}>
+                                        <tr key={idx} className={`hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group ${entry.isBlocked ? 'bg-red-500/2' : ''}`}>
                                             <td className="px-6 py-5">
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export function ContestDetailedView({ studentName, studentId, performance }: Con
                                                         <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
                                                             trend === 'up' ? 'bg-emerald-500/10 text-emerald-500' :
                                                             trend === 'down' ? 'bg-red-500/10 text-red-500' :
-                                                            'bg-gray-100 dark:bg-[#1a1a1a] text-gray-400'
+                                                            'bg-gray-100 dark:bg-[#1D1E23] text-gray-400'
                                                         }`}>
                                                             {trend === 'up' ? <ArrowUp className="w-3 h-3" strokeWidth={3} /> :
                                                              trend === 'down' ? <ArrowDown className="w-3 h-3" strokeWidth={3} /> :

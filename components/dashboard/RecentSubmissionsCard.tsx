@@ -39,12 +39,12 @@ export function RecentSubmissionsCard({ submissions }: RecentSubmissionsCardProp
     const recentSubmissions = submissions.slice(0, 5);
 
     return (
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-300 dark:border-[#262626] hover:shadow-md transition-shadow duration-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-dashed border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Submissions</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Your latest problem-solving activity</p>
+        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col">
+            <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent Submissions</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Your latest problem-solving activity</p>
             </div>
-            <div className="p-6">
+            <div className="flex-1">
                 {recentSubmissions.length === 0 ? (
                     <div className="text-center py-12">
                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-[#262626] flex items-center justify-center">
@@ -77,7 +77,7 @@ export function RecentSubmissionsCard({ submissions }: RecentSubmissionsCardProp
                                     href={`/submissions/${submission.id}`}
                                     className="block"
                                 >
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl hover:bg-gray-100 dark:hover:bg-[#262626] border border-dashed border-transparent hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm group">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#1D1E23] rounded-xl hover:bg-gray-100 dark:hover:bg-[#262626] border border-dashed border-transparent hover:border-gray-300 dark:hover:border-[#444] hover:shadow-sm group">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">

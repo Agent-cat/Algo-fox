@@ -185,7 +185,7 @@ export default function DownloadProgressModal({
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    className="relative bg-white dark:bg-[#121212] w-full max-w-2xl rounded-2xl shadow-xl border border-gray-200 dark:border-[#262626] overflow-hidden"
+                    className="relative bg-white dark:bg-[#1D1E23] w-full max-w-2xl rounded-2xl shadow-xl border border-gray-200 dark:border-[#262626] overflow-hidden"
                 >
                     <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-[#262626]">
                         <div>
@@ -199,7 +199,7 @@ export default function DownloadProgressModal({
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors"
+                            className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1D1E23] transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -222,7 +222,7 @@ export default function DownloadProgressModal({
                                         <select
                                             value={format}
                                             onChange={(e) => setFormat(e.target.value as "csv" | "xlsx")}
-                                            className="w-full border border-gray-200 dark:border-[#262626] rounded-xl px-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-sm"
+                                            className="w-full border border-gray-200 dark:border-[#262626] rounded-xl px-4 py-2 bg-gray-50 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-sm"
                                         >
                                             <option value="csv">CSV (Spreadsheet)</option>
                                             <option value="xlsx">Excel (.xlsx)</option>
@@ -236,7 +236,7 @@ export default function DownloadProgressModal({
                                         <select
                                             value={difficultyFilter}
                                             onChange={(e) => setDifficultyFilter(e.target.value)}
-                                            className="w-full border border-gray-200 dark:border-[#262626] rounded-xl px-4 py-2 bg-gray-50 dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-sm"
+                                            className="w-full border border-gray-200 dark:border-[#262626] rounded-xl px-4 py-2 bg-gray-50 dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-sm"
                                         >
                                             <option value="ALL">All Difficulties</option>
                                             <option value="EASY">Easy Only</option>
@@ -263,7 +263,7 @@ export default function DownloadProgressModal({
                                     </div>
 
                                     {classrooms.length === 0 ? (
-                                        <div className="text-center py-8 border border-gray-100 dark:border-[#262626] rounded-xl bg-gray-50 dark:bg-[#1a1a1a]">
+                                        <div className="text-center py-8 border border-gray-100 dark:border-[#262626] rounded-xl bg-gray-50 dark:bg-[#1D1E23]">
                                             <p className="text-gray-500 dark:text-gray-400">No classrooms found.</p>
                                         </div>
                                     ) : (
@@ -275,7 +275,7 @@ export default function DownloadProgressModal({
                                                     className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                                                         selectedIds.includes(cls.id)
                                                             ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                                                            : "border-gray-200 dark:border-[#262626] hover:border-orange-500/50 dark:bg-[#1a1a1a]"
+                                                            : "border-gray-200 dark:border-[#262626] hover:border-orange-500/50 dark:bg-[#1D1E23]"
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-3">
@@ -306,7 +306,7 @@ export default function DownloadProgressModal({
                         )}
                     </div>
 
-                    <div className="p-6 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#1a1a1a] flex justify-end gap-3">
+                    <div className="p-6 border-t border-gray-100 dark:border-[#262626] bg-gray-50 dark:bg-[#1D1E23] flex justify-end gap-3">
                         <button
                             onClick={onClose}
                             className="px-5 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#262626] transition-colors"

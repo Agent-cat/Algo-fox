@@ -76,7 +76,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#121212",
+  themeColor: "#1D1E23",
   width: "device-width",
   initialScale: 1,
 };
@@ -89,11 +89,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body
-        className={`${geistMono.variable} antialiased select-none bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 font-sans`}
+        className={`${geistMono.variable} antialiased select-none bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 font-sans`}
       >
         <ThemeProvider>
           <Suspense fallback={
-            <div className="min-h-screen bg-white dark:bg-[#121212] flex items-center justify-center">
+            <div className="min-h-screen bg-white dark:bg-[#1D1E23] flex items-center justify-center">
                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
             </div>
           }>
@@ -106,11 +106,10 @@ export default function RootLayout({
                   style: {
                     background: "var(--toast-bg)",
                     color: "var(--toast-color)",
-                    border: "1px solid var(--toast-border)",
                   },
                   classNames: {
                     toast:
-                      "group toast group-[.toaster]:bg-white dark:group-[.toaster]:bg-[#1a1a1a] group-[.toaster]:text-gray-900 dark:group-[.toaster]:text-gray-100 group-[.toaster]:border-orange-500 group-[.toaster]:shadow-lg",
+                      "group toast group-[.toaster]:bg-white dark:group-[.toaster]:bg-[#1D1E23] group-[.toaster]:text-gray-900 dark:group-[.toaster]:text-gray-100 border border-solid group-[.toaster]:border-orange-500 dark:group-[.toaster]:!border-[#ff79c6] group-[.toaster]:shadow-lg",
                     description:
                       "group-[.toast]:text-gray-500 dark:group-[.toast]:text-gray-400",
                     actionButton:

@@ -47,7 +47,7 @@ async function ProfileContent({ params }: ProfilePageProps) {
     const submissions = user.submissions;
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-[#121212] transition-colors pb-12">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#1D1E23] transition-colors pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
                 {/* Header with Back Button */}
@@ -103,8 +103,8 @@ async function ProfileContent({ params }: ProfilePageProps) {
 
                         {/* ACTIVITY HEATMAP */}
                         <section>
-                            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] hover:shadow-md transition-all duration-200 overflow-hidden">
-                                <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1a1a1a]">
+                            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] hover:shadow-md transition-all duration-200 overflow-hidden">
+                                <div className="px-6 py-5 border-b border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#1D1E23]">
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                         Submission Activity
                                     </h2>

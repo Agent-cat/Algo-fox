@@ -74,7 +74,7 @@ export default function CourseAllocationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#121212] flex items-center justify-center transition-colors">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1D1E23] flex items-center justify-center transition-colors">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading allocations...</p>
@@ -84,7 +84,7 @@ export default function CourseAllocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#121212] py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1D1E23] py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -99,7 +99,7 @@ export default function CourseAllocationPage() {
           {years.map((year) => (
             <div
               key={year}
-              className="bg-white dark:bg-[#141414] rounded-lg shadow-sm border border-gray-200 dark:border-[#262626] p-6"
+              className="bg-white dark:bg-[#24262C] rounded-lg shadow-sm border border-gray-200 dark:border-[#262626] p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -126,7 +126,7 @@ export default function CourseAllocationPage() {
                       className={`p-4 rounded-lg border-2 transition-all text-left ${
                         isSelected
                           ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                          : "border-gray-200 dark:border-[#333] bg-white dark:bg-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#444]"
+                          : "border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] hover:border-gray-300 dark:hover:border-[#444]"
                       }`}
                     >
                       <div className="flex items-center justify-between">

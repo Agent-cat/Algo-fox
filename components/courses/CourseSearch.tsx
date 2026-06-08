@@ -42,7 +42,7 @@ export function CourseSearch() {
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search for courses, technologies, or topics..."
-                className="w-full pl-14 pr-12 py-5 rounded-3xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] shadow-sm focus:outline-hidden focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xl placeholder:text-gray-400 dark:placeholder:text-gray-600 outline-hidden"
+                className="w-full pl-14 pr-12 py-5 rounded-3xl bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] shadow-sm focus:outline-hidden focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all text-xl placeholder:text-gray-400 dark:placeholder:text-gray-600 outline-hidden"
             />
             {query && (
                 <button

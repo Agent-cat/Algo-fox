@@ -25,7 +25,7 @@ const RadioOption = ({ label, shortcut, selected, onClick }: { label: string, sh
         className={`flex items-center gap-3 p-3.5 rounded-lg border shadow-sm cursor-pointer transition-all ${
             selected
                 ? "border-orange-500 dark:border-orange-500 bg-orange-50/50 dark:bg-orange-900/10 ring-1 ring-orange-500 dark:ring-orange-500"
-                : "border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+                : "border-gray-200 dark:border-[#333] hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#1D1E23]"
         }`}
     >
         <div className={`w-5 h-5 rounded flex items-center justify-center text-[11px] font-bold ${
@@ -48,7 +48,7 @@ const Label = ({ children, required }: { children: React.ReactNode, required?: b
 const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input
         {...props}
-        className={`w-full sm:w-[420px] border border-gray-200 dark:border-[#333] rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-orange-500 dark:focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:focus:ring-orange-500 transition-colors bg-white dark:bg-[#121212] shadow-md [&::-webkit-calendar-picker-indicator]:dark:filter [&::-webkit-calendar-picker-indicator]:dark:invert ${className || ''}`}
+        className={`w-full sm:w-[420px] border border-gray-200 dark:border-[#333] rounded-lg px-4 py-3 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-orange-500 dark:focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:focus:ring-orange-500 transition-colors bg-white dark:bg-[#1D1E23] shadow-md [&::-webkit-calendar-picker-indicator]:dark:filter [&::-webkit-calendar-picker-indicator]:dark:invert ${className || ''}`}
     />
 );
 
@@ -129,7 +129,7 @@ function OnboardingContent() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] text-black dark:text-white flex flex-col items-center justify-center pt-8 md:pt-0 px-6 font-sans relative">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white flex flex-col items-center justify-center pt-8 md:pt-0 px-6 font-sans relative">
             <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center w-full">
                 <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Welcome to Algofox</span>
             </div>
@@ -325,7 +325,7 @@ function OnboardingContent() {
 export default function Onboarding() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-black dark:border-white border-t-transparent dark:border-t-transparent"></div>
             </div>
         }>

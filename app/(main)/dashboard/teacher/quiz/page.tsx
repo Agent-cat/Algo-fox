@@ -23,7 +23,7 @@ export default async function TeacherQuizPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#24262C] relative overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
 
@@ -57,22 +57,22 @@ export default async function TeacherQuizPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
+          <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
             <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Total Quizzes Hosted</p>
             <p className="text-3xl font-black text-orange-600 dark:text-orange-400 font-mono">{dbUser?.quizzesCreated ?? 0}</p>
           </div>
-          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
+          <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
             <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">How it works</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Create → Share link → Host live session</p>
           </div>
-          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
+          <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5">
             <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Supported</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">5,000+ concurrent students</p>
           </div>
         </div>
 
         {/* CTA */}
-        <div className="bg-white dark:bg-[#141414] rounded-2xl border border-dashed border-gray-200 dark:border-[#222] p-12 text-center">
+        <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-dashed border-gray-200 dark:border-[#222] p-12 text-center">
           <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-500/15 flex items-center justify-center mx-auto mb-6">
             <Zap className="w-8 h-8 text-orange-600 dark:text-orange-400" />
           </div>

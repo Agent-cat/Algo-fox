@@ -67,28 +67,30 @@ export default function ProblemTour() {
   const styles = {
     options: {
         zIndex: 10000,
-        primaryColor: '#ea580c', // orange-600
-        textColor: theme === 'dark' ? '#f3f4f6' : '#1f2937',
-        backgroundColor: theme === 'dark' ? '#1f1f1f' : '#ffffff',
-        arrowColor: theme === 'dark' ? '#1f1f1f' : '#ffffff',
+        primaryColor: theme === 'dark' ? '#ff79c6' : '#ea580c',
+        textColor: theme === 'dark' ? '#f5f5f5' : '#1f2937',
+        backgroundColor: theme === 'dark' ? '#1D1E23' : '#ffffff',
+        arrowColor: theme === 'dark' ? '#1D1E23' : '#ffffff',
     },
     tooltip: {
         borderRadius: '0.75rem',
         padding: '1rem',
+        border: theme === 'dark' ? '1px dashed rgba(255, 255, 255, 0.1)' : 'none',
     },
     buttonNext: {
-        backgroundColor: '#ea580c',
+        backgroundColor: theme === 'dark' ? '#24262C' : '#ea580c',
         borderRadius: '0.5rem',
         color: '#fff',
         fontWeight: 600,
         padding: '0.5rem 1rem',
+        border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none',
     },
     buttonBack: {
         color: theme === 'dark' ? '#9ca3af' : '#6b7280',
         marginRight: '0.5rem',
     },
     buttonSkip: {
-        color: theme === 'dark' ? '#ef4444' : '#dc2626',
+        color: theme === 'dark' ? '#ff79c6' : '#dc2626',
     }
   };
 

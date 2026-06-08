@@ -50,12 +50,12 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#121212] animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23] animate-in fade-in slide-in-from-right-4 duration-300">
             {/* HEADER */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-[#fafafa]/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#1e1e1e]">
+            <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-[#fafafa]/80 dark:bg-[#1D1E23]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#1e1e1e]">
                 <button
                     onClick={onBack}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-[#1D1E23] rounded-lg transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back to Community
@@ -65,7 +65,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
                     {isAdmin && (
                         <button
                             onClick={handlePin}
-                            className={`p-2 rounded-lg transition-colors ${comment.isPinned ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20" : "hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-gray-500"}`}
+                            className={`p-2 rounded-lg transition-colors ${comment.isPinned ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20" : "hover:bg-gray-100 dark:hover:bg-[#1D1E23] text-gray-500"}`}
                             title={comment.isPinned ? "Unpin Solution" : "Pin Solution"}
                         >
                             {comment.isPinned ? <PinOff className="w-4.5 h-4.5" /> : <Pin className="w-4.5 h-4.5" />}
@@ -93,7 +93,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
 
                         <div className="flex flex-wrap gap-2">
                             {comment.tags.map(tag => (
-                                <Badge key={tag} variant="secondary" className="bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-[#262626]">
+                                <Badge key={tag} variant="secondary" className="bg-gray-100 dark:bg-[#1D1E23] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-[#262626]">
                                     {tag}
                                 </Badge>
                             ))}
@@ -101,7 +101,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
                     </div>
 
                     {/* AUTHOR INFO */}
-                    <div className="flex items-center gap-4 mb-10 p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm">
+                    <div className="flex items-center gap-4 mb-10 p-4 bg-white dark:bg-[#1D1E23] rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm">
                         <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#333] overflow-hidden shrink-0">
                             {comment.user.image ? (
                                 <Image src={comment.user.image} alt={comment.user.name || "User"} width={48} height={48} className="object-cover" />
@@ -144,7 +144,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
                         </div>
 
                         {/* Input for replying to the solution */}
-                        <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm">
+                        <div className="bg-white dark:bg-[#1D1E23] p-4 rounded-2xl border border-gray-100 dark:border-[#262626] shadow-sm">
                             {session?.user ? (
                                 <CommentInput
                                     problemId={problemId}
@@ -154,7 +154,7 @@ export function CommentDetail({ comment, problemId, onBack, onRefresh }: Comment
                                     placeholder="Write a comment..."
                                 />
                             ) : (
-                                <div className="text-center py-6 bg-gray-50/50 dark:bg-[#141414] rounded-xl border border-dashed border-gray-200 dark:border-[#262626]">
+                                <div className="text-center py-6 bg-gray-50/50 dark:bg-[#24262C] rounded-xl border border-dashed border-gray-200 dark:border-[#262626]">
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Please sign in to join the conversation.</p>
                                 </div>
                             )}

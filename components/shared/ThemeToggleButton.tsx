@@ -78,7 +78,7 @@ export function ThemeToggleButton() {
   return (
     <motion.button
       onClick={toggleTheme}
-      className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#1a1a1a]"
+      className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#1D1E23] cursor-pointer"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.92, rotate: isDark ? 90 : -90 }}

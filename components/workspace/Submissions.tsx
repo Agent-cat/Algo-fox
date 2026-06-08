@@ -93,15 +93,15 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
     }
 
     return (
-        <div className="bg-[#fafafa] dark:bg-[#121212]">
-            <div className="p-5 border-b border-dashed border-gray-200 dark:border-white/10 flex justify-between items-center bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-10">
+        <div className="bg-[#fafafa] dark:bg-[#1D1E23]">
+            <div className="p-5 border-b border-dashed border-gray-200 dark:border-white/10 flex justify-between items-center bg-[#fafafa] dark:bg-[#1D1E23] sticky top-0 z-10">
                 <div className="flex items-center gap-2">
                     <span className="w-1 h-3 bg-orange-500 rounded-full" />
                     <h3 className="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-widest">My Submissions</h3>
                 </div>
                 <button
                     onClick={() => loadSubmissions()}
-                    className="p-1.5 hover:bg-[#fafafa] dark:hover:bg-[#1a1a1a] hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-[#333] rounded-lg transition-all"
+                    className="p-1.5 hover:bg-[#fafafa] dark:hover:bg-[#1D1E23] hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-[#333] rounded-lg transition-all"
                 >
                     <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
@@ -112,7 +112,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                 ) : (
                     <div className="w-full text-sm text-left">
                         {/* HEADER */}
-                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#141414] border-b border-dashed border-gray-200 dark:border-white/10 font-black tracking-widest">
+                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#24262C] border-b border-dashed border-gray-200 dark:border-white/10 font-black tracking-widest">
                             <div>Status</div>
                             <div>Language</div>
                             <div>Time</div>
@@ -141,7 +141,7 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                                     >
                                         <Link
                                             href={`/submissions/${sub.id}`}
-                                            className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors group items-center border-l-4 border-l-transparent"
+                                            className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group items-center border-l-4 border-l-transparent"
                                         >
                                             <div className="font-medium">
                                                 <span className={`
@@ -180,11 +180,11 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
 
                         {/* LOAD MORE */}
                         {hasMore && (
-                            <div className="p-6 flex justify-center border-t border-gray-200 dark:border-white/10 bg-gray-50/20 dark:bg-[#141414]">
+                            <div className="p-6 flex justify-center border-t border-gray-200 dark:border-white/10 bg-gray-50/20 dark:bg-[#24262C]">
                                 <button
                                     onClick={() => loadSubmissions(submissions[submissions.length - 1].id)}
                                     disabled={loadingMore}
-                                    className="flex items-center gap-3 px-8 py-3 bg-[#fafafa] dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/30 hover:shadow-sm transition-all disabled:opacity-50"
+                                    className="flex items-center gap-3 px-8 py-3 bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/30 hover:shadow-sm transition-all disabled:opacity-50"
                                 >
                                     {loadingMore ? (
                                         <>

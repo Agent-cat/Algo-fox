@@ -51,7 +51,7 @@ export default function BookmarksClient({
     });
 
     return (
-        <div className="min-h-screen pt-24 pb-20 bg-[#fafafa] dark:bg-[#121212]">
+        <div className="min-h-screen pt-24 pb-20 bg-[#fafafa] dark:bg-[#1D1E23]">
             <div className="max-w-6xl mx-auto px-6">
                 
                 {/* Header */}
@@ -77,7 +77,7 @@ export default function BookmarksClient({
                         <input
                             type="text"
                             placeholder="Search bookmarks..."
-                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none text-gray-900 dark:text-white font-medium placeholder:font-normal"
+                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none text-gray-900 dark:text-white font-medium placeholder:font-normal"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -85,9 +85,9 @@ export default function BookmarksClient({
                 </div>
 
                 {/* List Container */}
-                <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden shadow-sm">
+                <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden shadow-sm">
                     {/* List Header */}
-                    <div className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 border-b border-gray-100 dark:border-[#1e1e1e] bg-gray-50/50 dark:bg-[#1a1a1a]/50 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                    <div className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 border-b border-gray-100 dark:border-[#1e1e1e] bg-gray-50/50 dark:bg-[#1D1E23]/50 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                         <div className="col-span-6 md:col-span-4">Title</div>
                         <div className="col-span-2 md:col-span-2 md:text-center">Domain</div>
                         <div className="col-span-2 md:col-span-2 md:text-center">Difficulty</div>
@@ -96,7 +96,7 @@ export default function BookmarksClient({
                     </div>
 
                     {/* List Items */}
-                    <div className="divide-y divide-gray-50 dark:divide-[#111111] min-h-[400px]">
+                    <div className="divide-y divide-gray-50 dark:divide-[#1D1E23] min-h-[400px]">
                         <AnimatePresence mode="popLayout">
                             {filteredProblems.length > 0 ? (
                                 filteredProblems.map((problem, idx) => (
@@ -109,7 +109,7 @@ export default function BookmarksClient({
                                         key={problem.id}
                                         className="relative group"
                                     >
-                                        <div className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 items-center hover:bg-gray-50/50 dark:hover:bg-[#1a1a1a]/50 transition-colors">
+                                        <div className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 items-center hover:bg-gray-50/50 dark:hover:bg-[#1D1E23]/50 transition-colors">
                                             <div className="col-span-6 md:col-span-4" onClick={() => router.push(`/problems/${problem.slug}`)}>
                                                 <div className="flex items-center gap-3 cursor-pointer">
                                                     <div>
@@ -161,7 +161,7 @@ export default function BookmarksClient({
                                     animate={{ opacity: 1 }}
                                     className="h-[400px] flex flex-col items-center justify-center text-center p-8"
                                 >
-                                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center mb-4 border border-gray-100 dark:border-[#262626]">
+                                    <div className="w-16 h-16 bg-gray-50 dark:bg-[#1D1E23] rounded-2xl flex items-center justify-center mb-4 border border-gray-100 dark:border-[#262626]">
                                         <Bookmark className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">

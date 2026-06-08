@@ -62,7 +62,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
     const getStatusColor = (problemId: string) => {
         if (solvedProblemIds.includes(problemId)) return "bg-emerald-500 text-white border-emerald-600 dark:border-emerald-500";
         if (visitedProblemIds.includes(problemId)) return "bg-amber-400 text-white border-amber-500 dark:border-amber-400";
-        return "bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-[#333] hover:border-gray-400 dark:hover:border-gray-500 hover:bg-[#fafafa] dark:hover:bg-[#262626]";
+        return "bg-gray-100 dark:bg-[#1D1E23] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-[#333] hover:border-gray-400 dark:hover:border-gray-500 hover:bg-[#fafafa] dark:hover:bg-[#262626]";
     };
 
     const handleEndContest = () => {
@@ -145,9 +145,9 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                         animate={{ x: 0 }}
                         exit={{ x: "-100%" }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed top-0 left-0 bottom-0 w-[380px] max-w-[90vw] z-50 shadow-2xl bg-[#fafafa] dark:bg-[#121212] border-r border-gray-200 dark:border-[#262626] flex flex-col overflow-hidden"
+                        className="fixed top-0 left-0 bottom-0 w-[380px] max-w-[90vw] z-50 shadow-2xl bg-[#fafafa] dark:bg-[#1D1E23] border-r border-gray-200 dark:border-[#262626] flex flex-col overflow-hidden"
                     >
-                        <div className="p-6 border-b border-gray-100/10 dark:border-white/5 bg-[#fafafa] dark:bg-[#121212] flex items-center justify-between">
+                        <div className="p-6 border-b border-gray-100/10 dark:border-white/5 bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-[0_0_15px_-5px_rgba(249,115,22,0.3)]">
                                     <LayoutGrid className="w-5 h-5 text-orange-600 dark:text-orange-500" />
@@ -156,7 +156,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 shrink-0 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm group active:scale-95"
+                                className="p-2 shrink-0 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#222] rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-all shadow-sm group active:scale-95"
                                 title="Close Sidebar"
                             >
                                 <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1 duration-300" />
@@ -176,7 +176,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                                                 className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors ${
                                                     activeSectionId === sec.id
                                                     ? "bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/30"
-                                                    : "bg-gray-50 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-[#333]"
+                                                    : "bg-gray-50 dark:bg-[#1D1E23] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-[#333]"
                                                 }`}
                                             >
                                                 {sec.title}
@@ -188,7 +188,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             )}
 
                             {currentSection && !isParallel && (
-                                <div className="mb-4 text-center p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#262626]">
+                                <div className="mb-4 text-center p-3 bg-gray-50 dark:bg-[#1D1E23] rounded-xl border border-gray-200 dark:border-[#262626]">
                                     <div className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{currentSection.title}</div>
                                 </div>
                             )}
@@ -225,7 +225,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                                             `}
                                         >
                                             {index + 1}
-                                            {isSolved && <CheckCircle2 className="w-3 h-3 absolute -top-1 -right-1 bg-white dark:bg-[#1a1a1a] rounded-full text-emerald-500" />}
+                                            {isSolved && <CheckCircle2 className="w-3 h-3 absolute -top-1 -right-1 bg-white dark:bg-[#1D1E23] rounded-full text-emerald-500" />}
                                         </Link>
                                     );
                                 })}
@@ -243,7 +243,7 @@ const ContestSidebar = memo(({ isOpen, onClose, contest, currentProblemId, solve
                             )}
                         </div>
 
-                        <div className="p-6 space-y-6 bg-gray-50/50 dark:bg-[#111] border-t border-gray-100/10 dark:border-white/5">
+                        <div className="p-6 space-y-6 bg-gray-50/50 dark:bg-[#1D1E23] border-t border-gray-100/10 dark:border-white/5">
                             <div>
                                 <div className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase mb-2 tracking-widest flex justify-between">
                                     <span>Session Progress</span>

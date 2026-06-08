@@ -133,13 +133,13 @@ export function TagInput({ value, onChange, placeholder = "Search or create tags
                         if (inputValue.trim()) setShowSuggestions(true);
                     }}
                     onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-300 font-mono text-sm shadow-sm"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-300 font-mono text-sm shadow-sm"
                     placeholder={placeholder}
                 />
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && inputValue.trim() && (
-                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#1a1a1a] rounded-[3px] shadow-xl border border-gray-200 dark:border-[#333] max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#1D1E23] rounded-[3px] shadow-xl border border-gray-200 dark:border-[#333] max-h-60 overflow-y-auto">
                         {isSearching ? (
                             <div className="p-4 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" /> Searching...

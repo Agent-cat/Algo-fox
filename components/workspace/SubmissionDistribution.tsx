@@ -118,7 +118,7 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
                                                 : 'bg-gray-200 dark:bg-white/10 group-hover:bg-gray-300 dark:group-hover:bg-white/20'}
                                         `}
                                     />
-                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black dark:bg-[#1a1a1a] text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-white/10 uppercase font-bold tracking-widest shadow-2xl">
+                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black dark:bg-[#1D1E23] text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-white/10 uppercase font-bold tracking-widest shadow-2xl">
                                         {item.value}{type === 'runtime' ? 'ms' : 'KB'}: {item.count} users
                                     </div>
                                 </div>

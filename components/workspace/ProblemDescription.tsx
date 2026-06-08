@@ -81,10 +81,10 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
     ];
 
     return (
-        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#121212] relative overflow-hidden">
+        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] relative overflow-hidden">
 
             {/* HEADER TABS */}
-            <div className="flex items-center gap-1 border-b border-dashed border-gray-200 dark:border-white/10 px-3 py-2 bg-[#fafafa] dark:bg-[#121212] sticky top-0 z-20">
+            <div className="flex items-center gap-1 border-b border-dashed border-gray-200 dark:border-white/10 px-3 py-2 bg-[#fafafa] dark:bg-[#1D1E23] sticky top-0 z-20">
                 <div className="flex items-center gap-1">
                     {tabs.map((tab) => (
                         <button
@@ -176,7 +176,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                 <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150">{children}</tr>
                                             ),
                                             pre: ({ children }) => (
-                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#24262C] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
                                                     {children}
                                                 </pre>
                                             ),
@@ -210,7 +210,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/10 bg-[#fafafa] dark:bg-[#121212]">
+                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/10 bg-[#fafafa] dark:bg-[#1D1E23]">
                                 {(["official", "community"] as const).map((tab) => (
                                     <button
                                         key={tab}
@@ -242,7 +242,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                                             // @ts-ignore
                                                             'solution-tabs': SolutionTabs,
                                                             pre: ({ children }) => (
-                                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#0d0d0d] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
+                                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#24262C] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
                                                                     {children}
                                                                 </pre>
                                                             ),

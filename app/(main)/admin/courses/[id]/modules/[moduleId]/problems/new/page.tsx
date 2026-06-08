@@ -103,7 +103,7 @@ export default function CreateCourseProblemPage() {
             <div className="flex items-center gap-4">
                 <Link
                     href={`/admin/courses/${courseId}/modules`}
-                    className="p-3 bg-white dark:bg-[#111] border border-gray-100 dark:border-[#262626] rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="p-3 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
@@ -123,7 +123,7 @@ export default function CreateCourseProblemPage() {
                         <button
                             key={type.id}
                             onClick={() => handleSelectType(type)}
-                            className="group p-8 bg-white dark:bg-[#111] border border-gray-100 dark:border-[#262626] rounded-2xl transition-all duration-300 text-left flex items-start gap-6 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/5"
+                            className="group p-8 bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-2xl transition-all duration-300 text-left flex items-start gap-6 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/5"
                         >
                             <div className={`w-14 h-14 rounded-xl ${type.bg} flex items-center justify-center shrink-0`}>
                                 <type.icon className={`w-7 h-7 ${type.color}`} />
@@ -140,7 +140,7 @@ export default function CreateCourseProblemPage() {
                     ))}
                 </div>
             ) : (
-                <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-[#262626] rounded-2xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-white dark:bg-[#1D1E23] border border-gray-100 dark:border-[#262626] rounded-2xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <ProblemForm
                         domain={selectedDomain}
                         initialData={{

@@ -63,10 +63,10 @@ export default function EditorSettingsModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="w-full max-w-md bg-white dark:bg-[#141414] rounded-xl shadow-2xl border border-gray-200 dark:border-[#262626] overflow-hidden"
+                        className="w-full max-w-md bg-white dark:bg-[#24262C] rounded-xl shadow-2xl border border-gray-200 dark:border-[#262626] overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1a1a1a]">
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#1D1E23]">
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Editor Settings</h2>
                             <button
                                 onClick={onClose}
@@ -209,7 +209,7 @@ export default function EditorSettingsModal({
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 py-4 bg-gray-50 dark:bg-[#1a1a1a] border-t border-gray-100 dark:border-[#262626] flex justify-end">
+                        <div className="px-6 py-4 bg-gray-50 dark:bg-[#1D1E23] border-t border-gray-100 dark:border-[#262626] flex justify-end">
                             <button
                                 onClick={onClose}
                                 className="px-4 py-2 text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-black rounded-lg hover:bg-black dark:hover:bg-gray-200 transition-colors"

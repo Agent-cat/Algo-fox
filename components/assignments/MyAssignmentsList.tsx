@@ -24,8 +24,8 @@ interface MyAssignmentsListProps {
 export function MyAssignmentsList({ assignments }: MyAssignmentsListProps) {
     if (assignments.length === 0) {
         return (
-            <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-16 bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-2xl">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-[#1D1E23] rounded-full flex items-center justify-center mx-auto mb-4">
                     <Calendar className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Assignments</h3>
@@ -49,7 +49,7 @@ export function MyAssignmentsList({ assignments }: MyAssignmentsListProps) {
             <Link
                 key={assignment.id}
                 href={`/my-assignments/${assignment.id}`}
-                className="group relative bg-[#fafafa] dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
+                className="group relative bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
             >
                 <div className="flex items-start justify-between mb-6">
                     <div className={`p-3 rounded-xl border transition-all duration-500 ${
