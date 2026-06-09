@@ -34,6 +34,7 @@ interface LiveState {
   leaderboard: LeaderboardEntry[];
   answerCount: number;
   distribution: number[];
+  optionSelections?: Record<number, { id: string; name: string; email?: string; image?: string; }[]>;
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
@@ -54,8 +55,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
     leaderboard: [],
     answerCount: 0,
     distribution: [],
+    optionSelections: undefined,
   });
   const [actionLoading, setActionLoading] = useState(false);
+  const [selectedOptionDetails, setSelectedOptionDetails] = useState<number | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
 
   const applyEvent = useCallback((event: QuizSSEEvent) => {
@@ -85,9 +88,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
         explanation: quiz.currentQuestionFull?.explanation,
         timeLimit: quiz.currentQuestionFull?.timeLimit ?? 30,
         endsAt: d.timerEndsAt ?? 0,
-        participants: d.participants.map((p) => ({ id: p.id, name: p.name })),
+        participants: d.participants.map((p) => ({ id: p.id, name: p.name, email: p.email, image: p.image })),
         leaderboard: d.leaderboard,
         answerCount: d.answerCount,
+        optionSelections: d.optionSelections,
       }));
       return;
     }
@@ -116,7 +120,9 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
         endsAt: event.data.endsAt,
         answerCount: 0,
         distribution: [],
+        optionSelections: undefined,
       }));
+      setSelectedOptionDetails(null);
       return;
     }
 
@@ -136,6 +142,7 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
         explanation: event.data.explanation,
         distribution: event.data.distribution,
         leaderboard: event.data.leaderboard,
+        optionSelections: event.data.optionSelections,
       }));
       return;
     }
@@ -221,27 +228,10 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
   };
 
   const { phase, title, totalQuestions, currentQuestion, questionText, options, correctOption,
-    explanation, timeLimit, endsAt, participants, leaderboard, answerCount, distribution } = state;
+    explanation, timeLimit, endsAt, participants, leaderboard, answerCount, distribution, optionSelections } = state;
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#0e0e0e]">
-      {/* Deletion Warning Banner */}
-      <div className="bg-orange-500/15 border-b border-orange-500/20 px-6 py-3 flex items-center justify-center gap-4 sticky top-0 z-60 backdrop-blur-md">
-        <AlertCircle className="w-4 h-4 text-orange-500 shrink-0" />
-        <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-1">
-          <p className="text-[10px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400 text-center">
-            {phase === "ended"
-              ? "Quiz Finished! Session deletes in 1 min. Download results now!"
-              : "Ongoing Session: Auto-deletes 5 mins after conclusion if not ended manually."}
-          </p>
-          <button
-            onClick={downloadResults}
-            className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
-          >
-            Download Excel
-          </button>
-        </div>
-      </div>
       {/* Top bar */}
       <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#24262C]/80 backdrop-blur-md border-b border-gray-200 dark:border-[#222] px-4 sm:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -305,16 +295,23 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                 <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Participants</span>
                 <span className="font-black font-mono text-sm text-orange-600 dark:text-orange-400">{participants.length}</span>
               </div>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto scrollbar-hide">
+              <div className="space-y-1.5 max-h-64 overflow-y-auto scrollbar-hide pr-1">
                 {participants.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Waiting for participants...</p>
                 ) : (
-                  participants.map((p) => (
-                    <div key={p.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1D1E23]">
-                      <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 truncate font-medium">{p.name}</span>
-                    </div>
-                  ))
+                  <>
+                    {participants.slice(0, 100).map((p) => (
+                      <div key={p.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#1D1E23]">
+                        <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300 truncate font-medium">{p.name}</span>
+                      </div>
+                    ))}
+                    {participants.length > 100 && (
+                      <div className="text-center py-2 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-[#2a2a2a] mt-2 pt-2">
+                        + {participants.length - 100} other{participants.length - 100 !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -383,16 +380,43 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                 {/* Options display during review */}
                 {phase === "review" && distribution.length > 0 && (
                   <div className="mb-6">
-                    <AnswerDistribution
-                      options={options}
-                      distribution={distribution}
-                      correctOption={correctOption}
-                    />
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                        Results Overview
+                      </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      {options.map((opt, i) => {
+                        const count = distribution[i] || 0;
+                        const isCorrect = correctOption === i;
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => setSelectedOptionDetails(i)}
+                            className={`p-4 rounded-xl border cursor-pointer hover:shadow-md transition-all ${isCorrect ? 'border-green-500/50 bg-green-50 dark:bg-green-500/10' : 'border-gray-200 dark:border-[#2a2a2a] bg-gray-50 dark:bg-[#1D1E23] hover:border-gray-300 dark:hover:border-gray-600'}`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-black ${isCorrect ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400'}`}>
+                                  {OPTION_LABELS[i] ?? i + 1}
+                                </span>
+                                <Markdown content={opt} isOption className={`text-sm font-medium ${isCorrect ? 'text-green-900 dark:text-green-100' : 'text-gray-700 dark:text-gray-300'}`} />
+                              </div>
+                              <span className="text-xs font-black font-mono px-2 py-1 bg-white dark:bg-[#24262C] rounded-md shadow-sm">
+                                {count} vote{count !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
                     {explanation && (
-                      <div className="mt-4 px-4 py-3 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl">
+                      <div className="mt-6 px-5 py-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl">
                         <div className="text-sm text-green-800 dark:text-green-300">
-                          <span className="font-black">Explanation: </span>
-                          <Markdown content={explanation} className="inline-block mt-1 prose-p:my-0" />
+                          <span className="font-black uppercase tracking-widest text-[10px] block mb-1">Explanation</span>
+                          <Markdown content={explanation} className="prose-p:my-0" />
                         </div>
                       </div>
                     )}
@@ -473,15 +497,68 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
 
           {/* Right column: Leaderboard */}
           <div>
-            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5 sticky top-20">
-              <div className="flex items-center gap-2 mb-4">
+            <div className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#222] p-5 sticky top-20 flex flex-col max-h-[calc(100vh-6rem)]">
+              <div className="flex items-center justify-between gap-2 mb-4 shrink-0">
                 <span className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Leaderboard</span>
+                <span className="text-xs font-black font-mono text-gray-400 dark:text-gray-500">{leaderboard.length} Total</span>
               </div>
-              <Leaderboard entries={leaderboard} />
+              <div className="overflow-y-auto scrollbar-hide pr-1 flex-1">
+                <Leaderboard entries={leaderboard} />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Details Modal */}
+      {selectedOptionDetails !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedOptionDetails(null)}>
+          <div className="bg-white dark:bg-[#1D1E23] rounded-2xl border border-gray-200 dark:border-[#2a2a2a] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#2a2a2a] flex items-center justify-between sticky top-0 bg-white dark:bg-[#1D1E23] z-10">
+              <div className="flex items-center gap-3">
+                <span className={`w-8 h-8 rounded flex items-center justify-center text-sm font-black ${selectedOptionDetails === correctOption ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400'}`}>
+                  {OPTION_LABELS[selectedOptionDetails] ?? selectedOptionDetails + 1}
+                </span>
+                <h3 className="text-lg font-black text-gray-900 dark:text-white">Option Selected By</h3>
+              </div>
+              <button onClick={() => setSelectedOptionDetails(null)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              <div className="bg-gray-50 dark:bg-[#24262C] rounded-xl p-4 mb-6 border border-gray-200 dark:border-[#2a2a2a]">
+                <Markdown content={options[selectedOptionDetails]} isOption className="text-sm text-gray-800 dark:text-gray-200" />
+              </div>
+              
+              {(!optionSelections || !optionSelections[selectedOptionDetails] || optionSelections[selectedOptionDetails].length === 0) ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No participants selected this option.</p>
+                  {!optionSelections && <p className="text-xs text-orange-500 mt-2">(Data unavailable. A server restart may be required to process detailed selections)</p>}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3">
+                  {optionSelections[selectedOptionDetails].map((v) => (
+                    <div key={v.id} className="flex items-center gap-4 p-3 bg-white dark:bg-[#24262C] rounded-xl shadow-sm border border-gray-100 dark:border-white/5">
+                      {v.image ? (
+                        <img src={v.image} alt={v.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-gray-200 dark:border-[#2a2a2a]" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center text-sm font-bold shrink-0 border border-orange-200 dark:border-orange-500/30">
+                          {v.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{v.name}</p>
+                        {v.email && <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{v.email}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

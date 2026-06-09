@@ -40,12 +40,15 @@ export async function GET(
         } catch {}
       };
 
-      const [participants, answerCount, timerEndsAt] = await Promise.all([
+      const [participants, answerCount, timerEndsAt, optionSelections] = await Promise.all([
         QuizStore.getAllParticipants(sessionId),
         quiz.status === "QUESTION_ACTIVE"
           ? QuizStore.getAnswerCount(sessionId, quiz.currentQuestion)
           : Promise.resolve(0),
         QuizStore.getTimer(sessionId),
+        quiz.status === "QUESTION_REVIEW"
+          ? QuizStore.computeOptionSelections(sessionId, quiz.currentQuestion)
+          : Promise.resolve(undefined),
       ]);
 
       const leaderboard = QuizStore.buildLeaderboard(participants);
@@ -67,6 +70,7 @@ export async function GET(
           leaderboard,
           answerCount,
           timerEndsAt: timerEndsAt ?? undefined,
+          optionSelections,
         },
       });
 

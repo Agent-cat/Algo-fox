@@ -167,6 +167,20 @@ export const QuizStore = {
     return counts;
   },
 
+  async computeOptionSelections(quizId: string, questionIndex: number): Promise<Record<number, Participant[]>> {
+    const answers = await QuizStore.getAnswers(quizId, questionIndex);
+    const participants = await QuizStore.getAllParticipants(quizId);
+    const partMap = new Map(participants.map(p => [p.id, p]));
+    
+    const selections: Record<number, Participant[]> = {};
+    for (const [pId, ans] of Object.entries(answers)) {
+      if (!selections[ans.option]) selections[ans.option] = [];
+      const p = partMap.get(pId);
+      if (p) selections[ans.option].push(p);
+    }
+    return selections;
+  },
+
   async publishEvent(quizId: string, event: QuizSSEEvent): Promise<void> {
     await redis.publish(eventChannel(quizId), JSON.stringify(event));
   },

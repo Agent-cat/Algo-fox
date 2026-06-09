@@ -31,31 +31,51 @@ export function Leaderboard({ entries, highlightId, compact = false }: Leaderboa
     );
   }
 
+  // Optimize for large numbers of users by only rendering Top 50.
+  // If highlightId is provided and they are outside Top 50, manually append them.
+  const MAX_DISPLAY = 50;
+  let displayEntries = entries.slice(0, MAX_DISPLAY);
+  
+  const myEntry = highlightId ? entries.find(e => e.participantId === highlightId) : undefined;
+  const isMeOutside = myEntry && myEntry.rank > MAX_DISPLAY;
+  
+  if (isMeOutside) {
+    // Replace the 50th element with an ellipsis placeholder, then append myEntry?
+    // Actually just appending is fine.
+    displayEntries.push(myEntry);
+  }
+
+  const remainingCount = entries.length - displayEntries.length;
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       <AnimatePresence mode="popLayout">
-      {entries.map((entry) => {
+      {displayEntries.map((entry, arrayIndex) => {
         const isHighlighted = entry.participantId === highlightId;
         const isTop3 = entry.rank <= 3;
         const idx = entry.rank - 1;
+        const isGap = isMeOutside && arrayIndex === displayEntries.length - 1;
 
         return (
-          <motion.div
-            key={entry.participantId}
-            layout
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className={`
-              flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all
-              ${isHighlighted
-                ? "border-orange-400 dark:border-orange-500 bg-orange-50 dark:bg-orange-500/15 ring-1 ring-orange-400/30"
-                : isTop3
-                ? rankBg[idx]
-                : "border-gray-100 dark:border-[#2a2a2a] bg-white dark:bg-[#1D1E23]"
-              }
-            `}
-          >
+          <div key={entry.participantId}>
+            {isGap && (
+              <div className="flex justify-center items-center py-2 text-gray-400 dark:text-gray-500 font-black tracking-widest text-xs uppercase">
+                &middot;&middot;&middot;
+              </div>
+            )}
+            <motion.div
+              layout
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
+                isHighlighted
+                  ? "border-orange-400 dark:border-orange-500 bg-orange-50 dark:bg-orange-500/15 ring-1 ring-orange-400/30"
+                  : isTop3
+                  ? rankBg[idx]
+                  : "border-gray-100 dark:border-[#2a2a2a] bg-white dark:bg-[#1D1E23]"
+              }`}
+            >
             <span
               className={`w-8 text-center font-black text-sm font-mono ${
                 isTop3 ? rankColors[idx] : "text-gray-400 dark:text-gray-500"
@@ -83,10 +103,16 @@ export function Leaderboard({ entries, highlightId, compact = false }: Leaderboa
             >
               {entry.score}
             </span>
-          </motion.div>
+            </motion.div>
+          </div>
         );
       })}
       </AnimatePresence>
+      {remainingCount > 0 && (
+        <div className="text-center pt-3 mt-1 border-t border-gray-100 dark:border-[#2a2a2a] text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
+          + {remainingCount.toLocaleString()} other{remainingCount !== 1 ? 's' : ''}
+        </div>
+      )}
     </div>
   );
 }

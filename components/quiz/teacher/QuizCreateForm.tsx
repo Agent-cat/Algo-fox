@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, ChevronDown, ChevronUp, Check, Users, Eye, Edit2 } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, Check, Users, Eye, Edit2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Markdown } from "@/components/quiz/shared/Markdown";
+import { parseQuizMarkdown } from "@/lib/quiz-parser";
 
 interface ClassroomOption {
   id: string;
@@ -41,6 +42,7 @@ export function QuizCreateForm({ classrooms }: Props) {
   const [previewMode, setPreviewMode] = useState<Record<number, boolean>>({});
   const [optPreviewMode, setOptPreviewMode] = useState<Record<string, boolean>>({});
   const selectedClassroom = classrooms.find((c) => c.id === classroomId);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateQuestion = (i: number, patch: Partial<QuestionDraft>) =>
     setQuestions((prev) => prev.map((q, idx) => (idx === i ? { ...q, ...patch } : q)));
@@ -74,6 +76,30 @@ export function QuizCreateForm({ classrooms }: Props) {
     if (questions.length <= 1) return;
     setQuestions((prev) => prev.filter((_, idx) => idx !== i));
     setExpanded(Math.max(0, i - 1));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const parsedQuestions = parseQuizMarkdown(content);
+        if (parsedQuestions.length > 0) {
+          setQuestions(parsedQuestions);
+          setExpanded(0);
+          toast.success(`Loaded ${parsedQuestions.length} questions from markdown!`);
+        }
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const validate = () => {
@@ -180,9 +206,28 @@ export function QuizCreateForm({ classrooms }: Props) {
 
       {/* Questions */}
       <div className="space-y-3">
-        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-          Questions ({questions.length})
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+            Questions ({questions.length})
+          </label>
+          <div className="flex items-center">
+            <input
+              type="file"
+              accept=".md,.txt"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 text-xs font-bold text-orange-500 uppercase tracking-widest hover:text-orange-600 transition-colors bg-orange-50 dark:bg-orange-500/10 px-3 py-1.5 rounded-lg"
+              title="Upload Markdown File"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Upload .md
+            </button>
+          </div>
+        </div>
 
         {questions.map((q, qi) => (
           <div

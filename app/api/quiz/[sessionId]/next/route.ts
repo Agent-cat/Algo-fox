@@ -29,6 +29,7 @@ export async function POST(
       currentIndex,
       question.options.length
     );
+    const optionSelections = await QuizStore.computeOptionSelections(sessionId, currentIndex);
     const participants = await QuizStore.getAllParticipants(sessionId);
     const leaderboard = QuizStore.buildLeaderboard(participants);
 
@@ -41,6 +42,7 @@ export async function POST(
         explanation: question.explanation,
         distribution,
         leaderboard,
+        optionSelections,
       },
     });
 

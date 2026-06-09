@@ -67,6 +67,8 @@ async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex?:
     questionIndex,
     question.options.length
   );
+  
+  const optionSelections = await QuizStore.computeOptionSelections(sessionId, questionIndex);
 
   const participants = await QuizStore.getAllParticipants(sessionId);
   const leaderboard = QuizStore.buildLeaderboard(participants);
@@ -81,6 +83,7 @@ async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex?:
       explanation: question.explanation,
       distribution,
       leaderboard,
+      optionSelections,
     },
   });
 

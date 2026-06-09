@@ -377,75 +377,85 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            className="min-h-screen p-4 sm:p-6 overflow-y-auto"
+            className="min-h-screen p-4 sm:p-8 overflow-y-auto"
           >
-            <div className="max-w-5xl mx-auto space-y-6 py-4">
+            <div className="max-w-7xl mx-auto py-4">
               {/* Result banner */}
-              <div className={`overflow-hidden relative rounded-xl p-8 text-center shadow-md border-b-4 ${
+              <div className={`overflow-hidden relative rounded-2xl p-8 sm:p-10 text-center shadow-lg border-b-4 mb-8 transition-colors ${
                 selectedOption === correctOption
                   ? "bg-green-500 border-green-700 shadow-green-500/20"
                   : "bg-red-500 border-red-700 shadow-red-500/20"
               }`}>
-                <h2 className="text-3xl font-black text-white mb-4 relative z-10">
+                <h2 className="text-4xl md:text-5xl font-black text-white mb-6 relative z-10 tracking-tight">
                   {selectedOption === null ? "Too slow!" : selectedOption === correctOption ? "Brilliant!" : "Not quite!"}
                 </h2>
 
                 {myRank && (
-                  <div className="mt-6 flex items-center justify-center gap-8 relative z-10">
+                  <div className="mt-8 flex items-center justify-center gap-12 relative z-10">
                     <div className="text-center">
-                      <div className="text-3xl font-black text-white">{myScore}</div>
-                      <div className="text-xs text-white/70 font-black uppercase tracking-widest">points</div>
+                      <div className="text-4xl md:text-5xl font-black text-white drop-shadow-sm">{myScore}</div>
+                      <div className="text-xs md:text-sm text-white/80 font-black uppercase tracking-widest mt-1">points</div>
                     </div>
-                    <div className="w-px h-12 bg-white/20" />
+                    <div className="w-px h-16 bg-white/30 rounded-full" />
                     <div className="text-center">
-                      <div className="text-3xl font-black text-white">#{myRank}</div>
-                      <div className="text-xs text-white/70 font-black uppercase tracking-widest">rank</div>
+                      <div className="text-4xl md:text-5xl font-black text-white drop-shadow-sm">#{myRank}</div>
+                      <div className="text-xs md:text-sm text-white/80 font-black uppercase tracking-widest mt-1">rank</div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Question & Results */}
-              <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
-                <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">The Question</p>
-                <div className="mb-8">
-                  <Markdown content={questionText} className="text-xl font-bold text-gray-900 dark:text-white tracking-tight" />
-                </div>
-
-                <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Results</p>
-                <AnswerDistribution
-                  options={options}
-                  distribution={distribution}
-                  correctOption={correctOption}
-                  selectedOption={selectedOption ?? undefined}
-                />
-
-                {explanation && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    className="mt-8 p-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl"
-                  >
-                    <div className="text-sm">
-                      <span className="font-black text-green-600 dark:text-green-400 block mb-2 uppercase tracking-widest text-xs">Explanation</span>
-                      <Markdown content={explanation} className="text-green-900 dark:text-green-100 prose-p:my-0" />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Column: Question & Results */}
+                <div className="lg:col-span-2 flex flex-col gap-8">
+                  <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-2xl p-6 sm:p-8 shadow-sm">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
+                      <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                        Question {currentQuestion + 1}
+                      </p>
                     </div>
-                  </motion.div>
-                )}
-              </div>
+                    <div className="mb-8">
+                      <Markdown content={questionText} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-relaxed" />
+                    </div>
 
-              {/* Leaderboard */}
-              <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-xl p-8 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Live Standings</p>
+                    <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-5">Results Overview</p>
+                    <AnswerDistribution
+                      options={options}
+                      distribution={distribution}
+                      correctOption={correctOption}
+                      selectedOption={selectedOption ?? undefined}
+                    />
+
+                    {explanation && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        className="mt-8 p-6 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-2xl"
+                      >
+                        <div className="text-sm">
+                          <span className="font-black text-green-600 dark:text-green-400 block mb-3 uppercase tracking-widest text-xs">Explanation</span>
+                          <Markdown content={explanation} className="text-green-900 dark:text-green-100 prose-p:my-0 leading-relaxed" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  <div className="text-center py-4">
+                    <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-full shadow-sm">
+                      <span className="w-2.5 h-2.5 bg-orange-500 rounded-full animate-pulse" />
+                      <span className="text-sm font-bold text-gray-600 dark:text-gray-400">Waiting for next question...</span>
+                    </div>
+                  </div>
                 </div>
-                <Leaderboard entries={leaderboard.slice(0, 10)} highlightId={participantId} compact />
-              </div>
 
-              <div className="text-center py-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 rounded-full">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                  <span className="text-xs font-black text-gray-500 dark:text-gray-400">Waiting for next question...</span>
+                {/* Sidebar Column: Leaderboard */}
+                <div className="space-y-6">
+                  <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-2xl p-6 shadow-sm sticky top-6">
+                    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
+                      <p className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest">Live Standings</p>
+                    </div>
+                    <Leaderboard entries={leaderboard.slice(0, 10)} highlightId={participantId} compact />
+                  </div>
                 </div>
               </div>
             </div>

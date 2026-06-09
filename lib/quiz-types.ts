@@ -29,6 +29,8 @@ export interface QuizMeta {
 export interface Participant {
   id: string;
   name: string;
+  email?: string;
+  image?: string;
   score: number;
   totalResponseTime: number;
   joinedAt: number;
@@ -59,6 +61,7 @@ export interface QuizStatePayload {
   leaderboard: LeaderboardEntry[];
   answerCount: number;
   timerEndsAt?: number;
+  optionSelections?: Record<number, Participant[]>;
 }
 
 export type QuizSSEEvent =
@@ -66,6 +69,6 @@ export type QuizSSEEvent =
   | { type: "PARTICIPANT_JOINED"; data: { id: string; name: string; count: number } }
   | { type: "QUESTION_START"; data: { questionIndex: number; question: Omit<QuizQuestion, "correctOption">; endsAt: number; totalQuestions: number } }
   | { type: "ANSWER_COUNT_UPDATE"; data: { questionIndex: number; count: number; total: number } }
-  | { type: "QUESTION_ENDED"; data: { questionIndex: number; correctOption: number; explanation?: string; distribution: number[]; leaderboard: LeaderboardEntry[] } }
+  | { type: "QUESTION_ENDED"; data: { questionIndex: number; correctOption: number; explanation?: string; distribution: number[]; leaderboard: LeaderboardEntry[]; optionSelections?: Record<number, Participant[]> } }
   | { type: "QUIZ_ENDED"; data: { leaderboard: LeaderboardEntry[] } }
   | { type: "HEARTBEAT" };

@@ -21,6 +21,8 @@ export async function POST(
 
   const userId = session.user.id;
   const userName = session.user.name;
+  const userEmail = session.user.email;
+  const userImage = session.user.image;
 
   const isTeacher = quiz.teacherId === userId;
   if (!isTeacher) {
@@ -44,6 +46,8 @@ export async function POST(
   await QuizStore.addParticipant(sessionId, {
     id: userId,
     name: userName,
+    email: userEmail ?? undefined,
+    image: userImage ?? undefined,
     score: 0,
     totalResponseTime: 0,
     joinedAt: Date.now(),
