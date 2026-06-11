@@ -775,7 +775,7 @@ const CodeEditor = memo(({
   return (
     <div
       ref={editorContainerRef}
-      className={`h-full flex flex-col bg-[#fafafa] dark:bg-[#1e1e1e] border-l border-gray-300 dark:border-[#262626] ${
+      className={`h-full min-h-0 flex flex-col bg-[#fafafa] dark:bg-[#1e1e1e] border-l border-gray-300 dark:border-[#262626] ${
         isFullScreen ? "fixed inset-0 z-50" : ""
       }`}
     >
@@ -815,7 +815,7 @@ const CodeEditor = memo(({
       />
 
       {/* MONACO EDITOR */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa] dark:bg-[#1e1e1e] z-10">
             <div className="flex flex-col items-center gap-3">
@@ -901,7 +901,7 @@ const CodeEditor = memo(({
       />
 
       <Dialog open={isResetModalOpen} onOpenChangeAction={setIsResetModalOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg p-6 dark:bg-[#1D1E23] border-gray-200 dark:border-white/10">
           <DialogHeader>
             <DialogTitle>Reset Code</DialogTitle>
             <DialogDescription>

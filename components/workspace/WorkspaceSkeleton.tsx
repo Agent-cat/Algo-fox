@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import ProblemSkeleton from "./ProblemSkeleton";
-import EditorSkeleton from "./EditorSkeleton";
-import TestCasesSkeleton from "./TestCasesSkeleton";
+
 
 export default function WorkspaceSkeleton() {
   return (
@@ -26,19 +24,19 @@ export default function WorkspaceSkeleton() {
         
         {/* Left Pane: Problem Description */}
         <div className="w-[40%] h-full flex flex-col">
-          <ProblemSkeleton />
+          {/* Will be replaced by panel skeleton */}
         </div>
 
         {/* Right Pane: Split Vertical */}
         <div className="w-[60%] h-full flex flex-col gap-1">
           {/* Top Right: Code Editor */}
           <div className="h-[60%] flex flex-col">
-            <EditorSkeleton />
+            {/* Will be replaced by panel skeleton */}
           </div>
 
           {/* Bottom Right: Test Cases */}
           <div className="h-[40%] flex flex-col">
-            <TestCasesSkeleton />
+            {/* Will be replaced by panel skeleton */}
           </div>
         </div>
 

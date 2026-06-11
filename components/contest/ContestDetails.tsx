@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Clock, ChevronRight, Lock, AlertCircle, Medal, ChevronLeft, X, CheckCircle2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -44,8 +44,8 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     }, [hasAcceptedRules, sessionId, isFinished, contest.canManage]);
 
     const [now, setNow] = useState(new Date());
-    const startTime = new Date(contest.startTime);
-    const endTime = new Date(contest.endTime);
+    const startTime = useMemo(() => new Date(contest.startTime), [contest.startTime]);
+    const endTime = useMemo(() => new Date(contest.endTime), [contest.endTime]);
     const hasStarted = now >= startTime;
     const hasEnded = now > endTime;
 
@@ -110,13 +110,30 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         }
     };
 
+    const rulesEnforced = useRef(false);
+
     useEffect(() => {
         if (isFinished) return;
-        // Force showing rules popup if not already accepted in this session
-        if (!hasAcceptedRules && hasStarted && !hasEnded) {
+        if (contest.canManage) return;
+        if (rulesEnforced.current) return;
+
+        // Use sessionStorage to distinguish between refresh (keeps storage) and new tab/resume (clears storage)
+        const sessionKey = `contest_active_session_${contest.id}`;
+        const activeSession = sessionStorage.getItem(sessionKey);
+
+        if (!activeSession && hasStarted && !hasEnded) {
+            // Force showing rules popup if resuming (not refreshed)
+            setHasAcceptedRules(false);
             setShowRulesPopup(true);
+            rulesEnforced.current = true;
+        } else if (activeSession) {
+            setHasAcceptedRules(true);
+            if (!sessionId) {
+                setSessionId(activeSession);
+            }
+            rulesEnforced.current = true;
         }
-    }, [contest.id, hasStarted, hasEnded, hasAcceptedRules, isFinished]);
+    }, [contest.id, hasStarted, hasEnded, isFinished, contest.canManage, sessionId]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -147,6 +164,7 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
     }, [startTime, endTime]);
 
     const handleContestStart = (newSessionId: string) => {
+        sessionStorage.setItem(`contest_active_session_${contest.id}`, newSessionId);
         setHasAcceptedRules(true);
         setShowRulesPopup(false);
         setSessionId(newSessionId);

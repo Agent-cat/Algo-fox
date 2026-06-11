@@ -130,9 +130,9 @@ export default function ContestProtection({
       if (!isMounted.current || isRefreshing.current || isNavigating.current)
         return;
 
-      // Navigation attempts: just show a toast, don't count or show popup
-      if (type === "NAVIGATION_ATTEMPT") {
-        toast.error("Navigation blocked", {
+      // Navigation attempts and copy-paste: just show a toast, don't count or show popup
+      if (type === "NAVIGATION_ATTEMPT" || type === "COPY_PASTE") {
+        toast.error("Action blocked", {
           description: message,
           duration: 3000,
         });
@@ -628,7 +628,7 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#0f0f0f] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#1D1E23] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
             style={{
               animation: 'cp-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: '0 24px 80px rgba(0,0,0,0.3)',
@@ -679,7 +679,7 @@ export default function ContestProtection({
 
             {/* Timer Section */}
             {tempBlockTimeLeft > 0 && (
-              <div className="mx-6 mt-4 mb-2 p-5 rounded-none bg-gray-50 dark:bg-[#1c1c1f] border border-dashed border-gray-200 dark:border-white/10">
+              <div className="mx-6 mt-4 mb-2 p-5 rounded-none bg-gray-50 dark:bg-[#24262C] border border-dashed border-gray-200 dark:border-white/10">
                 <div className="text-[10px] font-medium text-gray-400 dark:text-[#666] uppercase tracking-[0.15em] text-center mb-2">
                   Resumes in
                 </div>
@@ -704,7 +704,7 @@ export default function ContestProtection({
               ) : tempBlockTimeLeft > 0 ? (
                 <button
                   disabled
-                  className="w-full py-3 rounded-none text-[13px] font-semibold text-gray-400 dark:text-[#555] bg-gray-100 dark:bg-[#1c1c1f] cursor-not-allowed border border-gray-200 dark:border-[#2a2a2e]"
+                  className="w-full py-3 rounded-none text-[13px] font-semibold text-gray-400 dark:text-[#555] bg-gray-100 dark:bg-[#24262C] cursor-not-allowed border border-gray-200 dark:border-white/10"
                 >
                   Locked
                 </button>
@@ -735,7 +735,7 @@ export default function ContestProtection({
           }}
         >
           <div
-            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#0f0f0f] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
+            className="w-full max-w-3xl rounded-none overflow-hidden bg-white dark:bg-[#1D1E23] border border-dashed border-gray-200 dark:border-white/10 shadow-2xl"
             style={{
               animation: 'cp-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
               boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
@@ -744,13 +744,6 @@ export default function ContestProtection({
 
 
             <div className="p-8 flex flex-col items-center text-center">
-              {/* Shield Icon */}
-              <div
-                className="w-16 h-16 rounded-none flex items-center justify-center mb-6 bg-orange-500/10 dark:bg-orange-500/15"
-                style={{ animation: 'cp-glow-pulse 3s ease-in-out infinite' }}
-              >
-                <ShieldX className="w-8 h-8 text-orange-500" />
-              </div>
 
               {/* Tag */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-orange-500/8 dark:bg-orange-500/10 border border-orange-500/15 mb-4">
@@ -774,7 +767,6 @@ export default function ContestProtection({
                   boxShadow: '0 4px 16px rgba(249,115,22,0.25)',
                 }}
               >
-                <Monitor className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Go Full Screen
               </button>
 
@@ -789,7 +781,7 @@ export default function ContestProtection({
       {/* ============================================= */}
       {/* PROCTORING INDICATOR BADGE                    */}
       {/* ============================================= */}
-      <div className="fixed top-4 right-4 z-100 flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/90 dark:bg-[#1c1c1f]/90 border border-gray-200/60 dark:border-[#2a2a2e] backdrop-blur-xl shadow-sm dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+      <div className="fixed top-4 right-4 z-100 flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/90 dark:bg-[#1D1E23]/90 border border-gray-200/60 dark:border-white/10 backdrop-blur-xl shadow-sm dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
         <div className="relative">
           <div className="w-[6px] h-[6px] bg-emerald-500 rounded-full" />
           <div

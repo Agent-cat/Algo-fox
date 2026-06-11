@@ -32,6 +32,7 @@ export const auth = betterAuth({
       enabled: true,
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      scope: ["repo", "read:user", "user:email"], // Added repo scope for GitHub Sync
       mapProfileToUser: (profile) => {
         return {
           githubHandle: profile.login,
@@ -66,14 +67,34 @@ export const auth = betterAuth({
         type: "string",
         required: false,
       },
+      githubRepo: {
+        type: "string",
+        required: false,
+      },
+      githubSyncMode: {
+        type: "string",
+        required: false,
+        defaultValue: "ACCEPTED_ONLY",
+      },
+      githubAutoSync: {
+        type: "boolean",
+        required: false,
+        defaultValue: true,
+      },
+      lastSyncedAt: {
+        type: "date",
+        required: false,
+      },
     },
   },
   databaseHooks: {
     account: {
       create: {
         after: async (account) => {
+          console.log("[Auth] Account created hook triggered for provider:", account.providerId);
           if (account.providerId === "github" && account.accessToken) {
             try {
+              console.log("[Auth] Fetching GitHub profile using accessToken...");
               const res = await fetch("https://api.github.com/user", {
                 headers: {
                   Authorization: `Bearer ${account.accessToken}`,
@@ -82,16 +103,23 @@ export const auth = betterAuth({
               });
               if (res.ok) {
                 const profile = await res.json();
+                console.log("[Auth] GitHub profile fetched successfully, login:", profile.login);
                 if (profile.login) {
                   await prisma.user.update({
                     where: { id: account.userId },
                     data: { githubHandle: profile.login },
                   });
+                  console.log("[Auth] Successfully updated user githubHandle to", profile.login);
                 }
+              } else {
+                const errorText = await res.text();
+                console.error("[Auth] Failed to fetch GitHub profile. Status:", res.status, errorText);
               }
             } catch (err) {
-              console.error("Error fetching GitHub profile on account link:", err);
+              console.error("[Auth] Error fetching GitHub profile on account link:", err);
             }
+          } else if (account.providerId === "github") {
+            console.error("[Auth] GitHub account linked but no accessToken was provided in the account object!");
           }
         },
       },

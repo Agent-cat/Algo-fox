@@ -2,6 +2,7 @@ import { Queue, Worker, Job } from "bullmq";
 import { createRedisConnection } from "@/lib/redis";
 import { SubmissionService } from "@/core/services/submission.service";
 import { SubmissionResult, TestCaseResult } from "@prisma/client";
+import { addGithubSyncJob } from "./github-sync.queue";
 
 const QUEUE_NAME = "submission-queue";
 
@@ -322,6 +323,11 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
                 } catch (sideEffectError) {
                     console.error(`Side effect error (streak/solved) for submission ${submissionId}:`, sideEffectError);
                 }
+            }
+            
+            // Enqueue GitHub Sync Job if it was a SUBMIT
+            if (submission.mode === "SUBMIT") {
+                 await addGithubSyncJob(submissionId).catch(err => console.error("Error queueing github sync", err));
             }
 
             await SubmissionService.invalidateClassroomTracking(submission.userId);

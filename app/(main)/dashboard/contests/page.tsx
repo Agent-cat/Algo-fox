@@ -40,9 +40,9 @@ async function ContestsContent() {
 
 export default async function ContestsPage() {
     return (
-        <div className="min-h-screen bg-white dark:bg-[#24262C] pb-12">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] pb-12">
             {/* Header */}
-            <div className="bg-white dark:bg-[#24262C] border-b border-gray-200 dark:border-white/5">
+            <div className="bg-[#fafafa] dark:bg-[#1D1E23] border-b border-gray-200 dark:border-white/5">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <div className="mb-4">
                         <BackButton />

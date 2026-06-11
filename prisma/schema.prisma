@@ -70,6 +70,11 @@ model User {
   quizzesCreated        Int                    @default(0)
   bookmarks             Bookmark[]
 
+  githubRepo            String?
+  githubSyncMode        String?                @default("ACCEPTED_ONLY")
+  githubAutoSync        Boolean                @default(true)
+  lastSyncedAt          DateTime?
+  
   @@index([collegeId])
   @@index([collegeId, totalScore])
   @@index([institutionId])
@@ -260,6 +265,7 @@ model Submission {
   problem    Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
   user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   testCases  TestCase[]
+  githubSyncedAt DateTime?
 
   @@index([userId, createdAt])
   @@index([problemId, createdAt])

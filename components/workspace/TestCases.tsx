@@ -219,7 +219,7 @@ const TestCases = memo(({
     const totalResults = filteredResults ? filteredResults.length : 0;
 
     return (
-        <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-t border-gray-200/80 dark:border-[#1e1e1e]">
+        <div className="h-full min-h-0 flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-t border-gray-200/80 dark:border-[#1e1e1e]">
             {/* Header - Always visible, acts as toggle */}
             <motion.div
                 className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#24262C] border-b border-gray-100/80 dark:border-[#1D1E23] cursor-pointer select-none group h-10 shrink-0"
@@ -266,7 +266,7 @@ const TestCases = memo(({
 
             {/* Panel Content (Visible when NOT collapsed) */}
             {!isCollapsed && (
-                <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
                         {/* Tabs and Content */}
                         <div className="px-4 py-4 flex-1 flex flex-col overflow-y-auto custom-scrollbar">
                             <div className="flex gap-2 mb-4 overflow-x-auto pb-2 shrink-0 custom-scrollbar">

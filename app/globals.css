@@ -256,3 +256,14 @@ body {
 .no-transitions *::after {
   transition: none !important;
 }
+
+/* Inline code block styling */
+:not(pre) > code {
+  @apply bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10 font-mono text-[0.875em];
+}
+
+/* Remove default backticks from Tailwind Typography */
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}

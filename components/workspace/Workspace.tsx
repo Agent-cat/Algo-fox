@@ -553,9 +553,9 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             onRestoreCode={handleRestoreCode}
                         />
                     </div>
-                    <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10">
-                        <Split className="split-vertical flex flex-col h-full" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
-                            <div id="code-editor" className="overflow-hidden flex flex-col">
+                    <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10 min-h-0">
+                        <Split className="split-vertical flex flex-col h-full min-h-0" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
+                            <div id="code-editor" className="overflow-hidden flex flex-col min-h-0 h-full">
                                 <CodeEditor
                                     key={`${problem.id}-${languageId}`}
                                     value={code}
@@ -574,7 +574,7 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                                     allowedLanguages={problem.allowedLanguages}
                                   />
                             </div>
-                            <div id="test-cases" className="overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
+                            <div id="test-cases" className="overflow-hidden flex flex-col min-h-0 h-full bg-[#fafafa] dark:bg-[#1D1E23] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
                                 <TestCases
                                     cases={problem.testCases}
                                     customCases={customTestCases}
