@@ -533,10 +533,10 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 endTime={contest?.endTime}
                 nextProblemSlug={nextProblemSlug}
                 prevProblemSlug={prevProblemSlug}
-                domain={problem.domain}
                 type={problem.type}
                 onToggleSidebar={handleToggleSidebar}
                 problemId={problem.id}
+                isSubmissionPassed={submissionStatus === 'ACCEPTED'}
             />
             <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#1D1E23]">
                 <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={8} snapOffset={30} onDragEnd={setMainSizes}>

@@ -712,12 +712,54 @@ const CodeEditor = memo(({
         // Check if editor and model are still valid
         if (model && !model.isDisposed()) {
           editor.getAction("editor.action.formatDocument")?.run();
+
+          const langName = currentLanguage?.name?.toLowerCase() || '';
+          if (!['python', 'sql'].includes(langName)) {
+            const codeStr = editor.getValue();
+            let indentLevel = 0;
+            const lines = codeStr.split('\n');
+            let formattedLines = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) {
+                    formattedLines.push('');
+                    continue;
+                }
+                
+                const noStrings = line.replace(/".*?"/g, '').replace(/'.*?'/g, '');
+                let openBraces = (noStrings.match(/\{/g) || []).length;
+                let closeBraces = (noStrings.match(/\}/g) || []).length;
+                let openBrackets = (noStrings.match(/\[/g) || []).length;
+                let closeBrackets = (noStrings.match(/\]/g) || []).length;
+                
+                let netIndentChange = (openBraces - closeBraces) + (openBrackets - closeBrackets);
+                
+                if (line.startsWith('}') || line.startsWith(']')) {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                    netIndentChange++;
+                }
+                
+                formattedLines.push(' '.repeat(indentLevel * 4) + line);
+                indentLevel = Math.max(0, indentLevel + netIndentChange);
+            }
+            
+            const formatted = formattedLines.join('\n');
+            if (formatted !== codeStr) {
+                editor.setValue(formatted);
+            }
+          }
+          
+          toast.success("Code Formatted!", {
+            duration: 3000,
+            style: { background: '#22c55e', color: 'white', border: 'none', fontWeight: 'bold' }
+          });
         }
       } catch (error) {
          console.debug("Format error (safe to ignore):", error);
       }
     }
-  }, []);
+  }, [currentLanguage]);
 
   const handleReset = useCallback(() => {
     if (readOnly) return; // Disable reset in read-only
@@ -790,9 +832,6 @@ const CodeEditor = memo(({
           margin-left: 5px !important;
         }
       `}</style>
-      {/* FILE TABS */}
-      {fileTabs}
-
       {/* EDITOR TOOLBAR */}
       <EditorToolbar
         readOnly={readOnly}
@@ -813,6 +852,9 @@ const CodeEditor = memo(({
         onOpenSettings={onOpenSettings}
         dropdownRef={dropdownRef}
       />
+
+      {/* FILE TABS */}
+      {fileTabs}
 
       {/* MONACO EDITOR */}
       <div className="flex-1 relative min-h-0">

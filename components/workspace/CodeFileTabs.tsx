@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, memo } from "react";
-import { FilePlus, X, Pencil, Check, FileCode2 } from "lucide-react";
+import { FilePlus, X, Pencil, Check, FileCode2, Plus } from "lucide-react";
 import { CodeFile } from "@/lib/db";
 import CustomTooltip from "../ui/CustomTooltip";
 
@@ -89,7 +89,7 @@ const CodeFileTabs = memo(({
     const cancelEdit = () => setEditingId(null);
 
     return (
-        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar border-b border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#24262C] px-2 pt-1 min-h-[36px]">
+        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar bg-gray-50 dark:bg-[#1D1E23] px-2 pt-1 min-h-[36px]">
             {files.map((file, idx) => {
                 const isActive = file.fileId === activeFileId;
                 const isEditing = editingId === file.fileId;
@@ -102,7 +102,7 @@ const CodeFileTabs = memo(({
                             group relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-t-md cursor-pointer
                             whitespace-nowrap transition-all duration-150 shrink-0 mr-0.5
                             ${isActive
-                                ? "bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 border border-b-0 border-gray-200 dark:border-black shadow-sm"
+                                ? "bg-white dark:bg-[#282a36] text-gray-900 dark:text-gray-100 border border-transparent shadow-sm z-10"
                                 : "text-gray-500 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1D1E23] border border-transparent border-b-0"
                             }
                         `}
@@ -178,10 +178,9 @@ const CodeFileTabs = memo(({
             <CustomTooltip content="Add new file" shortcut="Alt+N" side="bottom">
                 <button
                     onClick={onAdd}
-                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-400 dark:text-gray-600 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded-t-md transition-colors shrink-0 ml-0.5 border border-transparent"
+                    className="flex items-center justify-center p-1.5 text-gray-400 dark:text-gray-600 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-gray-100 dark:hover:bg-[#1D1E23] rounded transition-colors shrink-0 ml-0.5 border border-transparent"
                 >
-                    <FilePlus className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">New File</span>
+                    <Plus className="w-4 h-4" />
                 </button>
             </CustomTooltip>
         </div>

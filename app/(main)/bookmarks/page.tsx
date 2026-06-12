@@ -1,4 +1,4 @@
-import { getUserBookmarks } from "@/actions/bookmark.action";
+import { getUserBookmarks, getUserBookmarkLists } from "@/actions/bookmark.action";
 import BookmarksClient from "./_components/BookmarksClient";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
@@ -26,8 +26,15 @@ async function BookmarksContent({
 
     const params = await searchParams;
     const page = Number(params?.page) || 1;
+    const listId = params?.list as string | undefined;
 
-    const { bookmarks, totalPages, total } = await getUserBookmarks(page, 20);
+    const [bookmarksResult, listsResult] = await Promise.all([
+        getUserBookmarks(page, 20, listId),
+        getUserBookmarkLists()
+    ]);
+
+    const { bookmarks, totalPages, total } = bookmarksResult;
+    const lists = listsResult.lists || [];
 
     return (
         <BookmarksClient
@@ -35,6 +42,8 @@ async function BookmarksContent({
             initialTotalPages={totalPages || 1}
             totalBookmarks={total || 0}
             userRole={session?.user?.role as string}
+            initialLists={lists}
+            currentListId={listId || null}
         />
     );
 }

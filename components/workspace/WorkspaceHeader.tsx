@@ -25,8 +25,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import UserPoints from "@/components/UserPoints";
 import { getPointsLabel } from '@/lib/points';
-import { StreakBadge } from "@/components/shared/StreakBadge";
 import { ThemeToggleButton } from "@/components/shared/ThemeToggleButton";
+import { TimeTracker } from "./TimeTracker";
 import { ContestTimer } from "./ContestTimer";
 import CustomTooltip from "../ui/CustomTooltip";
 import { BookmarkButton } from "./BookmarkButton";
@@ -49,6 +49,7 @@ interface WorkspaceHeaderProps {
   currentCourseProblemIndex?: number;
   onToggleSidebar?: () => void;
   problemId?: string;
+  isSubmissionPassed?: boolean;
 }
 
 const WorkspaceHeader = memo(({
@@ -67,7 +68,8 @@ const WorkspaceHeader = memo(({
   totalCourseProblems = 0,
   currentCourseProblemIndex = -1,
   onToggleSidebar,
-  problemId
+  problemId,
+  isSubmissionPassed
 }: WorkspaceHeaderProps) => {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
@@ -196,7 +198,7 @@ const WorkspaceHeader = memo(({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="h-14 bg-[#fafafa] dark:bg-[#1D1E23] border-b border-dashed border-gray-300/80 dark:border-white/10 flex items-center justify-between px-4 z-10 relative"
+      className="h-14 bg-[#fafafa] dark:bg-[#1D1E23] border-b border-dashed border-gray-300/80 dark:border-white/10 flex items-center justify-between px-4 z-50 relative"
     >
       {/* LEFT: NAVIGATION */}
       <div className={`flex items-center gap-3 ${contestId ? 'w-1/3' : ''}`}>
@@ -409,18 +411,19 @@ const WorkspaceHeader = memo(({
         ) : (
           !contestId && (
             <>
+              <TimeTracker isSubmissionPassed={isSubmissionPassed} />
+              <div className="h-4 w-px bg-gray-300 dark:bg-[#333] mx-1" />
               <ThemeToggleButton />
               {session ? (
                 <div className="flex items-center gap-3">
+                    <UserPoints className="hidden md:flex" />
+                    <div className="h-4 w-px bg-gray-300 dark:bg-[#333] mx-1 hidden md:block" />
                   <div className="relative" ref={profileRef}>
                     <motion.button
                       onClick={() => setProfileOpen(!isProfileOpen)}
-                      className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D1E23] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626] cursor-pointer"
+                      className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D1E23] transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626] cursor-pointer"
                       whileTap={{ scale: 0.97 }}
                     >
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden md:block">
-                        {session.user.name}
-                      </span>
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#1D1E23] bg-gray-100 dark:bg-[#1D1E23] text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-xs"
@@ -473,9 +476,6 @@ const WorkspaceHeader = memo(({
                       )}
                     </AnimatePresence>
                   </div>
-                  <StreakBadge />
-                  <div className="h-4 w-px bg-gray-200 dark:bg-[#262626] mx-1 hidden md:block" />
-                  <UserPoints className="hidden md:flex" />
                 </div>
               ) : (
                 <Link
