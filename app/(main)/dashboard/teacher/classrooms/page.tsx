@@ -5,14 +5,13 @@ import { redirect } from "next/navigation";
 import { TeacherDashboardContent } from "./TeacherDashboardContent";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 async function TeacherClassroomsPageContent() {
     "use cache: private";
     cacheLife("minutes");
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

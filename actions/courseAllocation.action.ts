@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ProblemDomain } from "@prisma/client";
 import { revalidatePath, cacheTag, cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 // Get all course allocations (cached)
 export async function getCourseAllocations() {
@@ -29,9 +30,7 @@ export async function getUserAllocatedCourses() {
   "use cache: private";
   cacheLife({ stale: 900, revalidate: 900 });
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user) {
     return { success: false, error: "Unauthorized", domains: [] as ProblemDomain[] };
@@ -90,9 +89,7 @@ export async function getUserAllocatedCourses() {
 
 // Bulk update allocations for a year
 export async function updateYearAllocations(year: number, domains: ProblemDomain[]) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user) {
     return { success: false, error: "Unauthorized" };

@@ -5,9 +5,10 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { getPerformanceTier, type PerformanceTier } from "@/lib/institution-analytics";
+import { getSession } from "@/lib/auth-utils";
 
 async function checkInstitutionAccess(institutionId: string) {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) return null;
     const user = session.user as any;
     if (user.role === "ADMIN") return user;

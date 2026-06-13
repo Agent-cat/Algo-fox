@@ -28,11 +28,10 @@ const contestSchema = z.object({
 });
 
 import { ContestService } from "@/core/services/contest.service";
+import { getSession } from "@/lib/auth-utils";
 
 export async function deleteContest(id: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -133,9 +132,7 @@ async function fetchContestsForUser(params: {
 }
 
 export async function getVisibleContests(params: { page?: number; pageSize?: number; status?: "active" | "past" } = {}) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     const { page = 1, pageSize = 12, status } = params;
     const currentUser = session?.user as any;
@@ -204,9 +201,7 @@ async function getContestData(contestId: string) {
  * Fetches a single contest's details with authorization.
  */
 export async function getContestDetail(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     try {
         // FIX: Parallelize fetches that have no dependency on each other.
@@ -380,9 +375,7 @@ export async function getContestDetail(contestId: string) {
 // ... existing code ...
 
 export async function createContest(data: z.infer<typeof contestSchema>) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -445,9 +438,7 @@ export async function createContest(data: z.infer<typeof contestSchema>) {
 
 
 export async function createContestWithProblems(data: z.infer<typeof contestWithProblemsSchema>) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -476,9 +467,7 @@ export async function createContestWithProblems(data: z.infer<typeof contestWith
 }
 
 export async function getContestForEdit(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -520,9 +509,7 @@ export async function getContestForEdit(contestId: string) {
 }
 
 export async function updateContestWithProblems(contestId: string, data: z.infer<typeof contestWithProblemsSchema>) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -571,9 +558,7 @@ export async function getInstitutionalClassrooms(institutionId: string) {
 }
 
 export async function finishContestAction(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -591,9 +576,7 @@ export async function finishContestAction(contestId: string) {
 }
 
 export async function finalizeContest(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -621,9 +604,7 @@ export async function finalizeContest(contestId: string) {
  * Verify contest password without starting session.
  */
 export async function verifyContestPassword(contestId: string, password?: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -666,9 +647,7 @@ export async function verifyContestPassword(contestId: string, password?: string
 
 
 export async function startContestSession(contestId: string, password?: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -697,9 +676,7 @@ export async function startContestSession(contestId: string, password?: string) 
  * Submit a contest section and unlock the next sequence
  */
 export async function submitContestSectionAction(contestId: string, sectionId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -724,9 +701,7 @@ export async function logContestViolation(
     message?: string,
     metadata?: Record<string, any>
 ) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -757,9 +732,7 @@ export async function logContestViolation(
  * Get participation status - for UI state
  */
 export async function getParticipationStatus(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -828,9 +801,7 @@ export async function getParticipationStatus(contestId: string) {
  * Get all participants for a contest with violation details (for managers)
  */
 export async function getContestParticipants(contestId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -889,9 +860,7 @@ export async function getContestParticipants(contestId: string) {
  * Unblock a participant (manager only)
  */
 export async function unblockParticipant(contestId: string, userId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -952,9 +921,7 @@ export async function unblockParticipant(contestId: string, userId: string) {
  * Get detailed violations for a participant
  */
 export async function getParticipantViolations(contestId: string, userId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 

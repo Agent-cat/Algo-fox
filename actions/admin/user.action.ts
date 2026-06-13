@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Role } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import redis from "@/lib/redis";
+import { getSession } from "@/lib/auth-utils";
 
 export async function getFilteredUsers(params: {
     page: number;
@@ -14,9 +15,7 @@ export async function getFilteredUsers(params: {
     roles?: Role[];
     institutionId?: string;
 }) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -72,9 +71,7 @@ export async function getFilteredUsers(params: {
 }
 
 export async function deleteUserAction(userId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (session?.user?.role !== "ADMIN") {
         return { success: false, error: "Unauthorized" };
@@ -116,9 +113,7 @@ export async function deleteUserAction(userId: string) {
 }
 
 export async function updateUserRoleAction(userId: string, role: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (session?.user?.role !== "ADMIN") {
         return { success: false, error: "Unauthorized" };

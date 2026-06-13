@@ -9,6 +9,7 @@ import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 
 interface PageProps {
@@ -42,9 +43,7 @@ async function ContestDetailContent({ params }: { params: Promise<{ id: string }
 
     const { id } = await params;
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

@@ -4,12 +4,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CourseService } from "@/core/services/course.service";
 import { revalidateTag } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 /**
  * Enroll a user in a course
  */
 export async function enrollInCourse(courseId: string, slug: string) {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) {
         return { error: "You must be logged in to enroll" };
     }

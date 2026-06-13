@@ -4,12 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 export async function toggleBookmark(problemId: string, listId?: string | null) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };
@@ -74,9 +73,7 @@ export async function toggleBookmark(problemId: string, listId?: string | null) 
 
 export async function checkBookmarkStatus(problemId: string) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: true, isBookmarked: false };
@@ -102,9 +99,7 @@ export async function checkBookmarkStatus(problemId: string) {
 
 export async function getUserBookmarks(page: number = 1, limit: number = 20, listId?: string | null) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };
@@ -182,9 +177,7 @@ export async function getUserBookmarks(page: number = 1, limit: number = 20, lis
 
 export async function createBookmarkList(name: string) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };
@@ -223,9 +216,7 @@ export async function createBookmarkList(name: string) {
 
 export async function getUserBookmarkLists() {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };
@@ -252,9 +243,7 @@ export async function getUserBookmarkLists() {
 
 export async function deleteBookmarkList(listId: string) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user?.id) {
             return { success: false, error: "Unauthorized" };

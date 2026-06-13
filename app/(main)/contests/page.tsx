@@ -7,6 +7,7 @@ import { getUpcomingContests } from "@/actions/external-contests.action";
 import { ContestSkeleton } from "@/components/contest/ContestSkeleton";
 import { ContestPageClient } from "@/components/contest/ContestPageClient";
 import { Suspense } from "react";
+import { getSession } from "@/lib/auth-utils";
 
 async function ContestsDataWrapper({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
   const { page, type } = await searchParams;
@@ -16,9 +17,7 @@ async function ContestsDataWrapper({ searchParams }: { searchParams: Promise<{ p
   }
   const status = (type === "past" ? "past" : "active") as "active" | "past";
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user) {
     redirect("/signin");

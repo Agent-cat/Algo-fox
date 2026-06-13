@@ -9,6 +9,7 @@ import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "SQL Problems",
@@ -21,9 +22,7 @@ async function SqlProblemsContent({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     // Check user access
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

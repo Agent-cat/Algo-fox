@@ -6,15 +6,14 @@ import { getInstitutionClassrooms } from "@/actions/classroom";
 import { InstitutionClassroomsContent } from "./InstitutionClassroomsContent";
 import { Loader2 } from "lucide-react";
 import { Metadata } from "next";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata:Metadata = {
     title: "Institution Classrooms",
 };
 
 async function ClassroomsData() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

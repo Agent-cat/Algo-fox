@@ -50,7 +50,7 @@ export const ProfilesStatusCard = ({ user }: ProfilesStatusCardProps) => {
         {platforms.map((platform) => (
           <div
             key={platform.name}
-            className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-colors"
+            className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-colors"
           >
             <div className="flex items-center gap-3">
               <div className="relative w-6 h-6 rounded-md overflow-hidden">

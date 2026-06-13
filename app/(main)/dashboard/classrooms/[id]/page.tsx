@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, School, GraduationCap, ChevronRight } from "lucide-react";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -18,9 +19,7 @@ async function ClassroomDetailContent({ params }: { params: Promise<{ id: string
     cacheLife("minutes");
     const { id } = await params;
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

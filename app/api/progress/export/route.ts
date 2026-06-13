@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
     await connection();
-    const headersList = await headers();
     try {
-        const session = await auth.api.getSession({
-            headers: headersList
-        });
+        const session = await getSession();
 
         if (!session?.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

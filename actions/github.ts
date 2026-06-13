@@ -5,15 +5,14 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { GithubService } from "@/lib/github";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 export async function updateGithubSettings(data: {
   repoName: string;
   syncMode: string;
   autoSync: boolean;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session || !session.user) {
     return { success: false, error: "Unauthorized" };
@@ -40,9 +39,7 @@ export async function updateGithubSettings(data: {
 }
 
 export async function connectGithubRepo(repoName: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session || !session.user) {
     return { success: false, error: "Unauthorized" };
@@ -82,9 +79,7 @@ export async function connectGithubRepo(repoName: string) {
 }
 
 export async function syncGithubAccount() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user) return { success: false };
 
@@ -119,9 +114,7 @@ export async function syncGithubAccount() {
 }
 
 export async function syncPreviousSubmissions() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session?.user) return { success: false, error: "Unauthorized" };
 

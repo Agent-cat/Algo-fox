@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { QuizStore } from "@/lib/quiz-store";
 import { z } from "zod";
+import { getSession } from "@/lib/auth-utils";
 
 const answerSchema = z.object({ option: z.number().int().min(0) });
 
@@ -12,7 +13,7 @@ export async function POST(
 ) {
   const { sessionId } = await params;
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const quiz = await QuizStore.get(sessionId);

@@ -3,11 +3,10 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 export async function checkSessionConflict() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session) {
     return { conflict: false };
@@ -44,9 +43,7 @@ export async function checkSessionConflict() {
 }
 
 export async function resolveSessionConflict(action: "LOGOUT_OTHERS" | "LOGOUT_CURRENT") {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session) {
     throw new Error("No active session");

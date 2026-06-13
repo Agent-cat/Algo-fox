@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import TopicRadarChart from "@/components/analytics/TopicRadarChart";
 import ProgressLineChart from "@/components/analytics/ProgressLineChart";
 import { BarChart3, TrendingUp, Target } from "lucide-react";
@@ -12,10 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AnalyticsPage() {
-  const h = await headers();
-  const session = await auth.api.getSession({
-    headers: h,
-  });
+  const session = await getSession();
 
   if (!session) redirect("/signin");
 

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { SearchBar } from "./sidebar/SearchBar";
 import { ProblemsList } from "./sidebar/ProblemsList";
 import { CategoriesList } from "./sidebar/CategoriesList";
+import ModeToggle from "@/components/problems/ModeToggle";
 
 interface ProblemSidebarProps {
   isOpen: boolean;
@@ -228,7 +229,7 @@ export default function ProblemSidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 z-40 bg-black/20 dark:bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/20 dark:bg-black/60 backdrop-blur-sm"
           />
 
           {/* Sidebar */}
@@ -237,7 +238,7 @@ export default function ProblemSidebar({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 35 }}
-            className="absolute top-0 left-0 bottom-0 w-[550px] max-w-[95vw] z-50 shadow-2xl bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-white/5"
+            className="fixed top-0 left-0 bottom-0 w-[550px] max-w-[95vw] z-[70] shadow-2xl bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-white/5"
           >
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header section with Title and Close button */}
@@ -255,41 +256,13 @@ export default function ProblemSidebar({
               </div>
 
               {/* Mode Toggle Switcher */}
-              <div className="px-6 pb-2">
-                <div className="p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl flex gap-1 items-center relative">
-                    <button
-                        onClick={() => setActiveTab("problems")}
-                        className={cn(
-                            "flex-1 relative z-10 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2",
-                            activeTab === "problems" ? "text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                        )}
-                    >
-                        <List className="w-4 h-4" />
-                        Practice
-                        {activeTab === "problems" && (
-                            <motion.div 
-                                layoutId="activeTabSwitcher"
-                                className="absolute inset-0 bg-orange-500 rounded-xl -z-10 shadow-lg shadow-orange-500/20"
-                            />
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("learn")}
-                        className={cn(
-                            "flex-1 relative z-10 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2",
-                            activeTab === "learn" ? "text-white" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                        )}
-                    >
-                        <BookOpen className="w-4 h-4" />
-                        Learn
-                        {activeTab === "learn" && (
-                            <motion.div 
-                                layoutId="activeTabSwitcher"
-                                className="absolute inset-0 bg-orange-500 rounded-xl -z-10 shadow-lg shadow-orange-500/20"
-                            />
-                        )}
-                    </button>
-                </div>
+              <div className="px-6 pb-2 [&>div]:w-full [&>div>div]:w-full [&>div>div>button]:flex-1">
+                  <ModeToggle
+                      mode={activeTab === "problems" ? "practice" : "learn"}
+                      onModeChange={(m) => setActiveTab(m === "practice" ? "problems" : "learn")}
+                      practiceLabel="Practice"
+                      learnLabel="Learn"
+                  />
               </div>
 
               {/* Navigation & Search Container */}

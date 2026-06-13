@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 export async function checkCodeChefUser(handle: string, ignoreCache = false) {
     try {
@@ -131,9 +132,7 @@ export async function checkCodeChefUser(handle: string, ignoreCache = false) {
 }
 
 export async function verifyCodeChefOwnership(handle: string, verificationCode: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     if (!session || !session.user) {
         return { success: false, error: "Unauthorized" };
     }
@@ -255,9 +254,7 @@ export async function checkCodeforcesUser(handle: string, ignoreCache = false) {
 }
 
 export async function verifyCodeforcesOwnership(handle: string, verificationCode: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     if (!session || !session.user) {
         return { success: false, error: "Unauthorized" };
     }
@@ -379,9 +376,7 @@ export async function checkLeetCodeUser(handle: string, ignoreCache = false) {
 
 // Verify LeetCode Ownership
 export async function verifyLeetCodeOwnership(handle: string, verificationCode: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     if (!session || !session.user) {
         return { success: false, error: "Unauthorized" };
     }

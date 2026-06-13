@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Metadata } from "next";
 import CoursesClient from "./_components/CoursesClient";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "Courses",
@@ -22,7 +23,7 @@ function CoursesSkeleton() {
 }
 
 export default async function CoursesPage() {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     const courses = await CourseService.getAllCourses();
 
     let enrollments: any[] = [];

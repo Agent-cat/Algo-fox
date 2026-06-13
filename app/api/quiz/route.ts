@@ -5,6 +5,7 @@ import { QuizStore } from "@/lib/quiz-store";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
 
 const createQuizSchema = z.object({
   title: z.string().min(1).max(200),
@@ -24,7 +25,7 @@ const createQuizSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = session.user as any;

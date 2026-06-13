@@ -5,6 +5,7 @@ import { ProblemDomain, Difficulty } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 // GETTING ALL CATEGORIES
 
@@ -19,9 +20,7 @@ export async function getCategories(domain: ProblemDomain = "DSA", courseId?: st
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
 
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
   const userId = session?.user?.id;
 
   cacheTag(await getCategoriesTag(domain, courseId, userId), 'categories-list');
@@ -57,9 +56,7 @@ export async function getCategoryProblems(
   "use cache: private"; // Must be at top - allows headers() inside
   cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
 
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
   const userId = session?.user?.id;
 
   const tagKey = `category-problems-${categoryId}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}`;
@@ -80,9 +77,7 @@ export async function createCategory(data: {
   parentId?: string | null;
 }) {
 
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
 
   // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
@@ -109,9 +104,7 @@ export async function createCategory(data: {
 
 export async function updateCategory(id: string, data: { name?: string; description?: string; slug?: string; order?: number; domain?: ProblemDomain; parentId?: string | null; }) {
 
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
   // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
@@ -141,9 +134,7 @@ export async function updateCategory(id: string, data: { name?: string; descript
 // DELETING A CATEGORY --> ADMIN ONLY
 
 export async function deleteCategory(id: string) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
 
   // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
@@ -181,9 +172,7 @@ export async function addProblemToCategory(
   problemId: string,
   order?: number
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
   // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
   if (!session || session.user.role !== "ADMIN") {
@@ -212,9 +201,7 @@ export async function removeProblemFromCategory(
   categoryId: string,
   problemId: string
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
 
   // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
@@ -251,9 +238,7 @@ export async function createProblemAndAddToCategory(
     solution?: string | null;
   }
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+  const session = await getSession();
 
   if (!session || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");

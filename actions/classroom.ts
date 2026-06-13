@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG, deleteFromCache } from "@/lib/cache-utils";
+import { getSession } from "@/lib/auth-utils";
 
 const classroomSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,9 +29,7 @@ function generateJoinCode(): string {
  * Only ADMIN, INSTITUTION_MANAGER, or TEACHER roles can create classrooms.
  */
 export async function createClassroom(data: z.infer<typeof classroomSchema>) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -103,9 +102,7 @@ export async function createClassroom(data: z.infer<typeof classroomSchema>) {
  * Also onboards the student to the institution if they are not already associated.
  */
 export async function joinClassroom(code: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -218,9 +215,7 @@ export async function getClassroomByCode(code: string) {
             return { success: false, error: "Classroom not found" };
         }
 
-        const session = await auth.api.getSession({
-            headers: await headers(),
-        });
+        const session = await getSession();
 
         const isEnrolled = session?.user ? await prisma.classroom.findFirst({
             where: {
@@ -244,9 +239,7 @@ export async function getClassroomByCode(code: string) {
  * Fetches classrooms created by the currently logged-in teacher (CACHED).
  */
 export async function getTeacherClassrooms() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -283,9 +276,7 @@ export async function getTeacherClassrooms() {
  * Fetches classrooms where the currently logged-in student is enrolled (CACHED).
  */
 export async function getStudentClassrooms() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -332,9 +323,7 @@ export async function getClassroomWithStudents(
     page: number = 1,
     limit: number = 50
 ) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -436,9 +425,7 @@ export async function getClassroomWithStudents(
 }
 
 export async function toggleClassroomTracking(classroomId: string, active: boolean) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -466,9 +453,7 @@ export async function toggleClassroomTracking(classroomId: string, active: boole
 }
 
 export async function getClassroomLiveTracking(classroomId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
@@ -550,9 +535,7 @@ export async function getClassroomLiveTracking(classroomId: string) {
  * Fetches all classrooms for an institution (CACHED with pagination).
  */
 export async function getInstitutionClassrooms(page: number = 1, limit: number = 20) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -614,9 +597,7 @@ export async function getInstitutionClassrooms(page: number = 1, limit: number =
 }
 
 export async function removeStudentFromClassroom(classroomId: string, studentId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -670,9 +651,7 @@ export async function removeStudentFromClassroom(classroomId: string, studentId:
  * Aggregates scores across all classroom-linked contests.
  */
 export async function getClassroomContestPerformance(classroomId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
 

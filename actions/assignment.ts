@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidateTag, unstable_cache } from "next/cache";
 import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG } from "@/lib/cache-utils";
+import { getSession } from "@/lib/auth-utils";
 
 /**
  * Get all assignments for a specific classroom (CACHED with pagination)
@@ -97,9 +98,7 @@ export async function createAssignment(
         problemIds: string[];
     }
 ) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user || session.user.role !== "TEACHER") {
         return { success: false, error: "Unauthorized" };
@@ -186,9 +185,7 @@ export async function getAssignmentDetails(assignmentId: string) {
  * Get all assignments for the current student across all enrolled classrooms (CACHED with pagination)
  */
 export async function getStudentAssignments(page: number = 1, limit: number = 20) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) return { assignments: [], pagination: null };
 
@@ -266,9 +263,7 @@ export async function getStudentAssignments(page: number = 1, limit: number = 20
  * Check completion status of problems in an assignment for a specific user (CACHED short-term)
  */
 export async function getAssignmentProgress(assignmentId: string, userId?: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     const targetUserId = userId || session?.user?.id;
     if (!targetUserId) return null;
@@ -330,9 +325,7 @@ export async function getTeacherAssignmentAnalytics(
     page: number = 1,
     limit: number = 50
 ) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user || session.user.role !== "TEACHER") {
         throw new Error("Unauthorized");

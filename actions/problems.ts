@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
 import { getCacheLifeConfig, getCacheTags } from "@/lib/cache-config";
+import { getSession } from "@/lib/auth-utils";
 
 // GETTING PUBLIC PROBLEMS
 
@@ -23,9 +24,7 @@ export async function getProblems(
     cacheLife(getCacheLifeConfig("problems"));
 
     // CHECKING IF USER IS AUTHENTICATED
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     const userId = session?.user?.id;
 
     const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}-sort-${sortBy}`;
@@ -47,9 +46,7 @@ export async function getAdminProblems(
     cacheLife(getCacheLifeConfig("problems"));
 
     // CHECKING IF USER IS AUTHENTICATED
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -71,9 +68,7 @@ export async function searchProblems(
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife(getCacheLifeConfig("problems"));
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     const userId = session?.user?.id;
 
     const tagKey = `search-${domain || 'all'}-${type || 'all'}-${term.toLowerCase().slice(0, 20)}${userId ? `-user-${userId}` : ''}`;
@@ -98,9 +93,7 @@ export async function getProblem(slug: string, isAdmin?: boolean, contestId?: st
     }
 
     // CHECKING IF USER IS ADMIN
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     const finalIsAdmin = session?.user?.role === "ADMIN";
 
     return getProblemCached(slug, finalIsAdmin, contestId);
@@ -124,9 +117,7 @@ export async function createProblem(data: {
     solution?: string | null;
     companies?: any;
 }) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
@@ -167,9 +158,7 @@ export async function getProblemById(id: string, isAdmin?: boolean, contestId?: 
     }
 
     // CHECKING IF USER IS ADMIN
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     const finalIsAdmin = session?.user?.role === "ADMIN";
 
     return getProblemByIdCached(id, finalIsAdmin, contestId);
@@ -197,9 +186,7 @@ export async function getRandomProblem(domain: ProblemDomain, type: ProblemType,
 
 // UPDATING A PROBLEM --> ADMIN ONLY
 export async function updateProblem(id: string, data: any) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 
@@ -233,9 +220,7 @@ export async function updateProblem(id: string, data: any) {
 
 // DELETING A PROBLEM --> ADMIN ONLY
 export async function deleteProblem(id: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // CHECKING IF USER IS ADMIN --> THROWING AN ERROR IF NOT ADMIN
 

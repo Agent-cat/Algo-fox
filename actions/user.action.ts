@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 /**
  * Get user's total score (cached for 5 minutes)
@@ -15,9 +16,7 @@ export async function getUserScore(): Promise<number> {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return 0;
@@ -35,9 +34,7 @@ export async function getUserScore(): Promise<number> {
  * This fixes any incorrect scores in the database
  */
 export async function recalculateUserScore(): Promise<{ success: boolean; newScore: number }> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         throw new Error("Unauthorized");
@@ -65,9 +62,7 @@ export async function completeOnboarding(data: {
     codeChefHandle?: string;
     hackerrankHandle?: string;
 }): Promise<{ success: boolean; error?: string }> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return { success: false, error: "Unauthorized" };
@@ -112,9 +107,7 @@ export async function updateUserInfo(data: {
     codeforcesHandle?: string;
     githubHandle?: string;
 }): Promise<{ success: boolean; error?: string }> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return { success: false, error: "Unauthorized" };
@@ -141,9 +134,7 @@ export async function updateUserInfo(data: {
  * Clears all caches related to the user and revalidates dashboard
  */
 export async function syncUserProfile(): Promise<{ success: boolean; error?: string }> {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return { success: false, error: "Unauthorized" };
@@ -181,9 +172,7 @@ export async function getUserSettings() {
     "use cache: private";
     cacheLife({ stale: 300, revalidate: 300 });
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.id) {
         return null;
@@ -202,9 +191,7 @@ export async function getUserInstitutionDetails() {
     "use cache: private";
     cacheLife({ stale: 3600, revalidate: 3600 }); // 1 hour
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user?.institutionId) {
         return null;

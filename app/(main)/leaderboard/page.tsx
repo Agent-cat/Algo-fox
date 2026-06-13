@@ -3,6 +3,7 @@ import LeaderboardClient from "./LeaderboardClient";
 import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "Leaderboard",
@@ -10,9 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (session?.user && (session.user as any).role === "USER") {
         return (

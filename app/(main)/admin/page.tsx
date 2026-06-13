@@ -6,14 +6,13 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { Users, FileCode, Trophy, Send, ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { getSession } from "@/lib/auth-utils";
 
 async function AdminDashboardStats() {
     "use cache: private";
     cacheLife("minutes");
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user || (session.user as any).role !== "ADMIN") {
         redirect("/dashboard");

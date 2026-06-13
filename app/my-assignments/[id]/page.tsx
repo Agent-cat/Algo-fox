@@ -7,15 +7,14 @@ import { getAssignmentDetails, getAssignmentProgress } from "@/actions/assignmen
 import { AssignmentDetailView } from "@/components/assignments/AssignmentDetailView";
 import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { Loader2 } from "lucide-react";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "Assignment",
 };
 
 async function AssignmentContent({ id }: { id: string }) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/login");

@@ -7,9 +7,10 @@ import redis from "@/lib/redis";
 import { processLogger } from "@/lib/logger";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 async function requireAdmin() {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) return null;
     const user = session.user as any;
     return user.role === "ADMIN" ? user : null;

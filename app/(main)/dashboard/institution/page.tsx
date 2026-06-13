@@ -5,15 +5,14 @@ import { headers } from "next/headers";
 import { getInstitutionStatsAction, getInstitutionStaff } from "@/actions/institution/staff";
 import { InstitutionDashboardContent } from "./InstitutionDashboardContent";
 import { Loader2, Building2 } from "lucide-react";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata = {
     title: "Institution Dashboard",
 };
 
 async function DashboardData() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

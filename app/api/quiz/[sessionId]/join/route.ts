@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { QuizStore } from "@/lib/quiz-store";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
 
 export async function POST(
   _req: NextRequest,
@@ -10,7 +11,7 @@ export async function POST(
 ) {
   const { sessionId } = await params;
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) {
     return NextResponse.json({ error: "Sign in to join this quiz" }, { status: 401 });
   }

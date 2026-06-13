@@ -6,9 +6,10 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
 import { getVerifiedClientIP } from "@/lib/ip";
+import { getSession } from "@/lib/auth-utils";
 
 export async function GET(req: NextRequest) {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -63,9 +64,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user || session.user.id !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });

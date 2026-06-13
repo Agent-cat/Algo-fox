@@ -4,13 +4,14 @@ import { s3Client, S3_BUCKET_NAME, S3_PUBLIC_DOMAIN } from "@/lib/s3-client";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { randomBytes } from "crypto";
+import { getSession } from "@/lib/auth-utils";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 export async function POST(req: NextRequest) {
     // Auth guard: only authenticated users may upload
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) {
         return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }

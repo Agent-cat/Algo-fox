@@ -6,14 +6,13 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getSession } from "@/lib/auth-utils";
 
 async function CreateContestContent() {
     "use cache: private";
     cacheLife("minutes");
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

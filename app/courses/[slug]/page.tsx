@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { Suspense } from "react";
 import { Metadata } from "next";
 import CourseDetailClient from "./_components/CourseDetailClient";
+import { getSession } from "@/lib/auth-utils";
 
 type Props = {
     params: { slug: string };
@@ -162,7 +163,7 @@ function CourseSkeleton() {
 
 export default async function CourseDetailPage({ params }: Props) {
     const { slug } = await params;
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">

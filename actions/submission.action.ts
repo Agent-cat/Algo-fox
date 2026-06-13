@@ -7,6 +7,7 @@ import { getCacheLifeConfig, getCacheTags } from "@/lib/cache-config";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { cacheTag, cacheLife } from "next/cache";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 import { after } from "next/server"; // For background tasks
 
 async function getCachedSubmissionInternal(id: string) {
@@ -19,9 +20,7 @@ async function getCachedSubmissionInternal(id: string) {
 }
 
 export async function getSubmission(id: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session || !session.user) {
         return null;
@@ -42,9 +41,7 @@ export async function getProblemSubmissionsAction(problemId: string, take: numbe
     // FIXED: Use centralized cache config
     cacheLife(getCacheLifeConfig("submission"));
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session || !session.user) {
         return [];
@@ -59,9 +56,7 @@ export async function getProblemSubmissionsAction(problemId: string, take: numbe
 }
 
 export async function markConceptAsCompleted(problemId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session || !session.user) {
         return { success: false, error: "Unauthorized" };

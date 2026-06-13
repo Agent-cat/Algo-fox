@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidateTag, unstable_cache } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 // Type definitions
 export type CommentWithUser = {
@@ -95,9 +96,7 @@ export async function getProblemComments(problemId: string, currentUserId?: stri
  * Post a new comment or reply
  */
 export async function postComment(problemId: string, content: string, parentId?: string, title?: string, tags?: string[]) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -145,9 +144,7 @@ export async function postComment(problemId: string, content: string, parentId?:
  * Toggle Vote (Upvote/Downvote)
  */
 export async function voteComment(commentId: string, problemId: string, type: "UP" | "DOWN") {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };
@@ -235,9 +232,7 @@ export async function voteComment(commentId: string, problemId: string, type: "U
  * Pin a comment (Admin only)
  */
 export async function pinComment(commentId: string, problemId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user || session.user.role !== "ADMIN") {
         return { success: false, error: "Unauthorized" };
@@ -265,9 +260,7 @@ export async function pinComment(commentId: string, problemId: string) {
  * Delete a comment
  */
 export async function deleteComment(commentId: string, problemId: string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         return { success: false, error: "Unauthorized" };

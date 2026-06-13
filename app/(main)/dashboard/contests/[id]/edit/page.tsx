@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { getContestForEdit } from "@/actions/contest";
 import CreateContestWizard from "@/components/contest/CreateContestWizard";
 import BackButton from "@/components/BackButton";
+import { getSession } from "@/lib/auth-utils";
 
 interface EditContestPageProps {
     params: Promise<{ id: string }>;
@@ -12,9 +13,7 @@ interface EditContestPageProps {
 export default async function EditContestPage({ params }: EditContestPageProps) {
     const { id } = await params;
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

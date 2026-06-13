@@ -10,8 +10,10 @@ import {
 } from "@/actions/institution/analytics";
 import { StudentsOverview } from "@/components/institution/analytics/StudentsOverview";
 import { StudentInsightsDashboard } from "@/components/institution/analytics/StudentInsightsDashboard";
+import { getSession } from "@/lib/auth-utils";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Student Analytics — Institution",
 };
 
@@ -23,7 +25,7 @@ async function AnalyticsContent({ searchParams }: PageProps) {
     const params = await searchParams;
     const studentId = params.student;
 
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) redirect("/signin");
 
     const currentUser = session.user as any;

@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { cacheKey, cachedFetch, REDIS_CACHE_CONFIG as CACHE_CONFIG } from "@/lib/cache-utils";
+import { getSession } from "@/lib/auth-utils";
 
 const staffSchema = z.object({
   email: z.email(),
@@ -15,9 +16,7 @@ const staffSchema = z.object({
 
 export async function addStaffMember(data: z.infer<typeof staffSchema>) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
       return { success: false, error: "Unauthorized" };
@@ -77,9 +76,7 @@ export async function addStaffMember(data: z.infer<typeof staffSchema>) {
  */
 export async function getInstitutionStaff(institutionId: string) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
       return { success: false, error: "Unauthorized" };
@@ -135,9 +132,7 @@ export async function getInstitutionStaff(institutionId: string) {
  */
 export async function getInstitutionStatsAction(institutionId: string) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
       return { success: false, error: "Unauthorized" };
@@ -197,9 +192,7 @@ export async function getInstitutionStatsAction(institutionId: string) {
 
 export async function deleteStaffMember(userId: string) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
       return { success: false, error: "Unauthorized" };
@@ -254,9 +247,7 @@ export async function getInstitutionUsers(
     limit: number = 20
 ) {
     try {
-      const session = await auth.api.getSession({
-        headers: await headers(),
-      });
+      const session = await getSession();
 
       if (!session?.user) {
         return { success: false, error: "Unauthorized" };

@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTeacherClassrooms } from "@/actions/classroom";
 import { QuizCreateForm } from "@/components/quiz/teacher/QuizCreateForm";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata = { title: "Create Quiz — Teacher" };
 
 export default async function CreateQuizPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) redirect("/signin");
 
   const user = session.user as any;

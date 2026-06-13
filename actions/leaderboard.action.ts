@@ -4,6 +4,7 @@ import { LeaderboardService } from "@/core/services/leaderboard.service";
 import { cacheTag, cacheLife, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 export type { LeaderboardEntry } from "@/core/services/leaderboard.service";
 
@@ -52,9 +53,7 @@ export async function getLeaderboardData(params: {
     } = params;
 
     // Get session outside of the "use cache" scope because headers() is dynamic
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     const isAuthorized = session?.user?.role === "ADMIN";
 

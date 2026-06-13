@@ -9,6 +9,7 @@ import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import { Metadata } from "next";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "DSA Problems",
@@ -21,9 +22,7 @@ async function DsaProblemsContent({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     // Check user access
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

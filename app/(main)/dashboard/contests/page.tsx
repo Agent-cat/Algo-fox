@@ -6,14 +6,13 @@ import { ContestList } from "@/components/contest/ContestList";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import BackButton from "@/components/BackButton";
+import { getSession } from "@/lib/auth-utils";
 
 async function ContestsContent() {
     "use cache: private";
     cacheLife("minutes");
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Plus, Zap } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = { title: "Live Quizzes — Teacher" };
 
 export default async function TeacherQuizPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) redirect("/signin");
 
   const user = session.user as any;

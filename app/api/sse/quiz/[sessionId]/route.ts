@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse, connection } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 import { QuizStore } from "@/lib/quiz-store";
 import redis from "@/lib/redis";
 
@@ -11,8 +10,7 @@ export async function GET(
   await connection();
   const { sessionId } = await params;
 
-  const h = await headers();
-  const session = await auth.api.getSession({ headers: h });
+  const session = await getSession();
   if (!session?.user) {
     return NextResponse.json({ error: "Sign in to connect" }, { status: 401 });
   }

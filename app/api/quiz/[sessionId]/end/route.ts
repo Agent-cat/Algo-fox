@@ -4,13 +4,14 @@ import { headers } from "next/headers";
 import { QuizStore } from "@/lib/quiz-store";
 import { cancelQuestionTimer, scheduleSessionCleanup } from "@/core/queues/quiz-timer.queue";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth-utils";
 
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   const { sessionId } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const quiz = await QuizStore.get(sessionId);

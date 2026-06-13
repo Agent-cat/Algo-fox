@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { QuizStore } from "@/lib/quiz-store";
 import { TeacherHostDashboard } from "@/components/quiz/teacher/TeacherHostDashboard";
 import QRCode from "qrcode";
+import { getSession } from "@/lib/auth-utils";
 
 interface Props {
   params: Promise<{ sessionId: string }>;
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function HostQuizPage({ params }: Props) {
   const { sessionId } = await params;
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session?.user) redirect("/signin");
 
   const quiz = await QuizStore.get(sessionId);

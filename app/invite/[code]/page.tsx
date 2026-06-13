@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { getSession } from "@/lib/auth-utils";
 
 export default function InvitePage({ params }: { params: Promise<{ code: string }> }) {
     return (
@@ -39,9 +40,7 @@ async function InviteContent({ params }: { params: Promise<{ code: string }> }) 
         notFound();
     }
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#1D1E23] p-4 relative overflow-hidden">

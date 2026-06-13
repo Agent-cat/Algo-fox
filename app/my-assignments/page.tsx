@@ -8,15 +8,14 @@ import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata:Metadata = {
     title: "My Assignments",
 };
 
 async function AssignmentsContent() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/login");

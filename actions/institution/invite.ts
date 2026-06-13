@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { processLogger } from "@/lib/logger";
+import { getSession } from "@/lib/auth-utils";
 
 const createInviteSchema = z.object({
   institutionId: z.string(),
@@ -16,9 +17,7 @@ const createInviteSchema = z.object({
 
 export async function createInvite(data: z.infer<typeof createInviteSchema>) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) return { success: false, error: "Unauthorized" };
     const currentUser = session.user as any;
@@ -65,7 +64,7 @@ export async function createInvite(data: z.infer<typeof createInviteSchema>) {
 
 export async function toggleInvite(id: string) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) return { success: false, error: "Unauthorized" };
 
     const invite = await prisma.institutionInvite.findUnique({ where: { id } });
@@ -97,7 +96,7 @@ export async function toggleInvite(id: string) {
 
 export async function deleteInvite(id: string) {
     try {
-      const session = await auth.api.getSession({ headers: await headers() });
+      const session = await getSession();
       if (!session?.user) return { success: false, error: "Unauthorized" };
 
       const invite = await prisma.institutionInvite.findUnique({ where: { id } });
@@ -133,7 +132,7 @@ export async function deleteInvite(id: string) {
  */
 export async function getInstitutionInvites(institutionId: string) {
     try {
-        const session = await auth.api.getSession({ headers: await headers() });
+        const session = await getSession();
         if (!session?.user) return { success: false, error: "Unauthorized" };
 
         const currentUser = session.user as any;
@@ -212,7 +211,7 @@ export async function getInviteDetails(code: string) {
 
 export async function acceptInvite(code: string) {
      try {
-        const session = await auth.api.getSession({ headers: await headers() });
+        const session = await getSession();
         if (!session?.user) return { success: false, error: "Unauthorized" };
 
         const user = session.user as any;

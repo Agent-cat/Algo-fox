@@ -13,6 +13,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import WorkspaceSkeleton from "@/components/workspace/WorkspaceSkeleton";
+import { getSession } from "@/lib/auth-utils";
 
 // MIGRATED: Removed export const revalidate = 3600 (incompatible with Cache Components)
 // Caching is now handled via "use cache" in the getProblem action with cacheLife
@@ -54,7 +55,7 @@ async function ProblemContentWithParams({
   const { contestId, courseId } = await searchParams;
 
   // Parallelize core data fetching (Optimized: Session first then problem to avoid redundant calls)
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   const problem = await getProblem(slug, session?.user?.role === "ADMIN", contestId);
 
   if (!problem) {

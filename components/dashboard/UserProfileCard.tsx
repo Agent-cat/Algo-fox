@@ -22,7 +22,7 @@ export function UserProfileCard(props: UserProfileCardProps) {
         <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <div className="flex flex-col items-center text-center">
                 <div className="relative w-24 h-24 mb-4">
-                    <div className="w-full h-full rounded-full bg-orange-50 dark:bg-[#1D1E23] border-4 border-orange-100 dark:border-orange-500/10 flex items-center justify-center overflow-hidden text-2xl font-bold text-orange-600 dark:text-orange-500">
+                    <div className="w-full h-full rounded-full bg-orange-50 dark:bg-white/5 border-4 border-orange-100 dark:border-orange-500/10 flex items-center justify-center overflow-hidden text-2xl font-bold text-orange-600 dark:text-orange-500">
                         {image ? (
                             <img src={image} alt={name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (

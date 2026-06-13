@@ -48,8 +48,8 @@ export function LanguagesCard({ languageCounts }: LanguagesCardProps) {
             <div className="flex-1">
                 <div className="space-y-3">
                     {displayLanguages.map((lang, index) => {
-                        const colorClass = languageColors[lang.name] || 'bg-gray-100 dark:bg-[#1D1E23] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/5';
-                        const bgColor = 'bg-gray-50 dark:bg-[#1D1E23] border-gray-100 dark:border-white/5';
+                        const colorClass = languageColors[lang.name] || 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/5';
+                        const bgColor = 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5';
 
                         return (
                             <div

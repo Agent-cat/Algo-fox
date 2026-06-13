@@ -4,15 +4,14 @@ import { DashboardService } from "@/core/services/dashboard.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { cacheTag, cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 // GETTING DASHBOARD STATS
 export async function getDashboardStats() {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for dashboard stats
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
     // CHECKING IF USER IS AUTHENTICATED --> RETURNING NULL IF NOT AUTHENTICATED
     if (!session?.user) {
         return null;
@@ -30,9 +29,7 @@ export async function getUserProfile(userId: string) {
     "use cache: private";
     cacheLife({ stale: 300, revalidate: 300 });
 
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
+    const session = await getSession();
 
     // Still require authentication to view profiles
     if (!session?.user) {

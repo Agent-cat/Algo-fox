@@ -9,6 +9,7 @@ import Link from "next/link";
 import AptitudeClient from "./_components/AptitudeClient";
 import { Metadata } from "next";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata:Metadata = {
     title: "Aptitude",
@@ -17,9 +18,7 @@ export const metadata:Metadata = {
 
 async function AptitudeContent() {
     // Check user access
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

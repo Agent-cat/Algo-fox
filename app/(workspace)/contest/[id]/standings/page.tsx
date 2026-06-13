@@ -7,6 +7,7 @@ import BackButton from "@/components/BackButton";
 import Link from "next/link";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
+import { getSession } from "@/lib/auth-utils";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -22,9 +23,7 @@ async function StandingsContent({ params, searchParams }: { params: Promise<{ id
         pageNumber = 1;
     }
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

@@ -3,9 +3,10 @@ import { recalculateUserScore } from "@/actions/user.action";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getRateLimiter, RATE_LIMIT_CONFIGS } from "@/lib/rate-limiter";
+import { getSession } from "@/lib/auth-utils";
 
 export async function POST(req: NextRequest) {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

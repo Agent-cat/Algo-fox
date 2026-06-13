@@ -6,6 +6,7 @@ import { JoinClassroomClient } from "@/app/(main)/join-classroom/[code]/JoinClas
 import { School, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { getSession } from "@/lib/auth-utils";
 
 interface PageProps {
     params: Promise<{ code: string }>;
@@ -13,9 +14,7 @@ interface PageProps {
 
 async function JoinClassroomContent({ params }: { params: Promise<{ code: string }> }) {
     const { code } = await params;
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect(`/signin?callbackUrl=/join-classroom/${code}`);

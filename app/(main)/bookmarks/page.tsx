@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Metadata } from "next";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
     title: "My Bookmarks",
@@ -16,9 +17,7 @@ async function BookmarksContent({
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

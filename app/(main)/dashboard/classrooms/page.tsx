@@ -7,15 +7,14 @@ import { ClassroomsPageContent } from "./ClassroomsPageContent";
 import SubscriptionOverlay from "@/components/subscription/SubscriptionOverlay";
 import { School } from "lucide-react";
 import { Metadata } from "next";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata:Metadata = {
     title: "My Classrooms",
 };
 
 async function ClassroomsData() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+    const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");

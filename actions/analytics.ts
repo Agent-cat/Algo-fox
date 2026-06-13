@@ -3,9 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 
 async function resolveTargetUserId(requestedId?: string): Promise<string | null> {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await getSession();
     if (!session?.user) return null;
 
     const sessionUser = session.user as any;

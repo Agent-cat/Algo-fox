@@ -1,13 +1,9 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 async function AuthCheck({ children }: { children: React.ReactNode }) {
-    const h = await headers();
-    const session = await auth.api.getSession({
-        headers: h
-    });
+    const session = await getSession();
 
     if (!session) {
         redirect("/signin");

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse, connection } from "next/server";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import redis from "@/lib/redis";
 
@@ -10,12 +9,9 @@ export async function GET(
     context: { params: Promise<{ id: string }> } // Explicit type for params
 ) {
     await connection();
-    const headersList = await headers();
     const { id: submissionId } = await context.params;
 
-    const session = await auth.api.getSession({
-        headers: headersList
-    });
+    const session = await getSession();
 
     if (!session || !session.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
