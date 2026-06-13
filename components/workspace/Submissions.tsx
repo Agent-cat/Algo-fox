@@ -4,8 +4,8 @@ import { authClient } from '@/lib/auth-client';
 import { SubmissionResult } from '@prisma/client';
 import { Loader2, RefreshCw, SquareArrowOutUpRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import SubmissionDetailView from './SubmissionDetailView';
 
 interface Submission {
     id: string;
@@ -23,15 +23,18 @@ interface Submission {
 interface SubmissionsProps {
     problemId: string;
     onRestoreCode?: (code: string, languageId: number) => void;
+    isSubmitting?: boolean;
+    latestSubmissionId?: string | null;
 }
 
-export default function Submissions({ problemId, onRestoreCode }: SubmissionsProps) {
+export default function Submissions({ problemId, onRestoreCode, isSubmitting, latestSubmissionId }: SubmissionsProps) {
     const { data: session } = authClient.useSession();
 
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(false);
+    const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
     const PAGE_SIZE = 15;
 
     const loadSubmissions = async (cursor?: string, isMounted: boolean = true, isSilent: boolean = false) => {
@@ -71,6 +74,13 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
         }
     };
 
+    // Auto-select the latest submission when it completes
+    useEffect(() => {
+        if (latestSubmissionId && !isSubmitting) {
+            setSelectedSubmissionId(latestSubmissionId);
+        }
+    }, [latestSubmissionId, isSubmitting]);
+
     useEffect(() => {
         let isMounted = true;
         loadSubmissions(undefined, isMounted);
@@ -88,8 +98,43 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
         return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Please sign in to view submissions.</div>;
     }
 
-    if (loading) {
+    if (loading && !isSubmitting) {
         return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-orange-500" /></div>;
+    }
+
+    if (isSubmitting) {
+        return (
+            <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="p-8 h-full flex flex-col gap-6"
+            >
+                {/* Header Skeleton */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-white/5 rounded-full animate-pulse" />
+                        <div className="space-y-2">
+                            <div className="h-6 w-32 bg-gray-200 dark:bg-white/5 rounded-md animate-pulse" />
+                            <div className="h-4 w-48 bg-gray-200 dark:bg-white/5 rounded-md animate-pulse" />
+                        </div>
+                    </div>
+                </div>
+                {/* Graph Skeleton */}
+                <div className="h-48 w-full bg-gray-200 dark:bg-white/5 rounded-2xl animate-pulse" />
+                {/* Code Skeleton */}
+                <div className="flex-1 min-h-[300px] w-full bg-gray-200 dark:bg-white/5 rounded-2xl animate-pulse" />
+            </motion.div>
+        );
+    }
+
+    if (selectedSubmissionId) {
+        return (
+            <SubmissionDetailView 
+                submissionId={selectedSubmissionId} 
+                onBackAction={() => setSelectedSubmissionId(null)} 
+                problemId={problemId}
+                onRestoreCode={onRestoreCode}
+            />
+        );
     }
 
     return (
@@ -112,13 +157,12 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                 ) : (
                     <div className="w-full text-sm text-left">
                         {/* HEADER */}
-                        <div className="grid grid-cols-6 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#24262C] border-b border-dashed border-gray-200 dark:border-white/10 font-black tracking-widest">
+                        <div className="grid grid-cols-5 gap-4 px-6 py-4 text-[10px] text-gray-400 dark:text-gray-500 uppercase bg-[#fafafa] dark:bg-[#24262C] border-b border-dashed border-gray-200 dark:border-white/10 font-black tracking-widest">
                             <div>Status</div>
                             <div>Language</div>
                             <div>Time</div>
                             <div>Memory</div>
-                            <div className="text-center">Action</div>
-                            <div className="text-right">Date</div>
+                            <div>Date</div>
                         </div>
                         {/* ROWS */}
                         <div className="flex flex-col">
@@ -139,9 +183,9 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                                         }}
                                         className="border-b border-gray-200 dark:border-white/10 overflow-hidden"
                                     >
-                                        <Link
-                                            href={`/submissions/${sub.id}`}
-                                            className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group items-center border-l-4 border-l-transparent"
+                                        <div
+                                            onClick={() => setSelectedSubmissionId(sub.id)}
+                                            className="grid grid-cols-5 gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group items-center border-l-4 border-l-transparent cursor-pointer"
                                         >
                                             <div className="font-medium">
                                                 <span className={`
@@ -155,24 +199,11 @@ export default function Submissions({ problemId, onRestoreCode }: SubmissionsPro
                                             <div className="text-gray-600 dark:text-gray-300 font-medium">{sub.language.name}</div>
                                             <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.time ? `${Number(sub.time).toFixed(3)}ms` : '-'}</div>
                                             <div className="text-gray-500 dark:text-gray-400 font-mono text-xs">{sub.memory ? `${sub.memory}KB` : '-'}</div>
-                                            <div className="flex justify-center">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        onRestoreCode?.(sub.code, sub.language.judge0Id);
-                                                    }}
-                                                    className="p-2 text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-all"
-                                                    title="Restore to editor"
-                                                >
-                                                    <SquareArrowOutUpRight className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                            <div className="text-gray-400 dark:text-gray-500 text-[10px] font-bold text-right uppercase tracking-tighter">
+                                            <div className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-tighter">
                                                 {new Date(sub.createdAt).toLocaleDateString()}
                                                 <div className="opacity-60">{new Date(sub.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                        </Link>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </AnimatePresence>

@@ -112,10 +112,16 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                 height={32} 
                                 className="w-8 h-8 object-contain rounded-lg shadow-sm group-hover:scale-105 transition-transform duration-300"
                             />
-                        ) : (
-                            <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm">
-                                {institution ? institution.name.charAt(0).toUpperCase() : "A"}
+                        ) : institution ? (
+                            <span className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300 text-sm font-bold">
+                                {institution.name.charAt(0).toUpperCase()}
                             </span>
+                        ) : (
+                            <img
+                                src="/icons/fox.png"
+                                alt="Algo-fox"
+                                className="w-8 h-8 object-contain rounded-lg group-hover:scale-105 transition-transform duration-300"
+                            />
                         )}
                         {isInstitutionLoading ? (
                             <div className="w-20 h-5 bg-gray-200 dark:bg-gray-800 animate-pulse rounded ml-1 hidden sm:block" />

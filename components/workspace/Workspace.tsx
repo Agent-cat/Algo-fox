@@ -381,7 +381,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         isSubmitting,
         submissionMode,
         submissionResults,
-        submissionStatus
+        submissionStatus,
+        submissionId
     } = useWorkspaceSubmission({
         problem,
         languageId,
@@ -551,6 +552,8 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                             nextProblemSlug={nextProblemSlug}
                             courseId={courseId}
                             onRestoreCode={handleRestoreCode}
+                            isSubmitting={isSubmitting}
+                            latestSubmissionId={submissionId}
                         />
                     </div>
                     <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10 min-h-0">

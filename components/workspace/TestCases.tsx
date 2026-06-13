@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useEffect, memo } from 'react';
 import { CheckCircle2, XCircle, Terminal, Lock, Clock, AlertCircle, Code2, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { ProblemTestCase, TestCase } from '@prisma/client';
-import SubmissionPerformance from './SubmissionPerformance';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { TestCaseView } from './TestCaseView';
 import { ConsoleErrorView } from './ConsoleErrorView';
@@ -222,7 +221,7 @@ const TestCases = memo(({
         <div className="h-full min-h-0 flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-t border-gray-200/80 dark:border-[#1e1e1e]">
             {/* Header - Always visible, acts as toggle */}
             <motion.div
-                className="flex items-center justify-between gap-3 px-4 py-2 bg-gray-50/50 dark:bg-[#24262C] border-b border-gray-100/80 dark:border-[#1D1E23] cursor-pointer select-none group h-10 shrink-0"
+                className="flex items-center justify-between gap-3 px-4 py-2 bg-white dark:bg-[#24262C] border-b border-gray-200/80 dark:border-[#1D1E23] cursor-pointer select-none group h-10 shrink-0"
                 onClick={onToggleCollapse}
                 whileTap={{ scale: 0.998 }}
             >
@@ -424,21 +423,7 @@ const TestCases = memo(({
                                 )}
                             </div>
 
-                            {/* Peer Comparison */}
-                            {status === "ACCEPTED" && mode === "SUBMIT" && problemId && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="mb-3"
-                                >
-                                    <SubmissionPerformance
-                                        problemId={problemId}
-                                        runtime={submissionRuntime}
-                                        memory={submissionMemory}
-                                    />
-                                </motion.div>
-                            )}
+
 
                              {/* Content */}
                             <div className="flex-1">

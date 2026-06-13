@@ -61,6 +61,7 @@ interface CodeEditorProps {
   fileTabs?: React.ReactNode;
   highlightLine?: number | null;
   allowedLanguages?: string[];
+  hideToolbar?: boolean;
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -81,6 +82,7 @@ const CodeEditor = memo(({
   fileTabs,
   highlightLine,
   allowedLanguages,
+  hideToolbar = false,
 }: CodeEditorProps) => {
   // Get system theme
   const { resolvedTheme } = useTheme();
@@ -833,25 +835,27 @@ const CodeEditor = memo(({
         }
       `}</style>
       {/* EDITOR TOOLBAR */}
-      <EditorToolbar
-        readOnly={readOnly}
-        isDropdownOpen={isDropdownOpen}
-        setIsDropdownOpen={setIsDropdownOpen}
-        currentLanguageName={currentLanguage.name}
-        availableLanguages={availableLanguages}
-        effectiveLanguageId={effectiveLanguageId}
-        handleLanguageChange={handleLanguageChange}
-        currentDriverCode={currentDriverCode}
-        setIsDriverCodeModalOpen={setIsDriverCodeModalOpen}
-        isSaving={isSaving}
-        isRestoring={isRestoring}
-        handleFormat={handleFormat}
-        handleReset={handleReset}
-        handleFullScreen={handleFullScreen}
-        isFullScreen={isFullScreen}
-        onOpenSettings={onOpenSettings}
-        dropdownRef={dropdownRef}
-      />
+      {!hideToolbar && (
+        <EditorToolbar
+          readOnly={readOnly}
+          isDropdownOpen={isDropdownOpen}
+          setIsDropdownOpen={setIsDropdownOpen}
+          currentLanguageName={currentLanguage.name}
+          availableLanguages={availableLanguages}
+          effectiveLanguageId={effectiveLanguageId}
+          handleLanguageChange={handleLanguageChange}
+          currentDriverCode={currentDriverCode}
+          setIsDriverCodeModalOpen={setIsDriverCodeModalOpen}
+          isSaving={isSaving}
+          isRestoring={isRestoring}
+          handleFormat={handleFormat}
+          handleReset={handleReset}
+          handleFullScreen={handleFullScreen}
+          isFullScreen={isFullScreen}
+          onOpenSettings={onOpenSettings}
+          dropdownRef={dropdownRef}
+        />
+      )}
 
       {/* FILE TABS */}
       {fileTabs}

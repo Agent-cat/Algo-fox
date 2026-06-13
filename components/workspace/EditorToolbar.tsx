@@ -3,6 +3,7 @@ import React from 'react';
 import { ChevronDown, Code2, Loader2, AlignLeft, RotateCcw, Maximize2, Minimize2, Settings } from 'lucide-react';
 import CustomTooltip from '../ui/CustomTooltip';
 import { GithubSyncDialog } from '../settings/GithubSyncDialog';
+import { authClient } from '@/lib/auth-client';
 
 const GithubIcon = ({ className }: { className?: string }) => (
     <svg
@@ -55,6 +56,9 @@ export const EditorToolbar = React.memo(({
     onOpenSettings,
     dropdownRef
 }: EditorToolbarProps) => {
+    const { data: session } = authClient.useSession();
+    const autoSyncEnabled = (session?.user as any)?.githubAutoSync !== false;
+
     return (
         <div className="flex items-center justify-between px-4 py-2 border-b border-dashed border-gray-300 dark:border-white/10 bg-gray-50/50 dark:bg-[#1D1E23]">
             <div className="flex items-center gap-3">
@@ -159,7 +163,10 @@ export const EditorToolbar = React.memo(({
                             <button
                                 className="p-1.5 hover:bg-gray-200 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                             >
-                                <GithubIcon className="w-4 h-4" />
+                                <div className="relative flex items-center justify-center">
+                                    <GithubIcon className="w-4 h-4" />
+                                    <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-gray-50 dark:border-[#1D1E23] ${autoSyncEnabled ? 'bg-green-500' : 'bg-red-500'}`} />
+                                </div>
                             </button>
                         </GithubSyncDialog>
                     </CustomTooltip>

@@ -228,15 +228,24 @@ const WorkspaceHeader = memo(({
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
               className="w-8 h-8 object-contain rounded-lg shadow-sm"
             />
-          ) : (
+          ) : institution ? (
             <motion.span
               whileHover={{ scale: 1.08, rotate: -3 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
               className="w-8 h-8 bg-linear-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-md shadow-orange-500/20 text-sm font-bold"
             >
-              {institution ? institution.name.charAt(0).toUpperCase() : "A"}
+              {institution.name.charAt(0).toUpperCase()}
             </motion.span>
+          ) : (
+            <motion.img
+              src="/icons/fox.png"
+              alt="Algo-fox"
+              whileHover={{ scale: 1.08, rotate: -3 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="w-8 h-8 object-contain rounded-lg"
+            />
           )}
           {contestId && (
             <motion.div

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ReactJoyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import ReactJoyride, { CallBackProps, STATUS, Step, TooltipRenderProps } from "react-joyride";
 import { useTheme } from "next-themes";
 
 export default function ProblemTour() {
@@ -64,33 +64,64 @@ export default function ProblemTour() {
     },
   ];
 
+  const CustomTooltip = ({
+    index,
+    step,
+    backProps,
+    closeProps,
+    primaryProps,
+    skipProps,
+    tooltipProps,
+    isLastStep,
+  }: TooltipRenderProps) => (
+    <div
+      {...tooltipProps}
+      className="bg-white dark:bg-[#24262C] p-5 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-white/10 max-w-[320px] font-sans"
+    >
+      {step.title && (
+        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-2">
+          {step.title}
+        </h3>
+      )}
+      <div className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-6 leading-relaxed">
+        {step.content}
+      </div>
+      <div className="flex items-center justify-between mt-4">
+        {skipProps && (
+            <button
+            {...skipProps}
+            className="text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-wider"
+            >
+            Skip Tour
+            </button>
+        )}
+        <div className="flex items-center gap-2 ml-auto">
+          {index > 0 && (
+            <button
+              {...backProps}
+              className="px-3 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#1D1E23] hover:bg-gray-200 dark:hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+            >
+              Back
+            </button>
+          )}
+          <button
+            {...primaryProps}
+            className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-500/20 rounded-lg transition-all cursor-pointer"
+          >
+            {isLastStep ? 'Finish' : 'Next'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const styles = {
     options: {
         zIndex: 10000,
-        primaryColor: theme === 'dark' ? '#ff79c6' : '#ea580c',
+        primaryColor: '#ea580c',
         textColor: theme === 'dark' ? '#f5f5f5' : '#1f2937',
-        backgroundColor: theme === 'dark' ? '#1D1E23' : '#ffffff',
-        arrowColor: theme === 'dark' ? '#1D1E23' : '#ffffff',
-    },
-    tooltip: {
-        borderRadius: '0.75rem',
-        padding: '1rem',
-        border: theme === 'dark' ? '1px dashed rgba(255, 255, 255, 0.1)' : 'none',
-    },
-    buttonNext: {
-        backgroundColor: theme === 'dark' ? '#24262C' : '#ea580c',
-        borderRadius: '0.5rem',
-        color: '#fff',
-        fontWeight: 600,
-        padding: '0.5rem 1rem',
-        border: theme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : 'none',
-    },
-    buttonBack: {
-        color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-        marginRight: '0.5rem',
-    },
-    buttonSkip: {
-        color: theme === 'dark' ? '#ff79c6' : '#dc2626',
+        backgroundColor: theme === 'dark' ? '#24262C' : '#ffffff',
+        arrowColor: theme === 'dark' ? '#24262C' : '#ffffff',
     }
   };
 
@@ -99,10 +130,11 @@ export default function ProblemTour() {
       steps={steps}
       run={run}
       continuous
-      showProgress
+      showProgress={false}
       showSkipButton
       callback={handleJoyrideCallback}
       styles={styles}
+      tooltipComponent={CustomTooltip}
       floaterProps={{
         disableAnimation: true,
       }}
