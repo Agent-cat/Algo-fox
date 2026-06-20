@@ -107,10 +107,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                       <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
                       <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl z-50 p-1">
                         <DropdownLink href="/dashboard" close={() => setIsDropdownOpen(false)}>My Dashboard</DropdownLink>
-                        <DropdownLink href="/placements" close={() => setIsDropdownOpen(false)}>Placements</DropdownLink>
                         <DropdownLink href="/bookmarks" close={() => setIsDropdownOpen(false)}>Bookmarks</DropdownLink>
-                        <DropdownLink href="/dashboard/classrooms" close={() => setIsDropdownOpen(false)}>My Classrooms</DropdownLink>
-                        <DropdownLink href="/my-assignments" close={() => setIsDropdownOpen(false)}>My Assignments</DropdownLink>
                         <DropdownLink href="/leaderboard" close={() => setIsDropdownOpen(false)}>Leaderboard</DropdownLink>
 
                         {(isAdmin || isTeacher || isContestManager || isPlacementDirector || isInstitutionManager) && (

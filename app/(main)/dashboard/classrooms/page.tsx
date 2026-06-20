@@ -43,22 +43,10 @@ async function ClassroomsData() {
 
 export default function ClassroomsPage() {
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] pt-12">
-            {/* Header */}
-            <div className="relative mb-12 bg-[#fafafa] dark:bg-[#1D1E23]   dark:border-white/5  overflow-hidden">
-                <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
-
-                <div className="w-full px-6 lg:px-12 relative z-10">
-                    <div className="flex flex-col items-center text-center gap-4">
-                        <div className="relative group cursor-default">
-                            <div className="absolute -inset-1 rounded-full"></div>
-                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-[#fafafa] dark:bg-[#1D1E23] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
-                                <School className="w-4 h-4" />
-                                MY CLASSROOMS
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] pt-24 pb-12">
+            <div className="w-full px-6 lg:px-12 mx-auto mb-8">
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Classrooms</h1>
+                <p className="text-gray-500 mt-1">View and access your enrolled classrooms.</p>
             </div>
 
             {/* Content Container */}

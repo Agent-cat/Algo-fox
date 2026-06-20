@@ -106,6 +106,7 @@ export function PatentModal({ open, onOpenChange, user, onSuccess, editIndex }: 
         }, 0);
     };
 
+    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -118,12 +119,15 @@ export function PatentModal({ open, onOpenChange, user, onSuccess, editIndex }: 
                 </SheetHeader>
 
                     <div className="p-8 flex-1 overflow-y-auto space-y-8">
-                        <div>                            <input {...register("title")} required className={inputClasses} placeholder="Title" />
+                        <div className="relative">
+                            <label className={labelClasses}>Title *</label>
+                            <input {...register("title")} required className={inputClasses} placeholder="e.g. A novel method for sorting" />
                         </div>
                         
-                        <div>
+                        <div className="relative">
+                            <label className={labelClasses}>Patent Office *</label>
                             <select {...register("patentOffice")} required className={`${inputClasses} appearance-none`}>
-                                <option value="" disabled hidden>Select Patent Office *</option>
+                                <option value="" disabled hidden>Select Patent Office</option>
                                 <option value="Indian Patent Office (IPO)">Indian Patent Office (IPO)</option>
                                 <option value="US Patent and Trademark Office (USPTO)">US Patent and Trademark Office (USPTO)</option>
                                 <option value="European Patent Office (EPO)">European Patent Office (EPO)</option>
@@ -132,12 +136,15 @@ export function PatentModal({ open, onOpenChange, user, onSuccess, editIndex }: 
                             </select>
                         </div>
 
-                        <div>                            <input {...register("applicationNumber")} required className={inputClasses} placeholder="Application Number" />
+                        <div className="relative">
+                            <label className={labelClasses}>Application Number *</label>
+                            <input {...register("applicationNumber")} required className={inputClasses} placeholder="e.g. US2021012345" />
                         </div>
 
-                        <div>
+                        <div className="relative">
+                            <label className={labelClasses}>Patent Status *</label>
                             <select {...register("patentStatus")} required className={`${inputClasses} appearance-none`}>
-                                <option value="" disabled hidden>Select Patent Status *</option>
+                                <option value="" disabled hidden>Select Patent Status</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Published">Published</option>
                                 <option value="Granted">Granted</option>
@@ -147,37 +154,23 @@ export function PatentModal({ open, onOpenChange, user, onSuccess, editIndex }: 
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="relative">
+                                <label className={labelClasses}>Select Filing Date *</label>
                                 <input 
                                     {...register("filingDate")} 
                                     type="date" 
                                     required 
-                                    className={`${inputClasses} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 z-10 relative bg-transparent`} 
+                                    className={inputClasses} 
                                 />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-0 text-gray-500 pointer-events-none">
-                                    <Calendar className="w-5 h-5" />
-                                </div>
-                                {!watch("filingDate") && (
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-0 text-gray-400 pointer-events-none text-sm">
-                                        Select Filing Date *
-                                    </div>
-                                )}
                             </div>
                             
                             <div className="relative">
+                                <label className={labelClasses}>Select Issue Date {watch("patentStatus") === "Granted" ? "*" : ""}</label>
                                 <input 
                                     {...register("issueDate")} 
                                     type="date" 
                                     required={watch("patentStatus") === "Granted"}
-                                    className={`${inputClasses} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 z-10 relative bg-transparent`} 
+                                    className={inputClasses} 
                                 />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-0 text-gray-500 pointer-events-none">
-                                    <Calendar className="w-5 h-5" />
-                                </div>
-                                {!watch("issueDate") && (
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-0 text-gray-400 pointer-events-none text-sm">
-                                        Select Issue Date {watch("patentStatus") === "Granted" ? "*" : ""}
-                                    </div>
-                                )}
                             </div>
                         </div>
 

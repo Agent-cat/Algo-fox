@@ -90,6 +90,7 @@ export function EditResumeModal({ open, onOpenChange, user, onSuccess, editIndex
         }
     };
 
+    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
 
     return (
@@ -122,13 +123,20 @@ export function EditResumeModal({ open, onOpenChange, user, onSuccess, editIndex
                         </div>
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                                        <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full font-bold transition-colors flex items-center justify-center min-w-[160px] disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>

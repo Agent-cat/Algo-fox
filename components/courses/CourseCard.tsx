@@ -57,7 +57,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
-            <div className="p-6 flex flex-col grow space-y-4">
+            <div className="p-5 flex flex-col grow space-y-4">
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-orange-500">
                          <GraduationCap className="w-3.5 h-3.5" />

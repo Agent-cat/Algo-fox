@@ -33,7 +33,7 @@ export default async function CoursesPage() {
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
-            <main className="w-full px-6 lg:px-12 pt-28 pb-20">
+            <main className="w-full px-6 lg:px-12 pt-20 pb-20">
                 <Suspense fallback={<CoursesSkeleton />}>
                     <CoursesClient courses={courses} enrollments={enrollments} />
                 </Suspense>

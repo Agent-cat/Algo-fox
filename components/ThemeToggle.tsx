@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Contrast } from "lucide-react";
 
 import { flushSync } from "react-dom";
 
@@ -73,27 +73,24 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333333] group"
+      className="relative p-2 rounded-lg bg-gray-100 dark:bg-[#262626] group transition-transform active:scale-95"
       aria-label={`Switch to ${
         resolvedTheme === "dark" ? "light" : "dark"
       } mode`}
       title={`Current: ${resolvedTheme} mode`}
     >
-      <div className="relative w-5 h-5">
-        <Sun
-          className={`absolute inset-0 w-5 h-5 text-orange-500 transition-all duration-300 ${
-            resolvedTheme === "light"
-              ? "opacity-100 rotate-0 scale-100"
-              : "opacity-0 rotate-90 scale-0"
-          }`}
-        />
-        <Moon
-          className={`absolute inset-0 w-5 h-5 text-orange-400 transition-all duration-300 ${
-            resolvedTheme === "dark"
-              ? "opacity-100 rotate-0 scale-100"
-              : "opacity-0 -rotate-90 scale-0"
-          }`}
-        />
+      <div className="relative w-5 h-5 flex items-center justify-center">
+        <svg 
+            viewBox="0 0 24 24" 
+            className={`w-5 h-5 text-gray-700 dark:text-gray-300 transition-transform duration-500 ${
+                resolvedTheme === "dark" ? "rotate-180" : "rotate-0"
+            }`}
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path d="M12 2A10 10 0 0 0 12 22V2Z" fill="black" />
+            <path d="M12 2A10 10 0 0 1 12 22V2Z" fill="white" />
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
       </div>
     </button>
   );

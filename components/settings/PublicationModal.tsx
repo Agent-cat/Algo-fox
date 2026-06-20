@@ -102,6 +102,7 @@ export function PublicationModal({ open, onOpenChange, user, onSuccess, editInde
         }, 0);
     };
 
+    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -114,30 +115,29 @@ export function PublicationModal({ open, onOpenChange, user, onSuccess, editInde
                 </SheetHeader>
 
                     <div className="p-8 flex-1 overflow-y-auto space-y-8">
-                        <div>                            <input {...register("title")} required className={inputClasses} placeholder="Title" />
+                        <div className="relative">
+                            <label className={labelClasses}>Title *</label>
+                            <input {...register("title")} required className={inputClasses} placeholder="e.g. A novel approach to AI" />
                         </div>
                         
-                        <div>                            <input {...register("publisher")} required className={inputClasses} placeholder="Publication/Publisher" />
-                        </div>
-
-                        <div>                            <input {...register("publicationUrl")} required className={inputClasses} placeholder="Publication URL" />
+                        <div className="relative">
+                            <label className={labelClasses}>Publication/Publisher *</label>
+                            <input {...register("publisher")} required className={inputClasses} placeholder="e.g. IEEE / Springer" />
                         </div>
 
                         <div className="relative">
+                            <label className={labelClasses}>Publication URL *</label>
+                            <input {...register("publicationUrl")} required className={inputClasses} placeholder="e.g. https://doi.org/10.1109/..." />
+                        </div>
+
+                        <div className="relative">
+                            <label className={labelClasses}>Select Publication Date *</label>
                             <input 
                                 {...register("publicationDate")} 
                                 type="date" 
                                 required 
-                                className={`${inputClasses} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 z-10 relative bg-transparent`} 
+                                className={inputClasses} 
                             />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 z-0 text-gray-500 pointer-events-none">
-                                <Calendar className="w-5 h-5" />
-                            </div>
-                            {!watch("publicationDate") && (
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 z-0 text-gray-400 pointer-events-none text-sm">
-                                    Select Publication Date *
-                                </div>
-                            )}
                         </div>
 
                         <div className="border border-gray-200 dark:border-[#333] rounded-lg overflow-hidden">

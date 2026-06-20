@@ -98,6 +98,7 @@ export function SkillModal({ open, onOpenChange, user, onSuccess, editIndex, typ
         }
     };
 
+    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
 
     return (
@@ -111,20 +112,22 @@ export function SkillModal({ open, onOpenChange, user, onSuccess, editIndex, typ
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="space-y-2">
+                        <div className="relative">
+                            <label className={labelClasses}>{inputLabel}</label>
                             <input
                                 {...register("name", { required: true })}
-                                placeholder={inputLabel}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#24262C] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm"
+                                placeholder={`e.g. Enter ${title.split(" ")[2]}`}
+                                className={inputClasses}
                             />
                         </div>
-                        <div className="space-y-2">
+                        <div className="relative">
+                            <label className={labelClasses}>Select Proficiency *</label>
                             <select
                                 {...register("proficiency", { required: true })}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#24262C] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm appearance-none"
+                                className={`${inputClasses} appearance-none`}
                                 defaultValue=""
                             >
-                                <option value="" disabled>Select Proficiency *</option>
+                                <option value="" disabled hidden>Select Proficiency</option>
                                 {proficiencies.map(p => (
                                     <option key={p} value={p}>{p}</option>
                                 ))}
@@ -132,13 +135,20 @@ export function SkillModal({ open, onOpenChange, user, onSuccess, editIndex, typ
                         </div>
                     </div>
 
-                    <div className="flex justify-center pt-4">
+                                        <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-10 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full font-bold transition-colors flex items-center justify-center min-w-[140px] disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save"}
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>

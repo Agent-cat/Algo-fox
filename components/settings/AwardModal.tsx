@@ -102,6 +102,7 @@ export function AwardModal({ open, onOpenChange, user, onSuccess, editIndex }: A
         }, 0);
     };
 
+    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -114,13 +115,18 @@ export function AwardModal({ open, onOpenChange, user, onSuccess, editIndex }: A
                 </SheetHeader>
 
                     <div className="p-8 flex-1 overflow-y-auto space-y-8">
-                        <div>                            <input {...register("positionTitle")} required className={inputClasses} placeholder="Position Title" />
+                        <div className="relative">
+                            <label className={labelClasses}>Position Title *</label>
+                            <input {...register("positionTitle")} required className={inputClasses} placeholder="e.g. First Prize in Hackathon" />
                         </div>
-                        <div>                            <input {...register("issuer")} required className={inputClasses} placeholder="Issuer/Organizer" />
+                        <div className="relative">
+                            <label className={labelClasses}>Issuer/Organizer *</label>
+                            <input {...register("issuer")} required className={inputClasses} placeholder="e.g. Google" />
                         </div>
-                        <div>
+                        <div className="relative">
+                            <label className={labelClasses}>Associated With *</label>
                             <select {...register("associatedWith")} required className={`${inputClasses} appearance-none`}>
-                                <option value="" disabled hidden>Associated With *</option>
+                                <option value="" disabled hidden>Select Association</option>
                                 <option value="None">None</option>
                                 <option value="College">College</option>
                                 <option value="Personal">Personal</option>
@@ -129,20 +135,13 @@ export function AwardModal({ open, onOpenChange, user, onSuccess, editIndex }: A
                         </div>
 
                         <div className="relative">
+                            <label className={labelClasses}>Select Issued Date *</label>
                             <input 
                                 {...register("issuedDate")} 
                                 type="date" 
                                 required 
-                                className={`${inputClasses} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 z-10 relative bg-transparent`} 
+                                className={inputClasses} 
                             />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 z-0 text-gray-500 pointer-events-none">
-                                <Calendar className="w-5 h-5" />
-                            </div>
-                            {!watch("issuedDate") && (
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 z-0 text-gray-400 pointer-events-none text-sm">
-                                    Select Issued Date *
-                                </div>
-                            )}
                         </div>
 
                         <div className="border border-gray-200 dark:border-[#333] rounded-lg overflow-hidden">

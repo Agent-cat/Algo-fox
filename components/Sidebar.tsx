@@ -14,6 +14,9 @@ import {
   ChevronDown,
   LogOut,
   Settings2,
+  Briefcase,
+  Users,
+  ClipboardList,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
@@ -48,6 +51,17 @@ const NAV_SECTIONS = [
     label: "Learn",
     items: [{ label: "Courses", href: "/courses", icon: GraduationCap }],
   },
+  {
+    label: "Academics",
+    items: [
+      { label: "Classrooms", href: "/dashboard/classrooms", icon: Users },
+      { label: "Assignments", href: "/my-assignments", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "Career",
+    items: [{ label: "Placements", href: "/placements", icon: Briefcase }],
+  },
 ] as const;
 
 // ─────────────────────────────────────────────────────────────
@@ -67,8 +81,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     Practice: true,
-    Contests: false,
-    Learn: false,
+    Contests: true,
+    Learn: true,
+    Academics: true,
+    Career: true,
   });
 
   const toggleSection = (label: string) => {
@@ -82,6 +98,9 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
           toast.success("Logged out successfully");
           router.push("/");
         },
+        onError: (ctx) => {
+          toast.error(ctx.error.message || "Failed to log out");
+        }
       },
     });
   };
@@ -91,24 +110,44 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if ((session?.user as any)?.institutionId) {
+    const user = session?.user;
+    const institutionId = user && 'institutionId' in user ? (user as any).institutionId : undefined;
+
+    if (institutionId) {
       try {
         const s = localStorage.getItem("algofox_user_institution");
         if (s) setInstitution(JSON.parse(s));
       } catch (_) {}
-      getUserInstitutionDetails().then((data) => {
-        if (data) {
-          setInstitution(data as any);
-          try {
-            localStorage.setItem("algofox_user_institution", JSON.stringify(data));
-          } catch (_) {}
+
+      const abortController = new AbortController();
+
+      const fetchInstitution = async () => {
+        try {
+          const data = await getUserInstitutionDetails();
+          if (abortController.signal.aborted) return;
+          if (data) {
+            setInstitution(data as any);
+            try {
+              localStorage.setItem("algofox_user_institution", JSON.stringify(data));
+            } catch (_) {}
+          }
+        } catch (error) {
+            if (!abortController.signal.aborted) {
+                console.error("Failed to fetch institution details", error);
+            }
         }
-      });
-    } else if (session?.user && !(session?.user as any)?.institutionId) {
+      };
+
+      fetchInstitution();
+
+      return () => {
+          abortController.abort();
+      };
+    } else if (user && !institutionId) {
       setInstitution(null);
       try { localStorage.removeItem("algofox_user_institution"); } catch (_) {}
     }
-  }, [(session?.user as any)?.institutionId, session?.user]);
+  }, [session?.user]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
@@ -172,7 +211,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       </div>
 
       {/* ── Thin separator ────────────────────────────────── */}
-      <div className="mx-4 border-t-2 border-dotted border-gray-300 dark:border-white/20 flex-shrink-0" />
+      <div className={[
+          "border-t-2 border-dotted border-gray-300 dark:border-white/20 flex-shrink-0 transition-all duration-300",
+          expanded ? "mx-4" : "mx-2"
+      ].join(" ")} />
 
       {/* ── Navigation ────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-6">
