@@ -19,13 +19,14 @@ interface NavbarProps {
 export default function Navbar({ initialSession }: NavbarProps = {}) {
     const { data: clientSession, isPending } = authClient.useSession();
     
-    // During SSR and initial hydration, isPending is true. We use initialSession to ensure 
+    const [mounted, setMounted] = useState(false);
+    
+    // During SSR and initial hydration, we use initialSession to ensure 
     // the server and client render the exact same HTML, preventing hydration mismatch.
-    // Once loaded (isPending is false), we use the clientSession so logouts/updates work.
-    const session = isPending ? initialSession : clientSession;
+    // Once loaded (mounted is true and isPending is false), we use the clientSession so logouts/updates work.
+    const session = (!mounted || isPending) ? initialSession : clientSession;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
     const [institution, setInstitution] = useState<{name: string, logo: string | null} | null>(null);
     const router = useRouter();
     const pathname = usePathname();
@@ -93,7 +94,8 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     const isInstitutionManager = userRole === "INSTITUTION_MANAGER";
     const isTeacher = userRole === "TEACHER";
     const isContestManager = userRole === "CONTEST_MANAGER";
-    const canManage = isAdmin || isTeacher || isContestManager;
+    const isPlacementDirector = userRole === "PLACEMENT_DIRECTOR";
+    const canManage = isAdmin || isTeacher || isContestManager || isPlacementDirector;
 
     const isImpersonating = !!session?.session?.impersonatedBy;
 
@@ -184,6 +186,9 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                                             <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 My Dashboard
                                                             </Link>
+                                                            <Link href="/placements" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
+                                                                Placements
+                                                            </Link>
                                                             <Link href="/bookmarks" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
                                                                 Bookmarks
                                                             </Link>
@@ -230,6 +235,12 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                                             {isAdmin && (
                                                                 <Link href="/admin" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm font-semibold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg">
                                                                     Admin Panel
+                                                                </Link>
+                                                            )}
+
+                                                            {isPlacementDirector && (
+                                                                <Link href="/placementdashboard" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg">
+                                                                    Placement Dashboard
                                                                 </Link>
                                                             )}
 
@@ -334,6 +345,9 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                 <Link href="/dashboard" className="text-base font-medium text-gray-800 hover:text-orange-600">
                                     My Dashboard
                                 </Link>
+                                <Link href="/placements" className="text-base font-medium text-gray-800 hover:text-orange-600">
+                                    Placements
+                                </Link>
                                 <Link href="/dashboard/classrooms" className="text-base font-medium text-gray-800 hover:text-orange-600">
                                     My Classrooms
                                 </Link>
@@ -365,6 +379,11 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                                 {(isAdmin || isContestManager) && (
                                     <Link href="/dashboard/contests" className="text-base font-medium text-gray-800 hover:text-orange-600">
                                         Contest Management
+                                    </Link>
+                                )}
+                                {isPlacementDirector && (
+                                    <Link href="/placementdashboard" className="text-base font-medium text-orange-600 hover:text-orange-700">
+                                        Placement Dashboard
                                     </Link>
                                 )}
 

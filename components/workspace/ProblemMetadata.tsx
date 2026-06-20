@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Tag } from 'lucide-react';
 import CompaniesModal from '../problems/CompaniesModal';
 import { parseCompanies } from '../problems/CompanyAvatars';
 
@@ -20,6 +20,7 @@ interface ProblemMetadataProps {
     nextProblemSlug?: string | null;
     courseId?: string | null;
     router: any;
+    onOpenTags?: () => void;
 }
 
 const staggerItem: Variants = {
@@ -60,7 +61,7 @@ const getDifficultyConfig = (difficulty: string) => {
     }
 };
 
-export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProblemSlug, courseId, router }: ProblemMetadataProps) => {
+export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProblemSlug, courseId, router, onOpenTags }: ProblemMetadataProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const diffConfig = getDifficultyConfig(problem.difficulty);
     const companiesList = parseCompanies(problem.companies);
@@ -120,23 +121,26 @@ export const ProblemMetadata = React.memo(({ problem, isSolved, domain, nextProb
                 </div>
             )}
 
-            {/* Separator if tags exist */}
+            {/* Tags Button */}
             {problem.tags && problem.tags.length > 0 && (
-                <div className="w-px h-4 bg-gray-200 dark:bg-white/10" />
-            )}
-
-            {/* Tags */}
-            <div className="flex items-center gap-2">
-                {problem.tags?.map((tag) => (
-                    <div
-                        key={tag.slug}
-                        className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#1D1E23] border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 text-[12px] font-medium transition-colors cursor-default"
+                <>
+                    <div className="w-px h-4 bg-gray-200 dark:bg-white/10 mx-1" />
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (onOpenTags) onOpenTags();
+                            else window.dispatchEvent(new Event('open-tags-accordion'));
+                            setTimeout(() => {
+                                document.getElementById('tags-accordion-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }, 100);
+                        }}
+                        className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-[13px] font-medium cursor-pointer"
                     >
-                        {tag.name.toLowerCase()}
-                    </div>
-                ))}
-            </div>
-
+                        <Tag className="w-3.5 h-3.5" />
+                        Tags
+                    </button>
+                </>
+            )}
 
         </motion.div>
     );

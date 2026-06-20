@@ -1,11 +1,11 @@
 "use client";
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import { Problem } from '@prisma/client';
-import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle } from 'lucide-react';
+import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle, Lightbulb, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
@@ -26,6 +26,7 @@ interface ProblemDescriptionProps {
     problem: Problem & {
         tags?: { name: string; slug: string }[];
         solution?: string | null;
+        hints?: string[];
     };
     activeTab: Tab;
     onTabChange: (tab: Tab) => void;
@@ -72,9 +73,92 @@ const staggerItem: Variants = {
     }
 };
 
+const TagAccordion = ({ tags, isOpen, onToggle }: { tags: { name: string; slug: string }[], isOpen: boolean, onToggle: () => void }) => {
+    if (!tags || tags.length === 0) return null;
+
+    return (
+        <div id="tags-accordion-container" className="group border-b border-gray-200 dark:border-white/10 overflow-hidden">
+            <div 
+                onClick={onToggle} 
+                className="flex items-center justify-between py-5 cursor-pointer select-none"
+            >
+                <div className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    <Tag className="w-5 h-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                    Related Topics
+                </div>
+                <svg className={`w-4 h-4 text-gray-400 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+            <AnimatePresence initial={false}>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                        <div className="pb-5 pt-1 flex items-center gap-2 flex-wrap max-w-none">
+                            {tags.map((tag) => (
+                                <div
+                                    key={tag.slug}
+                                    className="px-3 py-1 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 text-[12px] font-medium transition-colors cursor-default hover:bg-gray-200 dark:hover:bg-white/10"
+                                >
+                                    {tag.name}
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const HintAccordion = ({ hint, idx }: { hint: string; idx: number }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div className="group border-b border-gray-200 dark:border-white/10 overflow-hidden">
+            <div 
+                onClick={() => setIsOpen(!isOpen)} 
+                className="flex items-center justify-between py-5 cursor-pointer select-none"
+            >
+                <div className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    <Lightbulb className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-yellow-500 transition-colors" />
+                    Hint {idx + 1}
+                </div>
+                <svg className={`w-4 h-4 text-gray-400 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+            <AnimatePresence initial={false}>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                        <div className="pb-5 pt-1 text-base text-gray-600 dark:text-gray-400 prose prose-base dark:prose-invert max-w-none">
+                            <Markdown
+                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                                rehypePlugins={[rehypeRaw]}
+                            >
+                                {hint}
+                            </Markdown>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug, courseId, onRestoreCode, isSubmitting, latestSubmissionId }: ProblemDescriptionProps) => {
     const router = useRouter();
     const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
 
     const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
         { key: "description", label: "Description", icon: <FileText className="w-4 h-4" /> },
@@ -131,7 +215,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className={`${domain === "APTITUDE" ? "px-8 py-8" : "px-5 py-5"} space-y-4`}
+                            className={`${domain === "APTITUDE" ? "px-8 pt-8 pb-32" : "px-5 pt-5 pb-32"} space-y-4`}
                         >
                             <motion.div variants={staggerContainer} initial="hidden" animate="visible">
                                 <motion.div variants={staggerItem} className="flex items-center gap-3 flex-wrap mb-4">
@@ -153,6 +237,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                     nextProblemSlug={nextProblemSlug}
                                     courseId={courseId}
                                     router={router}
+                                    onOpenTags={() => setIsTagsOpen(true)}
                                 />
 
                                 <div className="mt-4 prose prose-slate dark:prose-invert max-w-none">
@@ -200,6 +285,17 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                         {problem.description}
                                     </Markdown>
                                 </div>
+                                
+                                {((problem.hints && problem.hints.length > 0) || (problem.tags && problem.tags.length > 0)) && (
+                                    <div className="mt-8 border-t border-gray-200 dark:border-white/10">
+                                        {problem.tags && problem.tags.length > 0 && (
+                                            <TagAccordion tags={problem.tags} isOpen={isTagsOpen} onToggle={() => setIsTagsOpen(!isTagsOpen)} />
+                                        )}
+                                        {problem.hints && problem.hints.length > 0 && problem.hints.map((hint, idx) => (
+                                            <HintAccordion key={idx} hint={hint} idx={idx} />
+                                        ))}
+                                    </div>
+                                )}
                             </motion.div>
                         </motion.div>
                     )}

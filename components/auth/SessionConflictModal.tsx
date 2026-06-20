@@ -73,7 +73,7 @@ export function SessionConflictModal() {
   return (
     <CustomDialog
       open={isOpen}
-      onOpenChangeAction={() => {}}
+      onOpenChange={() => {}}
     >
       <div className="flex flex-col items-center text-center p-2">
         <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">

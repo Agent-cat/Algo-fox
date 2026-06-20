@@ -212,24 +212,24 @@ export default function SubmissionDetailView({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden bg-white dark:bg-[#24262C]"
+                    className="overflow-hidden bg-transparent"
                 >
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/5">
-                        <div className="flex items-center gap-2">
-                            <Code2 className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                                {language.name}
-                            </span>
+                    <div className="flex items-center justify-between px-2 py-4">
+                        <div className="flex items-center text-[15px] font-medium font-sans tracking-wide">
+                            <span className="text-gray-800 dark:text-gray-200">Code</span>
+                            <span className="mx-3 text-gray-400 dark:text-gray-600">|</span>
+                            <span className="text-gray-600 dark:text-gray-400">{language.name}</span>
                         </div>
                         <button 
                             onClick={() => onRestoreCode?.(code, language.judge0Id || 71)}
-                            className="p-2 text-gray-400 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-lg transition-all"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-md transition-all"
                             title="Restore to editor"
+                            aria-label="Restore to editor"
                         >
-                            <SquareArrowOutUpRight className="w-4 h-4" />
+                            <SquareArrowOutUpRight className="w-3.5 h-3.5" />
                         </button>
                     </div>
-                    <div className="w-full rounded-b-md overflow-hidden bg-transparent" style={{ height: `${editorHeight}px` }}>
+                    <div className="w-full overflow-hidden bg-transparent" style={{ height: `${editorHeight}px` }}>
                         <CodeEditor
                             value={code}
                             languageId={language.judge0Id || 71}

@@ -165,7 +165,7 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
             </Button>
 
             {/* Ban Dialog */}
-            <Dialog open={actionDialog === "ban"} onOpenChangeAction={(open) => !open && setActionDialog(null)}>
+            <Dialog open={actionDialog === "ban"} onOpenChange={(open) => !open && setActionDialog(null)}>
                 <DialogHeader>
                     <DialogTitle>Ban User</DialogTitle>
                     <DialogDescription>
@@ -191,7 +191,7 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
             </Dialog>
 
             {/* Role Dialog */}
-            <Dialog open={actionDialog === "role"} onOpenChangeAction={(open) => !open && setActionDialog(null)}>
+            <Dialog open={actionDialog === "role"} onOpenChange={(open) => !open && setActionDialog(null)}>
                 <DialogHeader>
                     <DialogTitle>Change Role</DialogTitle>
                     <DialogDescription>
@@ -205,6 +205,9 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
                         <option value="admin">Admin</option>
                         <option value="INSTITUTION_MANAGER">Institution Manager</option>
                         <option value="TEACHER">Teacher</option>
+                        <option value="CONTEST_MANAGER">Contest Manager</option>
+                        <option value="STUDENT">Student</option>
+                        <option value="PLACEMENT_DIRECTOR">Placement Director</option>
                     </Select>
                 </div>
                 <DialogFooter>
@@ -217,7 +220,7 @@ export default function UserActions({ user, onUpdate }: UserActionsProps) {
             </Dialog>
 
             {/* Delete Dialog */}
-            <Dialog open={actionDialog === "delete"} onOpenChangeAction={(open) => !open && setActionDialog(null)}>
+            <Dialog open={actionDialog === "delete"} onOpenChange={(open) => !open && setActionDialog(null)}>
                 <DialogHeader>
                     <DialogTitle>Delete User</DialogTitle>
                     <DialogDescription>

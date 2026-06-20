@@ -2,6 +2,8 @@
 
 import { CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useTransition, useState } from "react";
 
 interface ProblemSimple {
     id: string;
@@ -36,6 +38,9 @@ export function ProblemsList({
     isSearching = false,
     courseId = null
 }: ProblemsListProps) {
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const [pendingNav, setPendingNav] = useState<string | null>(null);
 
     if (isSearchMode && searchTerm && isSearching) {
         return (
@@ -83,12 +88,19 @@ export function ProblemsList({
                                             ? "bg-orange-50/50 dark:bg-orange-500/5 hover:bg-orange-100/50 dark:hover:bg-orange-500/10"
                                             : "hover:bg-gray-50 dark:hover:bg-white/5"
                                     )}
-                                    onClick={() => window.location.href = `/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`}
+                                    onClick={() => {
+                                        setPendingNav(prob.id);
+                                        startTransition(() => {
+                                            router.push(`/problems/${prob.slug}${courseId ? `?courseId=${courseId}` : ""}`);
+                                        });
+                                    }}
                                 >
                                     <td className="py-4 px-4">
                                         <div className="flex items-center gap-3">
                                             <div className="shrink-0">
-                                                {isSolved ? (
+                                                {isPending && pendingNav === prob.id ? (
+                                                    <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                                                ) : isSolved ? (
                                                     <CheckCircle className="w-4 h-4 text-emerald-500" />
                                                 ) : (
                                                     <div className={cn(

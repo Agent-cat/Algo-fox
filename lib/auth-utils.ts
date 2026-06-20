@@ -20,9 +20,9 @@ export interface AuthUser {
  * eliminating repeated decoding and DB hits when multiple server actions
  * call getSession() within one request lifecycle.
  */
-export const getSession = cache(async () => {
+export const getSession = async () => {
     return auth.api.getSession({ headers: await headers() });
-});
+};
 
 /**
  * Get the current authenticated user from the (memoized) session
@@ -41,7 +41,17 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       role: (session.user.role || 'STUDENT') as UserRole,
       institutionId: (session.user as any).institutionId,
     };
-  } catch (error) {
+  } catch (error: any) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('Dynamic server usage') ||
+       error.message.includes('prerendering') ||
+       error.message.includes('headers') ||
+       (error as any).digest?.includes('DYNAMIC_SERVER_USAGE') ||
+       (error as any).digest?.includes('HANGING_PROMISE_REJECTION'))
+    ) {
+      throw error; // Rethrow Next.js bailout errors
+    }
      console.error('Error getting current user:', error);
     return null;
   }

@@ -60,44 +60,29 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
         let workingDistribution = [...distribution];
         const currentTotal = distribution.reduce((acc, item) => acc + item.count, 0);
         
-        // Inject realistic mock data if we have very few submissions (to make the graph look good)
-        if (currentTotal < 10) {
-            const baseVal = Math.max(BUCKET_SIZE * 10, currentValue);
-            const mean = baseVal * 1.2; // average is slightly slower than user's run (makes them feel good!)
-            const stdDev = baseVal * 0.3;
-            
-            for (let i = 0; i < 40; i++) {
-                const x = Math.floor((baseVal * 0.5 + i * (baseVal * 1.5 / 40)) / BUCKET_SIZE) * BUCKET_SIZE;
-                const base = Math.exp(-Math.pow(x - mean, 2) / (2 * stdDev * stdDev)) * 50;
-                const noise = (Math.sin(i) * 5) + (Math.cos(i * 1.5) * 3);
-                const count = Math.max(0, Math.floor(base + noise));
-                
-                if (count > 0) {
-                    const existing = workingDistribution.find(d => d.value === x);
-                    if (existing) {
-                        existing.count += count;
-                    } else {
-                        workingDistribution.push({ value: x, count });
-                    }
-                }
-            }
-            workingDistribution.sort((a, b) => a.value - b.value);
-        }
-
+        // We no longer inject mock data; graph dynamically reflects actual submissions.
         const total = workingDistribution.reduce((acc, item) => acc + item.count, 0);
         let defeatedCount = 0;
         
-        const minVal = 0; // Start at 0 for cleaner look
-        const rawMax = workingDistribution[workingDistribution.length - 1]?.value || currentValue;
-        // Ensure at least 40 buckets (e.g. 0 to 80ms min)
-        const maxVal = Math.max(
-            Math.ceil(rawMax / BUCKET_SIZE) * BUCKET_SIZE,
-            minVal + BUCKET_SIZE * 40
-        );
+        const rawMin = workingDistribution.length > 0 ? workingDistribution[0].value : currentValue;
+        const rawMax = workingDistribution.length > 0 ? workingDistribution[workingDistribution.length - 1].value : currentValue;
+
+        let startVal = Math.floor(Math.min(rawMin, currentValue) / BUCKET_SIZE) * BUCKET_SIZE;
+        let endVal = Math.ceil(Math.max(rawMax, currentValue) / BUCKET_SIZE) * BUCKET_SIZE;
+
+        // Add padding
+        startVal = Math.max(0, startVal - BUCKET_SIZE * 2);
+        endVal = endVal + BUCKET_SIZE * 2;
+
+        // Ensure we have at least 15 buckets for visual clarity
+        while ((endVal - startVal) / BUCKET_SIZE < 15) {
+            if (startVal > 0) startVal -= BUCKET_SIZE;
+            endVal += BUCKET_SIZE;
+        }
 
         // Generate all buckets
         const buckets: { value: number; count: number; percentage: number }[] = [];
-        for (let v = minVal; v <= maxVal + BUCKET_SIZE * 5; v += BUCKET_SIZE) { // extra padding at the end
+        for (let v = startVal; v <= endVal; v += BUCKET_SIZE) {
             buckets.push({ value: v, count: 0, percentage: 0 });
         }
 
@@ -106,7 +91,7 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
             if (item.value > currentValue) {
                 defeatedCount += item.count;
             }
-            const bucketIndex = Math.floor((item.value - minVal) / BUCKET_SIZE);
+            const bucketIndex = Math.floor((item.value - startVal) / BUCKET_SIZE);
             if (bucketIndex >= 0 && bucketIndex < buckets.length) {
                 buckets[bucketIndex].count += item.count;
             }
@@ -126,7 +111,7 @@ export default function SubmissionDistribution({ problemId, currentValue, type, 
         const beatsPercentage = total > 0 ? (defeatedCount / total) * 100 : 0;
 
         // Find the index of the user's bucket
-        const userBucketIndex = Math.floor((currentValue - minVal) / BUCKET_SIZE);
+        const userBucketIndex = Math.floor((currentValue - startVal) / BUCKET_SIZE);
 
         return { total, yAxisMax, beatsPercentage, dataWithPercentage, userBucketIndex };
     }, [distribution, currentValue, type]);

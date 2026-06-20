@@ -148,7 +148,27 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         enableCorrectSound: false,
         enableWrongSound: false
     });
-    const [activeTab, setActiveTab] = useState<"description" | "solutions" | "submissions">("description");
+    const [activeTab, setActiveTabState] = useState<"description" | "solutions" | "submissions">(() => {
+        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|submissions)/);
+        return tabMatch ? (tabMatch[1] as "description" | "solutions" | "submissions") : "description";
+    });
+
+    useEffect(() => {
+        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|submissions)/);
+        const urlTab = tabMatch ? (tabMatch[1] as "description" | "solutions" | "submissions") : "description";
+        if (urlTab !== activeTab) {
+            setActiveTabState(urlTab);
+        }
+    }, [pathname]);
+
+    const setActiveTab = useCallback((newTab: "description" | "solutions" | "submissions") => {
+        setActiveTabState(newTab);
+        const basePath = `/problems/${problem.slug}`;
+        const newUrl = newTab === "description" ? `${basePath}/description` : `${basePath}/${newTab}`;
+        const searchParams = new URLSearchParams(window.location.search);
+        const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
+        window.history.replaceState(null, '', `${newUrl}${query}`);
+    }, [problem.slug, activeTab]);
     const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
     const [streakCount, setStreakCount] = useState(0);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);

@@ -60,8 +60,7 @@ export default function ContestEntryModal({
   const [clipboardStatus, setClipboardStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [sysCheckError, setSysCheckError] = useState<string | null>(null);
 
-  // System Stats
-  const [sysStats, setSysStats] = useState<{ ip: string; browser: string; os: string; speed: string } | null>(null);
+  // System Stats removed as requested
 
   // Step 4: Proctoring Instructions
   const [finalAgreed, setFinalAgreed] = useState(false);
@@ -81,7 +80,6 @@ export default function ContestEntryModal({
       setExtCheckStatus("idle");
       setClipboardStatus("idle");
       setSysCheckError(null);
-      setSysStats(null);
       setFinalAgreed(false);
       setIsStarting(false);
       setCountdown(30);
@@ -133,38 +131,11 @@ export default function ContestEntryModal({
     }
   };
 
-  const getBrowserInfo = () => {
-    const userAgent = navigator.userAgent;
-    if (userAgent.includes("Firefox")) return "Mozilla Firefox";
-    if (userAgent.includes("Edg")) return "Microsoft Edge";
-    if (userAgent.includes("Chrome")) return "Google Chrome";
-    if (userAgent.includes("Safari")) return "Apple Safari";
-    return "Unknown Browser";
-  };
-
-  const getOSInfo = () => {
-    const userAgent = navigator.userAgent;
-    if (userAgent.includes("Win")) return "Windows";
-    if (userAgent.includes("Mac")) return "macOS";
-    if (userAgent.includes("Linux")) return "Linux";
-    if (userAgent.includes("Android")) return "Android";
-    if (userAgent.includes("like Mac")) return "iOS";
-    return "Unknown OS";
-  };
 
   const runSystemChecks = async () => {
     setSysCheckError(null);
-    setSysStats(null);
 
-    // 1. Simulate Tab Check
-    setTabCheckStatus("checking");
-    await new Promise((res) => setTimeout(res, 2000));
-    setTabCheckStatus("success");
-
-    // Wait briefly before starting the extension check
-    await new Promise((res) => setTimeout(res, 500));
-
-    // 2. Extension Check
+    // 1. Extension Check
     setExtCheckStatus("checking");
     const extensionCheck = await new Promise<any>((resolve) => {
       const timeout = setTimeout(() => {
@@ -205,28 +176,13 @@ export default function ContestEntryModal({
 
     setExtCheckStatus("success");
 
-    // 3. Fetch System Stats
-    try {
-      const res = await fetch("https://api.ipify.org?format=json");
-      const data = await res.json();
+    // Wait briefly before starting the tab check
+    await new Promise((res) => setTimeout(res, 500));
 
-      // Mock speed calculation for visual effect
-      const simulatedSpeed = Math.floor(Math.random() * 60) + 40; // 40-100 Mbps
-
-      setSysStats({
-        ip: data.ip,
-        browser: getBrowserInfo(),
-        os: getOSInfo(),
-        speed: `${simulatedSpeed} Mbps`
-      });
-    } catch {
-      setSysStats({
-        ip: "Unknown",
-        browser: getBrowserInfo(),
-        os: getOSInfo(),
-        speed: "Ping failed"
-      });
-    }
+    // 2. Simulate Tab Check
+    setTabCheckStatus("checking");
+    await new Promise((res) => setTimeout(res, 2000));
+    setTabCheckStatus("success");
   };
 
   const handleStartContest = async () => {
@@ -339,7 +295,7 @@ export default function ContestEntryModal({
                 >
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-colors shrink-0",
-                    isActive ? "border-blue-500 text-blue-500 bg-transparent" :
+                    isActive ? "border-orange-500 text-orange-500 bg-transparent" :
                       isCompleted ? "border-transparent bg-[#333] text-gray-300" :
                         "border-transparent bg-[#2a2a2a] text-gray-400"
                   )}>
@@ -397,42 +353,41 @@ export default function ContestEntryModal({
 
             {/* STEP 2: Password Verification */}
             {step === 2 && (
-              <div className="animate-in slide-in-from-right-8 duration-500">
-                <h2 className="text-3xl font-bold mb-2">Password Verification</h2>
-                <p className="text-gray-400 mb-8">Please provide the contest access code to proceed.</p>
+              <div className="animate-in slide-in-from-right-8 duration-500 h-full flex flex-col">
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <h2 className="text-3xl font-bold mb-3">Password Verification</h2>
+                  <p className="text-gray-400 mb-8 text-base">Please provide the contest access code to proceed.</p>
 
-                <div className="bg-[#24262C] border border-[#333333] rounded-xl p-8 max-w-lg">
-                  {requiresPassword ? (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-3">
-                        Contest Password
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
-                          placeholder="Enter password"
-                          autoFocus
-                          className="w-full bg-[#1D1E23] border border-[#333] rounded-lg py-4 pl-12 pr-4 text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-600"
-                        />
+                  <div className="w-full max-w-xl">
+                    {requiresPassword ? (
+                      <div>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
+                            placeholder="Enter password"
+                            autoFocus
+                            className="w-full bg-[#1D1E23] border border-[#333] rounded-xl py-4 pl-12 pr-5 text-base text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all placeholder:text-gray-600 shadow-sm"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-6">
-                      <User className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-200">No Password Required</h3>
-                      <p className="text-sm text-gray-500 mt-2">This contest is open. You can proceed directly to the system checks.</p>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-center py-6">
+                        <User className="w-20 h-20 text-emerald-500 mx-auto mb-6" />
+                        <h3 className="text-2xl font-medium text-gray-200">No Password Required</h3>
+                        <p className="text-lg text-gray-500 mt-4">This contest is open. You can proceed directly to the system checks.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="mt-10 pt-8 border-t border-[#333333] flex gap-4">
+                <div className="mt-8 pt-6 border-t border-[#333333] flex justify-between gap-4">
                   <button
                     onClick={() => setStep(1)}
-                    className="px-6 py-3.5 border border-[#333] hover:bg-[#1D1E23] rounded-lg font-bold transition-colors"
+                    className="px-6 py-3 border border-[#333] hover:bg-[#1D1E23] rounded-lg font-semibold transition-colors text-base"
                   >
                     Back
                   </button>
@@ -446,7 +401,7 @@ export default function ContestEntryModal({
                       }
                     }}
                     disabled={isLoading}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 text-base min-w-[160px]"
                   >
                     {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                     {requiresPassword ? "Verify & Next" : "Proceed"}
@@ -462,25 +417,6 @@ export default function ContestEntryModal({
                 <p className="text-gray-400 mb-8">We are verifying your environment and network stability.</p>
 
                 <div className="flex flex-col divide-y divide-[#333333] border-y border-[#333333] mb-8">
-                  {/* Tab Check Item */}
-                  <div className="py-5 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#24262C] flex items-center justify-center">
-                        <Monitor className="w-5 h-5 text-gray-400" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-200">Checking Open Tabs</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">Verifying no unauthorized tabs are active.</p>
-                      </div>
-                    </div>
-                    <div>
-                      {tabCheckStatus === "idle" && <span className="text-sm text-gray-500">Waiting...</span>}
-                      {tabCheckStatus === "checking" && <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />}
-                      {tabCheckStatus === "success" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
-                      {tabCheckStatus === "error" && <XCircle className="w-6 h-6 text-red-500" />}
-                    </div>
-                  </div>
-
                   {/* Extension Check Item */}
                   <div className="py-5 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -497,6 +433,25 @@ export default function ContestEntryModal({
                       {extCheckStatus === "checking" && <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />}
                       {extCheckStatus === "success" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
                       {extCheckStatus === "error" && <XCircle className="w-6 h-6 text-red-500" />}
+                    </div>
+                  </div>
+
+                  {/* Tab Check Item */}
+                  <div className="py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#24262C] flex items-center justify-center">
+                        <Monitor className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-200">Checking Open Tabs</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Verifying no unauthorized tabs are active.</p>
+                      </div>
+                    </div>
+                    <div>
+                      {tabCheckStatus === "idle" && <span className="text-sm text-gray-500">Waiting...</span>}
+                      {tabCheckStatus === "checking" && <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />}
+                      {tabCheckStatus === "success" && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+                      {tabCheckStatus === "error" && <XCircle className="w-6 h-6 text-red-500" />}
                     </div>
                   </div>
 
@@ -534,30 +489,7 @@ export default function ContestEntryModal({
                   </div>
                 )}
 
-                {sysStats && (
-                  <div className="grid grid-cols-4 gap-4 mb-8 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
-                      <Globe className="w-5 h-5 text-gray-400 mb-2" />
-                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">IP Address</span>
-                      <span className="text-sm text-gray-200 font-mono mt-1">{sysStats.ip}</span>
-                    </div>
-                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
-                      <Monitor className="w-5 h-5 text-gray-400 mb-2" />
-                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Browser</span>
-                      <span className="text-sm text-gray-200 mt-1 truncate w-full">{sysStats.browser}</span>
-                    </div>
-                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
-                      <Shield className="w-5 h-5 text-gray-400 mb-2" />
-                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">OS</span>
-                      <span className="text-sm text-gray-200 mt-1 truncate w-full">{sysStats.os}</span>
-                    </div>
-                    <div className="bg-[#1D1E23] border border-[#333] p-4 rounded-xl flex flex-col items-center text-center">
-                      <Gauge className="w-5 h-5 text-gray-400 mb-2" />
-                      <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Speed</span>
-                      <span className="text-sm text-emerald-400 font-bold mt-1">{sysStats.speed}</span>
-                    </div>
-                  </div>
-                )}
+
 
                 <div className="pt-8 border-t border-[#333333] flex gap-4">
                   <button
@@ -594,40 +526,18 @@ export default function ContestEntryModal({
                 <h2 className="text-3xl font-bold mb-2">Final Instructions</h2>
                 <p className="text-gray-400 mb-8">Please read these rules carefully. Non-compliance will result in penalties.</p>
 
-                <div className="bg-[#24262C] border border-[#333333] rounded-xl overflow-hidden mb-8">
-                  <div className="p-6 border-b border-[#333333] flex items-start gap-4 hover:bg-[#1D1E23] transition-colors">
-                    <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
-                      <Monitor className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-200 mb-1">Fullscreen Enforcement</h3>
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        The exam operates in strict fullscreen mode. Exiting fullscreen at any point will be instantly flagged as a violation and reported to the proctor.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-6 flex items-start gap-4 hover:bg-[#1D1E23] transition-colors">
-                    <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center shrink-0">
-                      <Eye className="w-6 h-6 text-orange-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-200 mb-1">Tab & Focus Monitoring</h3>
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        Navigating away from the active tab, opening new windows, or minimizing the browser (Alt+Tab) is strictly prohibited.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-amber-500/10 border border-amber-500/20 p-5 rounded-xl mb-auto flex items-start gap-4">
-                  <AlertTriangle className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold text-amber-500 mb-1">Zero Tolerance Policy</h4>
-                    <p className="text-sm text-amber-400/80 leading-relaxed">
-                      Multiple violations will result in your session being permanently terminated. Ensure all other applications and notifications are closed before starting.
-                    </p>
-                  </div>
+                <div className="mb-auto">
+                  <ul className="list-disc pl-6 space-y-4 text-gray-300 text-base leading-relaxed">
+                    <li>
+                      <strong>Fullscreen Enforcement:</strong> The exam operates in strict fullscreen mode. Exiting fullscreen at any point will be instantly flagged as a violation.
+                    </li>
+                    <li>
+                      <strong>Tab & Focus Monitoring:</strong> Navigating away from the active tab, opening new windows, or minimizing the browser (Alt+Tab) is strictly prohibited.
+                    </li>
+                    <li>
+                      <strong>Zero Tolerance Policy:</strong> Multiple violations will result in your session being permanently terminated. Please ensure all other applications and notifications are closed.
+                    </li>
+                  </ul>
                 </div>
 
                 <div className="pt-8 border-t border-[#333333]">

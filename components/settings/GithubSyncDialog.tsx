@@ -118,7 +118,7 @@ export function GithubSyncDialog({ children }: { children: React.ReactNode }) {
   if (isPending) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChangeAction={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

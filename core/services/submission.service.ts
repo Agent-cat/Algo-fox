@@ -430,6 +430,7 @@ export class SubmissionService {
                     select: {
                         id: true,
                         name: true,
+                        judge0Id: true,
                     }
                 },
                 testCases: {

@@ -58,6 +58,7 @@ const formSchema = z.object({
     answer: z.string().optional(),
     categoryId: z.string().optional(),
     allowedLanguages: z.array(z.string()).optional(),
+    hints: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,6 +69,7 @@ interface ProblemFormProps {
         useFunctionTemplate?: boolean;
         functionTemplates?: FunctionTemplate[];
         companies?: any;
+        hints?: string[];
     };
     onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
     submitLabel: string;
@@ -310,6 +312,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             categoryId: (initialData as any)?.categoryId || "",
             allowedLanguages: (initialData as any)?.allowedLanguages || [],
             companies: parseCompanies(initialData?.companies) || [],
+            hints: initialData?.hints || [],
         }
     });
 
@@ -360,6 +363,19 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const { ref: solutionFormRef, ...solutionRegister } = register("solution");
 
     const { fields, append, remove } = useFieldArray({ control, name: "testCases" });
+
+    const hintsList = watch("hints") || [];
+    const addHint = () => setValue("hints", [...hintsList, ""]);
+    const updateHint = (index: number, value: string) => {
+        const newHints = [...hintsList];
+        newHints[index] = value;
+        setValue("hints", newHints);
+    };
+    const removeHint = (index: number) => {
+        const newHints = [...hintsList];
+        newHints.splice(index, 1);
+        setValue("hints", newHints);
+    };
 
     const hiddenValue = watch("hidden");
     const difficultyValue = watch("difficulty");
@@ -444,6 +460,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             testCases: (isAptitude || isConcept) ? [] : data.testCases,
             categoryId: data.categoryId || null,
             allowedLanguages: data.allowedLanguages || [],
+            hints: data.hints?.filter(h => h.trim() !== "") || [],
         };
         const res = await onSubmit(submissionData);
         if (res.success) {
@@ -999,6 +1016,52 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     </div>
                                 </div>
                             )}
+
+                            {/* Hints Section */}
+                            <div className="mt-6 border-t border-gray-200 dark:border-[#333] pt-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-[18px] font-bold text-[#39424e] dark:text-white font-mono tracking-tight">Hints <span className="text-gray-400 font-normal text-sm ml-2">(Optional)</span></h3>
+                                        <p className="text-sm italic text-[#738f93] dark:text-gray-400 font-serif">Add hints to guide users. Markdown supported.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addHint}
+                                        className="px-3 py-1.5 text-xs font-bold text-[#26bd58] bg-emerald-50 dark:bg-emerald-500/10 border border-[#26bd58]/30 rounded-[3px] hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5"
+                                    >
+                                        <Plus className="w-3.5 h-3.5" /> Add Hint
+                                    </button>
+                                </div>
+                                
+                                {hintsList.length > 0 && (
+                                    <div className="space-y-4">
+                                        {hintsList.map((hint, idx) => (
+                                            <div key={idx} className="flex gap-3 bg-gray-50 dark:bg-[#1D1E23] p-4 rounded-[3px] border border-gray-300 dark:border-[#444]">
+                                                <div className="pt-2 text-gray-500 font-bold text-sm">
+                                                    #{idx + 1}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <textarea
+                                                        value={hint}
+                                                        onChange={(e) => updateHint(idx, e.target.value)}
+                                                        placeholder="Write hint here..."
+                                                        rows={3}
+                                                        className="w-full px-4 py-3 rounded-[3px] border border-gray-300 dark:border-[#444] focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] outline-none font-mono text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-[#1a1a1a] resize-y"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeHint(idx)}
+                                                    className="h-10 px-3 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[3px] transition-colors self-start"
+                                                    title="Remove Hint"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 

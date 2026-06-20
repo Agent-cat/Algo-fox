@@ -4,7 +4,7 @@ import React from "react";
 
 export default function TestCasesSkeleton() {
   return (
-    <div className="w-full h-full bg-[#fafafa] dark:bg-[#1e1e1e] rounded-sm border border-gray-200 dark:border-[#262626] flex flex-col animate-pulse">
+    <div className="w-full h-full bg-[#fafafa] dark:bg-[#1D1E23] rounded-sm border border-gray-200 dark:border-[#262626] flex flex-col animate-pulse">
       {/* Header */}
       <div className="h-10 border-b border-gray-200 dark:border-[#262626] flex items-center px-4 gap-6 shrink-0">
         <div className="flex items-center gap-2">

@@ -126,7 +126,7 @@ export default function UserList() {
                         <div className="flex-1">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Filter by Roles</label>
                             <div className="flex flex-wrap gap-4">
-                                {["ADMIN", "TEACHER", "INSTITUTION_MANAGER", "STUDENT", "CONTEST_MANAGER"].map((role) => (
+                                {["ADMIN", "TEACHER", "INSTITUTION_MANAGER", "STUDENT", "CONTEST_MANAGER", "PLACEMENT_DIRECTOR"].map((role) => (
                                     <label key={role} className="flex items-center gap-2 cursor-pointer group">
                                         <input
                                             type="checkbox"

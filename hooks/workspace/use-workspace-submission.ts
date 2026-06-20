@@ -178,7 +178,6 @@ export function useWorkspaceSubmission({
                      else setSubmitting(false);
 
                      if (mode === "SUBMIT") {
-                         router.refresh();
                          window.dispatchEvent(new CustomEvent("submissionsUpdated"));
                          onSubmissionCompleted?.(payload.data.status);
                      }

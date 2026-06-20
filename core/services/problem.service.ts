@@ -636,6 +636,7 @@ export class ProblemService {
         type?: ProblemType;
         allowedLanguages?: string[];
         companies?: any;
+        hints?: string[];
     }) {
         try {
             const problem = await prisma.problem.create({
@@ -657,6 +658,7 @@ export class ProblemService {
                     companies: data.companies || null,
                     courseId: data.courseId || null,
                     allowedLanguages: data.allowedLanguages || [],
+                    hints: data.hints || [],
                     testCases: {
                         create: data.testCases.map(tc => ({
                             input: tc.input,

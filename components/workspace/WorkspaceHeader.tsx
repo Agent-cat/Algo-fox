@@ -474,6 +474,15 @@ const WorkspaceHeader = memo(({
                           >
                             Dashboard
                           </Link>
+                          {(session.user as any).role === "PLACEMENT_DIRECTOR" && (
+                            <Link
+                              href="/placementdashboard"
+                              className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1D1E23] rounded-lg transition-colors"
+                              onClick={() => setProfileOpen(false)}
+                            >
+                              Placement Dashboard
+                            </Link>
+                          )}
                           <div className="my-1 border-t border-gray-100 dark:border-[#262626]" />
                           <button
                             onClick={handleSignOut}

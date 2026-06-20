@@ -1,11 +1,15 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2, Camera, X, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
 import Image from "next/image";
+import { AddressEditModal } from "./AddressEditModal";
+import { AboutEditModal } from "./AboutEditModal";
+import { SummaryEditModal } from "./SummaryEditModal";
+import { AcademicEditModal } from "./AcademicEditModal";
 
 interface BasicInfoSettingsProps {
     user: {
@@ -18,61 +22,27 @@ interface BasicInfoSettingsProps {
         collegeId?: string | null;
         branch?: string | null;
         institutionName?: string | null;
+        dateOfBirth?: string | null;
+        gender?: string | null;
+        permanentAddress?: any;
+        currentAddress?: any;
     };
 }
 
-interface FormData {
-    firstName: string; // UI only -> maps to name
-    lastName: string;  // UI only -> maps to name
-    bio: string;
-    collegeName: string;
-    collegeId: string;
-    branch: string;
-}
 
 export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+    const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+    const [isAcademicModalOpen, setIsAcademicModalOpen] = useState(false);
 
-    // Naive split for name just for initial value
-    const nameParts = user.name.split(" ");
-    const initialFirstName = nameParts[0] || "";
-    const initialLastName = nameParts.slice(1).join(" ") || "";
-
-    const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-        defaultValues: {
-            firstName: initialFirstName,
-            lastName: initialLastName,
-            bio: user.bio || "",
-            collegeName: user.collegeName || user.institutionName || "",
-            collegeId: user.collegeId || "",
-            branch: user.branch || "",
-        }
-    });
-
-    const onSubmit = async (data: FormData) => {
-        setIsLoading(true);
-        try {
-            // Reconstruct name
-            const fullName = `${data.firstName} ${data.lastName}`.trim();
-
-            const res = await updateUserInfo({
-                name: fullName,
-                bio: data.bio,
-                collegeName: data.collegeName,
-                collegeId: data.collegeId,
-                branch: data.branch
-            });
-
-            if (res.success) {
-                toast.success("Profile updated successfully");
-            } else {
-                toast.error(res.error || "Failed to update profile");
-            }
-        } catch (error) {
-            toast.error("Something went wrong");
-        } finally {
-            setIsLoading(false);
-        }
+    const formatAddress = (addr: any) => {
+        if (!addr) return "-";
+        if (typeof addr === "string") return addr;
+        const parts = [addr.addressLine, addr.city, addr.district, addr.state, addr.country, addr.pincode].filter(Boolean);
+        return parts.length > 0 ? parts.join(", ") : "-";
     };
 
     return (
@@ -84,135 +54,159 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <h2 className="text-lg font-medium font-mono text-gray-900 dark:text-gray-100">Basic Details</h2>
+            <div className="space-y-8">
 
-                <div className="flex items-center gap-6">
-                    <div className="relative group">
-                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-[#262626] shadow-lg bg-orange-100 dark:bg-orange-900/20">
-                            {user.image ? (
-                                <Image
-                                    src={user.image}
-                                    alt={user.name}
-                                    width={96}
-                                    height={96}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-orange-600 dark:text-orange-500">
-                                    {user.name.charAt(0).toUpperCase()}
-                                </div>
-                            )}
-                         </div>
-                         <button className="absolute bottom-0 right-0 p-1.5 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-colors border-2 border-white dark:border-[#1D1E23]" title="Change Picture">
+                {/* About Section */}
+                <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">About</h2>
+                            <span className="w-4 h-4 rounded-full border border-red-500 text-red-500 flex items-center justify-center font-bold text-[10px]">!</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsAboutModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                        >
                             <Pencil className="w-3.5 h-3.5" />
-                         </button>
-                         <button className="absolute bottom-0 left-0 p-1.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full shadow-md hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 transition-colors border-2 border-white dark:border-[#1D1E23]" title="Remove Picture">
-                            <X className="w-3.5 h-3.5" />
-                         </button>
+                            Edit Info
+                        </button>
+                    </div>
+                    <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
+                        <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
+                        <div className="flex text-sm items-start">
+                            <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Full Name :</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100">{user.name || "-"}</span>
+                        </div>
+                        <div className="flex text-sm items-start">
+                            <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Date of Birth :</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100">
+                                {user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}
+                            </span>
+                        </div>
+                        <div className="flex text-sm items-start">
+                            <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Gender :</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100">{user.gender || "-"}</span>
+                        </div>
+                        <div className="flex text-sm items-start">
+                            <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Current/Latest College :</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                {user.collegeName || user.institutionName || "-"}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                                First Name <span className="text-red-500">*</span>
-                             </label>
-                             <input
-                                {...register("firstName", { required: "First name is required" })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
-                                placeholder="First Name"
-                             />
-                             {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message}</p>}
+                {/* Summary Section */}
+                <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Summary</h2>
                         </div>
-                        <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                                Last Name
-                             </label>
-                             <input
-                                {...register("lastName")}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
-                                placeholder="Last Name"
-                             />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                            Email
-                        </label>
-                        <div className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-[#1D1E23] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-[#333] cursor-not-allowed">
-                            {user.email}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                            Bio (Max 200 Characters)
-                        </label>
-                        <textarea
-                            {...register("bio")}
-                            rows={4}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm resize-none"
-                            placeholder="Tell us about yourself..."
-                        />
-                    </div>
-
-                    <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-[#1e1e1e]">
-                         <h2 className="text-lg font-medium font-mono text-gray-900 dark:text-gray-100">Academic Details</h2>
-
-                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                                    College Name
-                                </label>
-                                <input
-                                    {...register("collegeName")}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
-                                    placeholder="College Name"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                                        College ID / Roll No
-                                    </label>
-                                    <input
-                                        {...register("collegeId")}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
-                                        placeholder="College ID"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 font-mono">
-                                        Branch / Specialization
-                                    </label>
-                                    <input
-                                        {...register("branch")}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-[#333] bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-sm"
-                                        placeholder="Branch"
-                                    />
-                                </div>
-                            </div>
-                         </div>
-                    </div>
-
-
-
-                    <div className="flex justify-end pt-4">
-                         <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                        <button
+                            type="button"
+                            onClick={() => setIsSummaryModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
                         >
-                            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                            Save Changes
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit Info
                         </button>
                     </div>
-                </form>
+                    <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
+                        <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
+                        <div className="flex text-sm items-start">
+                            <span className="flex-1 text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">{user.bio || "No summary provided."}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                {/* Address Section */}
+                <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
+                     <div className="flex items-center justify-between">
+                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Address</h2>
+                         <button
+                             type="button"
+                             onClick={() => setIsAddressModalOpen(true)}
+                             className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                         >
+                             <Pencil className="w-3.5 h-3.5" />
+                             Edit Info
+                         </button>
+                     </div>
+
+                     <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
+                         <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
+                         <div className="flex text-sm items-start">
+                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Permanent Address :</span>
+                             <span className="flex-1 text-gray-900 dark:text-gray-100">{formatAddress(user.permanentAddress)}</span>
+                         </div>
+                         <div className="flex text-sm items-start">
+                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Current Address :</span>
+                             <span className="flex-1 text-gray-900 dark:text-gray-100">{formatAddress(user.currentAddress)}</span>
+                         </div>
+                     </div>
+                </div>
+
+                {/* Academic Details Section */}
+                <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
+                     <div className="flex items-center justify-between">
+                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Academic Details</h2>
+                         <button
+                             type="button"
+                             onClick={() => setIsAcademicModalOpen(true)}
+                             className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                         >
+                             <Pencil className="w-3.5 h-3.5" />
+                             Edit Info
+                         </button>
+                     </div>
+
+                     <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
+                         <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
+                         <div className="flex text-sm items-start">
+                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">College Name :</span>
+                             <span className="flex-1 text-gray-900 dark:text-gray-100">{user.collegeName || user.institutionName || "-"}</span>
+                         </div>
+                         <div className="flex text-sm items-start">
+                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">College ID / Roll No :</span>
+                             <span className="flex-1 text-gray-900 dark:text-gray-100">{user.collegeId || "-"}</span>
+                         </div>
+                         <div className="flex text-sm items-start">
+                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Branch / Specialization :</span>
+                             <span className="flex-1 text-gray-900 dark:text-gray-100">{user.branch || "-"}</span>
+                         </div>
+                     </div>
+                </div>
             </div>
+            
+            <AboutEditModal
+                open={isAboutModalOpen}
+                onOpenChange={setIsAboutModalOpen}
+                user={user}
+                onSuccess={() => { router.refresh(); }}
+            />
+
+            <SummaryEditModal
+                open={isSummaryModalOpen}
+                onOpenChange={setIsSummaryModalOpen}
+                user={user}
+                onSuccess={() => { router.refresh(); }}
+            />
+
+            <AddressEditModal 
+                open={isAddressModalOpen} 
+                onOpenChange={setIsAddressModalOpen} 
+                user={user}
+                onSuccess={() => { router.refresh(); }}
+            />
+
+            <AcademicEditModal 
+                open={isAcademicModalOpen} 
+                onOpenChange={setIsAcademicModalOpen} 
+                user={user}
+                onSuccess={() => { router.refresh(); }}
+            />
         </div>
     );
 }

@@ -63,7 +63,7 @@ export default function CreateUserDialog() {
                 Add User
             </Button>
 
-            <Dialog open={open} onOpenChangeAction={setOpen}>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <DialogHeader>
                     <DialogTitle>Create New User</DialogTitle>
                     <DialogDescription>

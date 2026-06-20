@@ -31,7 +31,7 @@ const ErrorDialog = ({ defaultOpen = false, trigger, className }: Props) => {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <Dialog open={open} onOpenChangeAction={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild onClickAction={() => setOpen(true)}>
         {trigger}
       </DialogTrigger>

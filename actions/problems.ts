@@ -116,6 +116,7 @@ export async function createProblem(data: {
     functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
     solution?: string | null;
     companies?: any;
+    hints?: string[];
 }) {
     const session = await getSession();
 

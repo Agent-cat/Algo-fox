@@ -146,9 +146,6 @@ export class UserService {
         }
     }
 
-    /**
-     * Update user profile information
-     */
     static async updateUserInfo(userId: string, data: {
         name?: string;
         bio?: string;
@@ -156,11 +153,16 @@ export class UserService {
         collegeName?: string;
         branch?: string;
         dateOfBirth?: string;
+        gender?: string;
+        permanentAddress?: any;
+        currentAddress?: any;
         leetCodeHandle?: string;
         codeChefHandle?: string;
         hackerrankHandle?: string;
         codeforcesHandle?: string;
         githubHandle?: string;
+        educationDetails?: any;
+        experienceDetails?: any;
     }): Promise<{ success: boolean; error?: string }> {
         try {
             // Fetch current user to check for changes
@@ -180,10 +182,15 @@ export class UserService {
                 collegeName: data.collegeName,
                 branch: data.branch,
                 dateOfBirth: data.dateOfBirth !== undefined ? (data.dateOfBirth ? new Date(data.dateOfBirth) : null) : undefined,
+                gender: data.gender,
+                permanentAddress: data.permanentAddress,
+                currentAddress: data.currentAddress,
                 leetCodeHandle: data.leetCodeHandle,
                 codeChefHandle: data.codeChefHandle,
                 codeforcesHandle: data.codeforcesHandle,
                 githubHandle: data.githubHandle,
+                educationDetails: data.educationDetails !== undefined ? data.educationDetails : undefined,
+                experienceDetails: data.experienceDetails !== undefined ? data.experienceDetails : undefined,
             };
 
             // Reset verification if handle changed
@@ -240,7 +247,13 @@ export class UserService {
             collegeId: user.collegeId,
             collegeName: user.collegeName,
             branch: user.branch,
-            institutionName: user.institution?.name
+            dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString() : null,
+            gender: user.gender,
+            permanentAddress: user.permanentAddress,
+            currentAddress: user.currentAddress,
+            institutionName: user.institution?.name,
+            educationDetails: user.educationDetails || null,
+            experienceDetails: (user as any).experienceDetails || null
         };
     }
 }

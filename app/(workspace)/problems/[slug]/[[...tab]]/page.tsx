@@ -19,7 +19,7 @@ import { getSession } from "@/lib/auth-utils";
 // Caching is now handled via "use cache" in the getProblem action with cacheLife
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; tab?: string[] }>;
   searchParams: Promise<{ contestId?: string; courseId?: string }>;
 }
 
@@ -46,7 +46,7 @@ async function ProblemContentWithParams({
   params,
   searchParams
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; tab?: string[] }>;
   searchParams: Promise<{ contestId?: string; courseId?: string }>;
 }) {
   "use cache: private";
@@ -64,8 +64,8 @@ async function ProblemContentWithParams({
 
   // Resolve course context
   const rawCourseId = typeof courseId === 'string' ? courseId : Array.isArray(courseId) ? courseId[0] : undefined;
-  const courseContext = (problem as any).categoryProblems?.find((cp: any) => cp.category?.courseId === rawCourseId || cp.category?.courseId);
-  const activeCourseId = rawCourseId || courseContext?.category?.courseId || null;
+  const courseContext = rawCourseId ? (problem as any).categoryProblems?.find((cp: any) => cp.category?.courseId === rawCourseId) : null;
+  const activeCourseId = courseContext?.category?.courseId || null;
   const courseName = courseContext?.category?.course?.title || null;
   const courseSlug = courseContext?.category?.course?.slug || null;
 
@@ -288,11 +288,7 @@ async function ProblemContentWithParams({
 }
 
 export default function ProblemPage({ params, searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<WorkspaceSkeleton />}>
-      <ProblemContentWithParams params={params} searchParams={searchParams} />
-    </Suspense>
-  );
+  return <ProblemContentWithParams params={params} searchParams={searchParams} />;
 }
 
 
@@ -309,9 +305,14 @@ export async function generateStaticParams() {
       take: 50,
     });
 
-    return problems.map((p) => ({
-      slug: p.slug,
-    }));
+    const paths: { slug: string; tab?: string[] }[] = [];
+    for (const p of problems) {
+      paths.push({ slug: p.slug });
+      paths.push({ slug: p.slug, tab: ['description'] });
+      paths.push({ slug: p.slug, tab: ['solutions'] });
+      paths.push({ slug: p.slug, tab: ['submissions'] });
+    }
+    return paths;
   } catch (error) {
      console.error("Error generating static params for problems:", error);
     return [];

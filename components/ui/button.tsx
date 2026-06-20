@@ -19,7 +19,6 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        orange: "bg-orange-500 text-white shadow hover:bg-orange-600",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -43,12 +42,7 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // Since we don't have Radix Slot installed, we'll ignore asChild for now or fallback
-    // If we installed radix-ui/react-slot, we could use it.
-    // For now, let's just use button.
-    // If the user expects strict shadcn, I should have installed radix-ui/react-slot.
-    // But I'll just use "button" element.
-    const Comp = "button"
+    const Comp = asChild ? Slot : "button"
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}

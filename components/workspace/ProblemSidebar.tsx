@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, BookOpen, List, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { getNextProblem, getRandomProblem } from "@/actions/problems";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getProblems, searchProblems } from "@/actions/problems";
@@ -50,6 +51,7 @@ export default function ProblemSidebar({
   courseId,
   courseName
 }: ProblemSidebarProps) {
+  const router = useRouter();
   // PERFORMANCE: Use a Set for O(1) lookups of solved problem IDs
   const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
 
@@ -304,7 +306,7 @@ export default function ProblemSidebar({
                         onClick={() => {
                             const res = getRandomProblem(domain, "PRACTICE");
                             res.then(p => {
-                                if (p && (p as any).slug) window.location.href = `/problems/${(p as any).slug}${courseId ? `?courseId=${courseId}` : ""}`;
+                                if (p && (p as any).slug) router.push(`/problems/${(p as any).slug}${courseId ? `?courseId=${courseId}` : ""}`);
                             });
                         }}
                         className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-orange-500 hover:text-white hover:border-orange-500 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all active:scale-95 shadow-sm hover:shadow-orange-500/20"

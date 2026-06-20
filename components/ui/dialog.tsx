@@ -7,17 +7,17 @@ import { cn } from "@/lib/utils"
 
 const DialogContext = React.createContext<{
   open: boolean
-  onOpenChangeAction: (open: boolean) => void
+  onOpenChange: (open: boolean) => void
 } | null>(null)
 
 export function Dialog({
   open,
-  onOpenChangeAction,
+  onOpenChange,
   children,
   className
 }: {
   open: boolean,
-  onOpenChangeAction: (open: boolean) => void,
+  onOpenChange: (open: boolean) => void,
   children: React.ReactNode,
   className?: string
 }) {
@@ -36,14 +36,14 @@ export function Dialog({
 
   if (hasContent) {
     return (
-      <DialogContext.Provider value={{ open, onOpenChangeAction }}>
+      <DialogContext.Provider value={{ open, onOpenChange }}>
         {children}
       </DialogContext.Provider>
     )
   }
 
   return (
-    <DialogContext.Provider value={{ open, onOpenChangeAction }}>
+    <DialogContext.Provider value={{ open, onOpenChange }}>
       <DialogContent className={className}>
         {children}
       </DialogContent>
@@ -65,7 +65,7 @@ export function DialogTrigger({
 
   const handleClick = (e: React.MouseEvent) => {
     onClickAction?.()
-    context.onOpenChangeAction(true)
+    context.onOpenChange(true)
   }
 
   if (asChild && React.isValidElement(children)) {
@@ -108,7 +108,7 @@ export function DialogContent({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => context.onOpenChangeAction(false)}
+            onClick={() => context.onOpenChange(false)}
             className="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
@@ -176,13 +176,13 @@ export function DialogClose({ children, asChild }: { children: React.ReactNode, 
     return React.cloneElement(children as React.ReactElement<any>, {
       onClick: (e: React.MouseEvent) => {
         (children.props as any).onClick?.(e)
-        context.onOpenChangeAction(false)
+        context.onOpenChange(false)
       },
     })
   }
 
   return (
-    <button onClick={() => context.onOpenChangeAction(false)}>
+    <button onClick={() => context.onOpenChange(false)}>
       {children}
     </button>
   )

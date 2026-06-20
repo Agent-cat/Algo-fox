@@ -946,7 +946,7 @@ const CodeEditor = memo(({
         driverCode={currentDriverCode || ""}
       />
 
-      <Dialog open={isResetModalOpen} onOpenChangeAction={setIsResetModalOpen}>
+      <Dialog open={isResetModalOpen} onOpenChange={setIsResetModalOpen}>
         <DialogContent className="max-w-lg p-6 dark:bg-[#1D1E23] border-gray-200 dark:border-white/10">
           <DialogHeader>
             <DialogTitle>Reset Code</DialogTitle>

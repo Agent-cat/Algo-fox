@@ -101,11 +101,17 @@ export async function updateUserInfo(data: {
     branch?: string;
     phone?: string;
     dateOfBirth?: string;
+    gender?: string;
+    permanentAddress?: any;
+    currentAddress?: any;
     leetCodeHandle?: string;
     codeChefHandle?: string;
     hackerrankHandle?: string;
     codeforcesHandle?: string;
     githubHandle?: string;
+    educationDetails?: any;
+    experienceDetails?: any;
+    image?: string;
 }): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
 

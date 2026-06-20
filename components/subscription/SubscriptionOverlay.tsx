@@ -42,7 +42,7 @@ export default function SubscriptionOverlay({ title, description }: Subscription
   return (
     <Dialog
       open={true}
-      onOpenChangeAction={(open) => !open && router.back()}
+      onOpenChange={(open) => !open && router.back()}
     >
       <div className="flex flex-col items-center text-center p-2">
         <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">

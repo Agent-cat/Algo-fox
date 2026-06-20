@@ -84,7 +84,7 @@ function SignInContent() {
       </div>
 
       <div
-        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#1D1E23] shadow-2xl z-10 relative overflow-hidden"
+        className="w-full max-w-2xl border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 md:p-12 bg-white dark:bg-[#1D1E23] z-10 relative overflow-hidden"
       >
         <div className="space-y-8">
           <div className="text-center">
@@ -102,7 +102,7 @@ function SignInContent() {
             <button
               onClick={() => handleSignIn("google")}
               disabled={!!loading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-orange-500/20"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading === "google" ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -121,7 +121,7 @@ function SignInContent() {
             <button
               onClick={() => handleSignIn("microsoft")}
               disabled={!!loading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading === "microsoft" ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />

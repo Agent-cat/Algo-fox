@@ -29,6 +29,11 @@ model User {
   year                  Int?
   phone                 String?
   dateOfBirth           DateTime?
+  gender                String?
+  permanentAddress      Json?
+  currentAddress        Json?
+  educationDetails      Json?
+  experienceDetails     Json?
   banned                Boolean?
   banReason             String?
   banExpires            DateTime?
@@ -60,6 +65,7 @@ model User {
   contests              Contest[]
   contestParticipations ContestParticipation[]
   sessions              Session[]
+  jobApplications       JobApplication[]
   institution           Institution?           @relation(fields: [institutionId], references: [id])
   enrolledClassrooms    Classroom[]            @relation("StudentClassrooms")
   dailyStreaks          DailyStreak[]
@@ -71,11 +77,11 @@ model User {
   bookmarks             Bookmark[]
   bookmarkLists         BookmarkList[]
 
-  githubRepo            String?
-  githubSyncMode        String?                @default("ACCEPTED_ONLY")
-  githubAutoSync        Boolean                @default(true)
-  lastSyncedAt          DateTime?
-  
+  githubRepo     String?
+  githubSyncMode String?   @default("ACCEPTED_ONLY")
+  githubAutoSync Boolean   @default(true)
+  lastSyncedAt   DateTime?
+
   @@index([collegeId])
   @@index([collegeId, totalScore])
   @@index([institutionId])
@@ -135,6 +141,7 @@ model Problem {
   id                     String                    @id @default(cuid())
   title                  String
   description            String
+  hints                  String[]                  @default([])
   hidden                 Boolean                   @default(true)
   slug                   String                    @unique
   score                  Int
@@ -200,13 +207,13 @@ model BookmarkList {
 }
 
 model Bookmark {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   userId    String
   problemId String
   listId    String?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
   list      BookmarkList? @relation(fields: [listId], references: [id], onDelete: SetNull)
 
   @@unique([userId, problemId])
@@ -266,23 +273,23 @@ model UserProblemSolved {
 }
 
 model Submission {
-  id         String           @id @default(cuid())
-  problemId  String
-  userId     String
-  languageId Int
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  contestId  String?
-  code       String
-  status     SubmissionResult @default(PENDING)
-  mode       SubmissionMode   @default(SUBMIT)
-  memory     Int?
-  time       Float?
-  contest    Contest?         @relation(fields: [contestId], references: [id])
-  language   Language         @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  problem    Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  testCases  TestCase[]
+  id             String           @id @default(cuid())
+  problemId      String
+  userId         String
+  languageId     Int
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  contestId      String?
+  code           String
+  status         SubmissionResult @default(PENDING)
+  mode           SubmissionMode   @default(SUBMIT)
+  memory         Int?
+  time           Float?
+  contest        Contest?         @relation(fields: [contestId], references: [id])
+  language       Language         @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  problem        Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testCases      TestCase[]
   githubSyncedAt DateTime?
 
   @@index([userId, createdAt])
@@ -480,10 +487,10 @@ model ContestSection {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  contest        Contest                       @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  problems       ContestSectionProblem[]
-  participations ContestParticipationSection[]
-  activeParticipations ContestParticipation[] @relation("ActiveSection")
+  contest              Contest                       @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problems             ContestSectionProblem[]
+  participations       ContestParticipationSection[]
+  activeParticipations ContestParticipation[]        @relation("ActiveSection")
 
   @@unique([contestId, order])
   @@map("contest_section")
@@ -594,7 +601,7 @@ model CourseAllocation {
 
 model Comment {
   id          String        @id @default(cuid())
-  title       String?       // For solutions
+  title       String? // For solutions
   content     String
   tags        String[]      @default([]) // For solutions
   createdAt   DateTime      @default(now())
@@ -674,6 +681,7 @@ enum Role {
   CONTEST_MANAGER
   TEACHER
   STUDENT
+  PLACEMENT_DIRECTOR
 }
 
 enum Difficulty {
@@ -770,21 +778,21 @@ model DailyStreak {
 }
 
 model Course {
-  id          String       @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
-  slug        String       @unique
+  slug        String     @unique
   description String
   image       String?
-  difficulty  Difficulty   @default(EASY)
-  tags        String[]     @default([])
-  duration    String?      // e.g., "10 hours"
-  isPublished Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  difficulty  Difficulty @default(EASY)
+  tags        String[]   @default([])
+  duration    String? // e.g., "10 hours"
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  domain      ProblemDomain @default(DSA)
-  modules     Category[]   @relation("CourseModules")
-  problems    Problem[]    @relation("CourseProblems")
+  domain      ProblemDomain          @default(DSA)
+  modules     Category[]             @relation("CourseModules")
+  problems    Problem[]              @relation("CourseProblems")
   enrollments UserCourseEnrollment[]
 
   @@index([slug])
@@ -799,10 +807,75 @@ model UserCourseEnrollment {
   completedAt DateTime?
   progress    Float     @default(0) // 0 to 100
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
 }
+
+model Company {
+  id        String         @id @default(cuid())
+  name      String         @unique
+  about     String?
+  website   String?
+  logoUrl   String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  jobs      PlacementJob[]
+}
+
+model PlacementJob {
+  id        String  @id @default(cuid())
+  title     String
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  type      String
+  location  String
+  category  String
+  functions String
+  ctc       String
+
+  description    String[]
+  requiredSkills String[]
+  additionalInfo String?
+  attachedDocs   String[]
+
+  status String @default("Open")
+
+  minGpa        Float?
+  min10thMarks  Float?
+  min12thMarks  Float?
+
+  workflow     HiringStep[]
+  applications JobApplication[]
+  targetTags     String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HiringStep {
+  id    String       @id @default(cuid())
+  jobId String
+  job   PlacementJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  title String
+  venue String?
+  order Int          @default(0)
+}
+
+model JobApplication {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       PlacementJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status    String       @default("Applied")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, jobId])
+}
+
+
