@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2, X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 
@@ -78,7 +78,7 @@ export function AddressEditModal({ open, onOpenChange, user, onSuccess }: Addres
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Select Country *
                 </label>
-                <select {...register(`${type}.country`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200">
+                <select {...register(`${type}.country`)} className={inputClasses}>
                     <option value="India">India</option>
                 </select>
             </div>
@@ -86,13 +86,13 @@ export function AddressEditModal({ open, onOpenChange, user, onSuccess }: Addres
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Enter Pincode *
                 </label>
-                <input {...register(`${type}.pincode`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                <input {...register(`${type}.pincode`)} className={inputClasses} />
             </div>
             <div className="relative">
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Select State *
                 </label>
-                <select {...register(`${type}.state`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200">
+                <select {...register(`${type}.state`)} className={inputClasses}>
                     <option value="">Select State</option>
                     <option value="Telangana">Telangana</option>
                     <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -104,30 +104,34 @@ export function AddressEditModal({ open, onOpenChange, user, onSuccess }: Addres
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Enter District Name *
                 </label>
-                <input {...register(`${type}.district`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                <input {...register(`${type}.district`)} className={inputClasses} />
             </div>
             <div className="relative">
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Enter City Name *
                 </label>
-                <input {...register(`${type}.city`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                <input {...register(`${type}.city`)} className={inputClasses} />
             </div>
             <div className="relative">
                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                     Enter Address Line Name *
                 </label>
-                <input {...register(`${type}.addressLine`)} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                <input {...register(`${type}.addressLine`)} className={inputClasses} />
             </div>
         </div>
     );
 
+    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[550px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
-                        <DialogTitle className="text-center text-lg font-bold text-gray-800 dark:text-gray-100">Edit Address</DialogTitle>
-                    </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
+                        "Address"
+                    </SheetTitle>
+                </SheetHeader>
 
                     <div className="flex border-b border-gray-100 dark:border-[#333]">
                         <button
@@ -150,18 +154,24 @@ export function AddressEditModal({ open, onOpenChange, user, onSuccess }: Addres
                         {tab === "permanent" ? renderFormFields("permanent") : renderFormFields("current")}
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                    <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-full flex items-center transition-colors shadow-sm"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                            Next
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

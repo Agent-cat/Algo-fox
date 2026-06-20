@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2, Bold, Italic, Underline, Link as LinkIcon, Unlink, List, ListOrdered, Superscript, Subscript, Calendar } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
 
@@ -123,16 +123,16 @@ export function CertificateModal({ open, onOpenChange, user, onSuccess, editInde
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
-                        <DialogTitle className="text-center text-xl font-bold text-gray-900 dark:text-gray-100 tracking-wide">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[700px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl  overflow-hidden">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
+                        <SheetTitle className="text-center text-xl font-bold text-gray-900 dark:text-gray-100 tracking-wide">
                             Add New Certification
-                        </DialogTitle>
-                    </DialogHeader>
+                        </SheetTitle>
+                    </SheetHeader>
 
-                    <div className="p-8 max-h-[75vh] overflow-y-auto space-y-6">
+                    <div className="p-8 flex-1 overflow-y-auto space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <input {...register("name")} required className={inputClasses} placeholder="Enter Name *" />
@@ -244,7 +244,7 @@ export function CertificateModal({ open, onOpenChange, user, onSuccess, editInde
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

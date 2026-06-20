@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
 
@@ -115,22 +115,22 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
         }
     };
 
-    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
-    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
+    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";    const labelClasses = "absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400";
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
-                        <DialogTitle className="text-center text-lg font-bold text-gray-800 dark:text-gray-100">Add New Experience</DialogTitle>
-                    </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
+                        "Experience"
+                    </SheetTitle>
+                </SheetHeader>
 
-                    <div className="p-8 max-h-[70vh] overflow-y-auto space-y-6">
+                    <div className="p-8 flex-1 overflow-y-auto space-y-8">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="relative">
-                                <label className={labelClasses}>Search Company Name *</label>
-                                <input {...register("companyName")} required className={inputClasses} placeholder="Company Name" />
+                                <label className={labelClasses}>Search Company Name *</label>                                <input {...register("companyName")} required className={inputClasses} placeholder="Company Name" />
                             </div>
                             <div className="relative">
                                 <label className={labelClasses}>Select Company Sector *</label>
@@ -148,12 +148,10 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
 
                         <div className="grid grid-cols-2 gap-6">
                             <div className="relative">
-                                <label className={labelClasses}>Enter Job Title *</label>
-                                <input {...register("jobTitle")} required className={inputClasses} placeholder="e.g. Technical Expert" />
+                                <label className={labelClasses}>Enter Job Title *</label>                                <input {...register("jobTitle")} required className={inputClasses} placeholder="e.g. Technical Expert" />
                             </div>
                             <div className="relative">
-                                <label className={labelClasses}>Enter Job Location *</label>
-                                <input {...register("jobLocation")} required className={inputClasses} placeholder="e.g. India" />
+                                <label className={labelClasses}>Enter Job Location *</label>                                <input {...register("jobLocation")} required className={inputClasses} placeholder="e.g. India" />
                             </div>
                         </div>
 
@@ -244,18 +242,24 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
                         </div>
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                    <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-2.5 border border-orange-600 text-orange-600 dark:text-orange-500 font-medium rounded-full flex items-center transition-colors shadow-sm hover:bg-orange-50 dark:hover:bg-orange-900/10"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                            Save
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

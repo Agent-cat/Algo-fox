@@ -2,29 +2,36 @@
 
 import { authClient } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
+import { useSidebar } from "@/context/SidebarContext";
 
-// Define a safe type for the session that includes the impersonalization status
 type BetterAuthSession = {
-    session: {
-        impersonatedBy?: string;
-    };
-    user: any;
+  session: { impersonatedBy?: string };
+  user: any;
 } | null;
 
-export default function MainContentWrapper({ children }: { children: React.ReactNode }) {
-    const { data } = authClient.useSession();
-    const session = data as BetterAuthSession;
-    const [mounted, setMounted] = useState(false);
+export default function MainContentWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { data } = authClient.useSession();
+  const session = data as BetterAuthSession;
+  const { sidebarWidth } = useSidebar();
+  const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-    const isImpersonating = mounted && !!session?.session?.impersonatedBy;
+  const isImpersonating = mounted && !!session?.session?.impersonatedBy;
 
-    return (
-        <div className={`transition-all duration-400 ease-in-out ${isImpersonating ? 'pt-26' : 'pt-16'}`}>
-            {children}
-        </div>
-    );
+  return (
+    <div
+      style={{ marginLeft: sidebarWidth }}
+      className={[
+        "transition-[margin-left] duration-300 ease-in-out min-h-screen",
+        isImpersonating ? "pt-26" : "pt-16",
+      ].join(" ")}
+    >
+      {children}
+    </div>
+  );
 }

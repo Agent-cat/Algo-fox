@@ -288,3 +288,36 @@ body {
 .prose code::after {
   content: none !important;
 }
+@keyframes slideInRightModal {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideOutRightModal {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOutModal {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.overlay-animate-in[data-state="open"] {
+  animation: fadeInModal 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+.overlay-animate-out[data-state="closed"] {
+  animation: fadeOutModal 0.3s ease-in forwards;
+}
+
+.slide-in-right[data-state="open"] {
+  animation: slideInRightModal 0.5s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+.slide-out-right[data-state="closed"] {
+  animation: slideOutRightModal 0.4s ease-in forwards;
+}

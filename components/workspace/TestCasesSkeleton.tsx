@@ -28,11 +28,11 @@ export default function TestCasesSkeleton() {
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
           <div className="flex flex-col gap-2">
             <div className="w-20 h-4 bg-gray-200 dark:bg-[#333333] rounded-sm"></div>
-            <div className="w-full h-12 bg-white dark:bg-[#262626] rounded-md border border-gray-200 dark:border-transparent"></div>
+            <div className="w-full h-12 bg-[#fafafa] dark:bg-[#262626] rounded-md border border-gray-200 dark:border-transparent"></div>
           </div>
           <div className="flex flex-col gap-2">
             <div className="w-20 h-4 bg-gray-200 dark:bg-[#333333] rounded-sm"></div>
-            <div className="w-full h-12 bg-white dark:bg-[#262626] rounded-md border border-gray-200 dark:border-transparent"></div>
+            <div className="w-full h-12 bg-[#fafafa] dark:bg-[#262626] rounded-md border border-gray-200 dark:border-transparent"></div>
           </div>
         </div>
       </div>

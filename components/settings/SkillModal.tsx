@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
 
@@ -98,14 +98,16 @@ export function SkillModal({ open, onOpenChange, user, onSuccess, editIndex, typ
         }
     };
 
+    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] p-0 overflow-hidden">
-                <DialogHeader className="px-6 py-6 border-b border-gray-100 dark:border-[#333]">
-                    <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
                         {title}
-                    </DialogTitle>
-                </DialogHeader>
+                    </SheetTitle>
+                </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -140,7 +142,7 @@ export function SkillModal({ open, onOpenChange, user, onSuccess, editIndex, typ
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

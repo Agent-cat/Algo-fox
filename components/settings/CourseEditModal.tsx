@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2, X, Pencil } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 
@@ -104,27 +104,30 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
         }
     };
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333] relative">
-                        <DialogTitle className="text-center text-lg font-bold text-gray-800 dark:text-gray-100">Update Course Details</DialogTitle>
-                    </DialogHeader>
+    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
 
-                    <div className="p-8 max-h-[70vh] overflow-y-auto space-y-8">
+    return (
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
+                        Update Course Details
+                    </SheetTitle>
+                </SheetHeader>
+
+                    <div className="p-8 flex-1 overflow-y-auto space-y-8">
                         <div className="grid grid-cols-2 gap-6 pt-4">
                             <div className="relative">
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Institution Name *
                                 </label>
-                                <input {...register("institution")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input {...register("institution")} className={inputClasses} />
                             </div>
                             <div className="relative">
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Course Name *
-                                </label>
-                                <input {...register("courseName")} placeholder="e.g. Computer Science and IT" className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                </label>                                <input {...register("courseName")} placeholder="e.g. Computer Science and IT" className={inputClasses} />
                             </div>
                         </div>
 
@@ -133,7 +136,7 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Degree *
                                 </label>
-                                <select {...register("degree")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200">
+                                <select {...register("degree")} className={inputClasses}>
                                     <option value="">Select Degree</option>
                                     <option value="B.Tech">B.Tech</option>
                                     <option value="M.Tech">M.Tech</option>
@@ -150,7 +153,7 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Department *
                                 </label>
-                                <input {...register("department")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input {...register("department")} className={inputClasses} />
                             </div>
                         </div>
 
@@ -159,13 +162,13 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Branch/Specialization *
                                 </label>
-                                <input {...register("branch")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input {...register("branch")} className={inputClasses} />
                             </div>
                             <div className="relative">
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Passout Batch (Year) *
                                 </label>
-                                <input {...register("passoutBatch")} type="number" className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input {...register("passoutBatch")} type="number" className={inputClasses} />
                             </div>
                         </div>
 
@@ -174,7 +177,7 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Select Current Semester *
                                 </label>
-                                <select {...register("currentSemester")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200">
+                                <select {...register("currentSemester")} className={inputClasses}>
                                     {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                                         <option key={num} value={num}>Semester {num}</option>
                                     ))}
@@ -184,7 +187,7 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Institute Roll No. *
                                 </label>
-                                <input {...register("rollNo")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input {...register("rollNo")} className={inputClasses} />
                             </div>
                         </div>
 
@@ -193,13 +196,13 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Select Course Start Date *
                                 </label>
-                                <input type="date" {...register("startDate")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input type="date" {...register("startDate")} className={inputClasses} />
                             </div>
                             <div className="relative">
                                 <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                     Select Course End Date *
                                 </label>
-                                <input type="date" {...register("endDate")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                <input type="date" {...register("endDate")} className={inputClasses} />
                             </div>
                         </div>
 
@@ -229,7 +232,7 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                             <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                 Notes/Highlights
                             </label>
-                            <input {...register("notes")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                            <input {...register("notes")} className={inputClasses} />
                             <p className="text-xs text-gray-400 mt-1 ml-1">You can mention your class/college ranks or other highlights, if any</p>
                         </div>
 
@@ -287,31 +290,37 @@ export function CourseEditModal({ open, onOpenChange, user, onSuccess }: CourseE
                                     <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                         Ongoing Backlogs *
                                     </label>
-                                    <input type="number" {...register("ongoingBacklogs")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                    <input type="number" {...register("ongoingBacklogs")} className={inputClasses} />
                                 </div>
                                 <div className="relative">
                                     <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
                                         Total Backlogs *
                                     </label>
-                                    <input type="number" {...register("totalBacklogs")} className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" />
+                                    <input type="number" {...register("totalBacklogs")} className={inputClasses} />
                                 </div>
                             </div>
                         </div>
 
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                    <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-full flex items-center transition-colors shadow-sm"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                            Save Details
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

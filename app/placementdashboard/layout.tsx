@@ -1,4 +1,6 @@
 import Navbar from "@/components/Navbar";
+import { SidebarProvider } from "@/context/SidebarContext";
+import Sidebar from "@/components/Sidebar";
 import { PlacementDirectorSidebar } from "@/components/placementdashboard/PlacementDirectorSidebar";
 
 export default function PlacementDashboardLayout({
@@ -7,7 +9,9 @@ export default function PlacementDashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="h-screen bg-[#fafafa] dark:bg-[#1D1E23] font-sans flex flex-col overflow-hidden">
+        <SidebarProvider>
+        <Sidebar />
+        <div className="h-screen bg-[#fafafa] dark:bg-[#1D1E23] font-sans flex flex-col overflow-hidden" style={{ marginLeft: 56 }}>
             <Navbar />
             
             <main className="pt-16 flex-1 flex w-full">
@@ -22,5 +26,6 @@ export default function PlacementDashboardLayout({
                 </div>
             </main>
         </div>
+        </SidebarProvider>
     );
 }

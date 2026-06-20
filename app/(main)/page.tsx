@@ -1,125 +1,81 @@
 import { Metadata } from "next";
-import Link from "next/link";
+import { getDashboardStats } from "@/actions/dashboard.action";
+import { getVisibleContests } from "@/actions/contest";
+import { getUpcomingContests } from "@/actions/external-contests.action";
+import { StreakCalendarWidget } from "@/components/home/StreakCalendarWidget";
+import { UpcomingContestsWidget } from "@/components/home/UpcomingContestsWidget";
 
 export const metadata: Metadata = {
   title: "Elite Platform for DSA & SQL Mastery",
   description: "The ultimate platform for competitive programming and interview preparation. Practice DSA, SQL, and join high-stakes contests to boost your career.",
 };
 
-const codeSnippets = [
-  {
-    language: "typescript",
-    code: `function twoSum(nums: number[], target: number) {
-  const map = new Map<number, number>();
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (map.has(complement)) {
-      return [map.get(complement)!, i];
-    }
-    map.set(nums[i], i);
-  }
-  return [];
-}`,
-    position: { top: "10%", left: "5%", delay: "0s" },
-  },
-  {
-    language: "python",
-    code: `def binary_search(arr, target):
-    left, right = 0, len(arr) - 1
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    return -1`,
-    position: { top: "60%", right: "8%", delay: "1s" },
-  },
-  {
-    language: "sql",
-    code: `SELECT u.name, COUNT(s.id) as submissions
-FROM users u
-LEFT JOIN submissions s ON u.id = s.userId
-WHERE s.status = 'ACCEPTED'
-GROUP BY u.id, u.name
-ORDER BY submissions DESC
-LIMIT 10;`,
-    position: { top: "35%", left: "55%", delay: "2s" },
-  },
-  {
-    language: "javascript",
-    code: `const mergeSort = (arr) => {
-  if (arr.length <= 1) return arr;
-  const mid = Math.floor(arr.length / 2);
-  const left = mergeSort(arr.slice(0, mid));
-  const right = mergeSort(arr.slice(mid));
-  return merge(left, right);
-};`,
-    position: { bottom: "15%", left: "10%", delay: "0.5s" },
-  },
-];
+export default async function Home() {
+  const stats = await getDashboardStats();
 
-export default function Home() {
+  const activityDates = stats?.activityDates || [];
+  const currentStreak = stats?.currentStreak || 0;
+  const bestStreak = stats?.bestStreak || 0;
+
+  // Fetch contests in parallel
+  const [internalRes, externalRes] = await Promise.all([
+    getVisibleContests({ status: "active" }),
+    getUpcomingContests()
+  ]);
+
+  const internalContests = (internalRes.success && "contests" in internalRes) ? internalRes.contests || [] : [];
+  const externalContests = (externalRes.success && "contests" in externalRes) ? externalRes.contests || [] : [];
+
+  const now = new Date();
+
+  // Format and merge internal and external contests
+  const formattedInternal = internalContests
+    .filter((c: any) => new Date(c.startTime) > now)
+    .map((c: any) => ({
+      id: c.id,
+      name: c.title,
+      url: `/contest/${c.slug}`,
+      startTime: new Date(c.startTime),
+      endTime: new Date(c.endTime),
+      platform: "Algo-fox"
+    }));
+
+  const formattedExternal = externalContests
+    .filter((c: any) => new Date(c.start_time) > now)
+    .map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      url: c.url,
+      startTime: new Date(c.start_time),
+      endTime: new Date(c.end_time),
+      platform: c.site
+    }));
+
+  const allUpcomingContests = [...formattedInternal, ...formattedExternal]
+    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+    .slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans pt-20 relative overflow-hidden">
-      {/* Animated Code Snippets Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.08] dark:opacity-[0.12]">
-        {codeSnippets.map((snippet, index) => (
-          <div
-            key={index}
-            className="absolute font-mono text-xs md:text-sm animate-float max-w-100 hidden md:block"
-            style={{
-              top: snippet.position.top,
-              left: snippet.position.left,
-              right: snippet.position.right,
-              bottom: snippet.position.bottom,
-              animationDelay: snippet.position.delay,
-            }}
-          >
-            <div className="bg-white/50 dark:bg-[#1D1E23]/50 rounded-lg p-4 border-2 border-orange-500/30 backdrop-blur-[2px] shadow-lg">
-              <div className="text-orange-500 mb-2 text-xs font-bold uppercase tracking-wider">
-                {snippet.language}
-              </div>
-              <pre className="text-black/70 dark:text-white/70 whitespace-pre-wrap leading-relaxed">
-                <code>{snippet.code}</code>
-              </pre>
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans pt-[72px] relative overflow-hidden">
+      <div className="w-full px-6 lg:px-12 pt-0 pb-12 relative z-10 flex flex-col lg:flex-row gap-8">
+        
+        {/* Main Content Area (Empty for now as requested) */}
+        <div className="flex-1">
+            <div className="flex flex-col items-center justify-center h-[60vh] border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl">
+                <p className="text-gray-400 font-medium">Main widgets go here</p>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Hero */}
-      <div className="max-w-7xl mx-auto px-6 py-24 md:py-32 relative z-10">
-        <div className="max-w-3xl">
-          <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-8">
-            Master Coding. <br />
-            <span className="text-orange-500 dark:text-orange-400">
-              Unleash Potential.
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed max-w-2xl">
-            The ultimate platform for competitive programming and interview
-            preparation. Join thousands of developers leveling up their skills
-            daily.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/contests"
-              className="px-8 py-4 bg-orange-500 dark:bg-orange-600 text-white text-lg font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-700 transition-all shadow-xl shadow-orange-500/20 text-center hover:scale-105 transform"
-            >
-                Explore Contests
-            </Link>
-            <Link
-              href="/problems"
-              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 transition-all border-2 border-black dark:border-white text-center hover:scale-105 transform"
-            >
-              Explore Problems
-            </Link>
-          </div>
         </div>
+
+        {/* Right Sidebar (Widgets) */}
+        <div className="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
+           <StreakCalendarWidget 
+              activityDates={activityDates} 
+              currentStreak={currentStreak} 
+              bestStreak={bestStreak} 
+           />
+           <UpcomingContestsWidget contests={allUpcomingContests} />
+        </div>
+
       </div>
     </div>
   );

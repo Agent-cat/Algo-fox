@@ -111,7 +111,7 @@ export default function SqlProblemsClient({
             transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8"
         >
-            <div className="w-full max-w-7xl mx-auto px-4 md:px-6">
+            <div className="w-full px-6 lg:px-12">
                 {/* Page Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -8 }}

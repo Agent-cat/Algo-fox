@@ -4,22 +4,19 @@ import Sidebar from "@/components/Sidebar";
 import MainContentWrapper from "@/components/shared/MainContentWrapper";
 import { SidebarProvider } from "@/context/SidebarContext";
 
-export default function MainLayout({
+export default function CoursesLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <SidebarProvider>
-      {/* Left sidebar */}
       <Suspense fallback={null}>
         <Sidebar />
       </Suspense>
-
-      {/* Top navbar — starts after sidebar */}
       <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-
-      {/* Main content — offset by sidebar + navbar */}
       <MainContentWrapper>{children}</MainContentWrapper>
     </SidebarProvider>
   );

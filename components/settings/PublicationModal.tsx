@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2, Bold, Italic, Underline, Link as LinkIcon, Unlink, List, ListOrdered, Superscript, Subscript, Calendar } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
 
@@ -103,28 +103,24 @@ export function PublicationModal({ open, onOpenChange, user, onSuccess, editInde
     };
 
     const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
-
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
-                        <DialogTitle className="text-center text-xl font-bold text-gray-900 dark:text-gray-100 tracking-wide">
-                            Add New Publication
-                        </DialogTitle>
-                    </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
+                        {isEditing ? "Edit Publication" : "Add Publication"}
+                    </SheetTitle>
+                </SheetHeader>
 
-                    <div className="p-8 max-h-[75vh] overflow-y-auto space-y-6">
-                        <div>
-                            <input {...register("title")} required className={inputClasses} placeholder="Enter Title *" />
+                    <div className="p-8 flex-1 overflow-y-auto space-y-8">
+                        <div>                            <input {...register("title")} required className={inputClasses} placeholder="Title" />
                         </div>
                         
-                        <div>
-                            <input {...register("publisher")} required className={inputClasses} placeholder="Enter Publication/Publisher *" />
+                        <div>                            <input {...register("publisher")} required className={inputClasses} placeholder="Publication/Publisher" />
                         </div>
 
-                        <div>
-                            <input {...register("publicationUrl")} required className={inputClasses} placeholder="Publication URL *" />
+                        <div>                            <input {...register("publicationUrl")} required className={inputClasses} placeholder="Publication URL" />
                         </div>
 
                         <div className="relative">
@@ -171,17 +167,24 @@ export function PublicationModal({ open, onOpenChange, user, onSuccess, editInde
                         </div>
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                    <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full font-bold transition-colors flex items-center justify-center min-w-[160px] disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save"}
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditing ? "Save" : "Create")}
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

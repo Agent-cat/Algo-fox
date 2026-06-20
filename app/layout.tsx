@@ -89,11 +89,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body
-        className={`${geistMono.variable} antialiased select-none bg-white dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 font-sans`}
+        suppressHydrationWarning
+        className={`${geistMono.variable} antialiased select-none bg-[#fafafa] dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 font-sans`}
       >
         <ThemeProvider>
           <Suspense fallback={
-            <div className="min-h-screen bg-white dark:bg-[#1D1E23] flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
             </div>
           }>

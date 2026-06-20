@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 
@@ -57,13 +57,17 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
         }
     };
 
+    const inputClasses = "w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200";
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[550px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl rounded-2xl overflow-hidden">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-[#333]">
-                        <DialogTitle className="text-center text-lg font-bold text-gray-800 dark:text-gray-100">Edit About Info</DialogTitle>
-                    </DialogHeader>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-[800px] p-0 bg-white dark:bg-[#1D1E23] border-none shadow-2xl flex flex-col">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+                    <SheetHeader className="p-8 pb-2">
+                    <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
+                        "About Info"
+                    </SheetTitle>
+                </SheetHeader>
 
                     <div className="p-8 max-h-[60vh] overflow-y-auto space-y-6">
                         <div className="grid grid-cols-2 gap-6">
@@ -73,7 +77,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                                 </label>
                                 <input 
                                     {...register("firstName", { required: "First name is required" })} 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" 
+                                    className={inputClasses} 
                                 />
                                 {errors.firstName && <span className="absolute -bottom-5 left-1 text-red-500 text-[10px]">{(errors.firstName as any).message}</span>}
                             </div>
@@ -83,7 +87,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                                 </label>
                                 <input 
                                     {...register("lastName")} 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" 
+                                    className={inputClasses} 
                                 />
                             </div>
                         </div>
@@ -96,7 +100,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                                 <input 
                                     type="date"
                                     {...register("dateOfBirth")} 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" 
+                                    className={inputClasses} 
                                 />
                             </div>
                             <div className="relative">
@@ -105,7 +109,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                                 </label>
                                 <select 
                                     {...register("gender")} 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200"
+                                    className={inputClasses}
                                 >
                                     <option value="">Select Gender</option>
                                     <option value="Male">Male</option>
@@ -122,23 +126,29 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                             </label>
                             <input 
                                 {...register("collegeName")} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg dark:bg-[#1D1E23] dark:border-[#333] focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-transparent text-sm transition-colors text-gray-800 dark:text-gray-200" 
+                                className={inputClasses} 
                             />
                         </div>
                     </div>
 
-                    <div className="p-6 flex justify-center border-t border-gray-100 dark:border-[#333]">
+                    <div className="p-8 pt-4 flex justify-end gap-3 mt-auto">
+                        <button
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#262626] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-full text-[15px] font-medium transition-colors"
+                        >
+                            Close
+                        </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-12 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-full flex items-center transition-colors shadow-sm"
+                            className="px-8 py-2.5 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-[15px] font-medium transition-colors flex items-center justify-center min-w-[120px]"
                         >
-                            {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                            Save
+                            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                         </button>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

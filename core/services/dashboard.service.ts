@@ -292,6 +292,7 @@ export class DashboardService {
             languageCounts,
             currentStreak,
             bestStreak: Math.max(bestStreak, currentStreak),
+            activityDates: activityDates.map((a: any) => a.date instanceof Date ? a.date.toISOString().split('T')[0] : String(a.date).split('T')[0]),
             contestStats: {
                 attended: attendedContests,
                 totalScore: totalContestScore,

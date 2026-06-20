@@ -31,7 +31,7 @@ export default function ProblemListSkeleton() {
           <div className="px-5 pb-6 space-y-3">
              {/* Problem Rows Skeleton */}
              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-16 w-full bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl flex items-center justify-between px-4 animate-pulse">
+                <div key={i} className="h-16 w-full bg-[#fafafa] dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl flex items-center justify-between px-4 animate-pulse">
                    <div className="flex items-center gap-4">
                       <div className="w-6 h-6 rounded-md bg-gray-200 dark:bg-[#333]" />
                       <div className="h-5 w-48 bg-gray-200 dark:bg-[#333] rounded-md" />

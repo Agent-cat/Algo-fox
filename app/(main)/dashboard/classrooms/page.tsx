@@ -43,16 +43,16 @@ async function ClassroomsData() {
 
 export default function ClassroomsPage() {
     return (
-        <div className="min-h-screen bg-[#fafafa] dark:bg-[#24262C] pt-12">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] pt-12">
             {/* Header */}
-            <div className="relative mb-12 bg-[#fafafa] dark:bg-[#24262C]   dark:border-white/5  overflow-hidden">
+            <div className="relative mb-12 bg-[#fafafa] dark:bg-[#1D1E23]   dark:border-white/5  overflow-hidden">
                 <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full bg-orange-500 opacity-20 dark:opacity-30 blur-[100px]"></div>
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="w-full px-6 lg:px-12 relative z-10">
                     <div className="flex flex-col items-center text-center gap-4">
                         <div className="relative group cursor-default">
                             <div className="absolute -inset-1 rounded-full"></div>
-                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-[#fafafa] dark:bg-[#24262C] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
+                            <div className="relative inline-flex items-center gap-2 px-6 py-2 bg-[#fafafa] dark:bg-[#1D1E23] text-orange-600 dark:text-orange-500 rounded-full text-sm font-bold uppercase tracking-wider border border-orange-100 dark:border-orange-500/20">
                                 <School className="w-4 h-4" />
                                 MY CLASSROOMS
                             </div>
@@ -62,10 +62,10 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Content Container */}
-            <div className="max-w-7xl mx-auto px-6 relative">
+            <div className="w-full px-6 lg:px-12 relative">
                 <Suspense
                     fallback={
-                        <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-[#24262C] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm">
+                        <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-[#1D1E23] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm">
                             <div className="relative">
                                 <div className="w-16 h-16 border-4 border-orange-100 dark:border-orange-500/20 rounded-full" />
                                 <div className="absolute top-0 left-0 w-16 h-16 border-4 border-orange-600 rounded-full border-t-transparent animate-spin" />

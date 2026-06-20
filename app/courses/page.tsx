@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+
 import { CourseService } from "@/core/services/course.service";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -33,10 +33,7 @@ export default async function CoursesPage() {
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
-            <Suspense fallback={<div className="h-16 w-full" />}>
-                <Navbar initialSession={session} />
-            </Suspense>
-            <main className="max-w-7xl mx-auto px-4 md:px-6 pt-28 pb-20">
+            <main className="w-full px-6 lg:px-12 pt-28 pb-20">
                 <Suspense fallback={<CoursesSkeleton />}>
                     <CoursesClient courses={courses} enrollments={enrollments} />
                 </Suspense>

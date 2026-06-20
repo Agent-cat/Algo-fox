@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -118,17 +118,17 @@ export function GithubSyncDialog({ children }: { children: React.ReactNode }) {
   if (isPending) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
         {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#1D1E23] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-white/10">
-          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+      </SheetTrigger>
+      <SheetContent className="sm:max-w-[425px] bg-white dark:bg-[#1D1E23] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white p-0 gap-0 overflow-hidden">
+        <SheetHeader className="p-6 pb-4 border-b border-gray-200 dark:border-white/10">
+          <SheetTitle className="text-xl font-semibold flex items-center gap-2">
             <GithubIcon className="w-5 h-5" />
             GitHub Integration
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
 
         <div className="p-6 flex flex-col gap-6">
           {/* Account Section */}
@@ -227,7 +227,7 @@ export function GithubSyncDialog({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

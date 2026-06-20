@@ -9,7 +9,7 @@ export function ContestSkeleton() {
 
                 <div className="text-center mb-16 relative z-10">
                     <div className="flex justify-center">
-                        <div className="bg-white/80 dark:bg-[#24262C]/80 backdrop-blur-md p-1 rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm flex items-center gap-1">
+                        <div className="bg-[#fafafa]/80 dark:bg-[#24262C]/80 backdrop-blur-md p-1 rounded-xl border border-gray-200 dark:border-[#262626] shadow-sm flex items-center gap-1">
                             <div className="px-6 py-2 rounded-lg bg-orange-600/10 animate-pulse flex items-center gap-2">
                                 <Trophy className="w-3.5 h-3.5 text-orange-600/50" />
                                 <div className="h-3 w-16 bg-orange-600/20 rounded"></div>
@@ -25,7 +25,7 @@ export function ContestSkeleton() {
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="bg-white dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] p-5 shadow-sm overflow-hidden relative">
+                            <div key={i} className="bg-[#fafafa] dark:bg-[#24262C] rounded-2xl border border-gray-200 dark:border-[#262626] p-5 shadow-sm overflow-hidden relative">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="h-6 w-3/4 bg-gray-200 dark:bg-[#262626] animate-pulse rounded-lg"></div>
                                 </div>
