@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 import { getSession } from "@/lib/auth-utils";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
     title: "DSA Problems",
@@ -77,9 +78,19 @@ async function DsaProblemsContent({
     const mode = (params?.mode as string) || "practice";
 
     // FETCHING DATA BASED ON MODE
-    const [{ problems, totalPages }, categoriesRes] = await Promise.all([
+    const [{ problems, totalPages, total }, categoriesRes, solvedCount] = await Promise.all([
         getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags, undefined, sortBy),
-        mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] })
+        mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] }),
+        prisma.userProblemSolved.count({
+            where: {
+                userId: session.user.id,
+                problem: {
+                    domain: "DSA",
+                    type: "PRACTICE",
+                    hidden: false
+                }
+            }
+        })
     ]);
 
     return (
@@ -88,6 +99,8 @@ async function DsaProblemsContent({
             initialTotalPages={totalPages}
             initialCategories={categoriesRes.categories}
             userRole={session?.user?.role as string}
+            totalProblems={total}
+            solvedProblems={solvedCount}
         />
     );
 }

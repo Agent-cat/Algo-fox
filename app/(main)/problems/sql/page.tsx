@@ -10,6 +10,7 @@ import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 import { getSession } from "@/lib/auth-utils";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
     title: "SQL Problems",
@@ -76,9 +77,19 @@ async function SqlProblemsContent({
     const mode = (params?.mode as string) || "practice";
 
     // FETCHING DATA BASED ON MODE
-    const [{ problems, totalPages }, categoriesRes] = await Promise.all([
+    const [{ problems, totalPages, total }, categoriesRes, solvedCount] = await Promise.all([
         getProblems(page, 10, "PRACTICE", "SQL", difficulty, tags),
-        mode === "learn" ? getCategories("SQL") : Promise.resolve({ categories: [] })
+        mode === "learn" ? getCategories("SQL") : Promise.resolve({ categories: [] }),
+        prisma.userProblemSolved.count({
+            where: {
+                userId: session.user.id,
+                problem: {
+                    domain: "SQL",
+                    type: "PRACTICE",
+                    hidden: false
+                }
+            }
+        })
     ]);
 
     return (
@@ -87,6 +98,8 @@ async function SqlProblemsContent({
             initialTotalPages={totalPages}
             initialCategories={categoriesRes.categories}
             userRole={session?.user?.role as string}
+            totalProblems={total}
+            solvedProblems={solvedCount}
         />
     );
 }

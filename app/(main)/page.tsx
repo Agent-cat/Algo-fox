@@ -4,6 +4,8 @@ import { getVisibleContests } from "@/actions/contest";
 import { getUpcomingContests } from "@/actions/external-contests.action";
 import { StreakCalendarWidget } from "@/components/home/StreakCalendarWidget";
 import { UpcomingContestsWidget } from "@/components/home/UpcomingContestsWidget";
+import { getSession } from "@/lib/auth-utils";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Elite Platform for DSA & SQL Mastery",
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  const session = await getSession();
+  const isLoggedIn = !!session?.user;
+
   const stats = await getDashboardStats();
 
   const activityDates = stats?.activityDates || [];
@@ -68,11 +73,35 @@ export default async function Home() {
 
         {/* Right Sidebar (Widgets) */}
         <div className="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
-           <StreakCalendarWidget 
-              activityDates={activityDates} 
-              currentStreak={currentStreak} 
-              bestStreak={bestStreak} 
-           />
+           <div className="relative group">
+              <div className={!isLoggedIn ? "filter blur-[6px] opacity-70 pointer-events-none select-none" : ""}>
+                 <StreakCalendarWidget
+                    activityDates={activityDates} 
+                    currentStreak={currentStreak} 
+                    bestStreak={bestStreak} 
+                 />
+              </div>
+              {!isLoggedIn && (
+                 <div className="absolute inset-0 flex items-center justify-center bg-white/10 dark:bg-[#1D1E23]/40 rounded-3xl z-10 p-6">
+                    <div className="text-center w-full bg-white dark:bg-[#2A2B32] p-6 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent pointer-events-none" />
+                        <div className="w-12 h-12 text-orange-500 flex items-center justify-center mx-auto mb-2 relative z-10">
+                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-[17px] font-bold text-gray-900 dark:text-white mb-2 relative z-10">Track Your Progress</h3>
+                        <p className="text-[13px] leading-relaxed text-gray-500 dark:text-gray-400 mb-5 relative z-10">Sign in to save your daily streak and activity history.</p>
+                        <Link href="/signin" className="inline-flex items-center justify-center px-5 py-3 bg-transparent border border-gray-900 dark:border-white text-gray-900 dark:text-white text-sm font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors shadow-sm w-full relative z-10 gap-2">
+                           Sign In to Unlock
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                           </svg>
+                        </Link>
+                    </div>
+                 </div>
+              )}
+           </div>
            <UpcomingContestsWidget contests={allUpcomingContests} />
         </div>
 

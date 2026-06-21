@@ -47,7 +47,7 @@ export default function CoursesClient({ courses, enrollments }: CoursesClientPro
                 </h1>
 
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex-1 w-full max-w-4xl mx-auto md:mx-0">
+                    <div className="w-full md:flex-1">
                         <CourseSearchBar />
                     </div>
                     <ModeToggle mode={mode} onModeChange={setMode} />

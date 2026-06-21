@@ -32,6 +32,8 @@ interface SqlProblemsClientProps {
     initialTotalPages: number;
     initialCategories?: any[];
     userRole: string;
+    totalProblems?: number;
+    solvedProblems?: number;
 }
 
 export default function SqlProblemsClient({
@@ -39,6 +41,8 @@ export default function SqlProblemsClient({
     initialTotalPages,
     initialCategories = [],
     userRole,
+    totalProblems,
+    solvedProblems
 }: SqlProblemsClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -154,8 +158,19 @@ export default function SqlProblemsClient({
                 >
                     {mode === "practice" ? (
                         <>
-                            <div className="px-5 pt-4 pb-2">
-                                <FilterBar domain="SQL" companies={allCompanies} />
+                            <div className="px-5 pt-4 pb-2 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                                <div className="flex-1 w-full">
+                                    <FilterBar domain="SQL" companies={allCompanies} />
+                                </div>
+                                {(totalProblems !== undefined && solvedProblems !== undefined) && (
+                                    <div className="flex items-center gap-2.5 whitespace-nowrap flex-shrink-0 self-start xl:self-auto pl-1 pr-2">
+                                        <svg width={16} height={16} viewBox="0 0 16 16" className="transform -rotate-90">
+                                            <circle cx={8} cy={8} r={6.5} stroke="currentColor" strokeWidth={2} fill="none" className="text-gray-200 dark:text-[#333333]" />
+                                            <circle cx={8} cy={8} r={6.5} stroke="currentColor" strokeWidth={2} fill="none" strokeDasharray={40.84} strokeDashoffset={totalProblems > 0 ? 40.84 - ((solvedProblems / totalProblems) * 40.84) : 40.84} strokeLinecap="round" className="text-orange-500 transition-all duration-1000 ease-out" />
+                                        </svg>
+                                        <span className="text-[13px] font-medium text-gray-600 dark:text-gray-400 tracking-wide">{solvedProblems}/{totalProblems} Solved</span>
+                                    </div>
+                                )}
                             </div>
                             <PracticeClient
                                 initialProblems={initialProblems}

@@ -31,7 +31,7 @@ function SignInContent() {
 
   useEffect(() => {
     if (session) {
-      const url = searchParams.get("callbackUrl") || "/dashboard";
+      const url = searchParams.get("callbackUrl") || "/";
       router.replace(url);
     }
   }, [session, router, searchParams]);

@@ -16,7 +16,7 @@ export default function MainContentWrapper({
 }) {
   const { data } = authClient.useSession();
   const session = data as BetterAuthSession;
-  const { sidebarWidth } = useSidebar();
+  const { sidebarWidth, isDragging } = useSidebar();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -27,9 +27,10 @@ export default function MainContentWrapper({
     <div
       style={{ marginLeft: sidebarWidth }}
       className={[
-        "transition-[margin-left] duration-300 ease-in-out min-h-screen",
+        !isDragging && "transition-[margin-left] duration-300 ease-in-out",
+        "min-h-screen",
         isImpersonating ? "pt-26" : "pt-16",
-      ].join(" ")}
+      ].filter(Boolean).join(" ")}
     >
       {children}
     </div>

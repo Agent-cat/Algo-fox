@@ -40,7 +40,7 @@ export const ProfilesStatusCard = ({ user }: ProfilesStatusCardProps) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col">
+    <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-6 hover:shadow-lg transition-all flex flex-col">
       <div className="mb-6">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
           Profiles
@@ -50,7 +50,7 @@ export const ProfilesStatusCard = ({ user }: ProfilesStatusCardProps) => {
         {platforms.map((platform) => (
           <div
             key={platform.name}
-            className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-colors"
+            className="flex items-center justify-between p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-colors"
           >
             <div className="flex items-center gap-3">
               <div className="relative w-6 h-6 rounded-md overflow-hidden">

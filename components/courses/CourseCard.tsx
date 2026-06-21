@@ -90,7 +90,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
 
                             <Link
                                 href={`/courses/${course.slug}`}
-                                className="group/btn flex items-center justify-center gap-2 w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                className="group/btn flex items-center justify-center gap-2 w-full py-3.5 bg-transparent border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:border-orange-500 hover:text-orange-500 transition-all active:scale-95"
                             >
                                 Continue Path
                                 <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -111,7 +111,7 @@ export function CourseCard({ course, enrollment }: CourseCardProps) {
 
                              <Link
                                 href={`/courses/${course.slug}`}
-                                className="group/btn flex items-center justify-center gap-2 w-full py-3.5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-white transition-all shadow-lg active:scale-95"
+                                className="group/btn flex items-center justify-center gap-2 w-full py-3.5 bg-transparent border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:border-orange-500 hover:text-orange-500 transition-all active:scale-95"
                             >
                                 Start Learning
                                 <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />

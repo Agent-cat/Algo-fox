@@ -41,7 +41,7 @@ export function LanguagesCard({ languageCounts }: LanguagesCardProps) {
     const displayLanguages = languages.length > 0 ? languages : defaultLanguages;
 
     return (
-        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col">
+        <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-6 hover:shadow-lg transition-all flex flex-col">
             <div className="mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Languages</h3>
             </div>
@@ -49,7 +49,7 @@ export function LanguagesCard({ languageCounts }: LanguagesCardProps) {
                 <div className="space-y-3">
                     {displayLanguages.map((lang, index) => {
                         const colorClass = languageColors[lang.name] || 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/5';
-                        const bgColor = 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5';
+                        const bgColor = 'bg-gray-100 dark:bg-white/5 border-gray-100 dark:border-white/5';
 
                         return (
                             <div

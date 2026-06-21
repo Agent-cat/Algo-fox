@@ -5,22 +5,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
-  Home,
-  Database,
-  FileCode2,
-  Brain,
-  Trophy,
-  GraduationCap,
-  ChevronDown,
-  LogOut,
-  Settings2,
-  Briefcase,
-  Users,
-  ClipboardList,
-} from "lucide-react";
+  LdHomeSmile,
+  LdDatabase,
+  LdCode,
+  LdLightbulbBolt,
+  LdCupStar,
+  LdDiploma,
+  LdUsersGroupTwoRounded,
+  LdClipboardList,
+  LdCase,
+  LdAltArrowDown,
+  LdLogout2
+} from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
 import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 // ─────────────────────────────────────────────────────────────
 // Route map
@@ -33,34 +33,34 @@ interface SidebarProps {
 const NAV_SECTIONS = [
   {
     label: "",
-    items: [{ label: "Home", href: "/", icon: Home }],
+    items: [{ label: "Home", href: "/", icon: LdHomeSmile }],
   },
   {
     label: "Practice",
     items: [
-      { label: "DSA Problems",      href: "/problems/dsa",      icon: Database  },
-      { label: "SQL Problems",      href: "/problems/sql",      icon: FileCode2 },
-      { label: "Aptitude Problems", href: "/problems/aptitude", icon: Brain     },
+      { label: "DSA Problems",      href: "/problems/dsa",      icon: LdCode  },
+      { label: "SQL Problems",      href: "/problems/sql",      icon: LdDatabase },
+      { label: "Aptitude Problems", href: "/problems/aptitude", icon: LdLightbulbBolt     },
     ],
   },
   {
     label: "Contests",
-    items: [{ label: "Contests", href: "/contests", icon: Trophy }],
+    items: [{ label: "Contests", href: "/contests", icon: LdCupStar }],
   },
   {
     label: "Learn",
-    items: [{ label: "Courses", href: "/courses", icon: GraduationCap }],
+    items: [{ label: "Courses", href: "/courses", icon: LdDiploma }],
   },
   {
     label: "Academics",
     items: [
-      { label: "Classrooms", href: "/dashboard/classrooms", icon: Users },
-      { label: "Assignments", href: "/my-assignments", icon: ClipboardList },
+      { label: "Classrooms", href: "/dashboard/classrooms", icon: LdUsersGroupTwoRounded },
+      { label: "Assignments", href: "/my-assignments", icon: LdClipboardList },
     ],
   },
   {
     label: "Career",
-    items: [{ label: "Placements", href: "/placements", icon: Briefcase }],
+    items: [{ label: "Placements", href: "/placements", icon: LdCase }],
   },
 ] as const;
 
@@ -71,7 +71,7 @@ const NAV_SECTIONS = [
 export default function Sidebar({ initialSession }: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
-  const { expanded } = useSidebar();
+  const { expanded, sidebarWidth, setSidebarWidth, isDragging, setIsDragging } = useSidebar();
   const { data: clientSession, isPending } = authClient.useSession();
   const [mounted, setMounted] = useState(false);
   const [institution, setInstitution] = useState<{
@@ -87,11 +87,47 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
     Career: true,
   });
 
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    let finalWidth = sidebarWidth;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      let newWidth = e.clientX;
+      newWidth = Math.max(COLLAPSED_WIDTH, Math.min(EXPANDED_WIDTH + 6, newWidth));
+      finalWidth = newWidth;
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      const midPoint = (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
+      const snappedWidth = finalWidth > midPoint ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
+      setSidebarWidth(snappedWidth);
+      try { localStorage.setItem("algofox_sidebar_width", String(snappedWidth)); } catch (_) {}
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, setSidebarWidth]);
+
   const toggleSection = (label: string) => {
     setOpenSections((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
   const handleSignOut = async () => {
+    setIsLogoutOpen(false);
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -187,9 +223,21 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   return (
     <aside
-      style={{ width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH }}
-      className="fixed top-0 left-0 z-40 h-screen flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r-2 border-dotted border-gray-300 dark:border-white/20 transition-[width] duration-300 ease-in-out overflow-hidden"
+      style={{ width: sidebarWidth }}
+      className={[
+        "fixed top-0 left-0 z-40 h-screen flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r-2 border-dotted border-gray-300 dark:border-white/20 overflow-hidden",
+        !isDragging && "transition-[width] duration-300 ease-in-out"
+      ].filter(Boolean).join(" ")}
     >
+      {/* ── Drag Overlay ────────────────────────────────────── */}
+      {isDragging && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center backdrop-blur-md bg-white/20 dark:bg-black/20">
+          <span className="text-sm font-bold text-gray-800 dark:text-gray-200 tabular-nums">
+            {Math.round(sidebarWidth)} px
+          </span>
+        </div>
+      )}
+
       {/* ── Brand row ─────────────────────────────────────── */}
       <div
         className={[
@@ -211,10 +259,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       </div>
 
       {/* ── Thin separator ────────────────────────────────── */}
-      <div className={[
-          "border-t-2 border-dotted border-gray-300 dark:border-white/20 flex-shrink-0 transition-all duration-300",
-          expanded ? "mx-4" : "mx-2"
-      ].join(" ")} />
+      <div className="border-t-2 border-dotted border-gray-300 dark:border-white/20 flex-shrink-0 transition-all duration-300" />
 
       {/* ── Navigation ────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-6">
@@ -234,9 +279,9 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                 <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-gray-400 dark:text-gray-500 select-none whitespace-nowrap group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                   {section.label}
                 </span>
-                <ChevronDown
+                <LdAltArrowDown
                   className={[
-                    "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                    "w-4 h-4 text-gray-400 transition-transform duration-200",
                     isOpen ? "" : "-rotate-90",
                   ].join(" ")}
                 />
@@ -246,7 +291,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
             <div
               className={[
                 "flex flex-col gap-0.5 overflow-hidden transition-all duration-300",
-                section.label && expanded ? "ml-3 pl-3 border-l border-gray-200 dark:border-white/10" : "", // Tracking line only when expanded
+                section.label && expanded ? "" : "",
                 isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
               ].join(" ")}
             >
@@ -274,7 +319,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                   <Icon
                     className={[
                       "flex-shrink-0",
-                      expanded ? "w-[18px] h-[18px]" : "w-5 h-5",
+                      expanded ? "w-[22px] h-[22px]" : "w-6 h-6",
                     ].join(" ")}
                   />
 
@@ -295,28 +340,67 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       </nav>
 
       {/* ── Footer Actions ─────────────────────────────────── */}
-      <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${expanded ? "p-4" : "p-3"}`}>
-        {expanded ? (
-          <button
-            onClick={handleSignOut}
-            className="w-full py-2.5 px-4 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 text-[14.5px] font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2 shadow-sm"
-          >
-            <LogOut className="w-[18px] h-[18px]" />
-            <span>Logout</span>
-          </button>
-        ) : (
-          <>
-
+      {session?.user && (
+        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${expanded ? "p-4" : "p-3"}`}>
+          {expanded ? (
             <button
-              onClick={handleSignOut}
+              onClick={() => setIsLogoutOpen(true)}
+              className="w-full py-2.5 px-4 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 text-[14.5px] font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <LdLogout2 className="w-[20px] h-[20px]" />
+              <span>Logout</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsLogoutOpen(true)}
               title="Logout"
               className="w-full aspect-square flex items-center justify-center border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
             >
-              <LogOut className="w-5 h-5" />
+              <LdLogout2 className="w-[22px] h-[22px]" />
             </button>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Logout Confirmation Dialog ───────────────────── */}
+      <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
+        <DialogContent className="sm:max-w-[400px] bg-[#fafafa] dark:bg-[#1D1E23] border border-dotted border-gray-300 dark:border-white/20 p-6 rounded-2xl shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white mb-2">Confirm Logout</DialogTitle>
+            <DialogDescription className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              Are you sure you want to log out of your account? You will need to sign in again to access your progress.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-6 flex gap-3 sm:gap-3">
+            <DialogClose asChild>
+              <button className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-transparent border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all active:scale-95">
+                Cancel
+              </button>
+            </DialogClose>
+            <button 
+              onClick={handleSignOut}
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-500 bg-transparent border border-red-500/30 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all active:scale-95"
+            >
+              Logout
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Drag handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize z-50 hover:bg-orange-500/20 active:bg-orange-500/40 transition-colors"
+      />
+      
+      {/* Size Indicator */}
+      {isDragging && (
+        <div className="fixed top-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ left: sidebarWidth + 12 }}>
+          <div className="bg-gray-900/90 dark:bg-white/90 text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl border border-gray-700 dark:border-gray-200 backdrop-blur-sm">
+            {Math.round(sidebarWidth)} px
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

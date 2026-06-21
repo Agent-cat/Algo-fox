@@ -2,53 +2,71 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, LayoutGrid, MoveLeft, Pencil, X, GraduationCap, Briefcase, Code, Folder, Award, ChevronDown, ChevronRight, FileBadge, Lightbulb, BookOpen, FileText } from "lucide-react";
+import {
+  LdUserRounded,
+  LdWidget,
+  LdAltArrowLeft,
+  LdPen,
+  LdCloseCircle,
+  LdDiploma,
+  LdCase,
+  LdCode,
+  LdFolder,
+  LdMedalStar,
+  LdAltArrowDown,
+  LdAltArrowRight,
+  LdDiplomaVerified,
+  LdLightbulb,
+  LdBook,
+  LdFileText,
+  LdRefresh
+} from "solar-icon-react/ld";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+
 
 const sidebarItems = [
     {
         name: "Basic Info",
         href: "/dashboard/settings/basic-info",
-        icon: User
+        icon: LdUserRounded
     },
     {
         name: "Education Details",
         href: "/dashboard/settings/education",
-        icon: GraduationCap
+        icon: LdDiploma
     },
     {
         name: "Platform",
         href: "/dashboard/settings/platform",
-        icon: LayoutGrid
+        icon: LdWidget
     },
     {
         name: "Internships & Work Experience",
         href: "/dashboard/settings/experience",
-        icon: Briefcase
+        icon: LdCase
     },
     {
         name: "Skills & Languages",
         href: "/dashboard/settings/skills",
-        icon: Code
+        icon: LdCode
     },
     {
         name: "Projects",
         href: "/dashboard/settings/projects",
-        icon: Folder
+        icon: LdFolder
     }
 ];
 
 const accomplishmentItems = [
-    { name: "Awards & Recognitions", href: "/dashboard/settings/accomplishments/awards", icon: Award },
-    { name: "Certificates", href: "/dashboard/settings/accomplishments/certificates", icon: FileBadge },
-    { name: "Patents", href: "/dashboard/settings/accomplishments/patents", icon: Lightbulb },
-    { name: "Publications", href: "/dashboard/settings/accomplishments/publications", icon: BookOpen }
+    { name: "Awards & Recognitions", href: "/dashboard/settings/accomplishments/awards", icon: LdMedalStar },
+    { name: "Certificates", href: "/dashboard/settings/accomplishments/certificates", icon: LdDiplomaVerified },
+    { name: "Patents", href: "/dashboard/settings/accomplishments/patents", icon: LdLightbulb },
+    { name: "Publications", href: "/dashboard/settings/accomplishments/publications", icon: LdBook }
 ];
 
 export function SettingsSidebar({ user }: { user: any }) {
@@ -129,7 +147,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                     href="/dashboard"
                     className="inline-flex items-center gap-2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
                 >
-                    <MoveLeft className="w-4 h-4" />
+                    <LdAltArrowLeft className="w-4 h-4" />
                     Back to Profile
                 </Link>
             </div>
@@ -153,10 +171,10 @@ export function SettingsSidebar({ user }: { user: any }) {
                         )}
                      </div>
                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="absolute bottom-0 right-0 p-1.5 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700 transition-colors border-2 border-white dark:border-[#1D1E23] disabled:opacity-50" title="Change Picture">
-                        {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Pencil className="w-3.5 h-3.5" />}
+                        {isUploading ? <LdRefresh className="w-3.5 h-3.5 animate-spin" /> : <LdPen className="w-3.5 h-3.5" />}
                      </button>
                      <button type="button" onClick={handleRemovePicture} disabled={isUploading} className="absolute bottom-0 left-0 p-1.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full shadow-md hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 transition-colors border-2 border-white dark:border-[#1D1E23] disabled:opacity-50" title="Remove Picture">
-                        <X className="w-3.5 h-3.5" />
+                        <LdCloseCircle className="w-3.5 h-3.5" />
                      </button>
                 </div>
                 <div className="flex flex-col items-center gap-1">
@@ -198,10 +216,10 @@ export function SettingsSidebar({ user }: { user: any }) {
                         )}
                     >
                         <div className="flex items-center gap-3">
-                            <Award className={cn("w-5 h-5", isAccomplishmentsActive && !accomplishmentsOpen ? "text-gray-900 dark:text-gray-100" : "text-gray-400")} />
+                            <LdMedalStar className={cn("w-5 h-5", isAccomplishmentsActive && !accomplishmentsOpen ? "text-gray-900 dark:text-gray-100" : "text-gray-400")} />
                             Accomplishments
                         </div>
-                        {accomplishmentsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        {accomplishmentsOpen ? <LdAltArrowDown className="w-4 h-4" /> : <LdAltArrowRight className="w-4 h-4" />}
                     </button>
 
                     {accomplishmentsOpen && (
@@ -237,7 +255,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                             : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1D1E23]/50 hover:text-gray-900 dark:hover:text-gray-200"
                     )}
                 >
-                    <FileText className={cn("w-5 h-5", pathname === "/dashboard/settings/resume" ? "text-gray-900 dark:text-gray-100" : "text-gray-400")} />
+                    <LdFileText className={cn("w-5 h-5", pathname === "/dashboard/settings/resume" ? "text-gray-900 dark:text-gray-100" : "text-gray-400")} />
                     Resume
                 </Link>
             </nav>

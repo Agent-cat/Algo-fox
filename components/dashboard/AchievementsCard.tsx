@@ -21,7 +21,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
     const hasBadges = earnedBadges.length > 0;
 
     return (
-        <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 p-6 hover:shadow-lg transition-all flex flex-col">
+        <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-6 hover:shadow-lg transition-all flex flex-col">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Achievements</h3>
                 {hasBadges && (
