@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
-import { admin } from "better-auth/plugins";
+import { admin, emailOTP } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import { sendEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -9,6 +10,14 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false, // verification handled manually via OTP before registration
+    sendResetPassword: async ({ user, url, token }) => {
+      void sendEmail({
+        to: user.email,
+        subject: "Reset your password",
+        text: `Click the link to reset your password: ${url}`,
+      });
+    },
   },
   account: {
     accountLinking: {
@@ -151,6 +160,17 @@ export const auth = betterAuth({
       adminUserIds: process.env.ADMIN_USER_IDS
         ? process.env.ADMIN_USER_IDS.split(",").map((id) => id.trim()).filter(Boolean)
         : ["jvp0LDpaCm0Y2VpUVP75vCNQnDioEdpm"],
+    }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type === "email-verification" || type === "sign-in") {
+          void sendEmail({
+            to: email,
+            subject: "Verify your email address",
+            text: `Your OTP for Algo-fox is: ${otp}`,
+          });
+        }
+      },
     }),
   ],
 });

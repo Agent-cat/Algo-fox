@@ -78,17 +78,17 @@ export function ClassroomsPageContent({
            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
            <input
              type="text"
-             placeholder="Locate logic nodes or mentors..."
+             placeholder="Search classrooms or teachers..."
              value={searchQuery}
              onChange={handleSearchChange}
-             className="w-full h-12 pl-12 pr-4 bg-[#fafafa] dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-950 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500/20 shadow-sm transition-all"
+             className="w-full h-12 pl-12 pr-4 bg-[#fafafa] dark:bg-[#24262C] border border-gray-100 dark:border-white/5 rounded-2xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-orange-500/20 shadow-sm transition-all"
            />
          </div>
 
-         <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-gray-400">
-            <span>Grid view active</span>
-            <div className="h-4 w-px bg-gray-100 dark:bg-white/10" />
-            <span className="text-gray-950 dark:text-white">{filteredClassrooms.length} Active Nodes</span>
+         <div className="flex items-center gap-4 text-sm font-medium text-gray-500">
+            <span>Grid View</span>
+            <div className="h-4 w-px bg-gray-200 dark:bg-white/10" />
+            <span className="text-gray-900 dark:text-white">{filteredClassrooms.length} Classrooms</span>
          </div>
       </div>
 
@@ -106,15 +106,15 @@ export function ClassroomsPageContent({
       ) : (
         <div className="flex flex-col items-center justify-center py-32 text-center bg-[#fafafa] dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-200 dark:border-white/5">
           <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 border border-gray-100 dark:border-white/5">
-            <Layers className="w-8 h-8 text-gray-300 dark:text-gray-700" />
+            <School className="w-8 h-8 text-gray-400 dark:text-gray-600" />
           </div>
-          <h2 className="text-sm font-black text-gray-950 dark:text-white mb-2 uppercase tracking-tightest">
-            {searchQuery ? "Matrix Search Null" : "No Active Links"}
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            {searchQuery ? "No Classrooms Found" : "No Classrooms"}
           </h2>
-          <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest max-w-xs mx-auto">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
             {searchQuery
-              ? "Re-align search parameters to locate nodes"
-              : "Initiate classroom link to begin logic synchronization"}
+              ? "Try adjusting your search query to find classrooms."
+              : "You are not enrolled in any classrooms yet."}
           </p>
         </div>
       )}
@@ -134,9 +134,9 @@ export function ClassroomsPageContent({
           </button>
 
           <div className="flex flex-col items-center">
-             <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Index</span>
-             <span className="text-[10px] font-black text-gray-950 dark:text-white tabular-nums">
-               {currentPage} <span className="text-gray-400">/</span> {totalPages}
+             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Page</span>
+             <span className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">
+               {currentPage} <span className="text-gray-400 mx-1">/</span> {totalPages}
              </span>
           </div>
 

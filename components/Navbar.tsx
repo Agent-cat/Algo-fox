@@ -10,7 +10,7 @@ import UserPoints from "./UserPoints";
 import { StreakBadge } from "./shared/StreakBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
-import { useSidebar } from "@/context/SidebarContext";
+import { useSidebar, EXPANDED_WIDTH } from "@/context/SidebarContext";
 
 interface NavbarProps {
   initialSession?: any;
@@ -47,9 +47,12 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
   const isPlacementDirector = userRole === "PLACEMENT_DIRECTOR";
   const isImpersonating = !!session?.session?.impersonatedBy;
 
+  const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
+  const isExpanded = mounted ? expanded : true;
+
   return (
     <nav
-      style={{ left: sidebarWidth }}
+      style={{ left: currentWidth }}
       className={[
         "fixed right-0 z-50 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
         isImpersonating ? "top-10" : "top-0",
@@ -60,10 +63,10 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
         {/* Left: sidebar toggle */}
         <button
           onClick={toggle}
-          aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+          aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
           className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
         >
-          {expanded
+          {isExpanded
             ? <PanelLeftClose className="w-[18px] h-[18px]" />
             : <PanelLeft      className="w-[18px] h-[18px]" />}
         </button>

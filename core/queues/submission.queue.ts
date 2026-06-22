@@ -368,7 +368,9 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
 // that competes for the same BullMQ jobs, causing duplicate processing and connection leaks.
 declare global { var __submissionWorker: Worker | undefined; }
 
-if (!globalThis.__submissionWorker) {
+const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
+
+if (SHOULD_START_WORKER && !globalThis.__submissionWorker) {
     globalThis.__submissionWorker = new Worker(
         QUEUE_NAME,
         workerProcessor,
@@ -430,3 +432,4 @@ if (!globalThis.__submissionWorker) {
     process.on("SIGINT", shutdown);
     process.on("SIGTERM", shutdown);
 }
+

@@ -221,9 +221,12 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   const brandName = institution ? institution.name : "AlgoFox";
 
+  const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
+  const isExpanded = mounted ? expanded : true;
+
   return (
     <aside
-      style={{ width: sidebarWidth }}
+      style={{ width: currentWidth }}
       className={[
         "fixed top-0 left-0 z-40 h-screen flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r-2 border-dotted border-gray-300 dark:border-white/20 overflow-hidden",
         !isDragging && "transition-[width] duration-300 ease-in-out"
@@ -242,7 +245,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       <div
         className={[
           "flex items-center h-16 flex-shrink-0",
-          expanded ? "px-5 gap-3" : "justify-center px-0",
+          isExpanded ? "px-5 gap-3" : "justify-center px-0",
         ].join(" ")}
       >
         <Link href="/" className="flex items-center gap-3 min-w-0 group">
@@ -250,7 +253,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
           <span
             className={[
               "text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",
-              expanded ? "opacity-100 max-w-[190px]" : "opacity-0 max-w-0",
+              isExpanded ? "opacity-100 max-w-[190px]" : "opacity-0 max-w-0",
             ].join(" ")}
           >
             {brandName}
@@ -264,7 +267,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       {/* ── Navigation ────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-6">
         {NAV_SECTIONS.map((section, sIdx) => {
-          const isOpen = !section.label || !expanded || openSections[section.label];
+          const isOpen = !section.label || !isExpanded || openSections[section.label];
           return (
           <div key={sIdx} className="flex flex-col gap-1">
             {/* Section label — shown only when expanded */}
@@ -273,10 +276,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                 onClick={() => toggleSection(section.label)}
                 className={[
                   "w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer",
-                  expanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0",
+                  isExpanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0",
                 ].join(" ")}
               >
-                <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-gray-400 dark:text-gray-500 select-none whitespace-nowrap group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-gray-400 dark:text-gray-500 select-none whitespace-nowrap group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors ml-2">
                   {section.label}
                 </span>
                 <LdAltArrowDown
@@ -291,7 +294,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
             <div
               className={[
                 "flex flex-col gap-0.5 overflow-hidden transition-all duration-300",
-                section.label && expanded ? "" : "",
+                section.label && isExpanded ? "" : "",
                 isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
               ].join(" ")}
             >
@@ -302,10 +305,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  title={!expanded ? item.label : undefined}
+                  title={!isExpanded ? item.label : undefined}
                   className={[
                     "relative flex items-center rounded-lg transition-colors duration-75 group",
-                    expanded ? "gap-3 px-3 py-2.5" : "justify-center px-0 py-3",
+                    isExpanded ? "gap-3 px-3 py-2.5 ml-2" : "justify-center px-0 py-3",
                     active
                       ? "bg-gray-100 dark:bg-white/10 text-orange-600 dark:text-orange-500 font-medium"
                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white",
@@ -313,20 +316,20 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                 >
                   {/* Linear-style Left Accent for Active */}
                   {active && (
-                    <div className={`absolute ${expanded ? "-left-[13px]" : "-left-2"} top-1/2 -translate-y-1/2 w-[3px] h-3/4 bg-orange-500 rounded-r-full`} />
+                    <div className={`absolute ${isExpanded ? "-left-[13px]" : "-left-2"} top-1/2 -translate-y-1/2 w-[3px] h-3/4 bg-orange-500 rounded-r-full`} />
                   )}
 
                   <Icon
                     className={[
                       "flex-shrink-0",
-                      expanded ? "w-[22px] h-[22px]" : "w-6 h-6",
+                      isExpanded ? "w-[22px] h-[22px]" : "w-6 h-6",
                     ].join(" ")}
                   />
 
                   <span
                     className={[
                       "text-[14.5px] whitespace-nowrap transition-[opacity,max-width] duration-300 overflow-hidden",
-                      expanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0",
+                      isExpanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0",
                     ].join(" ")}
                   >
                     {item.label}
@@ -341,8 +344,8 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
       {/* ── Footer Actions ─────────────────────────────────── */}
       {session?.user && (
-        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${expanded ? "p-4" : "p-3"}`}>
-          {expanded ? (
+        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${isExpanded ? "p-4 ml-2" : "p-3"}`}>
+          {isExpanded ? (
             <button
               onClick={() => setIsLogoutOpen(true)}
               className="w-full py-2.5 px-4 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 text-[14.5px] font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2 shadow-sm"
@@ -395,9 +398,9 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       
       {/* Size Indicator */}
       {isDragging && (
-        <div className="fixed top-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ left: sidebarWidth + 12 }}>
+        <div className="fixed top-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ left: currentWidth + 12 }}>
           <div className="bg-gray-900/90 dark:bg-white/90 text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl border border-gray-700 dark:border-gray-200 backdrop-blur-sm">
-            {Math.round(sidebarWidth)} px
+            {Math.round(currentWidth)} px
           </div>
         </div>
       )}

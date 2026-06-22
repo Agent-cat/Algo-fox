@@ -97,7 +97,8 @@ export default function ContestEntryModal({
       onStart(finalSessionId);
     }
     return () => clearTimeout(timer);
-  }, [isStarting, countdown, finalSessionId, onStart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStarting, countdown, finalSessionId]);
 
   const handleVerifyPassword = async () => {
     if (!password) {
@@ -249,7 +250,10 @@ export default function ContestEntryModal({
                   strokeLinecap="round"
                 />
               </svg>
-              <span className="text-6xl font-black text-white">{countdown}</span>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-6xl font-black text-white">{countdown}</span>
+                <span className="text-sm font-medium text-gray-400 mt-1">Seconds</span>
+              </div>
             </div>
           </div>
         </div>

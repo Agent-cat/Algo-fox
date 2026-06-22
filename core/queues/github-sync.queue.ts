@@ -340,12 +340,14 @@ async function processBatchSync(job: Job<any>) {
 
 declare global { var __githubSyncWorker: Worker | undefined; }
 
-if (globalThis.__githubSyncWorker) {
+const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
+
+if (SHOULD_START_WORKER && globalThis.__githubSyncWorker) {
   globalThis.__githubSyncWorker.close();
   globalThis.__githubSyncWorker = undefined;
 }
 
-if (!globalThis.__githubSyncWorker) {
+if (SHOULD_START_WORKER && !globalThis.__githubSyncWorker) {
   globalThis.__githubSyncWorker = new Worker(
     QUEUE_NAME,
     workerProcessor,

@@ -114,7 +114,9 @@ declare global {
   var __quizTimerWorker: Worker | undefined;
 }
 
-if (!globalThis.__quizTimerWorker) {
+const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
+
+if (SHOULD_START_WORKER && !globalThis.__quizTimerWorker) {
   globalThis.__quizTimerWorker = new Worker(QUEUE_NAME, endQuestionWorkerFn, {
     connection: workerConnection,
     concurrency: 20,

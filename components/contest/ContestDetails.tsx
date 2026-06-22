@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Clock, ChevronRight, Lock, AlertCircle, Medal, ChevronLeft, X, CheckCircle2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -163,13 +163,13 @@ export default function ContestDetails({ contest, user }: ContestDetailsProps) {
         return () => clearInterval(timer);
     }, [startTime, endTime]);
 
-    const handleContestStart = (newSessionId: string) => {
+    const handleContestStart = useCallback((newSessionId: string) => {
         sessionStorage.setItem(`contest_active_session_${contest.id}`, newSessionId);
         setHasAcceptedRules(true);
         setShowRulesPopup(false);
         setSessionId(newSessionId);
         router.refresh();
-    };
+    }, [contest.id, router]);
 
     const allowedPaths = useMemo(() => [
         `/problems/`,
