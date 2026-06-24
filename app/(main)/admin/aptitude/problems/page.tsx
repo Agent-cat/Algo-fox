@@ -69,7 +69,8 @@ export default function AptitudeAdminProblemsPage() {
                     { label: "Actions", className: "text-right" }
                 ]}
                 renderItem={(problem) => (
-                    <tr key={problem.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
+                    <>
+
                         <td className="px-6 py-4">
                             <div className="font-semibold text-gray-900 dark:text-gray-100">{problem.title}</div>
                             <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">{problem.slug}</div>
@@ -110,7 +111,7 @@ export default function AptitudeAdminProblemsPage() {
                                 </button>
                             </div>
                         </td>
-                    </tr>
+                    </>
                 )}
             />
         </div>

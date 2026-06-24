@@ -12,16 +12,6 @@ export const metadata: Metadata = {
     description: "Master coding with our structured learning paths.",
 };
 
-function CoursesSkeleton() {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-                <div key={i} className="h-[400px] rounded-4xl bg-gray-100 dark:bg-[#1D1E23] animate-pulse" />
-            ))}
-        </div>
-    );
-}
-
 export default async function CoursesPage() {
     const session = await getSession();
     const courses = await CourseService.getAllCourses();
@@ -33,10 +23,8 @@ export default async function CoursesPage() {
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
-            <main className="w-full px-6 lg:px-12 pt-20 pb-20">
-                <Suspense fallback={<CoursesSkeleton />}>
-                    <CoursesClient courses={courses} enrollments={enrollments} />
-                </Suspense>
+            <main className="w-full px-6 lg:px-12 pt-6 pb-20">
+                <CoursesClient courses={courses} enrollments={enrollments} />
             </main>
         </div>
     );

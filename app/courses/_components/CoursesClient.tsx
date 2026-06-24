@@ -42,7 +42,7 @@ export default function CoursesClient({ courses, enrollments }: CoursesClientPro
     return (
         <div className="space-y-8">
             <header className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6 text-center">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6">
                     Courses
                 </h1>
 

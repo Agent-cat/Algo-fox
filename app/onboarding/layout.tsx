@@ -12,7 +12,7 @@ async function AuthCheck({ children }: { children: React.ReactNode }) {
     }
 
     if (session.user.onboardingCompleted) {
-        redirect("/dashboard");
+        redirect("/");
     }
 
     return <>{children}</>;

@@ -96,7 +96,7 @@ function OnboardingContent() {
         const res = await completeOnboarding(formData);
         if (res.success) {
             toast.success("Profile setup complete!");
-            router.push("/dashboard?onboarding=complete");
+            router.push("/?onboarding=complete");
         } else {
             toast.error(res.error || "Something went wrong");
             setLoading(false);

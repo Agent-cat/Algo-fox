@@ -102,7 +102,8 @@ export default function SqlAdminCategoriesPage() {
           { label: "Actions", className: "text-right" }
         ]}
         renderItem={(category) => (
-          <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
+          <>
+
             <td className="px-6 py-4">
               <div className="flex items-center gap-1">
                 {category.level && category.level > 0 ? (
@@ -152,7 +153,7 @@ export default function SqlAdminCategoriesPage() {
                 </button>
               </div>
             </td>
-          </tr>
+          </>
         )}
       />
     </div>

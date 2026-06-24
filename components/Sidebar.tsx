@@ -14,7 +14,7 @@ import {
   LdUsersGroupTwoRounded,
   LdClipboardList,
   LdCase,
-  LdAltArrowDown,
+  LdAltArrowRight,
   LdLogout2
 } from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
@@ -261,11 +261,27 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
         </Link>
       </div>
 
-      {/* ── Thin separator ────────────────────────────────── */}
-      <div className="border-t-2 border-dotted border-gray-300 dark:border-white/20 flex-shrink-0 transition-all duration-300" />
+      {/* ── Search Bar ────────────────────────────────────── */}
+      <div className={["px-3 mb-2 transition-all duration-300 overflow-hidden", isExpanded ? "opacity-100 max-h-12 mt-4" : "opacity-0 max-h-0 mt-0"].join(" ")}>
+          <div 
+              className="relative group cursor-pointer"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
+          >
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <div 
+                  className="w-full flex items-center pl-9 pr-14 py-2 text-[13px] bg-gray-50/50 hover:bg-gray-100/50 dark:bg-[#111] dark:hover:bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg transition-all text-gray-400 dark:text-gray-500 shadow-sm"
+              >
+                  Quick search...
+              </div>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+                  <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#222] px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/5">Ctrl</span>
+                  <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#222] px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/5">K</span>
+              </div>
+          </div>
+      </div>
 
       {/* ── Navigation ────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-6">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 space-y-5 custom-scrollbar">
         {NAV_SECTIONS.map((section, sIdx) => {
           const isOpen = !section.label || !isExpanded || openSections[section.label];
           return (
@@ -275,17 +291,17 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
               <button
                 onClick={() => toggleSection(section.label)}
                 className={[
-                  "w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer",
-                  isExpanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0",
+                  "w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1",
+                  isExpanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0 mb-0",
                 ].join(" ")}
               >
-                <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-gray-400 dark:text-gray-500 select-none whitespace-nowrap group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors ml-2">
+                <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
                   {section.label}
                 </span>
-                <LdAltArrowDown
+                <LdAltArrowRight
                   className={[
-                    "w-4 h-4 text-gray-400 transition-transform duration-200",
-                    isOpen ? "" : "-rotate-90",
+                    "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                    isOpen ? "rotate-90" : "",
                   ].join(" ")}
                 />
               </button>
@@ -293,50 +309,47 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
             <div
               className={[
-                "flex flex-col gap-0.5 overflow-hidden transition-all duration-300",
-                section.label && isExpanded ? "" : "",
-                isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
+                "grid transition-all duration-300 ease-in-out",
+                isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
               ].join(" ")}
             >
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  title={!isExpanded ? item.label : undefined}
-                  className={[
-                    "relative flex items-center rounded-lg transition-colors duration-75 group",
-                    isExpanded ? "gap-3 px-3 py-2.5 ml-2" : "justify-center px-0 py-3",
-                    active
-                      ? "bg-gray-100 dark:bg-white/10 text-orange-600 dark:text-orange-500 font-medium"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white",
-                  ].join(" ")}
-                >
-                  {/* Linear-style Left Accent for Active */}
-                  {active && (
-                    <div className={`absolute ${isExpanded ? "-left-[13px]" : "-left-2"} top-1/2 -translate-y-1/2 w-[3px] h-3/4 bg-orange-500 rounded-r-full`} />
-                  )}
+              <div className="overflow-hidden flex flex-col space-y-[2px]">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      title={!isExpanded ? item.label : undefined}
+                      className={[
+                        "relative flex items-center rounded-lg transition-colors duration-200 group",
+                        isExpanded ? "gap-3 px-3 py-2" : "justify-center px-0 py-3",
+                        active
+                          ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200",
+                      ].join(" ")}
+                    >
+                      <Icon
+                        className={[
+                          "flex-shrink-0 transition-colors",
+                          isExpanded ? "w-[18px] h-[18px]" : "w-6 h-6",
+                          active && isExpanded ? "text-gray-900 dark:text-white" : (isExpanded ? "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" : "")
+                        ].join(" ")}
+                      />
 
-                  <Icon
-                    className={[
-                      "flex-shrink-0",
-                      isExpanded ? "w-[22px] h-[22px]" : "w-6 h-6",
-                    ].join(" ")}
-                  />
-
-                  <span
-                    className={[
-                      "text-[14.5px] whitespace-nowrap transition-[opacity,max-width] duration-300 overflow-hidden",
-                      isExpanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+                      <span
+                        className={[
+                          "text-[13.5px] whitespace-nowrap transition-[opacity,max-width] duration-300 overflow-hidden font-medium",
+                          isExpanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0",
+                        ].join(" ")}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )})}

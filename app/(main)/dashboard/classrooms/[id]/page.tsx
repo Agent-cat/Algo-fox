@@ -37,7 +37,7 @@ async function ClassroomDetailContent({ params }: { params: Promise<{ id: string
     const res = await getClassroomWithStudents(id);
     if (!res.success || !res.classroom) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#24262C] p-6">
+            <div className="min-h-screen flex items-center justify-center bg-[#fafafa] dark:bg-[#1D1E23] p-6">
                 <div className="text-center max-w-sm">
                     <div className="p-4 bg-gray-50 dark:bg-[#24262C] rounded-3xl mb-6 inline-block">
                         <School className="w-12 h-12 text-gray-300 dark:text-gray-600" />
@@ -65,7 +65,7 @@ async function ClassroomDetailContent({ params }: { params: Promise<{ id: string
 export default function ClassroomDetailPage({ params }: PageProps) {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-white dark:bg-[#24262C] flex items-center justify-center">
+            <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
                     <p className="mt-4 text-gray-600 dark:text-gray-400">Loading classroom...</p>

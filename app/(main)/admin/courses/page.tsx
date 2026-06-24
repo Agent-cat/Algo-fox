@@ -45,7 +45,8 @@ export default function AdminCoursesPage() {
                     { label: "Actions", className: "text-right" }
                 ]}
                 renderItem={(course) => (
-                    <tr key={course.id} className="hover:bg-gray-50/50 dark:hover:bg-[#1D1E23] transition-colors group">
+                    <>
+
                         <td className="px-6 py-5">
                             <div className="flex flex-col">
                                 <span className="font-bold text-gray-900 dark:text-white uppercase tracking-tight">{course.title}</span>
@@ -100,7 +101,7 @@ export default function AdminCoursesPage() {
                                 />
                             </div>
                         </td>
-                    </tr>
+                    </>
                 )}
             />
         </div>

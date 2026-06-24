@@ -30,11 +30,11 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
         >
             <Link
                 href={`/dashboard/classrooms/${classroom.id}`}
-                className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none hover:border-orange-500/50 transition-all duration-500 group relative overflow-hidden"
+                className="flex flex-col h-full bg-transparent border border-gray-200 dark:border-white/10 rounded-xl p-5 shadow-sm hover:shadow-md hover:bg-gray-50/50 dark:hover:bg-[#111]/50 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300 group relative overflow-hidden"
             >
                 {/* Protocol Header */}
                 <div className="flex items-start justify-between mb-8 relative z-10">
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 flex items-center justify-center text-orange-600 dark:text-orange-500 group-hover:scale-110 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
+                    <div className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-300">
                         <BookOpen className="w-5 h-5" />
                     </div>
                     <div className="flex flex-col items-end">
@@ -51,7 +51,7 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
                          <span className="text-sm font-semibold text-orange-600 mb-1 block">
                             {classroom.subject || "Classroom"}
                          </span>
-                         <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight">
+                         <h3 className="text-xl font-bold text-gray-900 dark:text-white transition-colors line-clamp-2 leading-tight">
                             {classroom.name}
                         </h3>
                     </div>
@@ -60,8 +60,8 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
                         ID: {classroom.id.slice(-8).toUpperCase()}
                     </p>
 
-                    <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 group-hover:border-orange-500/20 transition-all">
-                        <div className="w-10 h-10 rounded-full bg-white dark:bg-black/40 flex items-center justify-center text-sm font-bold text-gray-900 dark:text-white border border-gray-100 dark:border-white/10 shadow-sm">
+                    <div className="flex items-center gap-3.5 p-3.5 bg-gray-50 dark:bg-[#1A1A1A] rounded-lg border border-gray-200 dark:border-white/10 transition-all">
+                        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#222] flex items-center justify-center text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 shadow-sm">
                             {classroom.teacher.name?.charAt(0).toUpperCase() || "T"}
                         </div>
                         <div className="flex flex-col min-w-0">
@@ -82,7 +82,7 @@ export function StudentClassroomCard({ classroom, index }: StudentClassroomCardP
                         </span>
                     </div>
 
-                    <div className="h-8 px-4 bg-gray-950 dark:bg-white text-white dark:text-gray-950 rounded-lg flex items-center gap-2 group-hover:bg-orange-600 group-hover:text-white transition-all shadow-lg active:scale-95">
+                    <div className="h-8 px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg flex items-center gap-2 transition-all shadow-sm active:scale-95">
                         Open
                         <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>

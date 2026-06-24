@@ -81,6 +81,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import { GlobalSearch } from "@/components/GlobalSearch";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -123,6 +125,7 @@ export default function RootLayout({
               <SessionConflictModal />
               <FocusBlur />
               <ImpersonationBanner />
+              <GlobalSearch />
               {children}
             </StreakProvider>
           </Suspense>

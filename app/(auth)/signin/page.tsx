@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { checkEmailExists } from "@/actions/auth";
 import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Suspense } from "react";
 
@@ -16,6 +17,7 @@ function SignInContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [emailLocked, setEmailLocked] = useState(false);
 
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
@@ -43,6 +45,27 @@ function SignInContent() {
 
   const handleSignInEmail = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!emailLocked) {
+      if (email) {
+        setLoading("email");
+        setError(null);
+        try {
+          const res = await checkEmailExists(email);
+          if (!res.exists) {
+            setError("Email/User does not exist.");
+            setLoading(null);
+            return;
+          }
+          setEmailLocked(true);
+        } catch (err) {
+          setError("Failed to verify email.");
+        } finally {
+          setLoading(null);
+        }
+      }
+      return;
+    }
+
     if (!email || !password) return;
 
     setLoading("email");
@@ -130,53 +153,71 @@ function SignInContent() {
 
           <form onSubmit={handleSignInEmail} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email address <span className="text-red-500">*</span>
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email address <span className="text-red-500">*</span>
+                </label>
+                {emailLocked && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmailLocked(false);
+                      setPassword("");
+                    }}
+                    className="text-sm text-blue-500 hover:underline"
+                  >
+                    Change
+                  </button>
+                )}
+              </div>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email address"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-[#2A2B32] text-gray-900 dark:text-white"
+                disabled={emailLocked}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-[#2A2B32] text-gray-900 dark:text-white disabled:opacity-60 disabled:bg-gray-50 dark:disabled:bg-[#1D1E23]"
               />
             </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Password <span className="text-red-500">*</span>
-                </label>
-                <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
-                  Forgot password?
-                </Link>
+            {emailLocked && (
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    required
+                    autoFocus
+                    className="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-[#2A2B32] text-gray-900 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  required
-                  className="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-[#2A2B32] text-gray-900 dark:text-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+            )}
 
             <button
               type="submit"
-              disabled={!!loading || !email || !password}
+              disabled={!!loading || (!emailLocked ? !email : !password)}
               className="w-full py-3 px-4 bg-[#F07D0B] hover:bg-[#D96B00] text-white font-medium rounded-lg transition-colors mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading === "email" ? "Signing in..." : "Sign in"}
+              {!emailLocked ? "Continue" : (loading === "email" ? "Signing in..." : "Sign in")}
             </button>
           </form>
 

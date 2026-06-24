@@ -7,11 +7,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#1D1E23] dark:to-[#24262C]">
-      <Suspense fallback={<div className="w-72 h-screen bg-white dark:bg-[#24262C]" />}>
-        <AdminSidebar />
-      </Suspense>
-      <main className="flex-1 ml-64 p-8">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#fafafa] dark:bg-[#1D1E23]">
+      <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-white/10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+        <Suspense fallback={<div className="w-full h-full" />}>
+          <AdminSidebar />
+        </Suspense>
+      </aside>
+      <main className="flex-1 min-w-0 p-8">
         {children}
       </main>
     </div>
