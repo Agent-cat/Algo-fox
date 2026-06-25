@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
 import {
   LdWidget,
@@ -63,7 +63,8 @@ const ADMIN_SECTIONS = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const { setSidebarWidth } = useSidebar();
+  const { sidebarWidth, setSidebarWidth } = useSidebar();
+  const initialWidthRef = useRef(sidebarWidth);
   
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Overview": true,
@@ -77,7 +78,7 @@ export default function AdminSidebar() {
   useEffect(() => {
     setSidebarWidth(COLLAPSED_WIDTH);
     return () => {
-      setSidebarWidth(EXPANDED_WIDTH);
+      setSidebarWidth(initialWidthRef.current);
     };
   }, [setSidebarWidth]);
 
@@ -126,6 +127,7 @@ export default function AdminSidebar() {
                       <Link
                         key={item.href}
                         href={item.href}
+                        tabIndex={isOpen ? undefined : -1}
                         className={[
                           "relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group",
                           active

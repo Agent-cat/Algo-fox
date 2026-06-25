@@ -148,20 +148,20 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         enableCorrectSound: false,
         enableWrongSound: false
     });
-    const [activeTab, setActiveTabState] = useState<"description" | "solutions" | "submissions">(() => {
-        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|submissions)/);
-        return tabMatch ? (tabMatch[1] as "description" | "solutions" | "submissions") : "description";
+    const [activeTab, setActiveTabState] = useState<"description" | "solutions" | "community" | "submissions">(() => {
+        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|community|submissions)/);
+        return tabMatch ? (tabMatch[1] as "description" | "solutions" | "community" | "submissions") : "description";
     });
 
     useEffect(() => {
-        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|submissions)/);
-        const urlTab = tabMatch ? (tabMatch[1] as "description" | "solutions" | "submissions") : "description";
+        const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|community|submissions)/);
+        const urlTab = tabMatch ? (tabMatch[1] as "description" | "solutions" | "community" | "submissions") : "description";
         if (urlTab !== activeTab) {
             setActiveTabState(urlTab);
         }
     }, [pathname]);
 
-    const setActiveTab = useCallback((newTab: "description" | "solutions" | "submissions") => {
+    const setActiveTab = useCallback((newTab: "description" | "solutions" | "community" | "submissions") => {
         setActiveTabState(newTab);
         const basePath = `/problems/${problem.slug}`;
         const newUrl = newTab === "description" ? `${basePath}/description` : `${basePath}/${newTab}`;

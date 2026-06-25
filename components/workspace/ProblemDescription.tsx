@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import { Problem } from '@prisma/client';
-import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle, Lightbulb, Tag } from 'lucide-react';
+import { BadgeCheck, FileText, List, ShieldAlert, CheckCircle, Lightbulb, Tag, MessageSquare, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
@@ -13,6 +13,7 @@ import Submissions from './Submissions';
 import McqWidget from "@/components/markdown/McqWidget";
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import SolutionTabs from "@/components/markdown/SolutionTabs";
+import { ProblemSolutions } from './ProblemSolutions';
 
 import remarkDirective from 'remark-directive';
 import { remarkMcqDirective, remarkSolutionDirective } from '@/lib/markdown-plugins';
@@ -20,7 +21,7 @@ import { preprocessMarkdown } from '@/lib/markdown-utils';
 import { ProblemMetadata } from './ProblemMetadata';
 import { CommentTree } from '@/components/problems/discussion/CommentTree';
 
-type Tab = "description" | "solutions" | "submissions";
+type Tab = "description" | "solutions" | "submissions" | "community";
 
 interface ProblemDescriptionProps {
     problem: Problem & {
@@ -155,9 +156,63 @@ const HintAccordion = ({ hint, idx }: { hint: string; idx: number }) => {
     );
 };
 
+const CommunityAccordion = ({ problemId, isSolved }: { problemId: string; isSolved: boolean }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const locked = !isSolved;
+
+    const handleToggle = () => {
+        if (locked) return;
+        setIsOpen(prev => !prev);
+    };
+
+    return (
+        <div className={`group border-b border-gray-200 dark:border-white/10 overflow-hidden ${locked ? 'opacity-60' : ''}`}>
+            <div
+                onClick={handleToggle}
+                className={`flex items-center justify-between py-5 select-none ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+                <div className={`flex items-center gap-2 text-base font-medium transition-colors ${
+                    locked
+                        ? 'text-gray-400 dark:text-gray-600'
+                        : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white'
+                }`}>
+                    {locked
+                        ? <Lock className="w-5 h-5 text-gray-300 dark:text-gray-600" />
+                        : <MessageSquare className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors" />
+                    }
+                    Community
+                    {locked && (
+                        <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                            <Lock className="w-2.5 h-2.5" /> Solve to unlock
+                        </span>
+                    )}
+                </div>
+                {!locked && (
+                    <svg className={`w-4 h-4 text-gray-400 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                )}
+            </div>
+            <AnimatePresence initial={false}>
+                {isOpen && !locked && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                        <div className="pb-5 pt-1">
+                            <CommentTree problemId={problemId} />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, contestId, domain, nextProblemSlug, courseId, onRestoreCode, isSubmitting, latestSubmissionId }: ProblemDescriptionProps) => {
     const router = useRouter();
-    const [solutionTab, setSolutionTab] = useState<"official" | "community">("official");
     const [isTagsOpen, setIsTagsOpen] = useState(false);
 
     const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -286,16 +341,17 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                                     </Markdown>
                                 </div>
                                 
-                                {((problem.hints && problem.hints.length > 0) || (problem.tags && problem.tags.length > 0)) && (
-                                    <div className="mt-8 border-t border-gray-200 dark:border-white/10">
-                                        {problem.tags && problem.tags.length > 0 && (
-                                            <TagAccordion tags={problem.tags} isOpen={isTagsOpen} onToggle={() => setIsTagsOpen(!isTagsOpen)} />
-                                        )}
-                                        {problem.hints && problem.hints.length > 0 && problem.hints.map((hint, idx) => (
-                                            <HintAccordion key={idx} hint={hint} idx={idx} />
-                                        ))}
-                                    </div>
-                                )}
+                                <div className="mt-8 border-t border-gray-200 dark:border-white/10">
+                                    {problem.tags && problem.tags.length > 0 && (
+                                        <TagAccordion tags={problem.tags} isOpen={isTagsOpen} onToggle={() => setIsTagsOpen(!isTagsOpen)} />
+                                    )}
+                                    {problem.hints && problem.hints.length > 0 && problem.hints.map((hint, idx) => (
+                                        <HintAccordion key={idx} hint={hint} idx={idx} />
+                                    ))}
+                                    {!contestId && (
+                                        <CommunityAccordion problemId={problem.id} isSolved={isSolved} />
+                                    )}
+                                </div>
                             </motion.div>
                         </motion.div>
                     )}
@@ -312,93 +368,12 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
                     )}
 
                     {activeTab === "solutions" && (
-                        <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col h-full">
-                            <div className="flex items-center gap-4 px-6 border-b border-dashed border-gray-200 dark:border-white/10 bg-[#fafafa] dark:bg-[#1D1E23]">
-                                {(["official", "community"] as const).map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setSolutionTab(tab)}
-                                        className={`relative py-3 text-sm font-black transition-all duration-300 ${
-                                            solutionTab === tab ? "text-orange-600 dark:text-orange-500 scale-105" : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
-                                        }`}
-                                    >
-                                        {tab === "official" ? "Official Solution" : "Community"}
-                                        {solutionTab === tab && (
-                                            <motion.div layoutId="solutionTabIndicator" className="absolute bottom-0 left-0 right-0 h-[2px] bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className={`flex-1 ${solutionTab === "community" ? "" : "overflow-y-auto px-6 py-6 custom-scrollbar"}`}>
-                                <AnimatePresence mode="wait">
-                                    {solutionTab === "official" ? (
-                                        isSolved ? (
-                                            <motion.div key="official-content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} className="prose prose-slate dark:prose-invert max-w-none">
-                                                {problem.solution ? (
-                                                    <Markdown
-                                                        remarkPlugins={[remarkGfm, remarkBreaks, remarkDirective, remarkSolutionDirective]}
-                                                        rehypePlugins={[rehypeRaw]}
-                                                        components={{
-                                                            // @ts-ignore
-                                                            'solution-group': SolutionCodeGroup,
-                                                            // @ts-ignore
-                                                            'solution-tabs': SolutionTabs,
-                                                            pre: ({ children }) => (
-                                                                <pre className="my-4 p-4 rounded-xl bg-gray-100/50 dark:bg-[#24262C] border border-dashed border-gray-300 dark:border-white/10 overflow-x-auto custom-scrollbar shadow-sm">
-                                                                    {children}
-                                                                </pre>
-                                                            ),
-                                                            code: ({ node, inline, className, children, ...props }: any) => {
-                                                                return (
-                                                                    <code
-                                                                        className={`${className} ${inline
-                                                                            ? 'px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-white/10 text-orange-600 dark:text-orange-400 font-mono text-[13px]'
-                                                                            : 'font-mono text-[14px] leading-[1.6] text-gray-800 dark:text-gray-200'}`}
-                                                                        {...props}
-                                                                    >
-                                                                        {children}
-                                                                    </code>
-                                                                );
-                                                            },
-                                                            hr: () => <hr className="
-                                                            my-4 border-dashed border-gray-300 dark:border-white/10" />,
-                                                        }}
-                                                    >
-                                                        {preprocessMarkdown(problem.solution)}
-                                                    </Markdown>
-                                                ) : (
-                                                    <div className="text-gray-500 italic text-center py-10">No official solution provided.</div>
-                                                )}
-                                            </motion.div>
-                                        ) : (
-                                            <motion.div
-                                                key="locked-solution"
-                                                initial={{ opacity: 0, y: 8 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -6 }}
-                                                className="flex flex-col items-center justify-center py-20 text-center"
-                                            >
-                                                <BadgeCheck className="w-12 h-12 text-gray-300 mb-4" />
-                                                <h2 className="text-lg font-bold">Solution Locked</h2>
-                                                <p className="text-gray-500 text-sm">Solve this problem to unlock.</p>
-                                            </motion.div>
-                                        )
-                                    ) : (
-                                        <motion.div
-                                            key="community"
-                                            initial={{ opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -6 }}
-                                            className="h-full flex flex-col"
-                                        >
-                                            <CommentTree problemId={problem.id} />
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
+                        <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="h-full">
+                            <ProblemSolutions problemId={problem.id} officialSolution={problem.solution} isSolved={isSolved} />
                         </motion.div>
                     )}
+
+
                 </AnimatePresence>
             </div>
         </div>

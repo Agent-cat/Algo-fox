@@ -50,7 +50,7 @@ export default function AptitudeWorkspace({
     const router = useRouter();
     const [isSolved, setIsSolved] = useState(initialIsSolved);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<"description" | "solutions" | "submissions">("description");
+    const [activeTab, setActiveTab] = useState<"description" | "solutions" | "community" | "submissions">("description");
     const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
     const [pointsGained, setPointsGained] = useState(0);

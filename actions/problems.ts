@@ -207,6 +207,7 @@ export async function updateProblem(id: string, data: any) {
 
         revalidateTag('admin-problems-list', 'max');
         revalidateTag('problems-list', 'max');
+        revalidateTag(`problem-id-${id}`, 'max');
         if (result.data?.slug) {
             revalidateTag(`problem-${result.data.slug}`, 'max');
             revalidatePath(`/problems/${result.data.slug}`);

@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
     Plus, Trash2, Eye, EyeOff, Code2, Check, List,
-    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon, BadgeCheck
+    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon, BadgeCheck, Edit3, Save
 } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TagInput } from "./TagInput";
@@ -23,6 +23,7 @@ import { remarkSolutionDirective } from '@/lib/markdown-plugins';
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import SolutionTabs from "@/components/markdown/SolutionTabs";
 import { preprocessMarkdown } from '@/lib/markdown-utils';
+import SolutionsEditor from "./SolutionsEditor";
 
 
 // FUNCTION TEMPLATE SCHEMA
@@ -78,7 +79,7 @@ interface ProblemFormProps {
     slugPrefix?: string;
 }
 
-function MarkdownPreview({ content, placeholder }: { content: string; placeholder?: string }) {
+export function MarkdownPreview({ content, placeholder }: { content: string; placeholder?: string }) {
     if (!content?.trim()) {
         return (
             <div className="w-full h-full min-h-[460px] flex flex-col items-center justify-center text-[#738f93] bg-[#f8f9fa] dark:bg-[#1D1E23] gap-3 font-mono">
@@ -179,24 +180,24 @@ const PREDEFINED_COMPANIES = [
     { name: "Zoom", logo: "https://cdn.simpleicons.org/zoom" },
 ];
 
+
+
 export default function ProblemForm({ initialData, onSubmit, submitLabel, domain = "DSA", redirectPath, slugPrefix = "/problems/" }: ProblemFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedTags, setSelectedTags] = useState<{ name: string, slug: string }[]>(initialData?.tags || []);
     const [descriptionPreview, setDescriptionPreview] = useState(false);
-    const [solutionPreview, setSolutionPreview] = useState(false);
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
     const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
-    const solutionRef = useRef<HTMLTextAreaElement>(null);
+    const isDraftRef = useRef(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [customLogoUrl, setCustomLogoUrl] = useState("");
     const [isAddingCustom, setIsAddingCustom] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -207,18 +208,17 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
     const descriptionFileInputRef = useRef<HTMLInputElement>(null);
-    const solutionFileInputRef = useRef<HTMLInputElement>(null);
 
-    const insertMarkdown = (fieldName: "description" | "solution", type: string) => {
-        const textarea = fieldName === "description" ? descriptionRef.current : solutionRef.current;
+    const insertMarkdown = (fieldName: "description", type: string) => {
+        const textarea = descriptionRef.current;
         if (!textarea) return;
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const value = watch(fieldName) || "";
-        const selectedText = value.substring(start, end);
+        const currentValue = descriptionValue;
+        const selectedText = currentValue.substring(start, end);
 
-        const isAtStart = start === 0 || value[start - 1] === "\n";
+        const isAtStart = start === 0 || currentValue[start - 1] === "\n";
         let before = "";
         let after = "";
         let placeholder = "";
@@ -232,17 +232,13 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             case "h2": before = "## "; after = ""; placeholder = "Heading"; break;
             case "h3": before = "### "; after = ""; placeholder = "Subheading"; break;
             case "link": before = "["; after = "](url)"; placeholder = "link text"; break;
-            case "solution-template": 
-                before = ':::solution{title="Optimal Solution"}\n\n```cpp\n// C++ Solution\n```\n\n```python\n# Python Solution\n```\n\n```java\n// Java Solution\n```\n\n:::';
-                after = ""; placeholder = ""; break;
         }
 
         const textToInsert = selectedText || placeholder;
-        const newValue = value.substring(0, start) + before + textToInsert + after + value.substring(end);
+        const newValue = currentValue.substring(0, start) + before + textToInsert + after + currentValue.substring(end);
 
         setValue(fieldName, newValue);
 
-        // Ensure state is updated before focusing
         setTimeout(() => {
             textarea.focus();
             if (selectedText) {
@@ -257,11 +253,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         if (initialData?.useFunctionTemplate !== undefined) setUseFunctionTemplate(initialData.useFunctionTemplate);
         if (initialData?.functionTemplates) setFunctionTemplates(initialData.functionTemplates);
 
-        // Fetch categories for the domain
         const loadCategories = async () => {
             const res = await getCategories(domain);
             if (res.categories) {
-                // Build tree
                 const map = new Map();
                 res.categories.forEach((cat: any) => map.set(cat.id, { ...cat, children: [] }));
                 const roots: any[] = [];
@@ -274,7 +268,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                     }
                 });
 
-                // Flatten tree for select
                 const flatten = (nodes: any[], level = 0): any[] => {
                     let result: any[] = [];
                     nodes.sort((a, b) => a.order - b.order).forEach(node => {
@@ -292,7 +285,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         loadCategories();
     }, [initialData, domain]);
 
-    const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormValues>({
+    const { register, control, handleSubmit, watch, getValues, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: initialData?.title || "",
@@ -340,28 +333,23 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const isDSA = domain === "DSA";
     const isAptitude = domain === "APTITUDE";
 
-    // MCQ guard: clear answer if selected index becomes invalid or convert text to index
     const mcqOptions = watch("options");
     const mcqAnswer = watch("answer");
     useEffect(() => {
         if (mcqAnswer && mcqOptions) {
             const idx = Number(mcqAnswer);
             if (isNaN(idx)) {
-                // Try to find the index if it's currently stored as text (initial state)
                 const foundIdx = mcqOptions.indexOf(mcqAnswer);
                 if (foundIdx !== -1) {
                     setValue("answer", foundIdx.toString());
                 }
             } else if (idx >= mcqOptions.length || idx < 0) {
-                // Clear if index is out of bounds
                 setValue("answer", "");
             }
         }
     }, [mcqOptions, mcqAnswer, setValue]);
 
     const { ref: descriptionFormRef, ...descriptionRegister } = register("description");
-    const { ref: solutionFormRef, ...solutionRegister } = register("solution");
-
     const { fields, append, remove } = useFieldArray({ control, name: "testCases" });
 
     const hintsList = watch("hints") || [];
@@ -378,11 +366,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     };
 
     const hiddenValue = watch("hidden");
-    const difficultyValue = watch("difficulty");
     const descriptionValue = watch("description") || "";
-    const solutionValue = watch("solution") || "";
     const titleValue = watch("title") || "";
-
+    const difficultyValue = watch("difficulty");
     const isConcept = difficultyValue === "CONCEPT";
     const totalSteps = isConcept ? 2 : (isDSA ? 5 : isAptitude ? 3 : 4);
 
@@ -421,32 +407,32 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         else if (currentStep === 3 && !isConcept) isValid = await trigger(["solution"]);
         else if (currentStep === 4 && !isAptitude && !isConcept) isValid = await trigger(["testCases"]);
         else isValid = true;
+        
         if (isValid && currentStep < totalSteps) {
             setCurrentStep(prev => prev + 1);
             setDescriptionPreview(false);
-            setSolutionPreview(false);
         }
     };
 
     const handleBack = () => {
         setCurrentStep(prev => prev - 1);
         setDescriptionPreview(false);
-        setSolutionPreview(false);
     };
 
     const handleStepClick = async (stepId: number) => {
         if (stepId < currentStep) {
             setCurrentStep(stepId);
             setDescriptionPreview(false);
-            setSolutionPreview(false);
         }
     };
 
     async function onSubmitForm(data: FormValues) {
         if (isLoading) return;
         setIsLoading(true);
+
         const submissionData = {
             ...data,
+            solution: data.solution || "",
             hidden: data.hidden,
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
@@ -465,17 +451,20 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         const res = await onSubmit(submissionData);
         if (res.success) {
             toast.success("Saved successfully");
-            if (redirectPath !== undefined) {
+            if (!isDraftRef.current && redirectPath !== undefined) {
                 router.push(redirectPath || "/admin/problems");
+                router.refresh();
+            } else if (isDraftRef.current) {
                 router.refresh();
             }
         } else {
             toast.error(res.error || "Something went wrong");
         }
         setIsLoading(false);
+        isDraftRef.current = false;
     }
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: "description" | "solution") => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: "description") => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -501,46 +490,68 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                 setValue(fieldName, currentValue + markdownImage);
                 toast.success("Image uploaded successfully");
             } else {
-                toast.error(result.error || "Upload failed");
+                toast.error(result.error || "Failed to upload image");
             }
-        } catch (err) {
-             console.error("Upload error:", err);
-            toast.error("Upload failed");
+        } catch (error) {
+            toast.error("Error uploading image");
         } finally {
             setIsUploading(false);
-            e.target.value = ""; // Reset input
+            if (descriptionFileInputRef.current) descriptionFileInputRef.current.value = "";
+        }
+    };
+
+    const uploadImageForSolution = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+            const res = await fetch("/api/upload", { method: "POST", body: formData });
+            const result = await res.json();
+            if (result.success) {
+                toast.success("Image uploaded successfully");
+                return result.url;
+            } else {
+                toast.error(result.error || "Failed to upload image");
+                return null;
+            }
+        } catch (error) {
+            toast.error("Error uploading image");
+            return null;
         }
     };
 
     const progressPct = Math.round((currentStep / totalSteps) * 100);
 
-    const inputCls = "w-full px-3 py-2 bg-white dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] rounded-[3px] focus:outline-none focus:border-[#26bd58] focus:ring-1 focus:ring-[#26bd58] transition-all text-[15px] font-mono shadow-sm text-gray-900 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600";
-    const labelCls = "text-[14px] font-bold text-[#39424e] dark:text-gray-300 font-mono mb-1.5 flex gap-1";
+    const inputCls = "w-full h-12 px-4 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#333] rounded-xl focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400";
+    const labelCls = "text-sm font-bold text-gray-900 dark:text-white mb-2 block flex items-center gap-1";
+
+
 
     return (
         <div className="w-full">
 
-            {/* ── TABS NAV (HackerRank Style) ── */}
-            <div className="flex flex-wrap border border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#1D1E23] rounded-[3px] mb-8">
-                {steps.map((step) => {
-                    const isActive = currentStep === step.id;
-                    const isClickable = step.id <= currentStep;
-                    return (
-                        <button
-                            key={step.id}
-                            type="button"
-                            onClick={() => handleStepClick(step.id)}
-                            disabled={!isClickable && !isActive}
-                            className={`px-8 py-3.5 text-[14px] font-bold transition-all border-r border-gray-200 dark:border-[#333] last:border-r-0 ${
-                                isActive
-                                ? "text-[#39424e] dark:text-white bg-white dark:bg-[#1D1E23]"
-                                : "text-[#738f93] dark:text-gray-400 hover:text-[#39424e] dark:hover:text-white hover:bg-[#ebf0f4] dark:hover:bg-[#222]"
-                            }`}
-                        >
-                            {step.name}
-                        </button>
-                    );
-                })}
+            {/* Pill Tabs */}
+            <div className="flex justify-center mb-8">
+                <div className="flex items-center gap-1.5 p-1.5 bg-white dark:bg-[#1D1E23] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-x-auto hide-scrollbar shadow-sm">
+                    {steps.map((step) => {
+                        const isActive = currentStep === step.id;
+                        const isClickable = step.id <= currentStep;
+                        return (
+                            <button
+                                key={step.id}
+                                type="button"
+                                onClick={() => handleStepClick(step.id)}
+                                disabled={!isClickable && !isActive}
+                                className={`relative flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all flex-shrink-0 z-10 ${
+                                    isActive ? "text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-white/5 bg-gray-100 dark:bg-[#262626]" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                }`}
+                            >
+                                <span className="relative z-10 flex items-center gap-2">
+                                    {step.name}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* ── FORM ── */}
@@ -551,8 +562,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                     {currentStep === 1 && (
                         <div className="py-2 space-y-10">
                             <div>
-                                <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Basic Details</h2>
-                                <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Define the problem identity and visibility settings.</p>
+                                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">Basic Details</h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">Define the problem identity and visibility settings.</p>
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -562,6 +573,10 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                         <label className={labelCls}>Problem Title</label>
                                         <input
                                             {...register("title")}
+                                            onInput={(e: any) => {
+                                                const newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+                                                setValue("slug", newSlug, { shouldValidate: true });
+                                            }}
                                             placeholder="e.g. Two Sum"
                                             className={inputCls}
                                         />
@@ -921,15 +936,15 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         <div className="py-2 space-y-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Problem Description</h2>
-                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Write a clear problem statement using Markdown.</p>
+                                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">Problem Description</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">Write a clear problem statement using Markdown.</p>
                                 </div>
 
                             </div>
 
-                            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
+                            <div className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden shadow-sm">
                                 {/* Enhanced Toolbar */}
-                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#111]">
                                     <div className="flex items-center gap-1">
                                         <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
                                             <button type="button" onClick={() => insertMarkdown("description", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
@@ -972,7 +987,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                     <button
                                         type="button"
                                         onClick={() => setDescriptionPreview(!descriptionPreview)}
-                                        className="px-3 py-1.5 text-xs font-semibold bg-[#ebf0f4] dark:bg-[#222] text-[#39424e] dark:text-gray-300 border border-[#dcdcdc] dark:border-[#444] rounded-[3px] shadow-sm hover:bg-[#e2e8ec] dark:hover:bg-[#333] transition-colors flex items-center gap-2"
+                                        className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-[#222] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#444] rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-[#333] transition-colors flex items-center gap-2"
                                     >
                                         {descriptionPreview ? <><Code2 className="w-3.5 h-3.5" /> Edit</> : <><Eye className="w-3.5 h-3.5" /> Preview</>}
                                     </button>
@@ -1070,109 +1085,26 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         <div className="py-2 space-y-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Solution / Editorial</h2>
-                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Shown only after a user successfully solves the problem.</p>
-                                </div>
-
-                            </div>
-
-                            <div className="border border-gray-300 dark:border-[#444] rounded-[3px] overflow-hidden">
-                                {/* Enhanced Toolbar */}
-                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#333] bg-[#f8f9fa] dark:bg-[#151515]">
-                                    <div className="flex items-center gap-1">
-                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
-                                            <button type="button" onClick={() => insertMarkdown("solution", "bold")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bold"><span className="text-sm">B</span></button>
-                                            <button type="button" onClick={() => insertMarkdown("solution", "italic")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white italic hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Italic"><span className="text-sm">i</span></button>
-                                        </div>
-                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
-                                            <button type="button" onClick={() => insertMarkdown("solution", "h2")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 2"><span className="text-xs">H2</span></button>
-                                            <button type="button" onClick={() => insertMarkdown("solution", "h3")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white font-bold hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Heading 3"><span className="text-xs">H3</span></button>
-                                        </div>
-                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
-                                            <button type="button" onClick={() => insertMarkdown("solution", "list")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Bullet List">
-                                                <List className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button type="button" onClick={() => insertMarkdown("solution", "code")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Code Block">
-                                                <Code2 className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button type="button" onClick={() => insertMarkdown("solution", "solution-template")} className="px-2 h-8 flex items-center justify-center text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 font-bold hover:bg-orange-50 dark:hover:bg-orange-500/5 rounded-[2px] transition-colors gap-1.5" title="Insert Solution Template">
-                                                <BadgeCheck className="w-3.5 h-3.5" />
-                                                <span className="text-[10px] uppercase">Template</span>
-                                            </button>
-                                        </div>
-                                        <div className="flex bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] rounded-[3px] p-0.5">
-                                            <button
-                                                type="button"
-                                                onClick={() => solutionFileInputRef.current?.click()}
-                                                disabled={isUploading}
-                                                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors disabled:opacity-50"
-                                                title="Upload Image"
-                                            >
-                                                {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                                            </button>
-                                            <button type="button" onClick={() => insertMarkdown("solution", "link")} className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#39424e] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#222] rounded-[2px] transition-colors" title="Insert Link">
-                                                <Plus className="w-3.5 h-3.5 rotate-45" />
-                                            </button>
-                                        </div>
-                                        <input
-                                            type="file"
-                                            ref={solutionFileInputRef}
-                                            onChange={(e) => handleImageUpload(e, "solution")}
-                                            className="hidden"
-                                            accept="image/*"
-                                        />
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setSolutionPreview(!solutionPreview)}
-                                        className="px-3 py-1.5 text-xs font-semibold bg-[#ebf0f4] dark:bg-[#222] text-[#39424e] dark:text-gray-300 border border-[#dcdcdc] dark:border-[#444] rounded-[3px] shadow-sm hover:bg-[#e2e8ec] dark:hover:bg-[#333] transition-colors flex items-center gap-2"
-                                    >
-                                        {solutionPreview ? <><Code2 className="w-3.5 h-3.5" /> Edit</> : <><Eye className="w-3.5 h-3.5" /> Preview</>}
-                                    </button>
-                                </div>
-
-                                <div className="grid grid-cols-1">
-                                    {!solutionPreview ? (
-                                        <div className="border-r border-gray-200 dark:border-[#333] relative">
-                                            {(!solutionValue || solutionValue.trim() === "") && (
-                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#1D1E23]/50 backdrop-blur-[2px] z-10">
-                                                    <div className="bg-white dark:bg-[#1D1E23] p-8 rounded-xl border border-dashed border-gray-300 dark:border-[#444] shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
-                                                        <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center">
-                                                            <BadgeCheck className="w-10 h-10 text-orange-500" />
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Solution Editorial</h3>
-                                                            <p className="text-sm text-gray-500 max-w-[300px] mt-1">Start by using our pre-defined multi-language solution group template.</p>
-                                                        </div>
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={() => insertMarkdown("solution", "solution-template")}
-                                                            className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
-                                                        >
-                                                            <Plus className="w-4 h-4" />
-                                                            Initialize Solution Template
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <textarea
-                                                {...solutionRegister}
-                                                ref={(e) => {
-                                                    solutionFormRef(e);
-                                                    solutionRef.current = e;
-                                                }}
-                                                rows={28}
-                                                placeholder={"# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```"}
-                                                className="w-full px-5 py-4 bg-white dark:bg-[#1D1E23] focus:outline-none transition-all font-mono text-[15px] leading-7 text-[#39424e] dark:text-gray-300 placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none shadow-inner min-h-[500px]"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="bg-[#f8f9fa] dark:bg-[#1D1E23] overflow-y-auto min-h-[500px]">
-                                            <MarkdownPreview content={solutionValue} placeholder="Nothing to preview yet..." />
-                                        </div>
-                                    )}
+                                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">Solution / Editorial</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">Shown only after a user successfully solves the problem.</p>
                                 </div>
                             </div>
+                            <Controller
+                                name="solution"
+                                control={control}
+                                render={({ field }) => (
+                                    <SolutionsEditor
+                                        value={field.value || ""}
+                                        onChange={field.onChange}
+                                        onSave={() => {
+                                            isDraftRef.current = true;
+                                            handleSubmit(onSubmitForm)();
+                                        }}
+                                        isSaving={isLoading}
+                                        onImageUpload={uploadImageForSolution}
+                                    />
+                                )}
+                            />
                         </div>
                     )}
 
@@ -1181,13 +1113,13 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         <div className="py-2 space-y-8">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Test Cases</h2>
-                                    <p className="text-[15px] italic text-[#738f93] dark:text-gray-400 font-serif max-w-2xl">Define input/output pairs used to validate submissions.</p>
+                                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">Test Cases</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">Define input/output pairs used to validate submissions.</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => append({ input: "", output: "", hidden: false })}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#39424e] dark:bg-white text-white dark:text-[#39424e] text-sm font-bold rounded-[3px] transition-all shadow-sm"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-xl transition-all shadow-md hover:scale-105 active:scale-95"
                                 >
                                     <Plus className="w-4 h-4" /> Add Test Case
                                 </button>
@@ -1195,7 +1127,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
                             <div className="space-y-5">
                                 {fields.map((field, index) => (
-                                    <div key={field.id} className="group rounded-[3px] border border-gray-300 dark:border-[#444] bg-white dark:bg-[#0f0f0f] overflow-hidden hover:border-gray-400 dark:hover:border-[#555] transition-colors shadow-sm">
+                                    <div key={field.id} className="group rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#0f0f0f] overflow-hidden hover:border-gray-300 dark:hover:border-[#444] transition-colors shadow-sm">
                                         {/* Card header */}
                                         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-300 dark:border-[#444] bg-gray-50/80 dark:bg-[#1D1E23]">
                                             <div className="flex items-center gap-3">
@@ -1275,6 +1207,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                 onChange={setFunctionTemplates}
                                 useFunctionTemplate={useFunctionTemplate}
                                 onUseFunctionTemplateChange={setUseFunctionTemplate}
+                                allowedLanguages={watch("allowedLanguages") || []}
+                                onAllowedLanguagesChange={(langs) => setValue("allowedLanguages", langs)}
                             />
                         </div>
                     )}

@@ -166,7 +166,11 @@ export default function DsaProblemsClient({
                                     <FilterBar domain="DSA" companies={allCompanies} />
                                 </div>
                                 {(totalProblems !== undefined && solvedProblems !== undefined) && (
-                                    <div className="flex items-center gap-2.5 whitespace-nowrap flex-shrink-0 self-start xl:self-auto pl-1 pr-2">
+                                    <div 
+                                        className="flex items-center gap-2.5 whitespace-nowrap flex-shrink-0 self-start xl:self-auto pl-1 pr-2"
+                                        role="img"
+                                        aria-label={`Problems solved: ${solvedProblems} out of ${totalProblems}`}
+                                    >
                                         <svg width={16} height={16} viewBox="0 0 16 16" className="transform -rotate-90">
                                             <circle cx={8} cy={8} r={6.5} stroke="currentColor" strokeWidth={2} fill="none" className="text-gray-200 dark:text-[#333333]" />
                                             <circle cx={8} cy={8} r={6.5} stroke="currentColor" strokeWidth={2} fill="none" strokeDasharray={40.84} strokeDashoffset={totalProblems > 0 ? 40.84 - ((solvedProblems / totalProblems) * 40.84) : 40.84} strokeLinecap="round" className="text-orange-500 transition-all duration-1000 ease-out" />

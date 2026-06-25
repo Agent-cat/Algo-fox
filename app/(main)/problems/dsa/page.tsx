@@ -87,7 +87,13 @@ async function DsaProblemsContent({
                 problem: {
                     domain: "DSA",
                     type: "PRACTICE",
-                    hidden: false
+                    hidden: false,
+                    difficulty: difficulty,
+                    tags: tags.length > 0 ? {
+                        some: {
+                            slug: { in: tags }
+                        }
+                    } : undefined
                 }
             }
         })

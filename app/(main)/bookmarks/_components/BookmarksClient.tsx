@@ -229,8 +229,8 @@ export default function BookmarksClient({
                                             className="relative group"
                                         >
                                             <div className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-4 items-center hover:bg-gray-100/50 dark:hover:bg-[#1D1E23]/50 transition-colors">
-                                                <div className="col-span-6 md:col-span-4" onClick={() => router.push(`/problems/${problem.slug}`)}>
-                                                    <div className="flex items-center gap-3 cursor-pointer">
+                                                <Link href={`/problems/${problem.slug}`} className="col-span-6 md:col-span-4 block">
+                                                    <div className="flex items-center gap-3">
                                                         <div>
                                                             <div className="font-bold text-gray-900 dark:text-gray-100 text-[15px] group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
                                                                 {problem.title}
@@ -240,7 +240,7 @@ export default function BookmarksClient({
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </Link>
 
                                                 <div className="col-span-2 md:col-span-2 md:text-center">
                                                     <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-600 dark:bg-[#262626] dark:text-gray-400">

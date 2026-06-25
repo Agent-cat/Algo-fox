@@ -86,7 +86,13 @@ async function SqlProblemsContent({
                 problem: {
                     domain: "SQL",
                     type: "PRACTICE",
-                    hidden: false
+                    hidden: false,
+                    difficulty: difficulty,
+                    tags: tags.length > 0 ? {
+                        some: {
+                            slug: { in: tags }
+                        }
+                    } : undefined
                 }
             }
         })

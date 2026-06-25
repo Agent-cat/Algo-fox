@@ -30,6 +30,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export default function AdminListPage<T extends { id: string }>({
     title,
+    subtitle,
     createLink,
     createLabel,
     data,
@@ -60,9 +61,14 @@ export default function AdminListPage<T extends { id: string }>({
     return (
         <div className="space-y-6">
             <header className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6">
+                <h1 className={`text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight ${subtitle ? "mb-1" : "mb-6"}`}>
                     {title}
                 </h1>
+                {subtitle && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        {subtitle}
+                    </p>
+                )}
 
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="relative group w-full md:flex-1">
@@ -70,6 +76,7 @@ export default function AdminListPage<T extends { id: string }>({
                         <input
                             type="text"
                             placeholder={searchPlaceholder}
+                            aria-label={searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full h-10 pl-10 pr-10 bg-gray-50/50 hover:bg-gray-100/50 focus:bg-gray-50/50 dark:bg-[#111] dark:hover:bg-[#161616] dark:focus:bg-[#111] border border-gray-200 dark:border-white/10 rounded-lg text-[13px] text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 shadow-sm transition-all"
@@ -77,6 +84,7 @@ export default function AdminListPage<T extends { id: string }>({
                         {searchQuery && (
                             <button
                                 onClick={() => setSearchQuery("")}
+                                aria-label="Clear search"
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                             >
                                 ×

@@ -22,10 +22,14 @@ export default function MainContentWrapper({
   useEffect(() => { setMounted(true); }, []);
 
   const isImpersonating = mounted && !!session?.session?.impersonatedBy;
+  const contentHeight = isImpersonating ? "calc(100vh - 104px)" : "calc(100vh - 64px)";
 
   return (
     <div
-      style={{ marginLeft: sidebarWidth }}
+      style={{
+        marginLeft: sidebarWidth,
+        ...({ "--content-height": contentHeight } as React.CSSProperties),
+      }}
       className={[
         !isDragging && "transition-[margin-left] duration-300 ease-in-out",
         "min-h-screen",

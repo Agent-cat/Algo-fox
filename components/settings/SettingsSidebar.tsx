@@ -76,8 +76,33 @@ const navGroups = [
     }
 ];
 
+const isAddressFilled = (addr: any) => {
+    if (!addr) return false;
+    if (typeof addr === "string") return addr.trim().length > 0;
+    const parts = [
+        addr.addressLine,
+        addr.city,
+        addr.district,
+        addr.state,
+        addr.country,
+        addr.pincode
+    ].filter(Boolean);
+    return parts.length > 0;
+};
+
 export function SettingsSidebar({ user }: { user: any }) {
     const pathname = usePathname();
+    const isBasicInfoFilled = !!(
+        user?.name?.trim() &&
+        user?.dateOfBirth &&
+        user?.gender?.trim() &&
+        (user?.collegeName?.trim() || user?.institutionName?.trim()) &&
+        user?.bio?.trim() &&
+        isAddressFilled(user?.permanentAddress) &&
+        isAddressFilled(user?.currentAddress) &&
+        user?.collegeId?.trim() &&
+        user?.branch?.trim()
+    );
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -97,6 +122,16 @@ export function SettingsSidebar({ user }: { user: any }) {
             setSidebarWidth(EXPANDED_WIDTH);
         };
     }, [setSidebarWidth]);
+
+    // Expand accomplishments group if route is under it
+    useEffect(() => {
+        if (pathname.includes("/accomplishments")) {
+            setExpandedGroups(prev => ({
+                ...prev,
+                "Accomplishments": true
+            }));
+        }
+    }, [pathname]);
 
     const toggleGroup = (name: string) => {
         setExpandedGroups(prev => ({
@@ -283,7 +318,18 @@ export function SettingsSidebar({ user }: { user: any }) {
                                         )}
                                     >
                                         {item.icon && <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-gray-900 dark:text-white" : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300")} />}
-                                        {item.name}
+                                        <span className="flex-1 truncate">{item.name}</span>
+                                        {item.name === "Basic Info" && (
+                                            isBasicInfoFilled ? (
+                                                <svg className="w-4 h-4 text-emerald-500 shrink-0 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Profile Complete">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-4 h-4 text-amber-500 shrink-0 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Profile Incomplete">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                            )
+                                        )}
                                     </Link>
                                 );
                             })}

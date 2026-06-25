@@ -135,6 +135,7 @@ export function ClassroomsPageContent({
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       disabled={currentPage === 1}
+                      aria-label="Previous page"
                       className="h-10 w-10 flex items-center justify-center bg-transparent border border-gray-200 dark:border-white/10 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
                     >
                       <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -153,6 +154,7 @@ export function ClassroomsPageContent({
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       disabled={currentPage === totalPages}
+                      aria-label="Next page"
                       className="h-10 w-10 flex items-center justify-center bg-transparent border border-gray-200 dark:border-white/10 rounded-xl hover:border-orange-500 disabled:opacity-30 transition-all shadow-sm active:scale-95"
                     >
                       <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />

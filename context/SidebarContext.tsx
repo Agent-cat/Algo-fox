@@ -36,12 +36,15 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved !== null) {
-        setSidebarWidth(Number(saved));
+        const parsed = Number(saved);
+        if (!isNaN(parsed) && isFinite(parsed) && parsed >= COLLAPSED_WIDTH && parsed <= EXPANDED_WIDTH + 6) {
+          setSidebarWidth(parsed);
+        }
       }
     } catch (_) {}
   }, []);
 
-  const expanded = sidebarWidth > COLLAPSED_WIDTH + 10;
+  const expanded = sidebarWidth > (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
 
   const toggle = () => {
     const nextWidth = expanded ? COLLAPSED_WIDTH : EXPANDED_WIDTH;

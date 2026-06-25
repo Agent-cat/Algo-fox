@@ -43,8 +43,9 @@ function SqlCategoryProblemsContent() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProblems = problems.filter(p => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return true;
+    const q = trimmed.toLowerCase();
     return p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q);
   });
 

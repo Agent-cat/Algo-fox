@@ -19,7 +19,7 @@ import {
 } from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
-import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
+import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH, STORAGE_KEY } from "@/context/SidebarContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 // ─────────────────────────────────────────────────────────────
@@ -111,7 +111,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       const midPoint = (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
       const snappedWidth = finalWidth > midPoint ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
       setSidebarWidth(snappedWidth);
-      try { localStorage.setItem("algofox_sidebar_width", String(snappedWidth)); } catch (_) {}
+      try { localStorage.setItem(STORAGE_KEY, String(snappedWidth)); } catch (_) {}
     };
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -120,7 +120,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, setSidebarWidth]);
+  }, [isDragging, setSidebarWidth, sidebarWidth]);
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) => ({ ...prev, [label]: !prev[label] }));
@@ -263,13 +263,14 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
       {/* ── Search Bar ────────────────────────────────────── */}
       <div className={["px-3 mb-2 transition-all duration-300 overflow-hidden", isExpanded ? "opacity-100 max-h-12 mt-4" : "opacity-0 max-h-0 mt-0"].join(" ")}>
-          <div 
-              className="relative group cursor-pointer"
+          <button 
+              type="button"
+              className="relative group cursor-pointer text-left w-full block focus:outline-none"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
           >
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <div 
-                  className="w-full flex items-center pl-9 pr-14 py-2 text-[13px] bg-gray-50/50 hover:bg-gray-100/50 dark:bg-[#111] dark:hover:bg-[#161616] border border-gray-200 dark:border-white/10 rounded-lg transition-all text-gray-400 dark:text-gray-500 shadow-sm"
+                  className="w-full flex items-center pl-9 pr-14 py-2 text-[13px] bg-gray-50/50 hover:bg-gray-100/50 group-focus:bg-gray-100/50 dark:bg-[#111] dark:hover:bg-[#161616] dark:group-focus:bg-[#161616] border border-gray-200 dark:border-white/10 group-focus:ring-2 group-focus:ring-orange-500/20 rounded-lg transition-all text-gray-400 dark:text-gray-500 shadow-sm"
               >
                   Quick search...
               </div>
@@ -277,7 +278,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                   <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#222] px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/5">Ctrl</span>
                   <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#222] px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/5">K</span>
               </div>
-          </div>
+          </button>
       </div>
 
       {/* ── Navigation ────────────────────────────────────── */}

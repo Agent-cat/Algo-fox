@@ -50,12 +50,7 @@ function SignInContent() {
         setLoading("email");
         setError(null);
         try {
-          const res = await checkEmailExists(email);
-          if (!res.exists) {
-            setError("Email/User does not exist.");
-            setLoading(null);
-            return;
-          }
+          await checkEmailExists(email);
           setEmailLocked(true);
         } catch (err) {
           setError("Failed to verify email.");

@@ -61,18 +61,42 @@ export default async function Home() {
     .slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans pt-[72px] relative overflow-hidden">
-      <div className="w-full px-6 lg:px-12 pt-0 pb-12 relative z-10 flex flex-col lg:flex-row gap-8">
+    <div className="min-h-screen lg:min-h-0 lg:h-[var(--content-height)] bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans relative overflow-hidden">
+      <div className="w-full h-full px-6 lg:px-12 py-6 relative z-10 flex flex-col lg:flex-row gap-8 overflow-hidden">
         
-        {/* Main Content Area (Empty for now as requested) */}
-        <div className="flex-1">
-            <div className="flex flex-col items-center justify-center h-[60vh] border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl">
+        {/* Main Content Area */}
+        <div className="flex-1 min-h-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-6">
+            
+            {/* Clean Welcome Header */}
+            <div className="flex items-center gap-4 py-4">
+                {isLoggedIn && (
+                    session?.user?.image ? (
+                        <img 
+                            src={session.user.image} 
+                            alt={session.user.name || "User Avatar"} 
+                            className="w-12 h-12 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-white/10"
+                        />
+                    ) : (
+                        <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-lg border border-gray-200 dark:border-white/10">
+                            {(session?.user?.name || "D").charAt(0).toUpperCase()}
+                        </div>
+                    )
+                )}
+                <div>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {isLoggedIn ? `Welcome back, ${session?.user?.name || "Developer"}!` : "Welcome to Algo-fox!"}
+                    </h1>
+                </div>
+            </div>
+
+            {/* Main Widget Area */}
+            <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl p-8 text-center bg-white/50 dark:bg-[#24262C]/50">
                 <p className="text-gray-400 font-medium">Main widgets go here</p>
             </div>
         </div>
 
         {/* Right Sidebar (Widgets) */}
-        <div className="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
+        <div className="w-full lg:w-[400px] shrink-0 min-h-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-6">
            <div className="relative group">
               <div className={!isLoggedIn ? "filter blur-[6px] opacity-70 pointer-events-none select-none" : ""}>
                  <StreakCalendarWidget
