@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SubmissionService } from "@/core/services/submission.service";
 import { addSubmissionJob } from "@/core/queues/submission.queue";
+import { triggerWorker } from "@/lib/trigger-worker";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -135,6 +136,11 @@ export async function POST(req: NextRequest) {
 
         // 2. Add to Queue
         await addSubmissionJob(submission.id, customTestCases);
+
+        // 3. Immediately kick the worker — don't wait for cron.
+        //    Fire-and-forget: never awaited, never blocks the 201 response.
+        //    Cron remains as a 1-minute safety net if this fetch fails.
+        triggerWorker("submission");
 
         return NextResponse.json({ submissionId: submission.id }, { status: 201 });
 

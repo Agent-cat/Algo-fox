@@ -1,0 +1,12 @@
+name = "algofox-cron-worker"
+main = "src/index.ts"
+compatibility_date = "2025-02-04"
+
+[observability]
+enabled = true
+
+# Cron triggers — runs every minute across all three timezones
+# For sub-minute: Cloudflare supports minimum 1-minute cron intervals.
+# The pull-worker will drain all pending jobs in one invocation.
+[triggers]
+crons = ["* * * * *"]

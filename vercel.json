@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/worker/submission/run",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/worker/github-sync/run",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/worker/quiz-timer/run",
+      "schedule": "* * * * *"
+    }
+  ]
+}

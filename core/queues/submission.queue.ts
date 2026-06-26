@@ -1,18 +1,15 @@
-import { Queue, Worker, Job } from "bullmq";
+import { Queue, Job } from "bullmq";
 import { createRedisConnection } from "@/lib/redis";
 import { SubmissionService } from "@/core/services/submission.service";
 import { SubmissionResult, TestCaseResult } from "@prisma/client";
 import { addGithubSyncJob } from "./github-sync.queue";
+import { workerContextStorage } from "@/lib/worker-runner";
 
 const QUEUE_NAME = "submission-queue";
 
-// FIX: Use separate Redis connections for Queue and Worker.
-// BullMQ requires separate connections because Worker uses SUBSCRIBE/BRPOP commands
-// which block the connection and prevent other commands from executing (head-of-line blocking).
 const queueConnection = createRedisConnection({ maxRetriesPerRequest: null });
-const workerConnection = createRedisConnection({ maxRetriesPerRequest: null });
 
-const submissionQueue = new Queue(QUEUE_NAME, {
+export const submissionQueue = new Queue(QUEUE_NAME, {
     connection: queueConnection,
     defaultJobOptions: {
         attempts: 3,
@@ -184,7 +181,10 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
         await SubmissionService.createTestCases(submissionId, testCaseRecords);
 
         // 4. Poll and Incremental Update
-        const MAX_TOTAL_TIME_MS = 60000; // 60 seconds hard timeout
+        // Check if there is an active workerContextStorage deadline, else fallback to 60s
+        const context = workerContextStorage.getStore();
+        const maxTimeRemaining = context ? (context.deadline - Date.now() - 1000) : 60000; // 1s safety buffer
+        const MAX_TOTAL_TIME_MS = Math.max(5000, maxTimeRemaining); // at least 5s of polling
         const START_TIME = Date.now();
 
         const pendingSet = new Set(testCaseRecords.map(r => r.judge0TrackingId));
@@ -363,73 +363,11 @@ async function workerProcessor(job: Job<{ submissionId: string, customTestCases?
     }
 }
 
-// FIX: Guard with globalThis singleton to prevent duplicate workers across HMR reloads and
-// multiple module evaluations. Without this, every Next.js Fast Refresh creates a new Worker
-// that competes for the same BullMQ jobs, causing duplicate processing and connection leaks.
-declare global { var __submissionWorker: Worker | undefined; }
-
-const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
-
-if (SHOULD_START_WORKER && !globalThis.__submissionWorker) {
-    globalThis.__submissionWorker = new Worker(
-        QUEUE_NAME,
-        workerProcessor,
-        {
-            connection: workerConnection,
-            concurrency: 10, // Process up to 10 submissions in parallel
-            limiter: {
-                max: 50,
-                duration: 1000
-            }
-        }
-    );
-    console.log("[SubmissionWorker] Initialized worker singleton");
-
-    // Graceful shutdown handlers
-    const shutdown = async () => {
-        console.log("[SubmissionWorker] Shutting down...");
-        const SHUTDOWN_TIMEOUT = 10000; // 10s
-        let exitCode = 0;
-
-        const performShutdown = async () => {
-            if (globalThis.__submissionWorker) {
-                try {
-                    await globalThis.__submissionWorker.close();
-                } catch (err) {
-                    console.error("[SubmissionWorker] Error closing worker:", err);
-                    exitCode = 1;
-                }
-            }
-            try {
-                await workerConnection.quit();
-            } catch (err) {
-                console.error("[SubmissionWorker] Error worker connection quit:", err);
-                exitCode = 1;
-            }
-            try {
-                await queueConnection.quit();
-            } catch (err) {
-                console.error("[SubmissionWorker] Error queue connection quit:", err);
-                exitCode = 1;
-            }
-        };
-
-        const timeout = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Shutdown Timeout")), SHUTDOWN_TIMEOUT)
-        );
-
-        try {
-            await Promise.race([performShutdown(), timeout]);
-            console.log("[SubmissionWorker] Shutdown complete");
-        } catch (err: any) {
-            console.error(`[SubmissionWorker] Shutdown failed or timed out: ${err.message}`);
-            exitCode = 1;
-        } finally {
-            process.exit(exitCode);
-        }
-    };
-
-    process.on("SIGINT", shutdown);
-    process.on("SIGTERM", shutdown);
-}
-
+// The Worker is intentionally NOT instantiated here.
+// In serverless environments (Vercel, Cloudflare Pages), persistent Worker
+// processes cannot run. Jobs are processed on-demand by the HTTP pull-worker
+// at: POST /api/worker/submission/run
+//
+// For local development or self-hosted deployments, set ENABLE_WORKERS=true
+// and run: npm run worker
+export { workerProcessor as submissionWorkerProcessor };

@@ -1,10 +1,10 @@
-import { Queue, Worker, Job } from "bullmq";
+import { Queue, Job } from "bullmq";
 import { createRedisConnection } from "@/lib/redis";
 
 const QUEUE_NAME = "quiz-timer-queue";
 
 const queueConnection = createRedisConnection({ maxRetriesPerRequest: null });
-const workerConnection = createRedisConnection({ maxRetriesPerRequest: null });
+
 
 export const quizTimerQueue = new Queue(QUEUE_NAME, {
   connection: queueConnection,
@@ -110,26 +110,7 @@ async function endQuestionWorkerFn(job: Job<{ sessionId: string; questionIndex?:
   }
 }
 
-declare global {
-  var __quizTimerWorker: Worker | undefined;
-}
-
-const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
-
-if (SHOULD_START_WORKER && !globalThis.__quizTimerWorker) {
-  globalThis.__quizTimerWorker = new Worker(QUEUE_NAME, endQuestionWorkerFn, {
-    connection: workerConnection,
-    concurrency: 20,
-  });
-
-  const shutdown = async () => {
-    if (globalThis.__quizTimerWorker) {
-      await globalThis.__quizTimerWorker.close();
-    }
-    await workerConnection.quit();
-    await queueConnection.quit();
-  };
-
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
-}
+// The Worker is intentionally NOT instantiated here.
+// Jobs are processed on-demand by the HTTP pull-worker
+// at: POST /api/worker/quiz-timer/run
+export { endQuestionWorkerFn as quizTimerWorkerProcessor };

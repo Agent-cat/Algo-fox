@@ -1,13 +1,14 @@
-import { Queue, Worker, Job } from "bullmq";
+import { Queue, Job } from "bullmq";
 import { createRedisConnection } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import { GithubService } from "@/lib/github";
 import { getLanguageById } from "@/lib/languages";
+import { triggerWorker } from "@/lib/trigger-worker";
 
 const QUEUE_NAME = "github-sync-queue";
 
 const queueConnection = createRedisConnection({ maxRetriesPerRequest: null });
-const workerConnection = createRedisConnection({ maxRetriesPerRequest: null });
+
 
 export const githubSyncQueue = new Queue(QUEUE_NAME, {
   connection: queueConnection,
@@ -24,10 +25,12 @@ export const githubSyncQueue = new Queue(QUEUE_NAME, {
 
 export const addGithubSyncJob = async (submissionId: string) => {
   await githubSyncQueue.add("sync-submission", { type: "single", submissionId });
+  triggerWorker("github-sync"); // fire-and-forget
 };
 
 export const addGithubBatchSyncJob = async (userId: string) => {
   await githubSyncQueue.add("sync-batch", { type: "batch", userId });
+  triggerWorker("github-sync"); // fire-and-forget
 };
 
 async function workerProcessor(job: Job<any>) {
@@ -338,35 +341,7 @@ async function processBatchSync(job: Job<any>) {
   }
 }
 
-declare global { var __githubSyncWorker: Worker | undefined; }
-
-const SHOULD_START_WORKER = process.env.NODE_ENV === "production" || process.env.ENABLE_WORKERS === "true";
-
-if (SHOULD_START_WORKER && globalThis.__githubSyncWorker) {
-  globalThis.__githubSyncWorker.close();
-  globalThis.__githubSyncWorker = undefined;
-}
-
-if (SHOULD_START_WORKER && !globalThis.__githubSyncWorker) {
-  globalThis.__githubSyncWorker = new Worker(
-    QUEUE_NAME,
-    workerProcessor,
-    {
-      connection: workerConnection,
-      concurrency: 5,
-    }
-  );
-  console.log("[GithubSyncWorker] Initialized worker singleton");
-
-  const shutdown = async () => {
-    console.log("[GithubSyncWorker] Shutting down...");
-    if (globalThis.__githubSyncWorker) {
-      await globalThis.__githubSyncWorker.close();
-    }
-    await workerConnection.quit();
-    await queueConnection.quit();
-  };
-
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
-}
+// The Worker is intentionally NOT instantiated here.
+// Jobs are processed on-demand by the HTTP pull-worker
+// at: POST /api/worker/github-sync/run
+export { workerProcessor as githubSyncWorkerProcessor };
