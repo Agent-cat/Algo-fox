@@ -22,7 +22,6 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
     const details = user.experienceDetails || {};
     const technicalSkills = details.technicalSkills || [];
     const languages = details.languages || [];
-    const subjects = details.subjects || [];
 
     const handleSkillDelete = async (type: "technical" | "language" | "subject", index: number) => {
         if (!confirm("Are you sure you want to delete this item?")) return;
@@ -58,7 +57,7 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
             <div>
                 <h1 className="text-2xl font-bold font-mono text-gray-900 dark:text-gray-100">Skills & Languages</h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                    Manage your technical skills, spoken languages, and core subjects.
+                    Manage your technical skills and spoken languages.
                 </p>
             </div>
 
@@ -176,60 +175,6 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
                 )}
             </div>
 
-            {/* Subjects Section */}
-            <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Subjects</h2>
-                    <button
-                        onClick={() => {
-                            setSkillModalType("subject");
-                            setSkillEditIndex(null);
-                            setSkillModalOpen(true);
-                        }}
-                        className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
-                    >
-                        + Add new
-                    </button>
-                </div>
-                
-                {subjects.length === 0 ? (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                        You have not added any Subjects yet.
-                    </div>
-                ) : (
-                    <div className="bg-gray-50 dark:bg-[#1D1E23] rounded-lg border border-gray-100 dark:border-[#333] divide-y divide-gray-200 dark:divide-[#333]">
-                        {subjects.map((sub: any, index: number) => (
-                            <div key={index} className="flex items-center justify-between px-6 py-4">
-                                <div className="flex items-center gap-2 flex-1">
-                                    <span className="font-bold text-gray-700 dark:text-gray-200">{sub.name}</span>
-                                </div>
-                                <div className="flex-1 text-sm text-gray-500 dark:text-gray-400">
-                                    {sub.proficiency}
-                                </div>
-                                <div className="flex items-center gap-4 text-gray-400">
-                                    <button 
-                                        onClick={() => {
-                                            setSkillModalType("subject");
-                                            setSkillEditIndex(index);
-                                            setSkillModalOpen(true);
-                                        }}
-                                        className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleSkillDelete("subject", index)}
-                                        disabled={isDeleting}
-                                        className="hover:text-red-500 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
 
             <SkillModal
                 open={skillModalOpen}

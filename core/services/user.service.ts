@@ -152,6 +152,7 @@ export class UserService {
         collegeId?: string;
         collegeName?: string;
         branch?: string;
+        phone?: string;
         dateOfBirth?: string;
         gender?: string;
         permanentAddress?: any;
@@ -178,6 +179,7 @@ export class UserService {
             const updateData: any = {
                 name: data.name,
                 bio: data.bio,
+                phone: data.phone,
                 collegeId: data.collegeId,
                 collegeName: data.collegeName,
                 branch: data.branch,
@@ -242,6 +244,7 @@ export class UserService {
             id: user.id,
             name: user.name,
             email: user.email,
+            phone: user.phone,
             image: user.image,
             bio: user.bio,
             collegeId: user.collegeId,

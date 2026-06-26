@@ -33,6 +33,7 @@ export class DashboardService {
                 email: true,
                 image: true,
                 role: true,
+                collegeId: true,
                 institution: {
                     select: {
                         name: true

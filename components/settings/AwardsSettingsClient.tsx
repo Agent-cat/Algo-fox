@@ -66,15 +66,46 @@ export function AwardsSettingsClient({ user }: AwardsSettingsClientProps) {
             <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Awards List</h2>
-                    <button
-                        onClick={() => {
-                            setEditingIndex(null);
-                            setIsModalOpen(true);
-                        }}
-                        className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
-                    >
-                        + Add new
-                    </button>
+                    <div className="flex items-center gap-4">
+                        {awards.length === 0 && (
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={!!details.awardsNone}
+                                    onChange={async (e) => {
+                                        const checked = e.target.checked;
+                                        try {
+                                            const res = await updateUserInfo({
+                                                experienceDetails: {
+                                                    ...details,
+                                                    awardsNone: checked
+                                                }
+                                            });
+                                            if (res.success) {
+                                                toast.success("Settings updated");
+                                                router.refresh();
+                                            } else {
+                                                toast.error(res.error || "Failed to update settings");
+                                            }
+                                        } catch (_) {
+                                            toast.error("Something went wrong");
+                                        }
+                                    }}
+                                    className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                />
+                                <span>None</span>
+                            </label>
+                        )}
+                        <button
+                            onClick={() => {
+                                setEditingIndex(null);
+                                setIsModalOpen(true);
+                            }}
+                            className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
+                        >
+                            + Add new
+                        </button>
+                    </div>
                 </div>
                 
                 {awards.length === 0 ? (

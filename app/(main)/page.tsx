@@ -82,10 +82,17 @@ export default async function Home() {
                         </div>
                     )
                 )}
-                <div>
+                <div className="flex flex-col">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                         {isLoggedIn ? `Welcome back, ${session?.user?.name || "Developer"}!` : "Welcome to Algo-fox!"}
                     </h1>
+                    {isLoggedIn && (stats?.email || stats?.collegeId) && (
+                        <div className="flex flex-wrap items-center gap-x-2 text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
+                            {stats?.email && <span>{stats.email}</span>}
+                            {stats?.email && stats?.collegeId && <span>•</span>}
+                            {stats?.collegeId && <span>Roll No: {stats.collegeId}</span>}
+                        </div>
+                    )}
                 </div>
             </div>
 

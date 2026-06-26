@@ -28,6 +28,7 @@ import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
+import CustomTooltip from "@/components/ui/CustomTooltip";
 
 const navGroups = [
     {
@@ -86,23 +87,123 @@ const isAddressFilled = (addr: any) => {
         addr.state,
         addr.country,
         addr.pincode
-    ].filter(Boolean);
+    ]
+        .map(val => (typeof val === "string" ? val.trim() : val))
+        .filter(Boolean);
     return parts.length > 0;
+};
+
+const StatusIndicator = ({ filled, missingFields }: { filled: boolean; missingFields?: string[] }) => {
+    return filled ? (
+        <svg className="w-4 h-4 text-emerald-500 shrink-0 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <title>Complete</title>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+        </svg>
+    ) : (
+        <CustomTooltip content={missingFields && missingFields.length > 0 ? `Missing: ${missingFields.join(", ")}` : "Incomplete"} side="top">
+            <svg className="w-4 h-4 text-amber-500 shrink-0 ml-auto cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <title>Incomplete</title>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </CustomTooltip>
+    );
 };
 
 export function SettingsSidebar({ user }: { user: any }) {
     const pathname = usePathname();
-    const isBasicInfoFilled = !!(
-        user?.name?.trim() &&
-        user?.dateOfBirth &&
-        user?.gender?.trim() &&
-        (user?.collegeName?.trim() || user?.institutionName?.trim()) &&
-        user?.bio?.trim() &&
-        isAddressFilled(user?.permanentAddress) &&
-        isAddressFilled(user?.currentAddress) &&
-        user?.collegeId?.trim() &&
-        user?.branch?.trim()
-    );
+
+    const getMissingFields = (sectionName: string): string[] => {
+        const missing: string[] = [];
+        switch (sectionName) {
+            case "Basic Info":
+                if (!user?.name?.trim()) missing.push("Name");
+                if (!user?.dateOfBirth) missing.push("Date of Birth");
+                if (!user?.gender?.trim()) missing.push("Gender");
+                if (!(user?.collegeName?.trim() || user?.institutionName?.trim())) missing.push("College/Institution Name");
+                if (!user?.bio?.trim()) missing.push("Bio");
+                if (!isAddressFilled(user?.permanentAddress)) missing.push("Permanent Address");
+                if (!isAddressFilled(user?.currentAddress)) missing.push("Current Address");
+                if (!user?.collegeId?.trim()) missing.push("College ID");
+                if (!user?.branch?.trim()) missing.push("Branch");
+                break;
+            case "Education Details":
+                if (!user?.educationDetails?.currentCourse?.courseName) missing.push("Current Course Name");
+                if (!user?.educationDetails?.currentCourse?.institution) missing.push("Current Institution");
+                if (!user?.educationDetails?.currentCourse?.degree) missing.push("Current Degree");
+                if (!user?.educationDetails?.currentCourse?.branch) missing.push("Current Branch");
+                if (!user?.educationDetails?.currentCourse?.currentSemester) missing.push("Current Semester");
+                if (!user?.educationDetails?.previousEducations || user.educationDetails.previousEducations.length === 0) {
+                    missing.push("Previous Education");
+                }
+                break;
+            case "Platform":
+                if (!user?.leetCodeHandle) missing.push("LeetCode Handle");
+                if (!user?.codeChefHandle) missing.push("CodeChef Handle");
+                if (!user?.codeforcesHandle) missing.push("Codeforces Handle");
+                if (!user?.githubHandle) missing.push("GitHub Handle");
+                break;
+            case "Internships & Work":
+                if (!(user?.experienceDetails?.experiences?.length > 0 || user?.experienceDetails?.experiencesNone)) {
+                    missing.push("Internship/Work Experience");
+                }
+                break;
+            case "Skills & Languages":
+                if (!(user?.experienceDetails?.technicalSkills?.length > 0)) {
+                    missing.push("Technical Skills");
+                }
+                break;
+            case "Projects":
+                if (!(user?.experienceDetails?.projects?.length > 0 || user?.experienceDetails?.projectsNone)) {
+                    missing.push("Projects");
+                }
+                break;
+            case "Resume":
+                if (!(user?.experienceDetails?.resumes?.length > 0)) {
+                    missing.push("Resume");
+                }
+                break;
+            case "Awards":
+                if (!(user?.experienceDetails?.awards?.length > 0 || user?.experienceDetails?.awardsNone)) {
+                    missing.push("Awards");
+                }
+                break;
+            case "Certificates":
+                if (!(user?.experienceDetails?.certificates?.length > 0 || user?.experienceDetails?.certificatesNone)) {
+                    missing.push("Certificates");
+                }
+                break;
+            case "Patents":
+                if (!(user?.experienceDetails?.patents?.length > 0 || user?.experienceDetails?.patentsNone)) {
+                    missing.push("Patents");
+                }
+                break;
+            case "Publications":
+                if (!(user?.experienceDetails?.publications?.length > 0 || user?.experienceDetails?.publicationsNone)) {
+                    missing.push("Publications");
+                }
+                break;
+            case "Accomplishments":
+                if (!isSectionFilled("Awards")) missing.push("Awards");
+                if (!isSectionFilled("Certificates")) missing.push("Certificates");
+                if (!isSectionFilled("Patents")) missing.push("Patents");
+                if (!isSectionFilled("Publications")) missing.push("Publications");
+                break;
+            default:
+                break;
+        }
+        return missing;
+    };
+
+    const isSectionFilled = (sectionName: string): boolean => {
+        if ([
+            "Basic Info", "Education Details", "Platform", "Internships & Work",
+            "Skills & Languages", "Projects", "Resume", "Awards", "Certificates",
+            "Patents", "Publications", "Accomplishments"
+        ].includes(sectionName)) {
+            return getMissingFields(sectionName).length === 0;
+        }
+        return true;
+    };
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -264,11 +365,12 @@ export function SettingsSidebar({ user }: { user: any }) {
                                                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"
                                                 )}
                                             >
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
                                                     {item.icon && <item.icon className={cn("w-[18px] h-[18px]", isActiveBase && !isExpanded ? "text-gray-900 dark:text-white" : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300")} />}
-                                                    {item.name}
+                                                    <span className="truncate">{item.name}</span>
+                                                    <StatusIndicator filled={isSectionFilled(item.name)} missingFields={getMissingFields(item.name)} />
                                                 </div>
-                                                <LdAltArrowRight className={cn("w-3.5 h-3.5 text-gray-400 transition-transform duration-200", isExpanded && "rotate-90")} />
+                                                <LdAltArrowRight className={cn("w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ml-2 shrink-0", isExpanded && "rotate-90")} />
                                             </button>
                                             
                                             {/* SubItems with smooth animation and vertical line */}
@@ -287,13 +389,14 @@ export function SettingsSidebar({ user }: { user: any }) {
                                                                     key={subItem.href}
                                                                     href={subItem.href}
                                                                     className={cn(
-                                                                        "flex items-center px-3 py-[7px] text-[13px] font-medium rounded-lg transition-colors relative",
+                                                                        "flex items-center gap-2 px-3 py-[7px] text-[13px] font-medium rounded-lg transition-colors relative",
                                                                         isSubActive
                                                                             ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
                                                                             : "text-gray-500 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"
                                                                     )}
                                                                 >
-                                                                    {subItem.name}
+                                                                    <span className="flex-1 truncate">{subItem.name}</span>
+                                                                    <StatusIndicator filled={isSectionFilled(subItem.name)} missingFields={getMissingFields(subItem.name)} />
                                                                 </Link>
                                                             );
                                                         })}
@@ -306,6 +409,7 @@ export function SettingsSidebar({ user }: { user: any }) {
 
                                 const itemHref = (item as any).href;
                                 const isActive = pathname === itemHref;
+                                const showStatus = item.name !== "Back to Profile";
                                 return (
                                     <Link
                                         key={itemHref}
@@ -319,17 +423,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                                     >
                                         {item.icon && <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-gray-900 dark:text-white" : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300")} />}
                                         <span className="flex-1 truncate">{item.name}</span>
-                                        {item.name === "Basic Info" && (
-                                            isBasicInfoFilled ? (
-                                                <svg className="w-4 h-4 text-emerald-500 shrink-0 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Profile Complete">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            ) : (
-                                                <svg className="w-4 h-4 text-amber-500 shrink-0 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="Profile Incomplete">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                </svg>
-                                            )
-                                        )}
+                                        {showStatus && <StatusIndicator filled={isSectionFilled(item.name)} missingFields={getMissingFields(item.name)} />}
                                     </Link>
                                 );
                             })}

@@ -33,7 +33,9 @@ export function ProjectModal({ open, onOpenChange, user, onSuccess, editIndex }:
             endDate: "",
             currentlyWorking: false,
             associatedWith: "",
-            description: ""
+            description: "",
+            githubLink: "",
+            liveDemoLink: ""
         }
     });
 
@@ -41,7 +43,17 @@ export function ProjectModal({ open, onOpenChange, user, onSuccess, editIndex }:
     useEffect(() => {
         if (open) {
             if (isEditing && editingProject) {
-                reset(editingProject);
+                reset({
+                    title: editingProject.title || "",
+                    domain: editingProject.domain || "",
+                    startDate: editingProject.startDate || "",
+                    endDate: editingProject.endDate || "",
+                    currentlyWorking: !!editingProject.currentlyWorking,
+                    associatedWith: editingProject.associatedWith || "",
+                    description: editingProject.description || "",
+                    githubLink: editingProject.githubLink || "",
+                    liveDemoLink: editingProject.liveDemoLink || ""
+                });
             } else {
                 reset({
                     title: "",
@@ -50,7 +62,9 @@ export function ProjectModal({ open, onOpenChange, user, onSuccess, editIndex }:
                     endDate: "",
                     currentlyWorking: false,
                     associatedWith: "",
-                    description: ""
+                    description: "",
+                    githubLink: "",
+                    liveDemoLink: ""
                 });
             }
         }
@@ -172,6 +186,27 @@ export function ProjectModal({ open, onOpenChange, user, onSuccess, editIndex }:
                                 <option value="Personal">Personal</option>
                                 <option value="Work">Work</option>
                             </select>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="relative">
+                                <label className={labelClasses}>GitHub Link</label>
+                                <input
+                                    {...register("githubLink")}
+                                    type="url"
+                                    placeholder="https://github.com/..."
+                                    className={inputClasses}
+                                />
+                            </div>
+                            <div className="relative">
+                                <label className={labelClasses}>Live Demo Link</label>
+                                <input
+                                    {...register("liveDemoLink")}
+                                    type="url"
+                                    placeholder="https://..."
+                                    className={inputClasses}
+                                />
+                            </div>
                         </div>
 
                         <div className="border border-gray-200 dark:border-[#333] rounded-lg overflow-hidden">

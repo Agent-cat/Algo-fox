@@ -16,6 +16,7 @@ interface BasicInfoSettingsProps {
         id: string; // needed for key
         name: string;
         email: string;
+        phone?: string | null;
         image?: string | null;
         bio?: string | null;
         collegeName?: string | null;
@@ -89,6 +90,10 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                             <span className="flex-1 text-gray-900 dark:text-gray-100">{user.gender || "-"}</span>
                         </div>
                         <div className="flex text-sm items-start">
+                            <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Phone Number :</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100">{user.phone || "-"}</span>
+                        </div>
+                        <div className="flex text-sm items-start">
                             <span className="w-48 sm:w-56 md:w-64 text-gray-500 dark:text-gray-400 font-medium shrink-0">Current/Latest College :</span>
                             <span className="flex-1 text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                 {user.collegeName || user.institutionName || "-"}
@@ -101,7 +106,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                 <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Summary</h2>
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">About Me</h2>
                         </div>
                         <button
                             type="button"
@@ -115,7 +120,7 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                     <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
                         <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
                         <div className="flex text-sm items-start">
-                            <span className="flex-1 text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">{user.bio || "No summary provided."}</span>
+                            <span className="flex-1 text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">{user.bio || "No bio provided."}</span>
                         </div>
                     </div>
                 </div>

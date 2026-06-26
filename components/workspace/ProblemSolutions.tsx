@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Loader2, BadgeCheck, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Markdown from "react-markdown";
@@ -23,21 +23,44 @@ function parseSolutions(markdown: string) {
     if (!markdown) {
         return [];
     }
-    const regex = /:::solution\{title="([^"]+)"\}([\s\S]*?):::/g;
+    const regex = /:::solution\{title="((?:[^"\\]|\\.)*)"\}([\s\S]*?):::/g;
     const results = [];
     let match;
+    let index = 0;
     while ((match = regex.exec(markdown)) !== null) {
+        const title = match[1].replace(/\\"/g, '"');
+        const content = match[2].trim();
+        
+        // Simple deterministic hash
+        const raw = `${title}:${content}:${index}`;
+        let hash = 0;
+        for (let i = 0; i < raw.length; i++) {
+            hash = (hash << 5) - hash + raw.charCodeAt(i);
+            hash |= 0;
+        }
+        const id = `sol-${Math.abs(hash).toString(36)}`;
+
         results.push({
-            id: Math.random().toString(36).substr(2, 9),
-            title: match[1],
-            content: match[2].trim()
+            id,
+            title,
+            content
         });
+        index++;
     }
     if (results.length === 0 && markdown.trim()) {
+        const title = "Optimal Solution";
+        const content = markdown.trim();
+        const raw = `${title}:${content}:0`;
+        let hash = 0;
+        for (let i = 0; i < raw.length; i++) {
+            hash = (hash << 5) - hash + raw.charCodeAt(i);
+            hash |= 0;
+        }
+        const id = `sol-${Math.abs(hash).toString(36)}`;
         results.push({
-            id: Math.random().toString(36).substr(2, 9),
-            title: "Optimal Solution",
-            content: markdown.trim()
+            id,
+            title,
+            content
         });
     }
     return results;
@@ -46,6 +69,16 @@ function parseSolutions(markdown: string) {
 export function ProblemSolutions({ officialSolution, isSolved }: ProblemSolutionsProps) {
     const solutions = useMemo(() => parseSolutions(officialSolution || ""), [officialSolution]);
     const [activeTabId, setActiveTabId] = useState<string>(solutions[0]?.id || "none");
+
+    useEffect(() => {
+        if (solutions.length > 0) {
+            if (!solutions.some(s => s.id === activeTabId)) {
+                setActiveTabId(solutions[0].id);
+            }
+        } else {
+            setActiveTabId("none");
+        }
+    }, [solutions, activeTabId]);
 
     const activeSolution = solutions.find(s => s.id === activeTabId);
 

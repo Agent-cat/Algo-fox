@@ -99,18 +99,18 @@ export function GlobalSearch() {
         let problemFilter = "";
 
         // Check for specific command prefixes
-        if (debouncedQuery.toLowerCase().startsWith("pages:") || debouncedQuery.toLowerCase().startsWith("pages ") || debouncedQuery.toLowerCase() === "pages") {
+        if (q.startsWith("pages:") || q.startsWith("pages ") || q === "pages") {
             showProblems = false;
             q = q.replace(/^pages:?\s*/, "").trim();
-        } else if (debouncedQuery.toLowerCase().startsWith("dsa:") || debouncedQuery.toLowerCase().startsWith("dsa ") || debouncedQuery.toLowerCase() === "dsa") {
+        } else if (q.startsWith("dsa:") || q.startsWith("dsa ") || q === "dsa") {
             showPages = false;
             problemFilter = "dsa";
             q = q.replace(/^dsa:?\s*/, "").trim();
-        } else if (debouncedQuery.toLowerCase().startsWith("sql:") || debouncedQuery.toLowerCase().startsWith("sql ") || debouncedQuery.toLowerCase() === "sql") {
+        } else if (q.startsWith("sql:") || q.startsWith("sql ") || q === "sql") {
             showPages = false;
             problemFilter = "sql";
             q = q.replace(/^sql:?\s*/, "").trim();
-        } else if (debouncedQuery.toLowerCase().startsWith("aptitude:") || debouncedQuery.toLowerCase().startsWith("aptitude ") || debouncedQuery.toLowerCase() === "aptitude") {
+        } else if (q.startsWith("aptitude:") || q.startsWith("aptitude ") || q === "aptitude") {
             showPages = false;
             problemFilter = "aptitude";
             q = q.replace(/^aptitude:?\s*/, "").trim();

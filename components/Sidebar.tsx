@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { toast } from "sonner";
 import {
   LdHomeSmile,
@@ -21,6 +21,7 @@ import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
 import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH, STORAGE_KEY } from "@/context/SidebarContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import CustomTooltip from "@/components/ui/CustomTooltip";
 
 // ─────────────────────────────────────────────────────────────
 // Route map
@@ -282,7 +283,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       </div>
 
       {/* ── Navigation ────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 space-y-5 custom-scrollbar">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-1 space-y-5 custom-scrollbar">
         {NAV_SECTIONS.map((section, sIdx) => {
           const isOpen = !section.label || !isExpanded || openSections[section.label];
           return (
@@ -318,14 +319,15 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
-                  return (
+
+                  const linkContent = (
                     <Link
-                      key={item.href}
                       href={item.href}
-                      title={!isExpanded ? item.label : undefined}
                       className={[
-                        "relative flex items-center rounded-lg transition-colors duration-200 group",
-                        isExpanded ? "gap-3 px-3 py-2" : "justify-center px-0 py-3",
+                        "relative flex rounded-lg transition-colors duration-200 group",
+                        isExpanded 
+                          ? "flex-row items-center gap-3 px-3 py-2 w-full" 
+                          : "justify-center w-12 h-12 flex items-center",
                         active
                           ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200",
@@ -334,20 +336,35 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                       <Icon
                         className={[
                           "flex-shrink-0 transition-colors",
-                          isExpanded ? "w-[18px] h-[18px]" : "w-6 h-6",
-                          active && isExpanded ? "text-gray-900 dark:text-white" : (isExpanded ? "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300" : "")
+                          isExpanded ? "w-[18px] h-[18px]" : "w-[24px] h-[24px]",
+                          active
+                            ? "text-gray-900 dark:text-white"
+                            : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"
                         ].join(" ")}
                       />
 
-                      <span
-                        className={[
-                          "text-[13.5px] whitespace-nowrap transition-[opacity,max-width] duration-300 overflow-hidden font-medium",
-                          isExpanded ? "opacity-100 max-w-[200px]" : "opacity-0 max-w-0",
-                        ].join(" ")}
-                      >
-                        {item.label}
-                      </span>
+                      {isExpanded && (
+                        <span className="font-semibold text-[13.5px] whitespace-nowrap opacity-100 max-w-[200px] transition-all duration-300">
+                          {item.label}
+                        </span>
+                      )}
                     </Link>
+                  );
+
+                  if (!isExpanded) {
+                    return (
+                      <div key={item.href} className="w-full flex justify-center">
+                        <CustomTooltip content={item.label} side="right" delay={0.05}>
+                          {linkContent}
+                        </CustomTooltip>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Fragment key={item.href}>
+                      {linkContent}
+                    </Fragment>
                   );
                 })}
               </div>
@@ -358,7 +375,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
       {/* ── Footer Actions ─────────────────────────────────── */}
       {session?.user && (
-        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${isExpanded ? "p-4 ml-2" : "p-3"}`}>
+        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${isExpanded ? "p-4 ml-2" : "px-1 py-3"}`}>
           {isExpanded ? (
             <button
               onClick={() => setIsLogoutOpen(true)}
@@ -368,13 +385,16 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
               <span>Logout</span>
             </button>
           ) : (
-            <button
-              onClick={() => setIsLogoutOpen(true)}
-              title="Logout"
-              className="w-full aspect-square flex items-center justify-center border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-            >
-              <LdLogout2 className="w-[22px] h-[22px]" />
-            </button>
+            <div className="w-full flex justify-center">
+              <CustomTooltip content="Logout" side="right" delay={0.05}>
+                <button
+                  onClick={() => setIsLogoutOpen(true)}
+                  className="w-12 h-12 flex items-center justify-center border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                >
+                  <LdLogout2 className="w-[24px] h-[24px]" />
+                </button>
+              </CustomTooltip>
+            </div>
           )}
         </div>
       )}

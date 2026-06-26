@@ -63,7 +63,7 @@ function ActivitySection({ stats }: { stats: any }) {
   const submissions = stats.submissions;
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-[#24262C] rounded-3xl border border-dashed border-gray-300 dark:border-white/5 hover:shadow-lg transition-all p-6 flex flex-col">
+      <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-6 hover:shadow-lg transition-all flex flex-col">
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
             Submission Activity
@@ -72,7 +72,7 @@ function ActivitySection({ stats }: { stats: any }) {
             {submissions.length} submissions recently
           </p>
         </div>
-        <div className="flex-1 bg-gray-50 dark:bg-[#24262C] p-4 rounded-xl border border-gray-100 dark:border-white/5">
+        <div className="flex-1 bg-gray-100 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
           <ActivityHeatmap submissions={submissions} />
         </div>
       </div>

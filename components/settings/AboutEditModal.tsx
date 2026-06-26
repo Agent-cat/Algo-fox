@@ -26,6 +26,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
         defaultValues: {
             firstName: initialFirstName,
             lastName: initialLastName,
+            phone: user.phone || "",
             dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : "",
             gender: user.gender || "",
             collegeName: user.collegeName || user.institutionName || ""
@@ -38,6 +39,7 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
             const fullName = `${data.firstName} ${data.lastName}`.trim();
             const res = await updateUserInfo({
                 name: fullName,
+                phone: data.phone || undefined,
                 dateOfBirth: data.dateOfBirth || undefined,
                 gender: data.gender || undefined,
                 collegeName: data.collegeName || undefined
@@ -121,14 +123,25 @@ export function AboutEditModal({ open, onOpenChange, user, onSuccess }: AboutEdi
                             </div>
                         </div>
 
-                        <div className="relative">
-                            <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
-                                Current/Latest College
-                            </label>
-                            <input 
-                                {...register("collegeName")} 
-                                className={inputClasses} 
-                            />
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="relative">
+                                <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
+                                    Current/Latest College
+                                </label>
+                                <input 
+                                    {...register("collegeName")} 
+                                    className={inputClasses} 
+                                />
+                            </div>
+                            <div className="relative">
+                                <label className="absolute -top-2 left-3 inline-block bg-white dark:bg-[#1D1E23] px-1 text-[11px] font-medium text-gray-400">
+                                    Phone Number
+                                </label>
+                                <input 
+                                    {...register("phone")} 
+                                    className={inputClasses} 
+                                />
+                            </div>
                         </div>
                     </div>
 

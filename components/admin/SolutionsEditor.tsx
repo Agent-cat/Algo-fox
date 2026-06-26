@@ -10,13 +10,13 @@ function parseSolutions(markdown: string) {
             content: "```cpp\n// C++ Solution\n```\n\n```python\n# Python Solution\n```\n\n```java\n// Java Solution\n```"
         }];
     }
-    const regex = /:::solution\{title="([^"]+)"\}([\s\S]*?):::/g;
+    const regex = /:::solution\{title="((?:[^"\\]|\\.)*)"\}([\s\S]*?):::/g;
     const results = [];
     let match;
     while ((match = regex.exec(markdown)) !== null) {
         results.push({
             id: Math.random().toString(36).substr(2, 9),
-            title: match[1],
+            title: match[1].replace(/\\"/g, '"'),
             content: match[2].trim()
         });
     }
@@ -36,7 +36,10 @@ function parseSolutions(markdown: string) {
 
 function serializeSolutions(solutions: { title: string; content: string }[]) {
     if (solutions.length === 0) return "";
-    return solutions.map(s => `:::solution{title="${s.title}"}\n\n${s.content}\n\n:::`).join("\n\n");
+    return solutions.map(s => {
+        const escapedTitle = s.title.replace(/"/g, '\\"');
+        return `:::solution{title="${escapedTitle}"}\n\n${s.content}\n\n:::`;
+    }).join("\n\n");
 }
 
 interface SolutionsEditorProps {
@@ -159,7 +162,11 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
             case "list": prefix = "\n- "; suffix = ""; defaultText = defaultText || "List item"; break;
             case "code": prefix = "\n```\n"; suffix = "\n```\n"; defaultText = defaultText || "code block"; break;
             case "link": prefix = "["; suffix = "](url)"; defaultText = defaultText || "link text"; break;
-            case "solution-template": prefix = "\n:::solution{title=\"Solution\"}\n\n"; suffix = "\n\n:::\n"; defaultText = defaultText || "Write solution here"; break;
+            case "solution-template":
+                prefix = "\n# Approach\n\nExplain the solution approach...\n\n## Algorithm\n1. Step one\n2. Step two\n\n## Complexity\n- **Time:** O(n)\n- **Space:** O(1)\n\n```python\ndef solve(nums):\n    pass\n```\n";
+                suffix = "";
+                defaultText = "";
+                break;
         }
 
         const newValue = activeContent.substring(0, start) + prefix + defaultText + suffix + activeContent.substring(end);

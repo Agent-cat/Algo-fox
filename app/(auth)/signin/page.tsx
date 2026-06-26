@@ -50,8 +50,12 @@ function SignInContent() {
         setLoading("email");
         setError(null);
         try {
-          await checkEmailExists(email);
-          setEmailLocked(true);
+          const res = await checkEmailExists(email);
+          if (res.exists) {
+            setEmailLocked(true);
+          } else {
+            setError("Account does not exist. Please sign up.");
+          }
         } catch (err) {
           setError("Failed to verify email.");
         } finally {

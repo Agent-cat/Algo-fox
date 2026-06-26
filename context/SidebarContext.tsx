@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 // Sidebar expansion state shared between Sidebar ↔ Navbar ↔ MainContentWrapper
 // ─────────────────────────────────────────────────────────────
 
-const COLLAPSED_WIDTH = 56;   // px  (w-14)
+const COLLAPSED_WIDTH = 72;   // px  (w-18)
 const EXPANDED_WIDTH  = 280;  // px  (w-[280px])
 const STORAGE_KEY = "algofox_sidebar_width";
 

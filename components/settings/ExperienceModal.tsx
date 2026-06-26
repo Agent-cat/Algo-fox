@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { updateUserInfo } from "@/actions/user.action";
@@ -17,10 +17,45 @@ interface ExperienceModalProps {
 
 export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex }: ExperienceModalProps) {
     const [isLoading, setIsLoading] = useState(false);
+    const [logoUrl, setLogoUrl] = useState("");
+    const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     const details = user?.experienceDetails || {};
     const experiences = details.experiences || [];
     const editingData = editIndex !== undefined && editIndex !== null ? experiences[editIndex] : {};
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image size must be less than 5MB");
+            return;
+        }
+
+        setIsUploadingLogo(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const uploadRes = await fetch("/api/upload-document", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await uploadRes.json();
+            if (!uploadRes.ok || !data.success) {
+                throw new Error(data.error || "Failed to upload image");
+            }
+
+            setLogoUrl(data.url);
+            toast.success("Logo uploaded successfully");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to upload logo");
+        } finally {
+            setIsUploadingLogo(false);
+        }
+    };
 
     const { register, handleSubmit, watch, reset } = useForm({
         defaultValues: {
@@ -42,6 +77,7 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
 
     useEffect(() => {
         if (open) {
+            setLogoUrl(editingData?.companyLogo || "");
             reset({
                 companyName: editingData?.companyName || "",
                 companySector: editingData?.companySector || "",
@@ -58,6 +94,7 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
                 description: editingData?.description || ""
             });
         } else if (!open) {
+            setLogoUrl("");
             // Optional: clear form on close so it doesn't flash old data next time
             reset({
                 companyName: "",
@@ -84,7 +121,10 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
         try {
             let updatedExperiences = [...experiences];
             
-            const newData = { ...data };
+            const newData = { 
+                ...data,
+                companyLogo: logoUrl
+            };
 
             if (editIndex !== undefined && editIndex !== null) {
                 // Edit existing
@@ -128,6 +168,49 @@ export function ExperienceModal({ open, onOpenChange, user, onSuccess, editIndex
                 </SheetHeader>
 
                     <div className="p-8 flex-1 overflow-y-auto space-y-8">
+                        {/* Company Logo / Photo Upload */}
+                        <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-[#333]">
+                            <div className="relative group shrink-0">
+                                <div className="w-16 h-16 rounded-xl border border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#1D1E23] flex items-center justify-center overflow-hidden shadow-sm">
+                                    {isUploadingLogo ? (
+                                        <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+                                    ) : logoUrl ? (
+                                        <img src={logoUrl} alt="Logo preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Upload className="w-6 h-6 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    id="companyLogoInput"
+                                    className="hidden"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={handleLogoUpload}
+                                    disabled={isUploadingLogo}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => document.getElementById("companyLogoInput")?.click()}
+                                    className="absolute inset-0 bg-black/40 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl"
+                                >
+                                    {logoUrl ? "Change Logo" : "Upload Logo"}
+                                </button>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                                <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200">Company Logo / Photo</h4>
+                                <p className="text-xs text-gray-400">Upload a logo to represent the company (PNG, JPG, max 5MB)</p>
+                                {logoUrl && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setLogoUrl("")}
+                                        className="text-xs text-red-500 hover:text-red-600 hover:underline"
+                                    >
+                                        Remove Logo
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-6">
                             <div className="relative">
                                 <label className={labelClasses}>Search Company Name *</label>                                <input {...register("companyName")} required className={inputClasses} placeholder="Company Name" />

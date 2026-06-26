@@ -31,11 +31,11 @@ export function SummaryEditModal({ open, onOpenChange, user, onSuccess }: Summar
             });
 
             if (res.success) {
-                toast.success("Summary updated successfully");
+                toast.success("About Me updated successfully");
                 onSuccess();
                 onOpenChange(false);
             } else {
-                toast.error(res.error || "Failed to update summary");
+                toast.error(res.error || "Failed to update About Me");
             }
         } catch (error) {
             toast.error("Something went wrong");
@@ -53,7 +53,7 @@ export function SummaryEditModal({ open, onOpenChange, user, onSuccess }: Summar
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
                     <SheetHeader className="p-8 pb-2">
                     <SheetTitle className="text-left text-2xl font-normal text-gray-800 dark:text-gray-100 tracking-tight">
-                        "Summary"
+                        "About Me"
                     </SheetTitle>
                 </SheetHeader>
 
