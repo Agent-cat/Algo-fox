@@ -38,6 +38,7 @@ interface PlatformSettingsProps {
         codeChefVerified?: boolean;
         codeforcesVerified?: boolean;
     };
+    readonly?: boolean;
 }
 
 interface PlatformRowProps {
@@ -53,6 +54,7 @@ interface PlatformRowProps {
     initialValue: string;
     onVerify?: (handle: string) => void;
     isVerified?: boolean;
+    readonly?: boolean;
 }
 
 const PlatformRow = ({
@@ -67,7 +69,8 @@ const PlatformRow = ({
     isLoading,
     initialValue,
     onVerify,
-    isVerified
+    isVerified,
+    readonly = false
 }: PlatformRowProps) => {
     const { register, watch, formState: { errors } } = form;
     const value = watch(id);
@@ -134,7 +137,8 @@ const PlatformRow = ({
                         {urlPrefix && <span className="text-gray-400 text-sm whitespace-nowrap mr-1">{urlPrefix}</span>}
                         <input
                             {...register(id)}
-                            className="flex-1 py-2 bg-transparent border-none outline-none text-sm"
+                            disabled={readonly}
+                            className="flex-1 py-2 bg-transparent border-none outline-none text-sm disabled:cursor-not-allowed disabled:text-gray-500"
                             placeholder={placeholder}
                         />
                         {/* Status Icon inside input */}
@@ -160,12 +164,18 @@ const PlatformRow = ({
                                     <span>Verified</span>
                                 </div>
                             ) : onVerify ? (
-                                <button
-                                    onClick={() => onVerify(value)}
-                                    className="px-3 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
-                                >
-                                    Verify Now
-                                </button>
+                                readonly ? (
+                                    <div className="flex items-center gap-1.5 px-3 py-2 bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-lg border border-amber-200 dark:border-amber-800">
+                                        <span>Not Verified</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => onVerify(value)}
+                                        className="px-3 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                                    >
+                                        Verify Now
+                                    </button>
+                                )
                             ) : (
                                 // Neutral "Linked" state for other platforms
                                 <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-lg" title="Linked">
@@ -173,29 +183,33 @@ const PlatformRow = ({
                                 </div>
                             )}
 
-                            <button
-                                onClick={() => handleDisconnect(id)}
-                                className="flex items-center justify-center w-10 h-10 border border-gray-200 dark:border-[#333] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg transition-colors"
-                                title="Disconnect"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                            {!readonly && (
+                                <button
+                                    onClick={() => handleDisconnect(id)}
+                                    className="flex items-center justify-center w-10 h-10 border border-gray-200 dark:border-[#333] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg transition-colors"
+                                    title="Disconnect"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            )}
                     </div>
                     ) : (
-                        <button
-                        onClick={() => onSubmit(id)}
-                        disabled={isLoading === id || isValid === false}
-                        className="px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1D1E23] text-sm font-medium rounded-lg transition-colors min-w-[80px] disabled:opacity-50"
-                    >
-                        {isLoading === id ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Save"}
-                    </button>
+                        !readonly && (
+                            <button
+                                onClick={() => onSubmit(id)}
+                                disabled={isLoading === id || isValid === false}
+                                className="px-4 py-2 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] hover:bg-gray-50 dark:hover:bg-[#1D1E23] text-sm font-medium rounded-lg transition-colors min-w-[80px] disabled:opacity-50"
+                            >
+                                {isLoading === id ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Save"}
+                            </button>
+                        )
                     )}
             </div>
         </div>
     );
 };
 
-export function PlatformSettings({ user }: PlatformSettingsProps) {
+export function PlatformSettings({ user, readonly = false }: PlatformSettingsProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const [verifyingHandle, setVerifyingHandle] = useState<{ platform: string, handle: string } | null>(null);
@@ -288,67 +302,73 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                              <span className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg">
                                 Connected as {githubHandle}
                              </span>
-                             <button
-                                 onClick={async () => {
-                                     setIsLoading("github");
-                                     try {
-                                         const { authClient } = await import("@/lib/auth-client");
-                                         // Attempt to unlink the account via Better Auth (ignores 400 error if already unlinked)
-                                         await authClient.unlinkAccount({
-                                             providerId: "github"
-                                         });
+                             {!readonly && (
+                                 <button
+                                     onClick={async () => {
+                                         setIsLoading("github");
+                                         try {
+                                             const { authClient } = await import("@/lib/auth-client");
+                                             // Attempt to unlink the account via Better Auth (ignores 400 error if already unlinked)
+                                             await authClient.unlinkAccount({
+                                                 providerId: "github"
+                                             });
 
-                                         const updateRes = await updateUserInfo({ githubHandle: "" });
-                                         if (updateRes.success) {
-                                             setGithubHandle(null);
-                                             setValue("githubHandle", "");
-                                             toast.success("GitHub account disconnected");
-                                             router.refresh();
-                                         } else {
-                                             toast.error(updateRes.error || "Failed to update profile");
+                                             const updateRes = await updateUserInfo({ githubHandle: "" });
+                                             if (updateRes.success) {
+                                                 setGithubHandle(null);
+                                                 setValue("githubHandle", "");
+                                                 toast.success("GitHub account disconnected");
+                                                 router.refresh();
+                                             } else {
+                                                 toast.error(updateRes.error || "Failed to update profile");
+                                             }
+                                         } catch (err) {
+                                             toast.error("Failed to disconnect GitHub");
+                                         } finally {
+                                             setIsLoading(null);
                                          }
-                                     } catch (err) {
-                                         toast.error("Failed to disconnect GitHub");
-                                     } finally {
-                                         setIsLoading(null);
-                                     }
-                                 }}
-                                 disabled={isLoading === "github"}
-                                 className="flex items-center justify-center w-10 h-10 border border-gray-200 dark:border-[#333] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg transition-colors disabled:opacity-50"
-                                 title="Disconnect"
-                             >
-                                 {isLoading === "github" ? (
-                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                 ) : (
-                                     <Trash2 className="w-4 h-4" />
-                                 )}
-                             </button>
+                                     }}
+                                     disabled={isLoading === "github"}
+                                     className="flex items-center justify-center w-10 h-10 border border-gray-200 dark:border-[#333] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 rounded-lg transition-colors disabled:opacity-50"
+                                     title="Disconnect"
+                                 >
+                                     {isLoading === "github" ? (
+                                         <Loader2 className="w-4 h-4 animate-spin" />
+                                     ) : (
+                                         <Trash2 className="w-4 h-4" />
+                                     )}
+                                 </button>
+                             )}
                          </div>
                     ) : (
-                        <button
-                            onClick={async () => {
-                                setIsLoading("github");
-                                try {
-                                    const { authClient } = await import("@/lib/auth-client");
-                                    const res = await authClient.linkSocial({
-                                        provider: "github",
-                                        callbackURL: window.location.href
-                                    });
-                                    if (res?.error) {
-                                        toast.error(res.error.message || "Failed to connect GitHub");
+                         readonly ? (
+                             <span className="text-gray-500 text-sm">Not Connected</span>
+                         ) : (
+                            <button
+                                onClick={async () => {
+                                    setIsLoading("github");
+                                    try {
+                                        const { authClient } = await import("@/lib/auth-client");
+                                        const res = await authClient.linkSocial({
+                                            provider: "github",
+                                            callbackURL: window.location.href
+                                        });
+                                        if (res?.error) {
+                                            toast.error(res.error.message || "Failed to connect GitHub");
+                                        }
+                                    } catch (err) {
+                                        toast.error("Failed to connect GitHub");
+                                    } finally {
+                                        setIsLoading(null);
                                     }
-                                } catch (err) {
-                                    toast.error("Failed to connect GitHub");
-                                } finally {
-                                    setIsLoading(null);
-                                }
-                            }}
-                            disabled={isLoading === "github"}
-                            className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
-                        >
-                            {isLoading === "github" && <Loader2 className="w-4.h-4 animate-spin" />}
-                            Connect
-                        </button>
+                                }}
+                                disabled={isLoading === "github"}
+                                className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
+                            >
+                                {isLoading === "github" && <Loader2 className="w-4.h-4 animate-spin" />}
+                                Connect
+                            </button>
+                         )
                     )}
                 </div>
             </div>
@@ -369,6 +389,7 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                         initialValue={user.leetCodeHandle || ""}
                         onVerify={(handle) => setVerifyingHandle({ platform: "LeetCode", handle })}
                         isVerified={user.leetCodeVerified || false}
+                        readonly={readonly}
                     />
                     <PlatformRow
                         id="codeChefHandle"
@@ -383,6 +404,7 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                         initialValue={user.codeChefHandle || ""}
                         onVerify={(handle) => setVerifyingHandle({ platform: "CodeChef", handle })}
                         isVerified={user.codeChefVerified || false}
+                        readonly={readonly}
                     />
                     <PlatformRow
                         id="codeforcesHandle"
@@ -397,6 +419,7 @@ export function PlatformSettings({ user }: PlatformSettingsProps) {
                         initialValue={user.codeforcesHandle || ""}
                         onVerify={(handle) => setVerifyingHandle({ platform: "Codeforces", handle })}
                         isVerified={user.codeforcesVerified || false}
+                        readonly={readonly}
                     />
                 </div>
             </div>

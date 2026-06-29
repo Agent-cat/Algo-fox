@@ -256,7 +256,14 @@ export class UserService {
             currentAddress: user.currentAddress,
             institutionName: user.institution?.name,
             educationDetails: user.educationDetails || null,
-            experienceDetails: (user as any).experienceDetails || null
+            experienceDetails: (user as any).experienceDetails || null,
+            leetCodeHandle: (user as any).leetCodeHandle || null,
+            codeChefHandle: (user as any).codeChefHandle || null,
+            codeforcesHandle: (user as any).codeforcesHandle || null,
+            githubHandle: (user as any).githubHandle || null,
+            leetCodeVerified: (user as any).leetCodeVerified || false,
+            codeChefVerified: (user as any).codeChefVerified || false,
+            codeforcesVerified: (user as any).codeforcesVerified || false,
         };
     }
 }

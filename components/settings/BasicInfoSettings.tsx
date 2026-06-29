@@ -28,10 +28,11 @@ interface BasicInfoSettingsProps {
         permanentAddress?: any;
         currentAddress?: any;
     };
+    readonly?: boolean;
 }
 
 
-export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
+export function BasicInfoSettings({ user, readonly = false }: BasicInfoSettingsProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
@@ -64,14 +65,16 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">About</h2>
                             <span className="w-4 h-4 rounded-full border border-red-500 text-red-500 flex items-center justify-center font-bold text-[10px]">!</span>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setIsAboutModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
-                        >
-                            <Pencil className="w-3.5 h-3.5" />
-                            Edit Info
-                        </button>
+                        {!readonly && (
+                            <button
+                                type="button"
+                                onClick={() => setIsAboutModalOpen(true)}
+                                className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                            >
+                                <Pencil className="w-3.5 h-3.5" />
+                                Edit Info
+                            </button>
+                        )}
                     </div>
                     <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
                         <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
@@ -108,14 +111,16 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                         <div className="flex items-center gap-2">
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">About Me</h2>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setIsSummaryModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
-                        >
-                            <Pencil className="w-3.5 h-3.5" />
-                            Edit Info
-                        </button>
+                        {!readonly && (
+                            <button
+                                type="button"
+                                onClick={() => setIsSummaryModalOpen(true)}
+                                className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                            >
+                                <Pencil className="w-3.5 h-3.5" />
+                                Edit Info
+                            </button>
+                        )}
                     </div>
                     <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
                         <div className="absolute left-[23px] top-[16px] bottom-0 w-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
@@ -130,14 +135,16 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                 <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                      <div className="flex items-center justify-between">
                          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Address</h2>
-                         <button
-                             type="button"
-                             onClick={() => setIsAddressModalOpen(true)}
-                             className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
-                         >
-                             <Pencil className="w-3.5 h-3.5" />
-                             Edit Info
-                         </button>
+                         {!readonly && (
+                             <button
+                                 type="button"
+                                 onClick={() => setIsAddressModalOpen(true)}
+                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                             >
+                                 <Pencil className="w-3.5 h-3.5" />
+                                 Edit Info
+                             </button>
+                         )}
                      </div>
 
                      <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">
@@ -157,14 +164,16 @@ export function BasicInfoSettings({ user }: BasicInfoSettingsProps) {
                 <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                      <div className="flex items-center justify-between">
                          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Academic Details</h2>
-                         <button
-                             type="button"
-                             onClick={() => setIsAcademicModalOpen(true)}
-                             className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
-                         >
-                             <Pencil className="w-3.5 h-3.5" />
-                             Edit Info
-                         </button>
+                         {!readonly && (
+                             <button
+                                 type="button"
+                                 onClick={() => setIsAcademicModalOpen(true)}
+                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                             >
+                                 <Pencil className="w-3.5 h-3.5" />
+                                 Edit Info
+                             </button>
+                         )}
                      </div>
 
                      <div className="space-y-4 pt-4 pl-4 sm:pl-16 relative">

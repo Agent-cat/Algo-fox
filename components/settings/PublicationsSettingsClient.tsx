@@ -9,9 +9,10 @@ import { updateUserInfo } from "@/actions/user.action";
 
 interface PublicationsSettingsClientProps {
     user: any;
+    readonly?: boolean;
 }
 
-export function PublicationsSettingsClient({ user }: PublicationsSettingsClientProps) {
+export function PublicationsSettingsClient({ user, readonly = false }: PublicationsSettingsClientProps) {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -66,46 +67,48 @@ export function PublicationsSettingsClient({ user }: PublicationsSettingsClientP
             <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Publications List</h2>
-                    <div className="flex items-center gap-4">
-                        {publications.length === 0 && (
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={!!details.publicationsNone}
-                                    onChange={async (e) => {
-                                        const checked = e.target.checked;
-                                        try {
-                                            const res = await updateUserInfo({
-                                                experienceDetails: {
-                                                    ...details,
-                                                    publicationsNone: checked
+                    {!readonly && (
+                        <div className="flex items-center gap-4">
+                            {publications.length === 0 && (
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={!!details.publicationsNone}
+                                        onChange={async (e) => {
+                                            const checked = e.target.checked;
+                                            try {
+                                                const res = await updateUserInfo({
+                                                    experienceDetails: {
+                                                        ...details,
+                                                        publicationsNone: checked
+                                                    }
+                                                });
+                                                if (res.success) {
+                                                    toast.success("Settings updated");
+                                                    router.refresh();
+                                                } else {
+                                                    toast.error(res.error || "Failed to update settings");
                                                 }
-                                            });
-                                            if (res.success) {
-                                                toast.success("Settings updated");
-                                                router.refresh();
-                                            } else {
-                                                toast.error(res.error || "Failed to update settings");
+                                            } catch (_) {
+                                                toast.error("Something went wrong");
                                             }
-                                        } catch (_) {
-                                            toast.error("Something went wrong");
-                                        }
-                                    }}
-                                    className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                                />
-                                <span>None</span>
-                            </label>
-                        )}
-                        <button
-                            onClick={() => {
-                                setEditingIndex(null);
-                                setIsModalOpen(true);
-                            }}
-                            className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
-                        >
-                            + Add new
-                        </button>
-                    </div>
+                                        }}
+                                        className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                    />
+                                    <span>None</span>
+                                </label>
+                            )}
+                            <button
+                                onClick={() => {
+                                    setEditingIndex(null);
+                                    setIsModalOpen(true);
+                                }}
+                                className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
+                            >
+                                + Add new
+                            </button>
+                        </div>
+                    )}
                 </div>
                 
                 {publications.length === 0 ? (
@@ -131,32 +134,34 @@ export function PublicationsSettingsClient({ user }: PublicationsSettingsClientP
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-4 text-gray-400">
-                                        <button 
-                                            onClick={() => {
-                                                setEditingIndex(index);
-                                                setIsModalOpen(true);
-                                            }}
-                                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                            title="Edit"
-                                        >
-                                            <Pencil className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(index)}
-                                            disabled={isDeleting}
-                                            className="hover:text-red-500 transition-colors"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                                        </button>
-                                        <button 
-                                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                            title="Upload Document"
-                                        >
-                                            <Upload className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                                        </button>
-                                    </div>
+                                    {!readonly && (
+                                        <div className="flex items-center gap-4 text-gray-400">
+                                            <button 
+                                                onClick={() => {
+                                                    setEditingIndex(index);
+                                                    setIsModalOpen(true);
+                                                }}
+                                                className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                                title="Edit"
+                                            >
+                                                <Pencil className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(index)}
+                                                disabled={isDeleting}
+                                                className="hover:text-red-500 transition-colors"
+                                                title="Delete"
+                                            >
+                                                <Trash2 className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                                            </button>
+                                            <button 
+                                                className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                                title="Upload Document"
+                                            >
+                                                <Upload className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 {pub.description && (

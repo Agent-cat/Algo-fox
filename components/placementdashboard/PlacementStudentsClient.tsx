@@ -191,7 +191,7 @@ export function PlacementStudentsClient({ initialStudents }: { initialStudents: 
                                     <tr 
                                         key={student.id} 
                                         className="hover:bg-gray-50 dark:hover:bg-[#24262C] transition-colors group/row cursor-pointer"
-                                        onClick={() => router.push(`/profile/${student.id}`)}
+                                        onClick={() => router.push(`/placementdashboard/students/${student.id}`)}
                                     >
                                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                                             <input 
@@ -239,7 +239,7 @@ export function PlacementStudentsClient({ initialStudents }: { initialStudents: 
                                             <button 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    router.push(`/profile/${student.id}`);
+                                                    router.push(`/placementdashboard/students/${student.id}`);
                                                 }}
                                                 className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold text-orange-600 bg-orange-100 hover:bg-orange-200 dark:text-orange-400 dark:bg-orange-500/10 dark:hover:bg-orange-500/20 rounded-lg transition-colors"
                                             >

@@ -10,9 +10,10 @@ import { updateUserInfo } from "@/actions/user.action";
 
 interface EducationSettingsClientProps {
     user: any;
+    readonly?: boolean;
 }
 
-export function EducationSettingsClient({ user }: EducationSettingsClientProps) {
+export function EducationSettingsClient({ user, readonly = false }: EducationSettingsClientProps) {
     const router = useRouter();
     const [isCourseEditOpen, setIsCourseEditOpen] = useState(false);
     const [isPrevEdOpen, setIsPrevEdOpen] = useState(false);
@@ -113,7 +114,7 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                         <div className="flex items-center gap-2">
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Current/Most Recent Course</h2>
                         </div>
-                        {currentCourse.courseName || currentCourse.degree || currentCourse.institution ? (
+                        {!readonly && (currentCourse.courseName || currentCourse.degree || currentCourse.institution) ? (
                             <button
                                 onClick={() => setIsCourseEditOpen(true)}
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
@@ -127,13 +128,15 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                     {(!currentCourse.courseName && !currentCourse.degree && !currentCourse.institution) ? (
                         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 dark:border-[#333] rounded-xl bg-gray-50 dark:bg-[#1D1E23]">
                             <GraduationCap className="w-10 h-10 text-gray-400 mb-3" />
-                            <p className="text-sm text-gray-500 mb-4 text-center">No current course details provided.</p>
-                            <button
-                                onClick={() => setIsCourseEditOpen(true)}
-                                className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-lg font-bold transition-colors text-sm"
-                            >
-                                + Add Current Course
-                            </button>
+                            <p className="text-sm text-gray-500 text-center">No current course details provided.</p>
+                            {!readonly && (
+                                <button
+                                    onClick={() => setIsCourseEditOpen(true)}
+                                    className="mt-4 px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-lg font-bold transition-colors text-sm"
+                                >
+                                    + Add Current Course
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="pl-4 md:pl-8">
@@ -265,14 +268,16 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                                                                     <FileText className="w-4 h-4" />
                                                                 </a>
                                                             )}
-                                                            <button 
-                                                                disabled={isUploading && uploadTarget?.type === 'current_semester_doc' && uploadTarget?.semesterIndex === i}
-                                                                onClick={() => { setUploadTarget({ type: 'current_semester_doc', semesterIndex: i }); fileInputRef.current?.click(); }}
-                                                                className="text-orange-600 hover:text-orange-700 disabled:opacity-50"
-                                                                title="Upload Document"
-                                                            >
-                                                                {isUploading && uploadTarget?.type === 'current_semester_doc' && uploadTarget?.semesterIndex === i ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                                                            </button>
+                                                            {!readonly && (
+                                                                <button 
+                                                                    disabled={isUploading && uploadTarget?.type === 'current_semester_doc' && uploadTarget?.semesterIndex === i}
+                                                                    onClick={() => { setUploadTarget({ type: 'current_semester_doc', semesterIndex: i }); fileInputRef.current?.click(); }}
+                                                                    className="text-orange-600 hover:text-orange-700 disabled:opacity-50"
+                                                                    title="Upload Document"
+                                                                >
+                                                                    {isUploading && uploadTarget?.type === 'current_semester_doc' && uploadTarget?.semesterIndex === i ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 ))}
@@ -299,13 +304,15 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                                 <div className="absolute left-[23px] top-[28px] w-[41px] h-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
                                 <div className="flex items-center justify-between relative z-10">
                                     <h4 className="font-bold text-gray-900 dark:text-gray-100">Marksheet</h4>
-                                    <button 
-                                        disabled={isUploading && uploadTarget?.type === 'current_marksheet'}
-                                        onClick={() => { setUploadTarget({ type: 'current_marksheet' }); fileInputRef.current?.click(); }}
-                                        className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50 flex items-center gap-1"
-                                    >
-                                        {isUploading && uploadTarget?.type === 'current_marksheet' ? <><Loader2 className="w-3 h-3 animate-spin" /> Uploading...</> : (currentCourse.marksheetUrl ? "Change Document" : "+ Add New")}
-                                    </button>
+                                    {!readonly && (
+                                        <button 
+                                            disabled={isUploading && uploadTarget?.type === 'current_marksheet'}
+                                            onClick={() => { setUploadTarget({ type: 'current_marksheet' }); fileInputRef.current?.click(); }}
+                                            className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                                        >
+                                            {isUploading && uploadTarget?.type === 'current_marksheet' ? <><Loader2 className="w-3 h-3 animate-spin" /> Uploading...</> : (currentCourse.marksheetUrl ? "Change Document" : "+ Add New")}
+                                        </button>
+                                    )}
                                 </div>
                                 {currentCourse.marksheetUrl ? (
                                     <a href={currentCourse.marksheetUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-1"><FileText className="w-3 h-3" /> View Document</a>
@@ -327,16 +334,18 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                     {previousEducations.length === 0 ? (
                         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 dark:border-[#333] rounded-xl bg-gray-50 dark:bg-[#1D1E23]">
                             <GraduationCap className="w-10 h-10 text-gray-400 mb-3" />
-                            <p className="text-sm text-gray-500 mb-4 text-center">No previous educations have been added yet.</p>
-                            <button
-                                onClick={() => {
-                                    setEditingPrevEdIndex(null);
-                                    setIsPrevEdOpen(true);
-                                }}
-                                className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-lg font-bold transition-colors text-sm"
-                            >
-                                + Add Previous Education
-                            </button>
+                            <p className="text-sm text-gray-500 text-center">No previous educations have been added yet.</p>
+                            {!readonly && (
+                                <button
+                                    onClick={() => {
+                                        setEditingPrevEdIndex(null);
+                                        setIsPrevEdOpen(true);
+                                    }}
+                                    className="mt-4 px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-lg font-bold transition-colors text-sm"
+                                >
+                                    + Add Previous Education
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="pl-4 md:pl-8">
@@ -361,16 +370,18 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                                                 <span className="text-2xl font-bold text-green-500">{edu.score || "-"}</span>
                                                 <span className="text-xs font-bold text-green-500">{edu.scoreType || "%"}</span>
                                             </div>
-                                            <button
-                                                onClick={() => {
-                                                    setEditingPrevEdIndex(index);
-                                                    setIsPrevEdOpen(true);
-                                                }}
-                                                className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
-                                            >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                                Edit Info
-                                            </button>
+                                            {!readonly && (
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingPrevEdIndex(index);
+                                                        setIsPrevEdOpen(true);
+                                                    }}
+                                                    className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 text-sm text-orange-600 dark:text-orange-500 font-medium hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors"
+                                                >
+                                                    <Pencil className="w-3.5 h-3.5" />
+                                                    Edit Info
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -458,14 +469,16 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                                                                                 <FileText className="w-4 h-4" />
                                                                             </a>
                                                                         )}
-                                                                        <button 
-                                                                            disabled={isUploading && uploadTarget?.type === 'prev_semester_doc' && uploadTarget?.eduIndex === index && uploadTarget?.semesterIndex === i}
-                                                                            onClick={() => { setUploadTarget({ type: 'prev_semester_doc', eduIndex: index, semesterIndex: i }); fileInputRef.current?.click(); }}
-                                                                            className="text-orange-600 hover:text-orange-700 disabled:opacity-50"
-                                                                            title="Upload Document"
-                                                                        >
-                                                                            {isUploading && uploadTarget?.type === 'prev_semester_doc' && uploadTarget?.eduIndex === index && uploadTarget?.semesterIndex === i ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                                                                        </button>
+                                                                        {!readonly && (
+                                                                            <button 
+                                                                                disabled={isUploading && uploadTarget?.type === 'prev_semester_doc' && uploadTarget?.eduIndex === index && uploadTarget?.semesterIndex === i}
+                                                                                onClick={() => { setUploadTarget({ type: 'prev_semester_doc', eduIndex: index, semesterIndex: i }); fileInputRef.current?.click(); }}
+                                                                                className="text-orange-600 hover:text-orange-700 disabled:opacity-50"
+                                                                                title="Upload Document"
+                                                                            >
+                                                                                {isUploading && uploadTarget?.type === 'prev_semester_doc' && uploadTarget?.eduIndex === index && uploadTarget?.semesterIndex === i ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                                                            </button>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                             ))}
@@ -481,13 +494,15 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                                     <div className="absolute left-[23px] top-[28px] w-[41px] h-[2px] bg-gray-200 dark:bg-[#333] hidden sm:block z-0"></div>
                                     <div className="flex items-center justify-between relative z-10">
                                         <h4 className="font-bold text-gray-900 dark:text-gray-100">Marksheet</h4>
-                                        <button 
-                                            disabled={isUploading && uploadTarget?.type === 'prev_marksheet' && uploadTarget?.eduIndex === index}
-                                            onClick={() => { setUploadTarget({ type: 'prev_marksheet', eduIndex: index }); fileInputRef.current?.click(); }}
-                                            className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50 flex items-center gap-1"
-                                        >
-                                            {isUploading && uploadTarget?.type === 'prev_marksheet' && uploadTarget?.eduIndex === index ? <><Loader2 className="w-3 h-3 animate-spin" /> Uploading...</> : (edu.marksheetUrl ? "Change Document" : "+ Add New")}
-                                        </button>
+                                        {!readonly && (
+                                            <button 
+                                                disabled={isUploading && uploadTarget?.type === 'prev_marksheet' && uploadTarget?.eduIndex === index}
+                                                onClick={() => { setUploadTarget({ type: 'prev_marksheet', eduIndex: index }); fileInputRef.current?.click(); }}
+                                                className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                {isUploading && uploadTarget?.type === 'prev_marksheet' && uploadTarget?.eduIndex === index ? <><Loader2 className="w-3 h-3 animate-spin" /> Uploading...</> : (edu.marksheetUrl ? "Change Document" : "+ Add New")}
+                                            </button>
+                                        )}
                                     </div>
                                     {edu.marksheetUrl ? (
                                         <a href={edu.marksheetUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-1"><FileText className="w-3 h-3" /> View Document</a>
@@ -502,7 +517,7 @@ export function EducationSettingsClient({ user }: EducationSettingsClientProps) 
                     )}
                 </div>
 
-                {previousEducations.length > 0 && (
+                {!readonly && previousEducations.length > 0 && (
                     <div className="flex justify-start pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                          <button
                             onClick={() => {

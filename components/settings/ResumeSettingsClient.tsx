@@ -10,9 +10,10 @@ import Image from "next/image";
 
 interface ResumeSettingsClientProps {
     user: any;
+    readonly?: boolean;
 }
 
-export function ResumeSettingsClient({ user }: ResumeSettingsClientProps) {
+export function ResumeSettingsClient({ user, readonly = false }: ResumeSettingsClientProps) {
     const router = useRouter();
     const [isUploading, setIsUploading] = useState(false);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
@@ -144,22 +145,24 @@ export function ResumeSettingsClient({ user }: ResumeSettingsClientProps) {
             </div>
 
             <div className="pt-8 border-t-2 border-gray-200 dark:border-[#333]">
-                <div className="flex justify-end mb-6">
-                    <input 
-                        type="file" 
-                        accept="application/pdf" 
-                        ref={fileInputRef} 
-                        onChange={handleFileChange} 
-                        className="hidden" 
-                    />
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="px-6 py-2.5 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-xl font-bold transition-colors text-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>+ Add new</span>}
-                    </button>
-                </div>
+                {!readonly && (
+                    <div className="flex justify-end mb-6">
+                        <input 
+                            type="file" 
+                            accept="application/pdf" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                        />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                            className="px-6 py-2.5 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-xl font-bold transition-colors text-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>+ Add new</span>}
+                        </button>
+                    </div>
+                )}
                 
                 {resumes.length === 0 ? (
                     <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-12 border-2 border-dashed border-gray-200 dark:border-[#333] rounded-2xl">
@@ -196,47 +199,62 @@ export function ResumeSettingsClient({ user }: ResumeSettingsClientProps) {
                                 </div>
 
                                 <div className="absolute top-4 right-4">
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleMenu(index);
-                                        }}
-                                        className="p-1 hover:bg-gray-100 dark:hover:bg-[#262626] rounded transition-colors text-gray-500"
-                                    >
-                                        <MoreHorizontal className="w-5 h-5" />
-                                    </button>
-
-                                    {openMenuIndex === index && (
-                                        <div 
-                                            className="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-[#262626] rounded-xl shadow-lg border border-gray-100 dark:border-[#333] overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-100"
-                                            onClick={(e) => e.stopPropagation()}
+                                    {readonly ? (
+                                        <a 
+                                            href={resume.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            download
+                                            className="p-1 hover:bg-gray-100 dark:hover:bg-[#262626] rounded transition-colors text-gray-500 block"
+                                            title="Download"
                                         >
+                                            <Download className="w-5 h-5" />
+                                        </a>
+                                    ) : (
+                                        <>
                                             <button 
-                                                onClick={() => {
-                                                    setEditingIndex(index);
-                                                    setEditModalOpen(true);
-                                                    setOpenMenuIndex(null);
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleMenu(index);
                                                 }}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#333] flex items-center gap-2 transition-colors"
+                                                className="p-1 hover:bg-gray-100 dark:hover:bg-[#262626] rounded transition-colors text-gray-500"
                                             >
-                                                <Pencil className="w-4 h-4" /> Edit
+                                                <MoreHorizontal className="w-5 h-5" />
                                             </button>
-                                            <a 
-                                                href={resume.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                download
-                                                className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#333] flex items-center gap-2 transition-colors"
-                                            >
-                                                <Download className="w-4 h-4" /> Download
-                                            </a>
-                                            <button 
-                                                onClick={() => handleDelete(index)}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4" /> Delete
-                                            </button>
-                                        </div>
+
+                                            {openMenuIndex === index && (
+                                                <div 
+                                                    className="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-[#262626] rounded-xl shadow-lg border border-gray-100 dark:border-[#333] overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-100"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <button 
+                                                        onClick={() => {
+                                                            setEditingIndex(index);
+                                                            setEditModalOpen(true);
+                                                            setOpenMenuIndex(null);
+                                                        }}
+                                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#333] flex items-center gap-2 transition-colors"
+                                                    >
+                                                        <Pencil className="w-4 h-4" /> Edit
+                                                    </button>
+                                                    <a 
+                                                        href={resume.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        download
+                                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#333] flex items-center gap-2 transition-colors"
+                                                    >
+                                                        <Download className="w-4 h-4" /> Download
+                                                    </a>
+                                                    <button 
+                                                        onClick={() => handleDelete(index)}
+                                                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" /> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>

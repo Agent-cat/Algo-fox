@@ -9,9 +9,10 @@ import { updateUserInfo } from "@/actions/user.action";
 
 interface SkillsSettingsClientProps {
     user: any;
+    readonly?: boolean;
 }
 
-export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
+export function SkillsSettingsClient({ user, readonly = false }: SkillsSettingsClientProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -65,16 +66,18 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
             <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Technical Skills</h2>
-                    <button
-                        onClick={() => {
-                            setSkillModalType("technical");
-                            setSkillEditIndex(null);
-                            setSkillModalOpen(true);
-                        }}
-                        className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
-                    >
-                        + Add new
-                    </button>
+                    {!readonly && (
+                        <button
+                            onClick={() => {
+                                setSkillModalType("technical");
+                                setSkillEditIndex(null);
+                                setSkillModalOpen(true);
+                            }}
+                            className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
+                        >
+                            + Add new
+                        </button>
+                    )}
                 </div>
                 
                 {technicalSkills.length === 0 ? (
@@ -92,28 +95,30 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
                                 <div className="flex-1 text-sm text-gray-500 dark:text-gray-400">
                                     {skill.proficiency}
                                 </div>
-                                <div className="flex items-center gap-4 text-gray-400">
-                                    <button 
-                                        onClick={() => {
-                                            setSkillModalType("technical");
-                                            setSkillEditIndex(index);
-                                            setSkillModalOpen(true);
-                                        }}
-                                        className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleSkillDelete("technical", index)}
-                                        disabled={isDeleting}
-                                        className="hover:text-red-500 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                    <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
-                                        <Upload className="w-4 h-4" />
-                                    </button>
-                                </div>
+                                {!readonly && (
+                                    <div className="flex items-center gap-4 text-gray-400">
+                                        <button 
+                                            onClick={() => {
+                                                setSkillModalType("technical");
+                                                setSkillEditIndex(index);
+                                                setSkillModalOpen(true);
+                                            }}
+                                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleSkillDelete("technical", index)}
+                                            disabled={isDeleting}
+                                            className="hover:text-red-500 transition-colors"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                        <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                                            <Upload className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -124,16 +129,18 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
             <div className="space-y-6 pt-8 border-t-2 border-gray-200 dark:border-[#333]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Languages</h2>
-                    <button
-                        onClick={() => {
-                            setSkillModalType("language");
-                            setSkillEditIndex(null);
-                            setSkillModalOpen(true);
-                        }}
-                        className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
-                    >
-                        + Add new
-                    </button>
+                    {!readonly && (
+                        <button
+                            onClick={() => {
+                                setSkillModalType("language");
+                                setSkillEditIndex(null);
+                                setSkillModalOpen(true);
+                            }}
+                            className="px-6 py-2 border border-orange-600 text-orange-600 dark:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/10 rounded-full font-bold transition-colors text-sm flex items-center gap-2"
+                        >
+                            + Add new
+                        </button>
+                    )}
                 </div>
                 
                 {languages.length === 0 ? (
@@ -150,25 +157,27 @@ export function SkillsSettingsClient({ user }: SkillsSettingsClientProps) {
                                 <div className="flex-1 text-sm text-gray-500 dark:text-gray-400">
                                     {lang.proficiency}
                                 </div>
-                                <div className="flex items-center gap-4 text-gray-400">
-                                    <button 
-                                        onClick={() => {
-                                            setSkillModalType("language");
-                                            setSkillEditIndex(index);
-                                            setSkillModalOpen(true);
-                                        }}
-                                        className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleSkillDelete("language", index)}
-                                        disabled={isDeleting}
-                                        className="hover:text-red-500 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
+                                {!readonly && (
+                                    <div className="flex items-center gap-4 text-gray-400">
+                                        <button 
+                                            onClick={() => {
+                                                setSkillModalType("language");
+                                                setSkillEditIndex(index);
+                                                setSkillModalOpen(true);
+                                            }}
+                                            className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleSkillDelete("language", index)}
+                                            disabled={isDeleting}
+                                            className="hover:text-red-500 transition-colors"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
