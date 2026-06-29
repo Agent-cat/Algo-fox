@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 // ─────────────────────────────────────────────────────────────
 // Sidebar expansion state shared between Sidebar ↔ Navbar ↔ MainContentWrapper
@@ -17,6 +18,7 @@ interface SidebarContextValue {
   setSidebarWidth: (w: number) => void;
   isDragging: boolean;
   setIsDragging: (v: boolean) => void;
+  isForceCollapsed: boolean;
 }
 
 const SidebarContext = createContext<SidebarContextValue>({
@@ -26,9 +28,11 @@ const SidebarContext = createContext<SidebarContextValue>({
   setSidebarWidth: () => {},
   isDragging: false,
   setIsDragging: () => {},
+  isForceCollapsed: false,
 });
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [sidebarWidth, setSidebarWidth] = useState(EXPANDED_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -44,9 +48,22 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     } catch (_) {}
   }, []);
 
-  const expanded = sidebarWidth > (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
+  const isForceCollapsed = !!(
+    pathname && (
+      pathname === "/admin" ||
+      pathname.startsWith("/admin/") ||
+      pathname === "/placements" ||
+      pathname.startsWith("/placements/") ||
+      pathname === "/dashboard/settings" ||
+      pathname.startsWith("/dashboard/settings/")
+    )
+  );
+
+  const effectiveSidebarWidth = isForceCollapsed ? COLLAPSED_WIDTH : sidebarWidth;
+  const expanded = effectiveSidebarWidth > (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
 
   const toggle = () => {
+    if (isForceCollapsed) return;
     const nextWidth = expanded ? COLLAPSED_WIDTH : EXPANDED_WIDTH;
     setSidebarWidth(nextWidth);
     try { localStorage.setItem(STORAGE_KEY, String(nextWidth)); } catch (_) {}
@@ -57,10 +74,11 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       value={{
         expanded,
         toggle,
-        sidebarWidth,
+        sidebarWidth: effectiveSidebarWidth,
         setSidebarWidth,
         isDragging,
         setIsDragging,
+        isForceCollapsed,
       }}
     >
       {children}
@@ -71,3 +89,4 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 export const useSidebar = () => useContext(SidebarContext);
 
 export { COLLAPSED_WIDTH, EXPANDED_WIDTH, STORAGE_KEY };
+

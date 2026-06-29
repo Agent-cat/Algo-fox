@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
-import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
+import { useState } from "react";
 import {
   LdWidget,
   LdCode,
@@ -63,8 +62,6 @@ const ADMIN_SECTIONS = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const { sidebarWidth, setSidebarWidth } = useSidebar();
-  const initialWidthRef = useRef(sidebarWidth);
   
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Overview": true,
@@ -74,13 +71,6 @@ export default function AdminSidebar() {
     "Content": true,
     "Management": true,
   });
-
-  useEffect(() => {
-    setSidebarWidth(COLLAPSED_WIDTH);
-    return () => {
-      setSidebarWidth(initialWidthRef.current);
-    };
-  }, [setSidebarWidth]);
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) => ({ ...prev, [label]: !prev[label] }));

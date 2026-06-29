@@ -15,19 +15,19 @@ export function JobDetails({ job }: JobDetailsProps) {
 
     if (!job) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-white dark:bg-[#1D1E23]">
+            <div className="flex-1 flex items-center justify-center bg-[#fafafa] dark:bg-[#1D1E23]">
                 <p className="text-gray-500 dark:text-gray-400">Select a job to view details</p>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 flex flex-col bg-white dark:bg-[#1D1E23] overflow-y-auto scrollbar-hide">
+        <div className="flex-1 flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] overflow-y-auto scrollbar-hide">
             <div className="p-8">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] flex items-center justify-center flex-shrink-0 overflow-hidden mt-1">
+                        <div className="w-12 h-12 rounded-full bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-200 dark:border-[#333] flex items-center justify-center flex-shrink-0 overflow-hidden mt-1">
                             {job.logoUrl ? (
                                 <img src={job.logoUrl} alt={job.company} className="w-8 h-8 object-contain" />
                             ) : (
@@ -129,7 +129,7 @@ export function JobDetails({ job }: JobDetailsProps) {
                                 <h3 className="text-[15px] font-bold text-gray-900 dark:text-white mb-4">Required Skills</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {job.skills.map((skill, i) => (
-                                        <div key={i} className="px-4 py-1.5 rounded-full border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 text-[12px] font-medium bg-white dark:bg-[#1D1E23]">
+                                        <div key={i} className="px-4 py-1.5 rounded-full border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 text-[12px] font-medium bg-[#fafafa] dark:bg-[#1D1E23]">
                                             {skill}
                                         </div>
                                     ))}
@@ -170,7 +170,7 @@ export function JobDetails({ job }: JobDetailsProps) {
                                     {job.workflow.map((step, i) => (
                                         <div key={i} className="relative">
                                             {/* Circle Indicator */}
-                                            <div className="absolute -left-[41px] top-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-[#333] border-4 border-white dark:border-[#1D1E23] flex items-center justify-center shadow-sm">
+                                            <div className="absolute -left-[41px] top-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-[#333] border-4 border-[#fafafa] dark:border-[#1D1E23] flex items-center justify-center shadow-sm">
                                                 {i === job.workflow!.length - 1 ? (
                                                     <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
                                                 ) : (

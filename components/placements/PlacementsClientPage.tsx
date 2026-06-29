@@ -7,58 +7,25 @@ import { cn } from "@/lib/utils";
 import { JobList } from "@/components/placements/job-profiles/JobList";
 import { JobDetails } from "@/components/placements/job-profiles/JobDetails";
 import { Job } from "@/components/placements/job-profiles/types";
-import { getEligiblePlacementJobs } from "@/actions/placement";
-import { useEffect } from "react";
 import Split from "react-split";
 
 type TabType = "on-campus" | "off-campus";
 
-export default function JobProfilesPage() {
-    const [jobs, setJobs] = useState<Job[]>([]);
-    const [loading, setLoading] = useState(true);
+interface PlacementsClientPageProps {
+    initialJobs: Job[];
+}
+
+export default function PlacementsClientPage({ initialJobs }: PlacementsClientPageProps) {
+    const [jobs, setJobs] = useState<Job[]>(initialJobs);
     const [activeTab, setActiveTab] = useState<TabType>("on-campus");
-    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(
+        initialJobs.length > 0 ? initialJobs[0].id : null
+    );
     
     // Filters state
     const [searchQuery, setSearchQuery] = useState("");
     const [positionType, setPositionType] = useState("All");
     const [statusFilter, setStatusFilter] = useState("All");
-
-    useEffect(() => {
-        const fetchJobs = async () => {
-            const res = await getEligiblePlacementJobs();
-            if (res.success && res.jobs) {
-                const formattedJobs = res.jobs.map((job: any) => ({
-                    id: job.id,
-                    title: job.title,
-                    company: job.company?.name || "Unknown Company",
-                    companyAbout: job.company?.about,
-                    companyWebsite: job.company?.website,
-                    location: job.location,
-                    timeAgo: "Recently", // Simplified for now
-                    status: job.status,
-                    type: job.type,
-                    category: job.category,
-                    functions: job.functions,
-                    ctc: job.ctc,
-                    minGpa: job.minGpa,
-                    min10thMarks: job.min10thMarks,
-                    min12thMarks: job.min12thMarks,
-                    isEligible: job.isEligible ?? true,
-                    description: job.description,
-                    skills: job.requiredSkills,
-                    additionalInfo: job.additionalInfo,
-                    workflow: job.workflow
-                }));
-                setJobs(formattedJobs);
-                if (formattedJobs.length > 0) {
-                    setSelectedJobId(formattedJobs[0].id);
-                }
-            }
-            setLoading(false);
-        };
-        fetchJobs();
-    }, []);
 
     const filteredJobs = jobs.filter(job => {
         const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -71,9 +38,9 @@ export default function JobProfilesPage() {
     const selectedJob = jobs.find(job => job.id === selectedJobId) || null;
 
     return (
-        <div className="flex flex-col w-[calc(100%+4rem)] lg:w-[calc(100%+6rem)] h-[calc(100vh-4rem)] -m-8 lg:-m-12 bg-white dark:bg-[#1D1E23]">
+        <div className="flex flex-col w-[calc(100%+4rem)] lg:w-[calc(100%+6rem)] h-[calc(100vh-4rem)] -m-8 lg:-m-12 bg-[#fafafa] dark:bg-[#1D1E23]">
             {/* Top Toolbar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 lg:px-6 border-b border-gray-200 dark:border-[#262626] shrink-0 bg-white dark:bg-[#1D1E23]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 lg:px-6 border-b border-gray-200 dark:border-[#262626] shrink-0 bg-[#fafafa] dark:bg-[#1D1E23]">
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     {/* Search Bar */}
                     <div className="relative flex-1 sm:w-64 shrink-0">
@@ -162,17 +129,11 @@ export default function JobProfilesPage() {
                     className="flex w-full h-full split-container"
                 >
                     <div className="h-full border-r border-gray-200 dark:border-[#262626] overflow-hidden" style={{ minWidth: "35%" }}>
-                        {loading ? (
-                            <div className="flex items-center justify-center h-full">
-                                <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                            </div>
-                        ) : (
-                            <JobList 
-                                jobs={filteredJobs} 
-                                selectedJobId={selectedJobId} 
-                                onSelectJob={setSelectedJobId} 
-                            />
-                        )}
+                        <JobList 
+                            jobs={filteredJobs} 
+                            selectedJobId={selectedJobId} 
+                            onSelectJob={setSelectedJobId} 
+                        />
                     </div>
                     
                     <div className="h-full flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] overflow-hidden" style={{ minWidth: "55%" }}>

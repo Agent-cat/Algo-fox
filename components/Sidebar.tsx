@@ -72,7 +72,7 @@ const NAV_SECTIONS = [
 export default function Sidebar({ initialSession }: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
-  const { expanded, sidebarWidth, setSidebarWidth, isDragging, setIsDragging } = useSidebar();
+  const { expanded, sidebarWidth, setSidebarWidth, isDragging, setIsDragging, isForceCollapsed } = useSidebar();
   const { data: clientSession, isPending } = authClient.useSession();
   const [mounted, setMounted] = useState(false);
   const [institution, setInstitution] = useState<{
@@ -245,7 +245,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       {/* ── Brand row ─────────────────────────────────────── */}
       <div
         className={[
-          "flex items-center h-16 flex-shrink-0",
+          "flex items-center h-16 flex-shrink-0 border-b-2 border-dotted border-gray-300 dark:border-white/20",
           isExpanded ? "px-5 gap-3" : "justify-center px-0",
         ].join(" ")}
       >
@@ -326,7 +326,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                       className={[
                         "relative flex rounded-lg transition-colors duration-200 group",
                         isExpanded 
-                          ? "flex-row items-center gap-3 px-3 py-2 w-full" 
+                          ? "flex-row items-center gap-3 pl-5 pr-3 py-2 w-full" 
                           : "justify-center w-12 h-12 flex items-center",
                         active
                           ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
@@ -425,13 +425,15 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       </Dialog>
 
       {/* Drag handle */}
-      <div
-        onMouseDown={handleMouseDown}
-        className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize z-50 hover:bg-orange-500/20 active:bg-orange-500/40 transition-colors"
-      />
+      {!isForceCollapsed && (
+        <div
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize z-50 hover:bg-orange-500/20 active:bg-orange-500/40 transition-colors"
+        />
+      )}
       
       {/* Size Indicator */}
-      {isDragging && (
+      {isDragging && !isForceCollapsed && (
         <div className="fixed top-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ left: currentWidth + 12 }}>
           <div className="bg-gray-900/90 dark:bg-white/90 text-white dark:text-black px-3 py-1.5 rounded-lg text-xs font-bold shadow-xl border border-gray-700 dark:border-gray-200 backdrop-blur-sm">
             {Math.round(currentWidth)} px

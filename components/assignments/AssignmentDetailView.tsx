@@ -50,7 +50,7 @@ export function AssignmentDetailView({
     totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
-    <div className="max-w-6xl mx-auto px-6">
+    <div className="w-full px-6 lg:px-12 relative">
       {/* Header / HUD */}
       <div className="mb-12">
         <div className="flex items-center justify-between mb-8">

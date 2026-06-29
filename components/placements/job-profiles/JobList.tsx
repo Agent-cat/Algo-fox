@@ -19,7 +19,7 @@ export function JobList({ jobs, selectedJobId, onSelectJob }: JobListProps) {
     );
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-[#1D1E23] border-r border-gray-200 dark:border-[#262626]">
+        <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23] border-r border-gray-200 dark:border-[#262626]">
             {/* Tabs */}
             <div className="flex items-center border-b border-gray-200 dark:border-[#262626] relative">
                 {(["All Jobs", "Applied Jobs"] as JobCategory[]).map((tab) => (

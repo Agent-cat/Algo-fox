@@ -18,7 +18,7 @@ interface NavbarProps {
 
 export default function Navbar({ initialSession }: NavbarProps = {}) {
   const { data: clientSession, isPending } = authClient.useSession();
-  const { sidebarWidth, expanded, toggle, isDragging } = useSidebar();
+  const { sidebarWidth, expanded, toggle, isDragging, isForceCollapsed } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const session = !mounted || isPending ? initialSession : clientSession;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -54,22 +54,26 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     <nav
       style={{ left: currentWidth }}
       className={[
-        "fixed right-0 z-50 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
+        "fixed right-0 z-50 h-16 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
         isImpersonating ? "top-10" : "top-0",
         !isDragging && "transition-[left] duration-300 ease-in-out"
       ].filter(Boolean).join(" ")}
     >
-      <div className="h-16 px-4 flex items-center justify-between gap-4">
+      <div className="h-full px-4 flex items-center justify-between gap-4">
         {/* Left: sidebar toggle */}
-        <button
-          onClick={toggle}
-          aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
-        >
-          {isExpanded
-            ? <PanelLeftClose className="w-[18px] h-[18px]" />
-            : <PanelLeft      className="w-[18px] h-[18px]" />}
-        </button>
+        {!isForceCollapsed ? (
+          <button
+            onClick={toggle}
+            aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
+          >
+            {isExpanded
+              ? <PanelLeftClose className="w-[18px] h-[18px]" />
+              : <PanelLeft      className="w-[18px] h-[18px]" />}
+          </button>
+        ) : (
+          <div className="w-9 h-9" />
+        )}
 
         {/* Right: user actions */}
         {shouldRender && (

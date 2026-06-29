@@ -27,7 +27,6 @@ import { useState, useEffect, useRef } from "react";
 import { updateUserInfo } from "@/actions/user.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH } from "@/context/SidebarContext";
 import CustomTooltip from "@/components/ui/CustomTooltip";
 
 const navGroups = [
@@ -207,7 +206,6 @@ export function SettingsSidebar({ user }: { user: any }) {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const { setSidebarWidth } = useSidebar();
     
     // Manage expanded states for items with subItems
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
@@ -216,13 +214,6 @@ export function SettingsSidebar({ user }: { user: any }) {
             "Accomplishments": pathname.includes("/accomplishments")
         };
     });
-
-    useEffect(() => {
-        setSidebarWidth(COLLAPSED_WIDTH);
-        return () => {
-            setSidebarWidth(EXPANDED_WIDTH);
-        };
-    }, [setSidebarWidth]);
 
     // Expand accomplishments group if route is under it
     useEffect(() => {
