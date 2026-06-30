@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Briefcase, Users } from "lucide-react";
+import { Home, Briefcase, Users, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -23,6 +23,12 @@ const navItems = [
         name: "Students",
         href: "/placementdashboard/students",
         icon: Users,
+    },
+    {
+        id: "notifications",
+        name: "Notifications",
+        href: "/placementdashboard/notifications",
+        icon: Bell,
     },
 ];
 

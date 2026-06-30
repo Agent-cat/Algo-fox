@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ContestsPageContent } from "./ContestsPageContent";
 import { ContestCalendar } from "./ContestCalendar";
 import type { Contest } from "@/lib/contest-fetcher";
@@ -19,7 +20,9 @@ interface ContestPageClientProps {
 }
 
 export function ContestPageClient({ internalContests, externalContests, pagination, initialTab }: ContestPageClientProps) {
-    const [viewMode, setViewMode] = useState<"internal" | "calendar">("internal");
+    const searchParams = useSearchParams();
+    const initialView = searchParams.get("view") === "global" ? "calendar" : "internal";
+    const [viewMode, setViewMode] = useState<"internal" | "calendar">(initialView);
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8 px-4 sm:px-6 lg:px-8">

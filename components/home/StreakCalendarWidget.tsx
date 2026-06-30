@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Check, Flame, Trophy } from "lucide-react";
-import { format, subMonths, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isFuture, isToday, parseISO } from "date-fns";
+import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import {
+  format,
+  subMonths,
+  addMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isFuture,
+  isToday,
+} from "date-fns";
 
 interface StreakCalendarWidgetProps {
   activityDates: string[]; // YYYY-MM-DD
@@ -18,14 +28,16 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
   const handlePrevMonth = () => setCurrentDate((prev) => subMonths(prev, 1));
   const handleNextMonth = () => setCurrentDate((prev) => addMonths(prev, 1));
 
+  const isCurrentMonth = isSameMonth(currentDate, new Date());
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
 
-  // We want to pad the start to the beginning of the week (Sunday)
+  // Pad start to Sunday
   const startDate = new Date(monthStart);
   startDate.setDate(startDate.getDate() - startDate.getDay());
 
-  // We want to pad the end to the end of the week (Saturday)
+  // Pad end to Saturday
   const endDate = new Date(monthEnd);
   if (endDate.getDay() !== 6) {
     endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
@@ -34,31 +46,38 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
   const daysInGrid = eachDayOfInterval({ start: startDate, end: endDate });
 
   return (
-    <div className="bg-[#fafafa] dark:bg-[#202227] rounded-3xl p-6 w-full max-w-sm mx-auto flex flex-col relative overflow-hidden border-2 border-dotted border-gray-300 dark:border-white/20 shadow-none">
+    <div className="bg-[#F9FBFB] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border border-gray-200 dark:border-white/10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 relative z-10">
-        <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-          <ChevronLeft className="w-5 h-5" />
+      <div className="flex items-center justify-between mb-3">
+        <button
+          onClick={handlePrevMonth}
+          className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400"
+        >
+          <ChevronLeft className="w-4 h-4" />
         </button>
-        <h2 className="text-lg font-bold tracking-wide text-gray-900 dark:text-white">
+        <h2 className="text-sm font-bold tracking-wide text-gray-900 dark:text-white">
           {format(currentDate, "MMMM yyyy")}
         </h2>
-        <button onClick={handleNextMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-          <ChevronRight className="w-5 h-5" />
+        <button
+          onClick={handleNextMonth}
+          disabled={isCurrentMonth}
+          className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        >
+          <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
       {/* Days of Week Header */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
-        {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day, idx) => (
-          <div key={idx} className="text-center text-xs font-bold text-gray-500 dark:text-gray-400">
+      <div className="grid grid-cols-7 gap-0.5 mb-1.5">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
+          <div key={idx} className="text-center text-[9px] font-bold text-gray-400 dark:text-gray-500">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-y-2.5 gap-x-0.5 mb-2">
         {daysInGrid.map((day, idx) => {
           const dateStr = format(day, "yyyy-MM-dd");
           const hasSubmitted = activitySet.has(dateStr);
@@ -66,34 +85,31 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
           const isTodayDate = isToday(day);
           const isFutureDate = isFuture(day);
 
-          let circleClass = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mx-auto relative transition-all bg-transparent";
+          if (!isCurrentMonth) {
+            return <div key={idx} className="w-8 h-8" />;
+          }
+
+          let circleClass =
+            "w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-bold transition-all";
           let textClass = "";
 
-          if (!isCurrentMonth) {
-            textClass = "text-gray-300 dark:text-gray-600 opacity-0"; // hide or dim days outside month
-            circleClass += " opacity-0 pointer-events-none"; 
-          } else if (hasSubmitted) {
-            // Green dotted circle for done
-            circleClass += " border-2 border-dotted border-green-500 dark:border-green-500";
+          if (hasSubmitted) {
+            circleClass += " border border-green-400";
             textClass = "text-green-600 dark:text-green-400";
           } else if (isFutureDate) {
             textClass = "text-gray-400 dark:text-gray-500";
           } else {
-            // Past day, missed
-            circleClass += " border-2 border-dotted border-red-400 dark:border-red-500/80";
+            circleClass += " border border-red-300 dark:border-red-400/50";
             textClass = "text-gray-500 dark:text-gray-400";
           }
 
           if (isTodayDate) {
-            // Outline today with blue (overriding borders)
-            circleClass += " ring-2 ring-offset-2 ring-offset-white dark:ring-offset-[#202227] ring-[#5c6bc0]";
-            if (!hasSubmitted) {
-               textClass = "text-gray-900 dark:text-white";
-            }
+            circleClass += " ring-2 ring-offset-1 ring-offset-[#F9FBFB] dark:ring-offset-[#202227] ring-indigo-500";
+            if (!hasSubmitted) textClass = "text-gray-900 dark:text-white";
           }
 
           return (
-            <div key={idx} className="flex justify-center items-center py-1">
+            <div key={idx} className="flex justify-center items-center">
               <div className={circleClass}>
                 <span className={textClass}>{format(day, "d")}</span>
               </div>
@@ -103,19 +119,16 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
       </div>
 
       {/* Footer Stats */}
-      <div className="flex items-center justify-around mt-2">
-        {/* Current */}
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-orange-500" />
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Current</span>
-          <span className="text-sm font-semibold text-gray-900 dark:text-white">{currentStreak}</span>
+      <div className="flex items-center justify-around pt-2 border-t border-gray-100 dark:border-white/10">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-orange-500" />
+          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Current</span>
+          <span className="text-[11px] font-bold text-gray-900 dark:text-white">{currentStreak}</span>
         </div>
-
-        {/* Best */}
-        <div className="flex items-center gap-2">
-          <Flame className="w-4 h-4 text-green-500 fill-current" />
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Best</span>
-          <span className="text-sm font-semibold text-gray-900 dark:text-white">{bestStreak}</span>
+        <div className="flex items-center gap-1.5">
+          <Flame className="w-3 h-3 text-green-500 fill-current" />
+          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Best</span>
+          <span className="text-[11px] font-bold text-gray-900 dark:text-white">{bestStreak}</span>
         </div>
       </div>
     </div>

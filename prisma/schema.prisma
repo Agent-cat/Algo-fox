@@ -76,6 +76,7 @@ model User {
   quizzesCreated        Int                    @default(0)
   bookmarks             Bookmark[]
   bookmarkLists         BookmarkList[]
+  authoredNotifications Notification[]
 
   githubRepo     String?
   githubSyncMode String?   @default("ACCEPTED_ONLY")
@@ -876,6 +877,23 @@ model JobApplication {
   updatedAt DateTime     @updatedAt
 
   @@unique([userId, jobId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  targetTags  String[] @default([])
+  pinned      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@index([targetTags], type: Gin)
+  @@map("notification")
 }
 
 
