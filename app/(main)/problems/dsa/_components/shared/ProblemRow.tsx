@@ -18,6 +18,7 @@ interface ProblemRowProps {
     isSolved?: boolean;
     companies?: any;
     index?: number;
+    variant?: "default" | "static";
 }
 
 function getDifficultyColor(difficulty: Difficulty): string {
@@ -37,8 +38,13 @@ function ProblemRowComponent({
     isSolved,
     companies,
     index = 0,
+    variant = "default",
 }: ProblemRowProps) {
     const isAlternate = index % 2 !== 0;
+
+    const containerClasses = variant === "static"
+        ? "bg-gray-100/60 dark:bg-[#282a30] border-gray-200 dark:border-[#2a2a2a]"
+        : `hover:bg-gray-100/60 dark:hover:bg-[#282a30] hover:border-gray-200 dark:hover:border-[#2a2a2a] ${isAlternate ? 'bg-gray-100/60 dark:bg-[#282a30] border-gray-200 dark:border-[#2a2a2a]' : 'bg-transparent border-transparent'}`;
 
     return (
         <motion.div
@@ -48,8 +54,7 @@ function ProblemRowComponent({
         >
             <Link
                 href={`/problems/${slug}`}
-                className={`group grid grid-cols-12 gap-4 md:gap-8 px-6 py-[13px] w-[calc(100%-7px)] mx-auto rounded-xl items-center transition-all duration-200 hover:bg-gray-100/60 dark:hover:bg-[#282a30] border border-transparent hover:border-gray-200 dark:hover:border-[#2a2a2a] ${isAlternate ? 'bg-gray-50/60 dark:bg-[#222328]' : 'bg-transparent'
-                    }`}
+                className={`group grid grid-cols-12 gap-4 md:gap-8 px-6 py-[13px] w-[calc(100%-7px)] mx-auto rounded-xl items-center transition-all duration-200 border ${containerClasses}`}
             >
                 <div className="col-span-6 md:col-span-5 font-medium text-gray-800 dark:text-gray-200 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 flex items-center gap-3">
                     {isSolved && (

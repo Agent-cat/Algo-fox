@@ -73,7 +73,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative p-2 rounded-lg bg-gray-100 dark:bg-[#262626] group transition-transform active:scale-95"
+      className="relative p-2 rounded-lg group transition-transform active:scale-95"
       aria-label={`Switch to ${
         resolvedTheme === "dark" ? "light" : "dark"
       } mode`}

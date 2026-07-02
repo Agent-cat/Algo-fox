@@ -1,0 +1,145 @@
+"use client";
+
+import Link from "next/link";
+import { GraduationCap, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+
+interface EnrolledCourse {
+    id: string;
+    progress: number;
+    course: {
+        id: string;
+        title: string;
+        slug: string;
+        image?: string | null;
+        modules?: { name: string }[];
+    };
+}
+
+interface ContinueLearningWidgetProps {
+    enrollments: EnrolledCourse[];
+}
+
+export function ContinueLearningWidget({ enrollments }: ContinueLearningWidgetProps) {
+    if (!enrollments || enrollments.length === 0) {
+        return (
+            <div className="text-center py-10 bg-transparent">
+                <div className="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center mx-auto mb-3">
+                    <GraduationCap className="w-6 h-6 text-orange-500" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                    No Registered Courses
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 max-w-xs mx-auto">
+                    Master coding with our structured courses and learning paths.
+                </p>
+                <Link
+                    href="/courses"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all self-center active:scale-95"
+                >
+                    Explore Courses
+                    <ChevronRight className="w-4 h-4" />
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-full flex flex-col gap-4 bg-transparent">
+            {/* Header */}
+            <div className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+                <h2 className="text-[15px] font-bold text-gray-900 dark:text-white">
+                    Continue your Learning
+                </h2>
+            </div>
+
+            {/* Course Rows */}
+            <div className="flex flex-col gap-3">
+                {enrollments.map((en, index) => {
+                    const modules = en.course.modules || [];
+                    const totalModules = modules.length;
+                    
+                    let activeModule = "Introduction";
+                    if (totalModules > 0) {
+                        const moduleIndex = Math.min(
+                            Math.floor((en.progress / 100) * totalModules),
+                            totalModules - 1
+                        );
+                        activeModule = modules[moduleIndex]?.name || "Introduction";
+                    }
+                    if (en.progress === 100) {
+                        activeModule = "Completed!";
+                    }
+
+                    return (
+                        <motion.div
+                            key={en.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                            className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl bg-[#FAFAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 transition-all group"
+                        >
+                            {/* Course Image / Icon */}
+                            <div className="shrink-0">
+                                {en.course.image ? (
+                                    <img
+                                        src={en.course.image}
+                                        alt={en.course.title}
+                                        className="w-14 h-14 object-cover rounded-xl border border-gray-100 dark:border-white/5"
+                                    />
+                                ) : (
+                                    <div className="w-14 h-14 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center border border-orange-200/20">
+                                        <GraduationCap className="w-6 h-6 text-orange-500" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Content Block */}
+                            <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                {/* Title & Module */}
+                                <div className="w-full md:w-72 md:shrink-0">
+                                    <Link
+                                        href={`/courses/${en.course.slug}`}
+                                        className="text-[14px] font-bold text-gray-900 dark:text-white hover:text-orange-500 dark:hover:text-orange-400 transition-colors truncate block leading-tight"
+                                    >
+                                        {en.course.title}
+                                    </Link>
+                                    <div className="text-[10px] text-gray-400 dark:text-gray-500 truncate mt-1.5">
+                                        Current Module: <span className="font-semibold text-gray-600 dark:text-gray-400">{activeModule}</span>
+                                    </div>
+                                </div>
+
+                                {/* Progress Bar & Percent (beside the name) */}
+                                <div className="w-full md:flex-1 flex flex-col justify-center max-w-[550px] md:ml-10 md:mr-auto">
+                                    <div className="text-[10px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest flex justify-between items-center mb-1">
+                                        <span>Progress</span>
+                                        <span className="font-mono text-gray-700 dark:text-gray-300">
+                                            {Math.round(en.progress)}%
+                                        </span>
+                                    </div>
+                                    <div className="h-[4px] w-full bg-gray-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                            style={{ width: `${en.progress}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Continue Button */}
+                            <div className="shrink-0 sm:pl-2">
+                                <Link
+                                    href={`/courses/${en.course.slug}`}
+                                    className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-white border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white dark:bg-neutral-900 dark:border-orange-500/40 dark:text-orange-400 dark:hover:bg-orange-500 dark:hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                                >
+                                    Continue
+                                </Link>
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}

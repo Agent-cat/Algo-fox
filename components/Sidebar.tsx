@@ -15,13 +15,16 @@ import {
   LdClipboardList,
   LdCase,
   LdAltArrowRight,
-  LdLogout2
+  LdLogout2,
+  LdNotebook,
+  LdBookBookmark
 } from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
-import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH, STORAGE_KEY } from "@/context/SidebarContext";
+import { useSidebar, COLLAPSED_WIDTH, EXPANDED_WIDTH, MAX_WIDTH, STORAGE_KEY } from "@/context/SidebarContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import CustomTooltip from "@/components/ui/CustomTooltip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // ─────────────────────────────────────────────────────────────
 // Route map
@@ -41,7 +44,7 @@ const NAV_SECTIONS = [
     items: [
       { label: "DSA Problems",      href: "/problems/dsa",      icon: LdCode  },
       { label: "SQL Problems",      href: "/problems/sql",      icon: LdDatabase },
-      { label: "Aptitude Problems", href: "/problems/aptitude", icon: LdLightbulbBolt     },
+      { label: "Aptitude Problems", href: "/problems/aptitude", icon: LdLightbulbBolt },
     ],
   },
   {
@@ -50,7 +53,10 @@ const NAV_SECTIONS = [
   },
   {
     label: "Learn",
-    items: [{ label: "Courses", href: "/courses", icon: LdDiploma }],
+    items: [
+      { label: "Courses", href: "/courses", icon: LdDiploma },
+      { label: "Topic Sheets", href: "/topics", icon: LdBookBookmark },
+    ],
   },
   {
     label: "Academics",
@@ -102,15 +108,21 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
     const handleMouseMove = (e: MouseEvent) => {
       let newWidth = e.clientX;
-      newWidth = Math.max(COLLAPSED_WIDTH, Math.min(EXPANDED_WIDTH + 6, newWidth));
+      newWidth = Math.max(COLLAPSED_WIDTH, Math.min(MAX_WIDTH, newWidth));
       finalWidth = newWidth;
       setSidebarWidth(newWidth);
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      const midPoint = (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2;
-      const snappedWidth = finalWidth > midPoint ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
+      let snappedWidth: number;
+      if (finalWidth < (COLLAPSED_WIDTH + EXPANDED_WIDTH) / 2) {
+        snappedWidth = COLLAPSED_WIDTH;
+      } else if (finalWidth > (EXPANDED_WIDTH + MAX_WIDTH) / 2) {
+        snappedWidth = MAX_WIDTH;
+      } else {
+        snappedWidth = EXPANDED_WIDTH;
+      }
       setSidebarWidth(snappedWidth);
       try { localStorage.setItem(STORAGE_KEY, String(snappedWidth)); } catch (_) {}
     };
@@ -355,23 +367,36 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
       {/* ── Footer Actions ─────────────────────────────────── */}
       {session?.user && (
-        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 flex flex-col gap-2 ${isExpanded ? "p-4 ml-2" : "px-1 py-3"}`}>
+        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 ${isExpanded ? "p-4 ml-2" : "px-1 py-3"}`}>
           {isExpanded ? (
-            <button
-              onClick={() => setIsLogoutOpen(true)}
-              className="w-full py-2.5 px-4 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 text-[14.5px] font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2 shadow-sm"
-            >
-              <LdLogout2 className="w-[20px] h-[20px]" />
-              <span>Logout</span>
-            </button>
+            <div className="space-y-3">
+              {/* Theme & Quick Settings */}
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <span className="text-[12px] font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                </div>
+                <button
+                  onClick={() => setIsLogoutOpen(true)}
+                  className="text-[11px] font-medium text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            </div>
           ) : (
-            <div className="w-full flex justify-center">
-              <CustomTooltip content="Logout" side="right" delay={0.05}>
+            <div className="w-full flex flex-col items-center gap-2">
+              <CustomTooltip content="Theme" side="right" delay={0.05}>
+                <div className="w-12 h-12 flex items-center justify-center">
+                  <ThemeToggle />
+                </div>
+              </CustomTooltip>
+              <CustomTooltip content="Sign out" side="right" delay={0.05}>
                 <button
                   onClick={() => setIsLogoutOpen(true)}
                   className="w-12 h-12 flex items-center justify-center border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                 >
-                  <LdLogout2 className="w-[24px] h-[24px]" />
+                  <LdLogout2 className="w-[20px] h-[20px]" />
                 </button>
               </CustomTooltip>
             </div>

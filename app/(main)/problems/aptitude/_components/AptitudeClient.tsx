@@ -6,6 +6,7 @@ import { SearchBar } from "../../dsa/_components/shared/SearchBar";
 import { Difficulty, ProblemType } from "@prisma/client";
 import { getCategories } from "@/actions/category.action";
 import { motion } from "framer-motion";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 interface AptitudeClientProps {
     initialCategories?: any[];
@@ -65,9 +66,12 @@ export default function AptitudeClient({
                     transition={{ duration: 0.3, delay: 0.05 }}
                     className="mb-8"
                 >
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-1">
-                        Aptitude Problems
-                    </h1>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            Aptitude Problems
+                        </h1>
+                        <PageTooltip description="Boost your quantitative aptitude, logical reasoning, and verbal ability for placement readiness." />
+                    </div>
                 </motion.div>
 
                 {/* HEADER TOOLS */}

@@ -11,6 +11,7 @@ import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client
 import { getCategories } from "@/actions/category.action";
 import { motion } from "framer-motion";
 import { parseCompanies } from "@/components/problems/CompanyAvatars";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 type ProblemWithStats = {
     id: string;
@@ -124,10 +125,11 @@ export default function DsaProblemsClient({
                     className="mb-8"
                 >
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
-                        <div>
+                        <div className="flex items-center gap-2">
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                                 DSA Problems
                             </h1>
+                            <PageTooltip description="Solve Data Structures & Algorithms problems to sharpen your coding skills and ace technical interviews." />
                         </div>
                     </div>
                 </motion.div>

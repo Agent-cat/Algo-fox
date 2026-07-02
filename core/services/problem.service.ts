@@ -330,6 +330,7 @@ export class ProblemService {
                 testCases: true,
                 user: { select: { name: true, image: true } },
                 tags: { select: { name: true, slug: true } },
+                topicTags: { select: { name: true, slug: true } },
                 functionTemplates: true, // Include for DSA function template boilerplates
                 categoryProblems: {
                     include: {
@@ -402,6 +403,7 @@ export class ProblemService {
                 include: {
                     testCases: true,
                     tags: { select: { name: true, slug: true } },
+                    topicTags: { select: { name: true, slug: true } },
                     functionTemplates: true,
                     categoryProblems: {
                         include: {
@@ -625,6 +627,7 @@ export class ProblemService {
         domain?: ProblemDomain;
         testCases: { input: string; output: string; hidden?: boolean }[];
         tags?: string[];
+        topicTags?: string[];
         useFunctionTemplate?: boolean;
         functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
         solution?: string | null;
@@ -632,6 +635,7 @@ export class ProblemService {
         options?: any;
         answer?: string | null;
         categoryId?: string | null;
+        categoryIds?: string[];
         courseId?: string | null;
         type?: ProblemType;
         allowedLanguages?: string[];
@@ -639,6 +643,7 @@ export class ProblemService {
         hints?: string[];
     }) {
         try {
+            const hasCategory = (data.categoryIds && data.categoryIds.length > 0) || data.categoryId;
             const problem = await prisma.problem.create({
                 data: {
                     title: data.title,
@@ -649,7 +654,7 @@ export class ProblemService {
                     hidden: data.hidden,
                     hiddenQuery: data.hiddenQuery || null,
                     domain: data.domain || "DSA",
-                    type: data.type || (data.categoryId ? "LEARN" : "PRACTICE"),
+                    type: data.type || (hasCategory ? "LEARN" : "PRACTICE"),
                     useFunctionTemplate: data.useFunctionTemplate || false,
                     solution: data.solution || null,
                     isMcq: data.isMcq || false,
@@ -669,6 +674,9 @@ export class ProblemService {
                     tags: data.tags ? {
                         connect: data.tags.map(slug => ({ slug }))
                     } : undefined,
+                    topicTags: data.topicTags ? {
+                        connect: data.topicTags.map(slug => ({ slug }))
+                    } : undefined,
                     // Create function templates if provided and enabled
                     functionTemplates: data.useFunctionTemplate && data.functionTemplates?.length ? {
                         create: data.functionTemplates.map(ft => ({
@@ -677,12 +685,17 @@ export class ProblemService {
                             driverCode: ft.driverCode,
                         }))
                     } : undefined,
-                    categoryProblems: data.categoryId ? {
+                    categoryProblems: data.categoryIds && data.categoryIds.length > 0 ? {
+                        create: data.categoryIds.map(catId => ({
+                            categoryId: catId,
+                            order: 0
+                        }))
+                    } : (data.categoryId ? {
                         create: {
                             categoryId: data.categoryId,
                             order: 0
                         }
-                    } : undefined
+                    } : undefined)
                 },
             });
 
@@ -699,7 +712,7 @@ export class ProblemService {
     // UPDATING A PROBLEM - Force reload to pick up new Prisma Client
     static async updateProblem(id: string, data: any) {
         try {
-            const { testCases, tags, functionTemplates, options, categoryId, type, ...problemData } = data;
+            const { testCases, tags, topicTags, functionTemplates, options, categoryId, categoryIds, type, ...problemData } = data;
 
             const updateData: any = { ...problemData };
             if (options) {
@@ -726,6 +739,13 @@ export class ProblemService {
                 };
             }
 
+            if (topicTags) {
+                updateData.topicTags = {
+                    set: [], // Disconnect all existing
+                    connect: topicTags.map((slug: string) => ({ slug }))
+                };
+            }
+
             // Handle function templates
             if (functionTemplates !== undefined) {
                 updateData.functionTemplates = {
@@ -738,7 +758,16 @@ export class ProblemService {
                 };
             }
 
-            if (data.categoryId !== undefined) {
+            if (data.categoryIds !== undefined) {
+                if (!type) updateData.type = data.categoryIds.length > 0 ? "LEARN" : "PRACTICE";
+                updateData.categoryProblems = {
+                    deleteMany: {}, // Remove from all existing categories
+                    create: data.categoryIds.map((catId: string) => ({
+                        categoryId: catId,
+                        order: 0
+                    }))
+                };
+            } else if (data.categoryId !== undefined) {
                 if (!type) updateData.type = data.categoryId ? "LEARN" : "PRACTICE";
                 updateData.categoryProblems = {
                     deleteMany: {}, // Remove from all existing categories

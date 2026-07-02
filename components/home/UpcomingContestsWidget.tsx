@@ -172,7 +172,7 @@ export function UpcomingContestsWidget({ contests }: UpcomingContestsWidgetProps
   const topTwo = contests.slice(0, 2);
 
   return (
-    <div className="bg-[#F9FBFB] dark:bg-[#202227] rounded-3xl p-5 w-full flex flex-col border border-gray-200 dark:border-white/10">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-5 w-full flex flex-col border border-gray-200 dark:border-white/10">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[15px] font-bold text-gray-900 dark:text-white">Upcoming Contests</h2>

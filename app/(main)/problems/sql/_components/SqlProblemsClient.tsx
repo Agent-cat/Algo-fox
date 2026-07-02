@@ -11,6 +11,7 @@ import { Category, Difficulty, ProblemType, ProblemDomain } from "@prisma/client
 import { getCategories } from "@/actions/category.action";
 import { motion } from "framer-motion";
 import { parseCompanies } from "@/components/problems/CompanyAvatars";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 type ProblemWithStats = {
     id: string;
@@ -123,9 +124,12 @@ export default function SqlProblemsClient({
                     transition={{ duration: 0.3, delay: 0.05 }}
                     className="mb-8"
                 >
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-1">
-                        SQL Problems
-                    </h1>
+                    <div className="flex items-center gap-2 mb-1">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            SQL Problems
+                        </h1>
+                        <PageTooltip description="Practice SQL queries and database problems to master data manipulation and retrieval." />
+                    </div>
 
                 </motion.div>
 

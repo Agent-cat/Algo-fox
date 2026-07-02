@@ -46,7 +46,7 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
   const daysInGrid = eachDayOfInterval({ start: startDate, end: endDate });
 
   return (
-    <div className="bg-[#F9FBFB] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border border-gray-200 dark:border-white/10">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border border-gray-200 dark:border-white/10">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button
@@ -104,7 +104,7 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
           }
 
           if (isTodayDate) {
-            circleClass += " ring-2 ring-offset-1 ring-offset-[#F9FBFB] dark:ring-offset-[#202227] ring-indigo-500";
+            circleClass += " ring-2 ring-offset-1 ring-offset-[#FDFDFD] dark:ring-offset-[#202227] ring-indigo-500";
             if (!hasSubmitted) textClass = "text-gray-900 dark:text-white";
           }
 

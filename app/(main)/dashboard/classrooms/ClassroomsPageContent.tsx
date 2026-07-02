@@ -12,6 +12,7 @@ import { getStudentClassrooms } from "@/actions/classroom";
 import { useRouter } from "next/navigation";
 import ModeToggle from "@/components/problems/ModeToggle";
 import { motion, AnimatePresence } from "framer-motion";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -66,8 +67,9 @@ export function ClassroomsPageContent({
   return (
     <div className="space-y-8 pb-20">
       <header className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6 flex items-center gap-2">
               Classrooms
+              <PageTooltip description="View your assigned classrooms, interact with teachers, and track class performance." />
           </h1>
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">

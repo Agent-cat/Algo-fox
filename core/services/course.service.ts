@@ -156,7 +156,13 @@ export class CourseService {
             where: { userId },
             include: {
                 course: {
-                    include: { _count: { select: { modules: true } } }
+                    include: {
+                        modules: {
+                            orderBy: { order: 'asc' },
+                            select: { name: true }
+                        },
+                        _count: { select: { modules: true } }
+                    }
                 }
             },
             orderBy: { enrolledAt: 'desc' }

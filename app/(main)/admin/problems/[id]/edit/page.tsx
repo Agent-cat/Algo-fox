@@ -90,6 +90,7 @@ function EditProblemContent() {
                             hiddenQuery: problem.hiddenQuery || null,
                             testCases: problem.testCases || [],
                             tags: problem.tags || [],
+                            topicTags: problem.topicTags || [],
                             useFunctionTemplate: problem.useFunctionTemplate || false,
                             functionTemplates: problem.functionTemplates || [],
                             solution: problem.solution || "",
@@ -98,6 +99,7 @@ function EditProblemContent() {
                             answer: problem.answer || "",
                             companies: problem.companies || null,
                             categoryId: problem.categoryProblems?.[0]?.categoryId || "",
+                            categoryIds: problem.categoryProblems?.map((cp: any) => cp.categoryId) || [],
                             allowedLanguages: problem.allowedLanguages || [],
                             hints: problem.hints || []
                         }}

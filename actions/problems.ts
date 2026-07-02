@@ -112,6 +112,9 @@ export async function createProblem(data: {
     domain?: ProblemDomain;
     testCases: { input: string; output: string; hidden?: boolean }[];
     tags?: string[];
+    topicTags?: string[];
+    categoryId?: string | null;
+    categoryIds?: string[];
     useFunctionTemplate?: boolean;
     functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
     solution?: string | null;

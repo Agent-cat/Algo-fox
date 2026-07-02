@@ -5,6 +5,7 @@ import ModeToggle from "../../../components/problems/ModeToggle";
 import { CourseCard } from "../../../components/courses/CourseCard";
 import { motion, AnimatePresence } from "framer-motion";
 import CourseSearchBar from "../../../components/courses/CourseSearchBar";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 interface CoursesClientProps {
     courses: any[];
@@ -42,8 +43,9 @@ export default function CoursesClient({ courses, enrollments }: CoursesClientPro
     return (
         <div className="space-y-8">
             <header className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-6 flex items-center gap-2">
                     Courses
+                    <PageTooltip description="Access structured courses with video lectures, notes, and curated study paths." />
                 </h1>
 
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">

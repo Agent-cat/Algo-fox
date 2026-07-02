@@ -58,6 +58,8 @@ const formSchema = z.object({
     options: z.array(z.string()).optional(),
     answer: z.string().optional(),
     categoryId: z.string().optional(),
+    categoryIds: z.array(z.string()).optional(),
+    topicTags: z.array(z.string()).optional(),
     allowedLanguages: z.array(z.string()).optional(),
     hints: z.array(z.string()).optional(),
 });
@@ -65,8 +67,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface ProblemFormProps {
-    initialData?: Omit<Partial<FormValues>, "tags"> & {
+    initialData?: Omit<Partial<FormValues>, "tags" | "topicTags"> & {
         tags?: { name: string; slug: string }[];
+        topicTags?: { name: string; slug: string }[];
         useFunctionTemplate?: boolean;
         functionTemplates?: FunctionTemplate[];
         companies?: any;
@@ -186,6 +189,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const [isLoading, setIsLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedTags, setSelectedTags] = useState<{ name: string, slug: string }[]>(initialData?.tags || []);
+    const [selectedTopicTags, setSelectedTopicTags] = useState<{ name: string, slug: string }[]>(initialData?.topicTags || []);
     const [descriptionPreview, setDescriptionPreview] = useState(false);
     const [useFunctionTemplate, setUseFunctionTemplate] = useState(initialData?.useFunctionTemplate || false);
     const [functionTemplates, setFunctionTemplates] = useState<FunctionTemplate[]>(initialData?.functionTemplates || []);
@@ -303,6 +307,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             options: (initialData as any)?.options || ["", "", "", ""],
             answer: (initialData as any)?.answer || "",
             categoryId: (initialData as any)?.categoryId || "",
+            categoryIds: initialData?.categoryIds || [],
+            topicTags: initialData?.topicTags?.map(t => t.slug) || [],
             allowedLanguages: (initialData as any)?.allowedLanguages || [],
             companies: parseCompanies(initialData?.companies) || [],
             hints: initialData?.hints || [],
@@ -447,6 +453,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             answer: data.isMcq ? (data.options && data.answer !== "" && data.answer !== undefined ? data.options[Number(data.answer)] : null) : null,
             testCases: (isAptitude || isConcept) ? [] : data.testCases,
             categoryId: data.categoryId || null,
+            categoryIds: data.categoryIds || [],
+            topicTags: selectedTopicTags.map(c => c.slug),
             allowedLanguages: data.allowedLanguages || [],
             hints: data.hints?.filter(h => h.trim() !== "") || [],
         };
@@ -618,6 +626,18 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                                 setSelectedTags(newTags);
                                                 setValue("tags", newTags.map(t => t.slug));
                                             }}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className={labelCls}>Topic Tags (Topic Sheets)</label>
+                                        <TagInput
+                                            value={selectedTopicTags}
+                                            onChange={(newTopicTags) => {
+                                                setSelectedTopicTags(newTopicTags);
+                                                setValue("topicTags", newTopicTags.map(t => t.slug));
+                                            }}
+                                            placeholder="Search or create topic tags..."
                                         />
                                     </div>
 

@@ -21,7 +21,7 @@ export default function PlacementDashboardLayout({
                 </div>
                 
                 {/* Main Content Area with premium rounded styling */}
-                <div className="flex-1 w-full min-w-0 h-[calc(100vh-4rem)] overflow-y-auto bg-white dark:bg-[#24262C] lg:rounded-tl-[2rem] lg:border-t lg:border-l border-gray-200 dark:border-[#262626] shadow-sm p-8 lg:p-12 transition-all">
+                <div className="flex-1 w-full min-w-0 h-[calc(100vh-4rem)] overflow-y-auto bg-white dark:bg-[#24262C] border-gray-200 dark:border-[#262626] shadow-sm p-8 lg:p-12 transition-all">
                     {children}
                 </div>
             </main>

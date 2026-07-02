@@ -172,6 +172,7 @@ model Problem {
   contestProblems        ContestProblem[]
   contestSectionProblems ContestSectionProblem[]
   tags                   Tag[]                     @relation("ProblemToTag")
+  topicTags              Tag[]                     @relation("ProblemToTopicTag")
   courseId               String?
   course                 Course?                   @relation("CourseProblems", fields: [courseId], references: [id], onDelete: Cascade)
   bookmarks              Bookmark[]
@@ -183,12 +184,13 @@ model Problem {
 }
 
 model Tag {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  problems  Problem[] @relation("ProblemToTag")
+  id            String    @id @default(cuid())
+  name          String    @unique
+  slug          String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  problems      Problem[] @relation("ProblemToTag")
+  topicProblems Problem[] @relation("ProblemToTopicTag")
 
   @@index([slug])
 }

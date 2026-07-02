@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'vishnu-vercel-output.s3.ap-south-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'cdn.simpleicons.org',
       },
     ],

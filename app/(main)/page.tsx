@@ -7,6 +7,11 @@ import { UpcomingContestsWidget } from "@/components/home/UpcomingContestsWidget
 import { getSession } from "@/lib/auth-utils";
 import Link from "next/link";
 
+import { getTopicSheets } from "@/actions/topic.action";
+import { TopicsCarousel } from "@/components/home/TopicsCarousel";
+import { CourseService } from "@/core/services/course.service";
+import { ContinueLearningWidget } from "@/components/home/ContinueLearningWidget";
+
 export const metadata: Metadata = {
   title: "Elite Platform for DSA & SQL Mastery",
   description: "The ultimate platform for competitive programming and interview preparation. Practice DSA, SQL, and join high-stakes contests to boost your career.",
@@ -22,14 +27,17 @@ export default async function Home() {
   const currentStreak = stats?.currentStreak || 0;
   const bestStreak = stats?.bestStreak || 0;
 
-  // Fetch contests in parallel
-  const [internalRes, externalRes] = await Promise.all([
+  // Fetch contests, topic sheets, and enrollments in parallel
+  const [internalRes, externalRes, topicSheetsRes, enrollments] = await Promise.all([
     getVisibleContests({ status: "active" }),
-    getUpcomingContests()
+    getUpcomingContests(),
+    getTopicSheets(),
+    isLoggedIn ? CourseService.getUserEnrolledCourses(session.user.id) : Promise.resolve([])
   ]);
 
   const internalContests = (internalRes.success && "contests" in internalRes) ? internalRes.contests || [] : [];
   const externalContests = (externalRes.success && "contests" in externalRes) ? externalRes.contests || [] : [];
+  const categories = topicSheetsRes?.categories || [];
 
   const now = new Date();
 
@@ -96,10 +104,15 @@ export default async function Home() {
                 </div>
             </div>
 
-            {/* Main Widget Area */}
-            <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl p-8 text-center bg-white/50 dark:bg-[#24262C]/50">
-                <p className="text-gray-400 font-medium">Main widgets go here</p>
-            </div>
+            <div className="border-t border-gray-200 dark:border-white/10" />
+
+            {/* Topics Carousel */}
+            <TopicsCarousel categories={categories} />
+
+            <div className="border-t border-gray-200 dark:border-white/10" />
+
+            {/* Continue Learning Widget */}
+            <ContinueLearningWidget enrollments={enrollments} />
         </div>
 
         {/* Right Sidebar (Widgets) */}

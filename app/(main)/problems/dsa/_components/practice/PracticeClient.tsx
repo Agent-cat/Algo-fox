@@ -149,17 +149,19 @@ export default function PracticeClient({
     return (
         <div className="w-full">
             {/* List Header */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-3.5 border-b border-gray-100 dark:border-[#1e1e1e] text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
-            >
-                <div className="col-span-6 md:col-span-5">Title</div>
-                <div className="col-span-2 md:col-span-2 md:text-center">Difficulty</div>
-                <div className="col-span-2 md:col-span-2 md:text-right">Acceptance</div>
-                <div className="col-span-2 md:col-span-3 md:text-center">Company</div>
-            </motion.div>
+            <div className="bg-[#FDFDFD] dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-xl mb-3">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-3.5 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+                >
+                    <div className="col-span-6 md:col-span-5">Title</div>
+                    <div className="col-span-2 md:col-span-2 md:text-center">Difficulty</div>
+                    <div className="col-span-2 md:col-span-2 md:text-right">Acceptance</div>
+                    <div className="col-span-2 md:col-span-3 md:text-center">Company</div>
+                </motion.div>
+            </div>
 
             {/* List Items */}
             <div className="mt-1">

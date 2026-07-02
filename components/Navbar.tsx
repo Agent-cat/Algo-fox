@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import UserPoints from "./UserPoints";
 import { StreakBadge } from "./shared/StreakBadge";
-import { ThemeToggle } from "./ThemeToggle";
 import { ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useSidebar, EXPANDED_WIDTH } from "@/context/SidebarContext";
 import { NotificationDropdown } from "./home/NotificationDropdown";
@@ -98,7 +97,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
         >
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-orange-500 dark:text-gray-500 dark:group-hover:text-orange-400 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <div
-            className="w-full flex items-center pl-10 pr-16 py-2.5 text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 group-focus-within:bg-[#FAFAFB] dark:bg-[#1a1a1f] dark:hover:bg-[#222228] dark:focus-within:bg-[#222228] border border-gray-200 dark:border-white/10 group-focus-within:border-orange-400/50 dark:group-focus-within:border-orange-400/30 group-focus-within:ring-4 group-focus-within:ring-orange-500/10 rounded-xl transition-all text-gray-400 dark:text-gray-500 shadow-sm"
+            className="w-full flex items-center pl-10 pr-16 py-2.5 text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 group-focus-within:bg-[#FAFAFB] dark:bg-[#1a1a1f] dark:hover:bg-[#222228] dark:focus-within:bg-[#222228] border border-gray-200 dark:border-white/10 group-focus-within:border-orange-400/50 dark:group-focus-within:border-orange-400/30 group-focus-within:ring-4 group-focus-within:ring-orange-500/10 rounded-xl transition-all text-gray-400 dark:text-gray-500 dark:shadow-sm"
           >
             Search problems, topics, contests...
           </div>
@@ -109,103 +108,101 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
         </button>
 
         {/* Right: user actions */}
-        {shouldRender && (
-          <div className="flex items-center gap-4">
-            {session ? (
-              <>
-                {notifications.length > 0 && <NotificationDropdown notifications={notifications} />}
-                <ThemeToggle />
-                <StreakBadge />
-                <div className="h-4 w-px bg-gray-200 dark:bg-white/10" />
-                <UserPoints />
+        <div className="flex items-center gap-4">
+          {shouldRender && session ? (
+            <>
+              {notifications.length > 0 && <NotificationDropdown notifications={notifications} />}
+              <StreakBadge />
+              <div className="h-4 w-px bg-gray-200 dark:bg-white/10" />
+              <UserPoints />
 
-                {/* User avatar dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen((p) => !p)}
-                    className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
-                  >
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden sm:block">
-                      {session.user.name}
-                    </span>
-                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
-                      {session.user.image ? (
-                        <Image
-                          src={session.user.image}
-                          alt={session.user.name || "User"}
-                          width={32}
-                          height={32}
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        session.user.name?.charAt(0).toUpperCase()
+              {/* User avatar dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen((p) => !p)}
+                  className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                >
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden sm:block">
+                    {session.user.name}
+                  </span>
+                  <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
+                    {session.user.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      session.user.name?.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                    <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl z-50 p-1">
+                      <DropdownLink href="/dashboard" close={() => setIsDropdownOpen(false)}>My Dashboard</DropdownLink>
+                      <DropdownLink href="/bookmarks" close={() => setIsDropdownOpen(false)}>Bookmarks</DropdownLink>
+                      <DropdownLink href="/leaderboard" close={() => setIsDropdownOpen(false)}>Leaderboard</DropdownLink>
+
+                      {(isAdmin || isTeacher || isContestManager || isPlacementDirector || isInstitutionManager) && (
+                        <>
+                          <Divider />
+                          <SectionLabel>Manage</SectionLabel>
+                        </>
                       )}
+
+                      {isTeacher && (
+                        <>
+                          <DropdownLink href="/dashboard/teacher/classrooms" close={() => setIsDropdownOpen(false)}>Teacher Dashboard</DropdownLink>
+                          <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>⚡ Live Quizzes</DropdownLink>
+                        </>
+                      )}
+                      {isInstitutionManager && (
+                        <DropdownLink href="/dashboard/institution" close={() => setIsDropdownOpen(false)}>Institution</DropdownLink>
+                      )}
+                      {(isAdmin || isContestManager) && (
+                        <DropdownLink href="/dashboard/contests" close={() => setIsDropdownOpen(false)}>Contest Management</DropdownLink>
+                      )}
+                      {isAdmin && (
+                        <DropdownLink href="/admin" close={() => setIsDropdownOpen(false)} accent>Admin Panel</DropdownLink>
+                      )}
+                      {isPlacementDirector && (
+                        <DropdownLink href="/placementdashboard" close={() => setIsDropdownOpen(false)}>Placement Dashboard</DropdownLink>
+                      )}
+
+                      <Divider />
+                      <button
+                        onClick={() => { setIsDropdownOpen(false); handleSignOut(); }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                      >
+                        Sign Out
+                      </button>
                     </div>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {isDropdownOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
-                      <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-[#24262C] border border-gray-100 dark:border-[#262626] rounded-xl shadow-xl z-50 p-1">
-                        <DropdownLink href="/dashboard" close={() => setIsDropdownOpen(false)}>My Dashboard</DropdownLink>
-                        <DropdownLink href="/bookmarks" close={() => setIsDropdownOpen(false)}>Bookmarks</DropdownLink>
-                        <DropdownLink href="/leaderboard" close={() => setIsDropdownOpen(false)}>Leaderboard</DropdownLink>
-
-                        {(isAdmin || isTeacher || isContestManager || isPlacementDirector || isInstitutionManager) && (
-                          <>
-                            <Divider />
-                            <SectionLabel>Manage</SectionLabel>
-                          </>
-                        )}
-
-                        {isTeacher && (
-                          <>
-                            <DropdownLink href="/dashboard/teacher/classrooms" close={() => setIsDropdownOpen(false)}>Teacher Dashboard</DropdownLink>
-                            <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>⚡ Live Quizzes</DropdownLink>
-                          </>
-                        )}
-                        {isInstitutionManager && (
-                          <DropdownLink href="/dashboard/institution" close={() => setIsDropdownOpen(false)}>Institution</DropdownLink>
-                        )}
-                        {(isAdmin || isContestManager) && (
-                          <DropdownLink href="/dashboard/contests" close={() => setIsDropdownOpen(false)}>Contest Management</DropdownLink>
-                        )}
-                        {isAdmin && (
-                          <DropdownLink href="/admin" close={() => setIsDropdownOpen(false)} accent>Admin Panel</DropdownLink>
-                        )}
-                        {isPlacementDirector && (
-                          <DropdownLink href="/placementdashboard" close={() => setIsDropdownOpen(false)}>Placement Dashboard</DropdownLink>
-                        )}
-
-                        <Divider />
-                        <button
-                          onClick={() => { setIsDropdownOpen(false); handleSignOut(); }}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                        >
-                          Sign Out
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <ThemeToggle />
-                <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
-                  Sign In
-                </Link>
-                <Link href="/signup" className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
-        )}
+                  </>
+                )}
+              </div>
+            </>
+          ) : shouldRender ? (
+            <>
+              <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                Sign In
+              </Link>
+              <Link href="/signup" className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                Get Started
+              </Link>
+            </>
+          ) : (
+            <div className="w-[280px]" />
+          )}
+        </div>
       </div>
     </nav>
   );

@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 
 const COLLAPSED_WIDTH = 72;   // px  (w-18)
 const EXPANDED_WIDTH  = 280;  // px  (w-[280px])
+const MAX_WIDTH       = 300;  // px  (max draggable width)
 const STORAGE_KEY = "algofox_sidebar_width";
 
 interface SidebarContextValue {
@@ -41,7 +42,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved !== null) {
         const parsed = Number(saved);
-        if (!isNaN(parsed) && isFinite(parsed) && parsed >= COLLAPSED_WIDTH && parsed <= EXPANDED_WIDTH + 6) {
+        if (!isNaN(parsed) && isFinite(parsed) && parsed >= COLLAPSED_WIDTH && parsed <= MAX_WIDTH) {
           setSidebarWidth(parsed);
         }
       }
@@ -55,7 +56,9 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       pathname === "/placements" ||
       pathname.startsWith("/placements/") ||
       pathname === "/dashboard/settings" ||
-      pathname.startsWith("/dashboard/settings/")
+      pathname.startsWith("/dashboard/settings/") ||
+      pathname === "/placementdashboard" ||
+      pathname.startsWith("/placementdashboard/")
     )
   );
 
@@ -88,5 +91,5 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
 export const useSidebar = () => useContext(SidebarContext);
 
-export { COLLAPSED_WIDTH, EXPANDED_WIDTH, STORAGE_KEY };
+export { COLLAPSED_WIDTH, EXPANDED_WIDTH, MAX_WIDTH, STORAGE_KEY };
 
