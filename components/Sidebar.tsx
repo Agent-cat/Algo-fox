@@ -33,8 +33,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   initialSession?: {
-    session?: { impersonatedBy?: string };
-    user?: { id: string; name?: string; image?: string; role?: string; institutionId?: string };
+    session?: { impersonatedBy?: string | null };
+    user?: { id: string; name?: string | null; image?: string | null; role?: string | null; institutionId?: string | null } | null;
   } | null;
 }
 
@@ -243,6 +243,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
   const isExpanded = mounted ? expanded : true;
+
+  if (initialSession === null || (initialSession && !initialSession.user)) {
+    return null;
+  }
 
   if (mounted && !isPending && !session?.user) {
     return null;

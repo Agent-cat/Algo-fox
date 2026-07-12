@@ -3,19 +3,22 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import MainContentWrapper from "@/components/shared/MainContentWrapper";
 import { SidebarProvider } from "@/context/SidebarContext";
+import { getSession } from "@/lib/auth-utils";
 
-export default function CoursesLayout({
+export default async function CoursesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
   return (
     <SidebarProvider>
       <Suspense fallback={null}>
-        <Sidebar />
+        <Sidebar initialSession={session} />
       </Suspense>
       <Suspense fallback={null}>
-        <Navbar />
+        <Navbar initialSession={session} />
       </Suspense>
       <MainContentWrapper>{children}</MainContentWrapper>
     </SidebarProvider>

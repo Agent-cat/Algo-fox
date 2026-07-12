@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getDashboardStats } from "@/actions/dashboard.action";
 import { getVisibleContests } from "@/actions/contest";
 import { getUpcomingContests } from "@/actions/external-contests.action";
@@ -36,7 +37,10 @@ interface ExternalContest {
 
 export default async function Home() {
   const session = await getSession();
-  const isLoggedIn = !!session?.user;
+  if (!session?.user) {
+    redirect("/");
+  }
+  const isLoggedIn = true;
 
   const stats = await getDashboardStats();
 

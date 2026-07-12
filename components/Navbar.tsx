@@ -14,8 +14,8 @@ import { NotificationDropdown, Notification } from "./home/NotificationDropdown"
 
 interface NavbarProps {
   initialSession?: {
-    session?: { impersonatedBy?: string };
-    user?: { id: string; name?: string; image?: string; role?: string };
+    session?: { impersonatedBy?: string | null };
+    user?: { id: string; name?: string | null; image?: string | null; role?: string | null } | null;
   } | null;
 }
 
@@ -78,38 +78,57 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
       ].filter(Boolean).join(" ")}
     >
       <div className="h-full px-4 flex items-center justify-between gap-4">
-        {/* Left: sidebar toggle */}
-        {!isForceCollapsed ? (
-          <button
-            onClick={toggle}
-            aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-            className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
-          >
-            {isExpanded
-              ? <PanelLeftClose className="w-[18px] h-[18px]" />
-              : <PanelLeft className="w-[18px] h-[18px]" />}
-          </button>
+        {/* Left: sidebar toggle / brand logo */}
+        {session?.user ? (
+          !isForceCollapsed ? (
+            <button
+              onClick={toggle}
+              aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
+            >
+              {isExpanded
+                ? <PanelLeftClose className="w-[18px] h-[18px]" />
+                : <PanelLeft className="w-[18px] h-[18px]" />}
+            </button>
+          ) : (
+            <div className="w-9 h-9" />
+          )
         ) : (
-          <div className="w-9 h-9" />
+          <Link href="/" className="flex items-center gap-3 min-w-0 group flex-shrink-0 select-none">
+            <Image
+              src="/icons/fox.png"
+              alt="AlgoFox"
+              width={36}
+              height={36}
+              className="w-9 h-9 object-contain rounded-xl flex-shrink-0"
+            />
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+              AlgoFox
+            </span>
+          </Link>
         )}
 
         {/* Search Bar */}
-        <button
-          type="button"
-          className="relative group cursor-pointer text-left flex-1 max-w-lg focus:outline-none"
-          onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
-        >
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-orange-500 dark:text-gray-500 dark:group-hover:text-orange-400 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <div
-            className="w-full flex items-center pl-10 pr-16 py-2.5 text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 group-focus-within:bg-[#FAFAFB] dark:bg-[#1a1a1f] dark:hover:bg-[#222228] dark:focus-within:bg-[#222228] border border-gray-200 dark:border-white/10 group-focus-within:border-orange-400/50 dark:group-focus-within:border-orange-400/30 group-focus-within:ring-4 group-focus-within:ring-orange-500/10 rounded-xl transition-all text-gray-400 dark:text-gray-500 dark:shadow-sm"
+        {session?.user ? (
+          <button
+            type="button"
+            className="relative group cursor-pointer text-left flex-1 max-w-lg focus:outline-none"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
           >
-            Search problems, topics, contests...
-          </div>
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-            <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">Ctrl</span>
-            <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">K</span>
-          </div>
-        </button>
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-orange-500 dark:text-gray-500 dark:group-hover:text-orange-400 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div
+              className="w-full flex items-center pl-10 pr-16 py-2.5 text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 group-focus-within:bg-[#FAFAFB] dark:bg-[#1a1a1f] dark:hover:bg-[#222228] dark:focus-within:bg-[#222228] border border-gray-200 dark:border-white/10 group-focus-within:border-orange-400/50 dark:group-focus-within:border-orange-400/30 group-focus-within:ring-4 group-focus-within:ring-orange-500/10 rounded-xl transition-all text-gray-400 dark:text-gray-500 dark:shadow-sm"
+            >
+              Search problems, topics, contests...
+            </div>
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">Ctrl</span>
+              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">K</span>
+            </div>
+          </button>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* Right: user actions */}
         <div className="flex items-center gap-4">

@@ -2,17 +2,20 @@ import Navbar from "@/components/Navbar";
 import { SidebarProvider } from "@/context/SidebarContext";
 import Sidebar from "@/components/Sidebar";
 import { PlacementDirectorSidebar } from "@/components/placementdashboard/PlacementDirectorSidebar";
+import { getSession } from "@/lib/auth-utils";
 
-export default function PlacementDashboardLayout({
+export default async function PlacementDashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const session = await getSession();
+
     return (
         <SidebarProvider>
-        <Sidebar />
+        <Sidebar initialSession={session} />
         <div className="h-screen bg-[#fafafa] dark:bg-[#1D1E23] font-sans flex flex-col overflow-hidden" style={{ marginLeft: 56 }}>
-            <Navbar />
+            <Navbar initialSession={session} />
             
             <main className="pt-16 flex-1 flex w-full">
                 {/* Sidebar on the extreme left, sticky/fixed height */}
