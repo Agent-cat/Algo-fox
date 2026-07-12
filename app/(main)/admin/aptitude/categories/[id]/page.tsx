@@ -23,6 +23,7 @@ type ProblemWithStats = {
   slug: string;
   difficulty: Difficulty;
   type: any;
+  questionType?: string;
   acceptance: number;
   solved?: number | null;
   isSolved?: boolean;
@@ -314,6 +315,9 @@ function AptitudeCategoryProblemsContent() {
                                     Title
                                 </th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                    Type
+                                </th>
+                                <th className="px-6 py-4 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                     Difficulty
                                 </th>
                                 <th className="px-6 py-4 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-right">
@@ -338,6 +342,22 @@ function AptitudeCategoryProblemsContent() {
                                             <div className="text-xs text-gray-400 dark:text-gray-500 font-mono mt-0.5">
                                                 {problem.slug}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                                                problem.questionType === "MCQ_MULTIPLE"
+                                                    ? "text-blue-600 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30"
+                                                    : problem.questionType === "TEXT_SHORT"
+                                                        ? "text-violet-600 bg-violet-50 dark:bg-violet-500/10 border-violet-200 dark:border-violet-500/30"
+                                                        : problem.questionType === "TEXT_LONG"
+                                                            ? "text-purple-600 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30"
+                                                            : "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30"
+                                            }`}>
+                                                {problem.questionType === "MCQ_MULTIPLE" ? "Multi-MCQ"
+                                                    : problem.questionType === "TEXT_SHORT" ? "Short Text"
+                                                    : problem.questionType === "TEXT_LONG" ? "Long Text"
+                                                    : "MCQ"}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span

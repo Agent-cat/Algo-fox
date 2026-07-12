@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Calendar, CheckCircle2, ChevronRight, BarChart2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import { CreateAssignmentModal } from "./CreateAssignmentModal";
 import { getClassroomAssignments, refreshClassroomAssignments } from "@/actions/assignment";
 import { AssignmentAnalyticsView } from "./AssignmentAnalyticsView";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { toast } from "sonner";
 
 interface Assignment {
@@ -29,6 +31,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Initial load uses cached version
     const fetchAssignments = useCallback(async () => {
@@ -68,28 +71,69 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
         );
     }
 
+    const filteredAssignments = assignments.filter(a => 
+        a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (a.description && a.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
     return (
-        <div className="space-y-8 w-full">
-            <div className="flex items-center justify-between px-2 pt-2">
-                <div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-2 h-2 bg-orange-600 rounded-full animate-pulse" />
-                        <h2 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Assignments List</h2>
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35 }}
+            className="flex flex-col gap-0 w-full py-8 px-6 lg:px-12 bg-[#fafafa] dark:bg-[#1D1E23] min-h-[calc(100vh-4rem)]"
+        >
+            {/* Page Header */}
+            <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 }}
+                className="mb-8"
+            >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            Assignments
+                        </h1>
                     </div>
-                    <h1 className="text-2xl font-black text-gray-950 dark:text-white tracking-tightest uppercase">
-                        Current Assignments
-                    </h1>
                 </div>
+            </motion.div>
+
+            {/* HEADER TOOLS */}
+            <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+            >
+                <div className="relative group flex-1 w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Search assignments..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 pl-12 pr-4 py-2.5 rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                    />
+                </div>
+
                 {isTeacher && (
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="h-10 px-6 bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 dark:hover:bg-emerald-500 dark:hover:text-white transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                        className="h-[42px] px-6 bg-orange-600 text-white rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-orange-700 transition-all shadow-sm active:scale-95 whitespace-nowrap"
                     >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Plus className="w-4 h-4" />
                         New Assignment
                     </button>
                 )}
-            </div>
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.15 }}
+                className="flex-1 bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6"
+            >
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-24">
@@ -107,7 +151,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
-                    {assignments.map(assignment => (
+                    {filteredAssignments.map(assignment => (
                         <div
                             key={assignment.id}
                             className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:border-orange-500/50 transition-all group relative cursor-pointer shadow-sm hover:shadow-xl hover:shadow-gray-200/20 dark:hover:shadow-none"
@@ -178,6 +222,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                     }}
                 />
             )}
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

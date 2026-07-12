@@ -1,6 +1,6 @@
 import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
-import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
+import { Difficulty, ProblemType, ProblemDomain, QuestionType } from "@prisma/client";
 import redis from "@/lib/redis";
 import { scanAndDelete } from "@/lib/redis-utils";
 
@@ -8,7 +8,7 @@ const CACHE_TTL = 300; // 5 minutes
 const PROBLEM_CACHE_TTL = 3600; // 1 hour
 
 // CACHE KEY HELPERS
-const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = [], sortBy: string = 'newest') =>
+const getProblemsCacheKey = (type: ProblemType, domain: ProblemDomain, page: number, diff?: Difficulty, tags: string[] = [], sortBy: string = 'oldest') =>
     `problems:list:${domain}:${type}:page:${page}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}:sort:${sortBy}`;
 const getAdminProblemsCacheKey = (
     domain: string | undefined,
@@ -21,7 +21,7 @@ const getProblemCacheKey = (slug: string) => `problem:${slug}`;
 export class ProblemService {
 
     // CACHED FETCHER FOR PUBLIC PROBLEM LIST
-    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = [], cursor?: string, sortBy: string = 'newest') {
+    private static async getCachedProblems(page: number, pageSize: number, type: ProblemType, domain: ProblemDomain = "DSA", diff?: Difficulty, tags: string[] = [], cursor?: string, sortBy: string = 'oldest') {
         const cacheKey = cursor
             ? `problems:list:${domain}:${type}:cursor:${cursor}:pageSize:${pageSize}:diff:${diff || 'all'}:tags:${tags.sort().join(',')}:sort:${sortBy}`
             : getProblemsCacheKey(type, domain, page, diff, tags, sortBy);
@@ -125,7 +125,7 @@ export class ProblemService {
         diff?: Difficulty,
         tags: string[] = [],
         cursor?: string,
-        sortBy: string = 'newest'
+        sortBy: string = 'oldest'
     ) {
         // FETCHING PUBLIC DATA (CACHED)
         const { problems, total } = await this.getCachedProblems(page, pageSize, type, domain, diff, tags, cursor, sortBy);
@@ -632,6 +632,7 @@ export class ProblemService {
         functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
         solution?: string | null;
         isMcq?: boolean;
+        questionType?: QuestionType;
         options?: any;
         answer?: string | null;
         categoryId?: string | null;
@@ -658,6 +659,7 @@ export class ProblemService {
                     useFunctionTemplate: data.useFunctionTemplate || false,
                     solution: data.solution || null,
                     isMcq: data.isMcq || false,
+                    questionType: data.questionType || "MCQ_SINGLE",
                     options: data.options || null,
                     answer: data.answer || null,
                     companies: data.companies || null,

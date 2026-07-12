@@ -411,14 +411,9 @@ export function StudentQuizRoom({ sessionId, participantId, participantName }: S
                   <div className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-2xl p-6 sm:p-8 shadow-sm">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
                       <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                        Question {currentQuestion + 1}
+                        Results Overview
                       </p>
                     </div>
-                    <div className="mb-8">
-                      <Markdown content={questionText} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-relaxed" />
-                    </div>
-
-                    <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-5">Results Overview</p>
                     <AnswerDistribution
                       options={options}
                       distribution={distribution}

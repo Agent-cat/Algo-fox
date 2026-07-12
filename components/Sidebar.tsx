@@ -17,7 +17,8 @@ import {
   LdAltArrowRight,
   LdLogout2,
   LdNotebook,
-  LdBookBookmark
+  LdBookBookmark,
+  LdCodeSquare
 } from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
@@ -31,13 +32,16 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 // ─────────────────────────────────────────────────────────────
 
 interface SidebarProps {
-  initialSession?: any;
+  initialSession?: {
+    session?: { impersonatedBy?: string };
+    user?: { id: string; name?: string; image?: string; role?: string; institutionId?: string };
+  } | null;
 }
 
 const NAV_SECTIONS = [
   {
     label: "",
-    items: [{ label: "Home", href: "/", icon: LdHomeSmile }],
+    items: [{ label: "Home", href: "/home", icon: LdHomeSmile }],
   },
   {
     label: "Practice",
@@ -45,6 +49,7 @@ const NAV_SECTIONS = [
       { label: "DSA Problems",      href: "/problems/dsa",      icon: LdCode  },
       { label: "SQL Problems",      href: "/problems/sql",      icon: LdDatabase },
       { label: "Aptitude Problems", href: "/problems/aptitude", icon: LdLightbulbBolt },
+      { label: "Compiler",          href: "/compiler",          icon: LdCodeSquare },
     ],
   },
   {
@@ -156,15 +161,17 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   const session = !mounted || isPending ? initialSession : clientSession;
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const user = session?.user;
-    const institutionId = user && 'institutionId' in user ? (user as any).institutionId : undefined;
+    const institutionId = user && 'institutionId' in user ? (user as { institutionId?: string }).institutionId : undefined;
 
     if (institutionId) {
       try {
         const s = localStorage.getItem("algofox_user_institution");
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (s) setInstitution(JSON.parse(s));
       } catch (_) {}
 
@@ -175,7 +182,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
           const data = await getUserInstitutionDetails();
           if (abortController.signal.aborted) return;
           if (data) {
-            setInstitution(data as any);
+            setInstitution(data as { name: string; logo: string | null } | null);
             try {
               localStorage.setItem("algofox_user_institution", JSON.stringify(data));
             } catch (_) {}
@@ -202,7 +209,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   // ── Logo mark ─────────────────────────────────────────────
-  const LogoMark = () => {
+  const renderLogoMark = () => {
     if (institution?.logo) {
       return (
         <img
@@ -237,6 +244,10 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
   const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
   const isExpanded = mounted ? expanded : true;
 
+  if (mounted && !isPending && !session?.user) {
+    return null;
+  }
+
   return (
     <aside
       style={{ width: currentWidth }}
@@ -261,8 +272,8 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
           isExpanded ? "px-5 gap-3" : "justify-center px-0",
         ].join(" ")}
       >
-        <Link href="/" className="flex items-center gap-3 min-w-0 group">
-          <LogoMark />
+        <Link href="/home" className="flex items-center gap-3 min-w-0 group">
+          {renderLogoMark()}
           <span
             className={[
               "text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",

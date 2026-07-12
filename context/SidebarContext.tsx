@@ -42,7 +42,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved !== null) {
         const parsed = Number(saved);
-        if (!isNaN(parsed) && isFinite(parsed) && parsed >= COLLAPSED_WIDTH && parsed <= MAX_WIDTH) {
+        if (!isNaN(parsed) && isFinite(parsed) && parsed > COLLAPSED_WIDTH && parsed <= MAX_WIDTH) {
           setSidebarWidth(parsed);
         }
       }
@@ -51,6 +51,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
   const isForceCollapsed = !!(
     pathname && (
+      pathname === "/compiler" ||
       pathname === "/admin" ||
       pathname.startsWith("/admin/") ||
       pathname === "/placements" ||

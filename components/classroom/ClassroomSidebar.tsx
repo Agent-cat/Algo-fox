@@ -1,6 +1,14 @@
-import { Trophy, Activity, Download, LayoutDashboard, ChevronRight, Info, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { 
+    LdCupStar, 
+    LdClipboardList, 
+    LdWidget, 
+    LdDiploma, 
+    LdDatabase,
+    LdAltArrowRight
+} from "solar-icon-react/ld";
+import { Info, Copy, Check } from "lucide-react";
 
 interface SidebarProps {
     activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance';
@@ -33,26 +41,52 @@ export function ClassroomSidebar({
     isCopied
 }: SidebarProps) {
     const [showDetails, setShowDetails] = useState(false);
+    
+    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+        "Classroom Hub": true,
+        "Monitoring": true,
+        "Data Management": true
+    });
 
-    const menuItems = [
-        { type: 'header', label: 'Classroom Hub' },
-        { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, type: 'link' },
-        { id: 'assignments', label: 'Assignments', icon: LayoutDashboard, type: 'link' },
-        ...(isTeacher ? [
-            { type: 'header', label: 'Monitoring' },
-            { id: 'tracking', label: 'Live Tracking', icon: Activity, type: 'link' },
-            { id: 'performance', label: 'Performance Reports', icon: LayoutDashboard, type: 'link' }
-        ] : []),
-        ...(showDownload ? [
-            { type: 'header', label: 'Data Management' },
-            { id: 'download', label: 'Leaderboard Export', icon: Download, type: 'action' },
-            { id: 'progress-download', label: 'Detailed Progress', icon: Trophy, type: 'progress-action' }
-        ] : [])
+    const toggleSection = (label: string) => {
+        setOpenSections((prev) => ({ ...prev, [label]: !prev[label] }));
+    };
+
+    const sections: {
+        label: string;
+        items: {
+            id: string;
+            label: string;
+            icon: any;
+            onClick?: () => void;
+        }[]
+    }[] = [
+        {
+            label: "Classroom Hub",
+            items: [
+                { id: 'leaderboard', label: 'Leaderboard', icon: LdCupStar },
+                { id: 'assignments', label: 'Assignments', icon: LdClipboardList },
+            ]
+        },
+        ...(isTeacher ? [{
+            label: "Monitoring",
+            items: [
+                { id: 'tracking', label: 'Live Tracking', icon: LdWidget },
+                { id: 'performance', label: 'Performance Reports', icon: LdDiploma }
+            ]
+        }] : []),
+        ...(showDownload ? [{
+            label: "Data Management",
+            items: [
+                { id: 'download', label: 'Leaderboard Export', icon: LdDatabase, onClick: onDownload },
+                { id: 'progress-download', label: 'Detailed Progress', icon: LdDatabase, onClick: onProgressDownload }
+            ]
+        }] : [])
     ];
 
     return (
-        <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#1D1E23] border-r border-gray-200 dark:border-[#262626] font-mono overflow-y-auto scrollbar-hide">
-            <div className="px-6 mb-8">
+        <div className="w-full h-full flex flex-col bg-transparent">
+            <div className="px-5 pt-6 pb-2 mb-2">
                 <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
                         Active Classroom
@@ -77,7 +111,7 @@ export function ClassroomSidebar({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="mt-6 space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                            <div className="mt-4 space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
                                 <div className="flex flex-col">
                                     <span className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Instructor</span>
                                     <div className="flex items-center gap-2">
@@ -117,66 +151,71 @@ export function ClassroomSidebar({
                 </AnimatePresence>
             </div>
 
-            <nav className="px-5 space-y-1">
-                {menuItems.map((item, index) => {
-                    if (item.type === 'header') {
-                        return (
-                            <div key={`header-${index}`} className="flex items-center gap-3 mt-8 mb-4 px-2">
-                                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
-                                    {item.label}
-                                </span>
-                                <div className="h-px bg-gray-200 dark:bg-[#262626] flex-1"></div>
-                            </div>
-                        );
-                    }
-
-                    const isActive = activeTab === item.id;
-                    const Icon = item.icon!;
-
-                    if (item.type === 'action') {
-                        return (
-                            <button
-                                key={`action-${index}`}
-                                onClick={onDownload}
-                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group"
-                            >
-                                <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                                <span className="tracking-tight">{item.label}</span>
-                            </button>
-                        );
-                    }
-
-                    if (item.type === 'progress-action') {
-                        return (
-                            <button
-                                key={`progress-action-${index}`}
-                                onClick={onProgressDownload}
-                                className="w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23] transition-colors group"
-                            >
-                                <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                                <span className="tracking-tight">{item.label}</span>
-                            </button>
-                        );
-                    }
-
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 space-y-5 custom-scrollbar">
+                {sections.map((section, sIdx) => {
+                    const isOpen = openSections[section.label];
                     return (
-                        <button
-                            key={item.id}
-                            onClick={() => onTabChange(item.id as any)}
-                            className={`
-                                w-full flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
-                                ${isActive
-                                    ? "text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-500/10"
-                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23]"
-                                }
-                            `}
-                        >
-                            <Icon className={`w-4 h-4 transition-colors ${isActive ? "text-orange-600 dark:text-orange-500" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`} />
-                            <span className="tracking-tight">{item.label}</span>
-                        </button>
+                        <div key={sIdx} className="flex flex-col gap-1">
+                            {section.label && (
+                                <button
+                                    onClick={() => toggleSection(section.label)}
+                                    className="w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1"
+                                >
+                                    <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
+                                        {section.label}
+                                    </span>
+                                    <LdAltArrowRight
+                                        className={[
+                                            "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                                            isOpen ? "rotate-90" : "",
+                                        ].join(" ")}
+                                    />
+                                </button>
+                            )}
+
+                            <div
+                                className={[
+                                    "grid transition-all duration-300 ease-in-out",
+                                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                                ].join(" ")}
+                            >
+                                <div className="overflow-hidden flex flex-col space-y-[2px]">
+                                    {section.items.map((item) => {
+                                        const Icon = item.icon;
+                                        const active = activeTab === item.id;
+                                        
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                tabIndex={isOpen ? undefined : -1}
+                                                onClick={item.onClick ? item.onClick : () => onTabChange(item.id as any)}
+                                                className={[
+                                                    "w-full relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group text-left",
+                                                    active && !item.onClick
+                                                        ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
+                                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200",
+                                                ].join(" ")}
+                                            >
+                                                <Icon
+                                                    className={[
+                                                        "flex-shrink-0 w-[18px] h-[18px] transition-colors",
+                                                        active && !item.onClick
+                                                            ? "text-gray-900 dark:text-white"
+                                                            : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300",
+                                                    ].join(" ")}
+                                                />
+                                                <span className="text-[13.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
+                                                    {item.label}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
                     );
                 })}
             </nav>
-        </aside>
+        </div>
     );
 }

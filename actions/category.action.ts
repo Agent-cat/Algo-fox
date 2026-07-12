@@ -1,7 +1,7 @@
 "use server";
 
 import { CategoryService } from "@/core/services/category.service";
-import { ProblemDomain, Difficulty } from "@prisma/client";
+import { ProblemDomain, Difficulty, QuestionType } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
@@ -233,9 +233,12 @@ export async function createProblemAndAddToCategory(
     hiddenQuery?: string | null;
     testCases?: { input: string; output: string; hidden?: boolean }[];
     isMcq?: boolean;
+    questionType?: QuestionType;
     options?: string[];
     answer?: string | null;
     solution?: string | null;
+    hints?: string[];
+    companies?: any;
   }
 ) {
   const session = await getSession();

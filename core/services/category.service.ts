@@ -1,7 +1,7 @@
 
 import { safeJsonParse } from "@/lib/json";
 import { prisma } from "@/lib/prisma";
-import { ProblemDomain, Difficulty } from "@prisma/client";
+import { ProblemDomain, Difficulty, QuestionType } from "@prisma/client";
 import redis from "@/lib/redis";
 import { scanAndDelete } from "@/lib/redis-utils";
 
@@ -493,9 +493,12 @@ export class CategoryService {
             hiddenQuery?: string | null;
             testCases?: { input: string; output: string; hidden?: boolean }[];
             isMcq?: boolean;
+            questionType?: QuestionType;
             options?: string[];
             answer?: string | null;
             solution?: string | null;
+            hints?: string[];
+            companies?: any;
         }
     ) {
         try {
@@ -522,9 +525,12 @@ export class CategoryService {
                     type: "LEARN",
                     domain: category.domain,
                     isMcq: data.isMcq ?? false,
+                    questionType: data.questionType ?? "MCQ_SINGLE",
                     options: data.options ?? [],
                     answer: data.answer || null,
                     solution: data.solution || null,
+                    hints: data.hints || [],
+                    companies: data.companies || null,
                     testCases: {
                         create: data.testCases?.map(tc => ({
                             input: tc.input || "",

@@ -10,10 +10,13 @@ import UserPoints from "./UserPoints";
 import { StreakBadge } from "./shared/StreakBadge";
 import { ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useSidebar, EXPANDED_WIDTH } from "@/context/SidebarContext";
-import { NotificationDropdown } from "./home/NotificationDropdown";
+import { NotificationDropdown, Notification } from "./home/NotificationDropdown";
 
 interface NavbarProps {
-  initialSession?: any;
+  initialSession?: {
+    session?: { impersonatedBy?: string };
+    user?: { id: string; name?: string; image?: string; role?: string };
+  } | null;
 }
 
 export default function Navbar({ initialSession }: NavbarProps = {}) {
@@ -22,11 +25,12 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
   const [mounted, setMounted] = useState(false);
   const session = !mounted || isPending ? initialSession : clientSession;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const router = useRouter();
 
   const shouldRender = initialSession !== undefined ? true : mounted && !isPending;
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
@@ -38,7 +42,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
             setNotifications(data.notifications);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [session?.user]);
 
@@ -53,7 +57,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     });
   };
 
-  const userRole = (session?.user as any)?.role;
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
   const isAdmin = userRole === "ADMIN";
   const isInstitutionManager = userRole === "INSTITUTION_MANAGER";
   const isTeacher = userRole === "TEACHER";
@@ -61,7 +65,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
   const isPlacementDirector = userRole === "PLACEMENT_DIRECTOR";
   const isImpersonating = !!session?.session?.impersonatedBy;
 
-  const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
+  const currentWidth = session?.user ? (mounted ? sidebarWidth : EXPANDED_WIDTH) : 0;
   const isExpanded = mounted ? expanded : true;
 
   return (
@@ -83,7 +87,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
           >
             {isExpanded
               ? <PanelLeftClose className="w-[18px] h-[18px]" />
-              : <PanelLeft      className="w-[18px] h-[18px]" />}
+              : <PanelLeft className="w-[18px] h-[18px]" />}
           </button>
         ) : (
           <div className="w-9 h-9" />
@@ -123,20 +127,20 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                   className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
                 >
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden sm:block">
-                    {session.user.name}
+                    {session?.user?.name}
                   </span>
                   <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs">
-                    {session.user.image ? (
+                    {session?.user?.image ? (
                       <Image
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
+                        src={session.user?.image || ""}
+                        alt={session.user?.name || "User"}
                         width={32}
                         height={32}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      session.user.name?.charAt(0).toUpperCase()
+                      session?.user?.name?.charAt(0).toUpperCase()
                     )}
                   </div>
                   <ChevronDown
@@ -162,7 +166,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                       {isTeacher && (
                         <>
                           <DropdownLink href="/dashboard/teacher/classrooms" close={() => setIsDropdownOpen(false)}>Teacher Dashboard</DropdownLink>
-                          <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>⚡ Live Quizzes</DropdownLink>
+                          <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>⚡ Quizzes</DropdownLink>
                         </>
                       )}
                       {isInstitutionManager && (

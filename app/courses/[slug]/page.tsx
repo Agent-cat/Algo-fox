@@ -168,7 +168,7 @@ export default async function CourseDetailPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
 
-            <main className="max-w-7xl mx-auto px-6 pt-28 pb-20">
+            <main className="max-w-7xl mx-auto px-6 pt-8 pb-20">
                 <div className="mb-8">
                     <Link href="/courses" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-500 transition-colors group">
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />

@@ -46,7 +46,7 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
   const daysInGrid = eachDayOfInterval({ start: startDate, end: endDate });
 
   return (
-    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border border-gray-200 dark:border-white/10">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button

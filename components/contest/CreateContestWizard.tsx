@@ -54,7 +54,7 @@ const contestSchema = z.object({
         problems: z.array(z.object({
             id: z.string(),
             title: z.string(),
-            domain: z.enum(["DSA", "SQL"]),
+            domain: z.enum(["DSA", "SQL", "APTITUDE"]),
         })).optional()
     })).min(1, "At least one section is required"),
     contestPassword: z.string().optional(),
@@ -68,7 +68,7 @@ type FormData = z.infer<typeof contestSchema>;
 interface ContestProblem {
     id: string;
     title: string;
-    domain: "DSA" | "SQL";
+    domain: "DSA" | "SQL" | "APTITUDE";
     data: any; // Full problem data
 }
 
@@ -204,7 +204,7 @@ export default function CreateContestWizard({
     }]);
 
     const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-    const [showProblemForm, setShowProblemForm] = useState<"DSA" | "SQL" | null>(null);
+    const [showProblemForm, setShowProblemForm] = useState<"DSA" | "SQL" | "APTITUDE" | null>(null);
     const [isCreatingProblem, setIsCreatingProblem] = useState(false);
     const [isSlugAvailable, setIsSlugAvailable] = useState<boolean | null>(null);
     const [isCheckingSlug, setIsCheckingSlug] = useState(false);
@@ -354,7 +354,7 @@ export default function CreateContestWizard({
         }
     }, [initialData, setValue]);
 
-    const handleProblemSubmit = async (data: any, domain: "DSA" | "SQL") => {
+    const handleProblemSubmit = async (data: any, domain: "DSA" | "SQL" | "APTITUDE") => {
         if (!activeSectionId) {
             toast.error("Please select a section first");
             return;
@@ -379,7 +379,7 @@ export default function CreateContestWizard({
             setSections(updatedSections);
             setValue("sections", updatedSections);
             setShowProblemForm(null);
-            toast.success(`${domain} problem added successfully!`);
+            toast.success(`${domain === "APTITUDE" ? "MCQ" : domain} problem added successfully!`);
         } catch (error) {
             toast.error("Failed to add problem");
         } finally {
@@ -722,7 +722,7 @@ export default function CreateContestWizard({
                                     </div>
 
                                     {/* Action Triggers */}
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-3 gap-4">
                                         <button
                                             type="button"
                                             onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("DSA"); }}
@@ -743,6 +743,16 @@ export default function CreateContestWizard({
                                             </div>
                                             <span className="font-semibold text-gray-900 dark:text-white text-sm">Add SQL</span>
                                         </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setActiveSectionId(sec.id); setShowProblemForm("APTITUDE"); }}
+                                            className="flex flex-col items-center justify-center p-4 bg-[#fafafa] dark:bg-[#1D1E23] border border-dashed border-gray-300 dark:border-[#444] hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 rounded-xl transition-all group max-h-[140px]"
+                                        >
+                                            <div className="p-2 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                                                <BookOpen className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-semibold text-gray-900 dark:text-white text-sm">Add MCQ</span>
+                                        </button>
                                     </div>
 
                                     {/* Problems Rendering scoped to loop */}
@@ -758,7 +768,7 @@ export default function CreateContestWizard({
                                                             </div>
                                                             <div>
                                                                 <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight mb-1">{problem.title}</p>
-                                                                <p className={`text-[10px] uppercase font-bold tracking-wider ${problem.domain === 'DSA' ? 'text-orange-500' : 'text-blue-500'}`}>{problem.domain}</p>
+                                                                <p className={`text-[10px] uppercase font-bold tracking-wider ${problem.domain === 'DSA' ? 'text-orange-500' : problem.domain === 'SQL' ? 'text-blue-500' : 'text-emerald-500'}`}>{problem.domain === 'APTITUDE' ? 'MCQ' : problem.domain}</p>
                                                             </div>
                                                         </div>
                                                         <button

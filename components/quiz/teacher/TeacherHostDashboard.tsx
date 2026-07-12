@@ -358,7 +358,12 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
                     )}
                   </div>
                   {phase === "question" && endsAt > 0 && (
-                    <QuizTimer endsAt={endsAt} timeLimit={timeLimit} size="md" />
+                    <QuizTimer 
+                      endsAt={endsAt} 
+                      timeLimit={timeLimit} 
+                      size="md" 
+                      onExpire={() => callAction("next")}
+                    />
                   )}
                 </div>
 

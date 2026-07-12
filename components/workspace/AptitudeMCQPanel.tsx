@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Check, X, Info, Trophy, LayoutList, RotateCcw, ArrowRight, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { Problem } from "@prisma/client";
+import { Problem, QuestionType } from "@prisma/client";
 import { markConceptAsCompleted } from "@/actions/submission.action";
 import { Markdown } from "@/components/quiz/shared/Markdown";
 
@@ -17,41 +17,66 @@ interface AptitudeMCQPanelProps {
     nextProblemSlug?: string | null;
     userRole?: string;
     courseId?: string | null;
+    contestMode?: boolean;
 }
 
-const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug, userRole, courseId }: AptitudeMCQPanelProps) => {
+const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, nextProblemSlug, userRole, courseId, contestMode }: AptitudeMCQPanelProps) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
     const [status, setStatus] = useState<"idle" | "correct" | "incorrect">("idle");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const questionType = (problem as any).questionType || "MCQ_SINGLE";
+    const isMultiple = questionType === "MCQ_MULTIPLE";
+
     // Sync status if already solved
     useEffect(() => {
         if (isSolved && problem.answer) {
-            setSelectedOption(problem.answer);
+            if (isMultiple) {
+                try {
+                    const parsed = JSON.parse(problem.answer);
+                    setSelectedOptions(Array.isArray(parsed) ? parsed : []);
+                } catch {
+                    setSelectedOptions([]);
+                }
+            } else {
+                setSelectedOption(problem.answer);
+            }
             setStatus("correct");
         } else {
             setSelectedOption(null);
+            setSelectedOptions([]);
             setStatus("idle");
         }
-    }, [problem.id, isSolved, problem.answer]);
+    }, [problem.id, isSolved, problem.answer, isMultiple]);
 
     const options = problem.options ? (problem.options as string[]) : [];
 
-    const handleCheckAnswer = async () => {
-        if (!selectedOption) {
-            toast.error("Please select an option first!");
-            return;
-        }
-
+    const submitAnswer = async () => {
         if (userRole === "USER") {
             toast.error("Subscription required to submit answers");
             return;
         }
 
-        if (selectedOption === problem.answer) {
+        let isCorrect = false;
+
+        if (isMultiple) {
+            try {
+                const correctIndices = JSON.parse(problem.answer || "[]");
+                const sortedSelected = [...selectedOptions].sort();
+                const sortedCorrect = [...(Array.isArray(correctIndices) ? correctIndices : [])].sort();
+                isCorrect = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
+            } catch {
+                isCorrect = false;
+            }
+        } else {
+            isCorrect = selectedOption === problem.answer;
+        }
+
+        if (isCorrect) {
             setStatus("correct");
-            toast.success("Correct Answer!");
+            if (!contestMode) toast.success("Correct Answer!");
 
             if (!isSolved) {
                 setIsLoading(true);
@@ -59,7 +84,6 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                     const res = await markConceptAsCompleted(problem.id);
                     if (res.success) {
                         onSolved('firstSolved' in res ? res.firstSolved : false, 'points' in res ? res.points : 0);
-                        // Smoothly switch to solutions tab after a brief delay
                         setTimeout(() => {
                             onRevealSolution();
                         }, 1000);
@@ -76,16 +100,33 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
             }
         } else {
             setStatus("incorrect");
-            toast.error("Incorrect answer. Try again!");
+            if (!contestMode) toast.error("Incorrect answer. Try again!");
         }
+    };
+
+    const handleToggleMultiple = (idx: number) => {
+        setSelectedOptions(prev => {
+            if (prev.includes(idx)) {
+                return prev.filter(i => i !== idx);
+            }
+            return [...prev, idx];
+        });
+        if (status === "incorrect" || status === "correct") setStatus("idle");
+    };
+
+    const handleCheckAnswer = async () => {
+        if (isMultiple ? selectedOptions.length === 0 : !selectedOption) {
+            toast.error(isMultiple ? "Please select at least one option!" : "Please select an option first!");
+            return;
+        }
+        await submitAnswer();
     };
 
     const handleClearAnswer = () => {
         setSelectedOption(null);
+        setSelectedOptions([]);
         setStatus("idle");
-        toast.info("Selection cleared", {
-            duration: 1500
-        });
+        if (!contestMode) toast.info("Selection cleared", { duration: 1500 });
     };
 
     const handleNextProblem = () => {
@@ -101,7 +142,7 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                 {/* Options Grid - No Card Surrounding it */}
                 <div className="grid grid-cols-1 gap-3 w-full">
                     {options.map((option, idx) => {
-                        const isSelected = selectedOption === option;
+                        const isSelected = isMultiple ? selectedOptions.includes(idx) : selectedOption === option;
                         const isCorrect = status === "correct" && isSelected;
                         const isIncorrect = status === "incorrect" && isSelected;
 
@@ -117,12 +158,45 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                 whileTap={{ scale: 0.99 }}
                                 disabled={isLoading}
                                 onClick={() => {
-                                    if (selectedOption === option) {
-                                        setSelectedOption(null);
-                                        setStatus("idle");
+                                    if (isMultiple) {
+                                        handleToggleMultiple(idx);
                                     } else {
-                                        setSelectedOption(option);
-                                        if (status === "incorrect" || status === "correct") setStatus("idle");
+                                        if (selectedOption === option) {
+                                            setSelectedOption(null);
+                                            setStatus("idle");
+                                        } else {
+                                            setSelectedOption(option);
+                                            if (status === "incorrect" || status === "correct") setStatus("idle");
+                                            // Auto-submit in contest mode for single MCQ
+                                            if (contestMode && !isSolved && status !== "correct") {
+                                                setTimeout(() => {
+                                                    setSelectedOption(option);
+                                                    // Trigger submit with the new selection
+                                                    (async () => {
+                                                        if (userRole === "USER") return;
+                                                        if (option === problem.answer) {
+                                                            setStatus("correct");
+                                                            if (!isSolved) {
+                                                                setIsLoading(true);
+                                                                try {
+                                                                    const res = await markConceptAsCompleted(problem.id);
+                                                                    if (res.success) {
+                                                                        onSolved('firstSolved' in res ? res.firstSolved : false, 'points' in res ? res.points : 0);
+                                                                        setTimeout(() => onRevealSolution(), 1000);
+                                                                    }
+                                                                } catch (error) {
+                                                                    console.error("Failed to mark as completed:", error);
+                                                                } finally {
+                                                                    setIsLoading(false);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            setStatus("incorrect");
+                                                        }
+                                                    })();
+                                                }, 150);
+                                            }
+                                        }
                                     }
                                 }}
                                 className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-300 group flex items-start justify-between gap-3 shadow-sm ${stateClasses}`}
@@ -134,7 +208,11 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                                         isSelected ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20" :
                                         "bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 group-hover:border-gray-300 dark:group-hover:border-white/20"
                                     }`}>
-                                        {String.fromCharCode(65 + idx)}
+                                        {isMultiple && isSelected ? (
+                                            <Check className="w-3.5 h-3.5" strokeWidth={4} />
+                                        ) : (
+                                            String.fromCharCode(65 + idx)
+                                        )}
                                     </div>
                                     <div className={`text-sm font-medium transition-colors flex-1 min-w-0 pt-0.5 ${
                                         isCorrect ? "text-emerald-600 dark:text-emerald-400 font-bold" :
@@ -185,41 +263,56 @@ const AptitudeMCQPanel = memo(({ problem, isSolved, onSolved, onRevealSolution, 
                 </div>
 
                 {/* Control Actions Bottom Bar */}
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 w-full">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={handleClearAnswer}
-                            disabled={!selectedOption || isLoading}
-                            className="px-4 py-2.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-xs transition-all flex items-center gap-1.5 group disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform" />
-                            Clear
-                        </button>
+                {!contestMode ? (
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 w-full">
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={handleClearAnswer}
+                                disabled={isMultiple ? selectedOptions.length === 0 : !selectedOption || isLoading}
+                                className="px-4 py-2.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-xs transition-all flex items-center gap-1.5 group disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform" />
+                                Clear
+                            </button>
 
+                            <button
+                                onClick={handleCheckAnswer}
+                                disabled={(isMultiple ? selectedOptions.length === 0 : !selectedOption) || status === "correct" || isLoading}
+                                className={`px-6 py-2.5 rounded-lg font-bold text-xs transition-all shadow-md hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-1.5 ${
+                                    userRole === "USER" ? "bg-gray-100 dark:bg-[#1D1E23] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
+                                } ${
+                                    status === "correct" ? "hidden" : ""
+                                }`}
+                            >
+                                {isLoading ? (
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3.5 h-3.5 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                                        Checking...
+                                    </div>
+                                ) : userRole === "USER" ? (
+                                    <><Lock className="w-3.5 h-3.5 text-orange-500" aria-label="locked" /> Check Answer</>
+                                ) : "Check Answer"}
+                            </button>
+                        </div>
+                    </div>
+                ) : isMultiple && status !== "correct" ? (
+                    <div className="mt-6 flex justify-center w-full">
                         <button
                             onClick={handleCheckAnswer}
-                            disabled={!selectedOption || status === "correct" || isLoading}
-                            className={`px-6 py-2.5 rounded-lg font-bold text-xs transition-all shadow-md hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center gap-1.5 ${
-                                userRole === "USER" ? "bg-gray-100 dark:bg-[#1D1E23] text-gray-400 dark:text-gray-600 border border-gray-200 dark:border-white/10 shadow-none" : "bg-gray-900 dark:bg-white text-white dark:text-black"
-                            } ${
-                                status === "correct" ? "hidden" : ""
-                            }`}
+                            disabled={selectedOptions.length === 0 || isLoading}
+                            className="px-8 py-2.5 rounded-lg font-bold text-xs transition-all shadow-md hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed bg-gray-900 dark:bg-white text-white dark:text-black flex items-center gap-1.5"
                         >
                             {isLoading ? (
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-3.5 h-3.5 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
-                                    Checking...
+                                    Submitting...
                                 </div>
-                            ) : userRole === "USER" ? (
-                                <><Lock className="w-3.5 h-3.5 text-orange-500" aria-label="locked" /> Check Answer</>
-                            ) : "Check Answer"}
+                            ) : "Submit"}
                         </button>
                     </div>
+                ) : null}
 
-
-                </div>
-
-                {(status === "correct" || status === "incorrect") && (
+                {!contestMode && (status === "correct" || status === "incorrect") && (
                     <div className="mt-4 w-full flex justify-center">
                         <button
                             onClick={onRevealSolution}

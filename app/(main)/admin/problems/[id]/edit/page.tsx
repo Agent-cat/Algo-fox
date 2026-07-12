@@ -95,6 +95,7 @@ function EditProblemContent() {
                             functionTemplates: problem.functionTemplates || [],
                             solution: problem.solution || "",
                             isMcq: problem.isMcq,
+                            questionType: problem.questionType,
                             options: problem.options || ["", "", "", ""],
                             answer: problem.answer || "",
                             companies: problem.companies || null,

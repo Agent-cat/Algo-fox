@@ -139,7 +139,7 @@ export default function CourseDetailClient({
                     <SearchBar
                         onSearch={handleSearch}
                         placeholder="Search modules..."
-                        className="w-full md:max-w-xs"
+                        className="w-full"
                     />
                 </div>
 

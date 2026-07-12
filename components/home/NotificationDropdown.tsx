@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { Bell, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface NotificationAuthor {
+export interface NotificationAuthor {
     id: string;
     name: string;
     image?: string | null;
 }
 
-interface Notification {
+export interface Notification {
     id: string;
     title: string;
     content: string;

@@ -77,6 +77,7 @@ model User {
   bookmarks             Bookmark[]
   bookmarkLists         BookmarkList[]
   authoredNotifications Notification[]
+  quizTemplates         QuizTemplate[]
 
   githubRepo     String?
   githubSyncMode String?   @default("ACCEPTED_ONLY")
@@ -155,6 +156,7 @@ model Problem {
   useFunctionTemplate    Boolean                   @default(false)
   solution               String?
   isMcq                  Boolean                   @default(false)
+  questionType           QuestionType              @default(MCQ_SINGLE)
   options                Json?
   answer                 String?
   companies              Json?
@@ -411,6 +413,7 @@ model Classroom {
   teacher           User         @relation("TeacherClassrooms", fields: [teacherId], references: [id])
   contests          Contest[]
   students          User[]       @relation("StudentClassrooms")
+  quizAssignments   QuizTemplateAssignment[]
 
   @@index([institutionId])
   @@index([teacherId])
@@ -709,6 +712,13 @@ enum ProblemDomain {
   REACT
 }
 
+enum QuestionType {
+  MCQ_SINGLE
+  MCQ_MULTIPLE
+  TEXT_SHORT
+  TEXT_LONG
+}
+
 enum SubmissionMode {
   RUN
   SUBMIT
@@ -896,6 +906,58 @@ model Notification {
   @@index([createdAt(sort: Desc)])
   @@index([targetTags], type: Gin)
   @@map("notification")
+}
+
+model QuizTemplate {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  teacherId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher   User                   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  questions QuizTemplateQuestion[]
+  assignments QuizTemplateAssignment[]
+
+  @@index([teacherId])
+  @@index([createdAt(sort: Desc)])
+  @@map("quiz_template")
+}
+
+model QuizTemplateQuestion {
+  id              String   @id @default(cuid())
+  templateId      String
+  text            String
+  options         Json     // string[]
+  correctOption   Int
+  explanation     String?
+  timeLimit       Int      @default(30)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  template QuizTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId, order])
+  @@map("quiz_template_question")
+}
+
+model QuizTemplateAssignment {
+  id           String   @id @default(cuid())
+  templateId   String
+  classroomId  String
+  sessionId    String?  // Redis session ID when quiz is launched
+  createdAt    DateTime @default(now())
+
+  template  QuizTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  classroom Classroom   @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, classroomId])
+  @@index([templateId])
+  @@index([classroomId])
+  @@index([sessionId])
+  @@map("quiz_template_assignment")
 }
 
 

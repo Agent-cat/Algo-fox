@@ -138,6 +138,7 @@ export async function getCodeDraft(
     languageId: number
 ): Promise<string | null> {
     if (typeof window === 'undefined') return null;
+    if (!problemId || !Number.isFinite(languageId)) return null;
 
     try {
         const db = getDB();
@@ -167,6 +168,7 @@ export async function getCodeFiles(
     languageId: number
 ): Promise<CodeFile[]> {
     if (typeof window === 'undefined') return [];
+    if (!problemId || !Number.isFinite(languageId)) return [];
 
     try {
         const db = getDB();
@@ -190,6 +192,7 @@ export async function getActiveFileId(
     languageId: number
 ): Promise<string | null> {
     if (typeof window === 'undefined') return null;
+    if (!problemId || !Number.isFinite(languageId)) return null;
 
     try {
         const db = getDB();
@@ -210,6 +213,7 @@ export function setActiveFileId(
     activeFileId: string | null
 ): void {
     if (typeof window === 'undefined') return;
+    if (!problemId || !Number.isFinite(languageId)) return;
 
     const db = getDB();
     const effectiveUserId = userId || "guest";
@@ -229,6 +233,7 @@ export async function createCodeFile(
     order: number
 ): Promise<CodeFile | null> {
     if (typeof window === 'undefined') return null;
+    if (!problemId || !Number.isFinite(languageId)) return null;
 
     try {
         const db = getDB();
@@ -265,6 +270,7 @@ export function updateCodeFileContent(
     code: string
 ): void {
     if (typeof window === 'undefined') return;
+    if (!problemId || !Number.isFinite(languageId)) return;
 
     const db = getDB();
     const effectiveUserId = userId || "guest";
@@ -283,6 +289,7 @@ export function renameCodeFile(
     name: string
 ): void {
     if (typeof window === 'undefined') return;
+    if (!problemId || !Number.isFinite(languageId)) return;
 
     const db = getDB();
     const effectiveUserId = userId || "guest";
@@ -300,6 +307,7 @@ export function deleteCodeFile(
     fileId: string
 ): void {
     if (typeof window === 'undefined') return;
+    if (!problemId || !Number.isFinite(languageId)) return;
 
     const db = getDB();
     const effectiveUserId = userId || "guest";

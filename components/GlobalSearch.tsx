@@ -9,13 +9,20 @@ import {
     LdDatabase,
     LdLightbulbBolt,
     LdHomeSmile,
+    LdSettings,
+    LdCup,
+    LdChart,
     LdUserRounded,
-    LdDiploma,
-    LdFolder,
-    LdCase,
-    LdArrowRight
+    LdArrowRight,
+    LdLaptop,
+    LdCrownStar,
+    LdBook,
+    LdStar2,
+    LdRanking
 } from "solar-icon-react/ld";
 import { cn } from "@/lib/utils";
+import { searchProblems } from "@/actions/problems";
+import type { ProblemDomain } from "@prisma/client";
 
 type SearchResult = {
     id: string;
@@ -24,34 +31,72 @@ type SearchResult = {
     icon: any;
     type: "page" | "problem";
     category?: string;
+    domain?: string;
+    difficulty?: string;
+    tags?: { name: string; slug: string }[];
+    isSolved?: boolean;
+    acceptance?: number;
 };
 
-// Mock data for search
 const allPages: SearchResult[] = [
     { id: "p1", title: "Home", url: "/", icon: LdHomeSmile, type: "page" },
-    { id: "p2", title: "Basic Info Settings", url: "/dashboard/settings/basic-info", icon: LdUserRounded, type: "page" },
-    { id: "p3", title: "Education Settings", url: "/dashboard/settings/education", icon: LdDiploma, type: "page" },
-    { id: "p4", title: "Projects Settings", url: "/dashboard/settings/projects", icon: LdFolder, type: "page" },
-    { id: "p5", title: "Experience Settings", url: "/dashboard/settings/experience", icon: LdCase, type: "page" },
+    { id: "p2", title: "Problems - DSA", url: "/problems/dsa", icon: LdCode, type: "page", category: "DSA" },
+    { id: "p3", title: "Problems - SQL", url: "/problems/sql", icon: LdDatabase, type: "page", category: "SQL" },
+    { id: "p4", title: "Problems - Aptitude", url: "/problems/aptitude", icon: LdLightbulbBolt, type: "page", category: "Aptitude" },
+    { id: "p5", title: "Problems - OOPS", url: "/problems/oops", icon: LdCrownStar, type: "page", category: "OOPS" },
+    { id: "p6", title: "Contests", url: "/contests", icon: LdCup, type: "page" },
+    { id: "p7", title: "Leaderboard", url: "/leaderboard", icon: LdRanking, type: "page" },
+    { id: "p8", title: "Profile", url: "/profile", icon: LdUserRounded, type: "page" },
+    { id: "p9", title: "Dashboard", url: "/dashboard", icon: LdChart, type: "page" },
+    { id: "p10", title: "Learn", url: "/learn", icon: LdBook, type: "page" },
+    { id: "p11", title: "Practice - DSA", url: "/problems/dsa/practice", icon: LdLaptop, type: "page", category: "DSA" },
+    { id: "p12", title: "Practice - SQL", url: "/problems/sql/practice", icon: LdLaptop, type: "page", category: "SQL" },
 ];
 
-const allProblems: SearchResult[] = [
-    { id: "pr1", title: "Two Sum", url: "/problems/two-sum", category: "DSA", icon: LdCode, type: "problem" },
-    { id: "pr2", title: "Reverse Linked List", url: "/problems/reverse-linked-list", category: "DSA", icon: LdCode, type: "problem" },
-    { id: "pr3", title: "Employee Salary", url: "/problems/employee-salary", category: "SQL", icon: LdDatabase, type: "problem" },
-    { id: "pr4", title: "Highest Earner", url: "/problems/highest-earner", category: "SQL", icon: LdDatabase, type: "problem" },
-    { id: "pr5", title: "Time and Work", url: "/problems/time-and-work", category: "Aptitude", icon: LdLightbulbBolt, type: "problem" },
-];
+const difficultyColors: Record<string, string> = {
+    EASY: "text-emerald-600 dark:text-emerald-400",
+    MEDIUM: "text-amber-600 dark:text-amber-400",
+    HARD: "text-rose-600 dark:text-rose-400",
+    CONCEPT: "text-blue-600 dark:text-blue-400",
+};
+
+const domainIcons: Record<string, any> = {
+    DSA: LdCode,
+    SQL: LdDatabase,
+    APTITUDE: LdLightbulbBolt,
+    OOPS: LdCrownStar,
+    WEBDEV: LdLaptop,
+    REACT: LdStar2,
+};
+
+const domainPrefixes: Record<string, string> = {
+    "dsa:": "DSA",
+    "dsa ": "DSA",
+    "sql:": "SQL",
+    "sql ": "SQL",
+    "aptitude:": "APTITUDE",
+    "aptitude ": "APTITUDE",
+    "oops:": "OOPS",
+    "oops ": "OOPS",
+    "webdev:": "WEBDEV",
+    "webdev ": "WEBDEV",
+    "react:": "REACT",
+    "react ": "REACT",
+    "pages:": "__PAGES__",
+    "pages ": "__PAGES__",
+};
 
 export function GlobalSearch() {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [problemResults, setProblemResults] = useState<SearchResult[]>([]);
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
+    const abortRef = useRef<AbortController | null>(null);
 
-    // Toggle on Ctrl+K / Cmd+K
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === "k") {
@@ -63,92 +108,134 @@ export function GlobalSearch() {
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    // Toggle via custom event
     useEffect(() => {
         const handleOpenEvent = () => setOpen(true);
         window.addEventListener("open-global-search", handleOpenEvent);
         return () => window.removeEventListener("open-global-search", handleOpenEvent);
     }, []);
 
-    // Debounce query
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedQuery(query);
-            setSelectedIndex(0); // reset selection on new search
+            setSelectedIndex(0);
         }, 200);
         return () => clearTimeout(handler);
     }, [query]);
 
-    // Focus input when modal opens
     useEffect(() => {
         if (open) {
             setQuery("");
             setDebouncedQuery("");
             setSelectedIndex(0);
+            setProblemResults([]);
             setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [open]);
 
-    // Filter results
-    const results = useCallback(() => {
-        if (!debouncedQuery) return [];
-        
-        let q = debouncedQuery.toLowerCase().trim();
-        let showPages = true;
-        let showProblems = true;
-        let problemFilter = "";
+    useEffect(() => {
+        if (!debouncedQuery) {
+            setProblemResults([]);
+            return;
+        }
 
-        // Check for specific command prefixes
-        if (q.startsWith("pages:") || q.startsWith("pages ") || q === "pages") {
-            showProblems = false;
-            q = q.replace(/^pages:?\s*/, "").trim();
-        } else if (q.startsWith("dsa:") || q.startsWith("dsa ") || q === "dsa") {
-            showPages = false;
-            problemFilter = "dsa";
-            q = q.replace(/^dsa:?\s*/, "").trim();
-        } else if (q.startsWith("sql:") || q.startsWith("sql ") || q === "sql") {
-            showPages = false;
-            problemFilter = "sql";
-            q = q.replace(/^sql:?\s*/, "").trim();
-        } else if (q.startsWith("aptitude:") || q.startsWith("aptitude ") || q === "aptitude") {
-            showPages = false;
-            problemFilter = "aptitude";
-            q = q.replace(/^aptitude:?\s*/, "").trim();
+        let q = debouncedQuery.toLowerCase().trim();
+        let domainFilter: ProblemDomain | undefined;
+
+        for (const [prefix, domain] of Object.entries(domainPrefixes)) {
+            if (q.startsWith(prefix)) {
+                if (domain === "__PAGES__") {
+                    setProblemResults([]);
+                    return;
+                }
+                domainFilter = domain as ProblemDomain;
+                q = q.slice(prefix.length).trim();
+                break;
+            }
         }
-        
-        let matchedPages: SearchResult[] = [];
-        if (showPages) {
-            matchedPages = allPages.filter(p => !q || p.title.toLowerCase().includes(q));
+
+        if (!q) {
+            setProblemResults([]);
+            return;
         }
-        
-        let matchedProblems: SearchResult[] = [];
-        if (showProblems) {
-            matchedProblems = allProblems.filter(p => {
-                const matchesFilter = problemFilter ? p.category?.toLowerCase() === problemFilter : true;
-                const matchesQuery = !q || p.title.toLowerCase().includes(q) || (p.category?.toLowerCase().includes(q) && !problemFilter);
-                return matchesFilter && matchesQuery;
+
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        setLoading(true);
+        searchProblems(q, undefined, domainFilter)
+            .then((data) => {
+                if (controller.signal.aborted) return;
+                const problems = (data?.problems ?? []).map((p: any): SearchResult => ({
+                    id: p.id,
+                    title: p.title,
+                    url: `/problems/${p.slug}`,
+                    icon: domainIcons[p.domain] ?? LdCode,
+                    type: "problem" as const,
+                    category: p.domain,
+                    domain: p.domain,
+                    difficulty: p.difficulty,
+                    tags: p.tags,
+                    isSolved: p.isSolved,
+                    acceptance: p.acceptance,
+                }));
+                setProblemResults(problems);
+            })
+            .catch(() => {
+                if (!controller.signal.aborted) setProblemResults([]);
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) setLoading(false);
             });
-        }
-        
-        return [...matchedPages, ...matchedProblems];
+
+        return () => controller.abort();
     }, [debouncedQuery]);
 
-    const currentResults = results();
+    const currentResults = useCallback((): SearchResult[] => {
+        if (!debouncedQuery) return [];
 
-    // Keyboard navigation
+        let q = debouncedQuery.toLowerCase().trim();
+        let showPages = true;
+        let pageFilter = "";
+
+        for (const [prefix, domain] of Object.entries(domainPrefixes)) {
+            if (q.startsWith(prefix)) {
+                if (domain === "__PAGES__") {
+                    q = q.slice(prefix.length).trim();
+                    break;
+                }
+                showPages = false;
+                break;
+            }
+        }
+
+        let pages: SearchResult[] = [];
+        if (showPages) {
+            pages = allPages.filter((p) => {
+                const matchesTitle = !q || p.title.toLowerCase().includes(q);
+                const matchesCat = !pageFilter || p.category?.toLowerCase() === pageFilter;
+                return matchesTitle && matchesCat;
+            });
+        }
+
+        return [...pages, ...problemResults];
+    }, [debouncedQuery, problemResults]);
+
+    const results = currentResults();
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!open) return;
-            
+
             if (e.key === "ArrowDown") {
                 e.preventDefault();
-                setSelectedIndex((prev) => (prev + 1) % (currentResults.length || 1));
+                setSelectedIndex((prev) => (prev + 1) % (results.length || 1));
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
-                setSelectedIndex((prev) => (prev - 1 + (currentResults.length || 1)) % (currentResults.length || 1));
+                setSelectedIndex((prev) => (prev - 1 + (results.length || 1)) % (results.length || 1));
             } else if (e.key === "Enter") {
                 e.preventDefault();
-                const selected = currentResults[selectedIndex];
+                const selected = results[selectedIndex];
                 if (selected) {
                     router.push(selected.url);
                     setOpen(false);
@@ -157,41 +244,48 @@ export function GlobalSearch() {
         };
         document.addEventListener("keydown", handleKeyDown);
         return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [open, currentResults, selectedIndex, router]);
+    }, [open, results, selectedIndex, router]);
+
+    const pages = results.filter((r) => r.type === "page");
+    const problems = results.filter((r) => r.type === "problem");
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-[600px] p-0 overflow-hidden bg-[#fafafa] dark:bg-[#1D1E23] gap-0 border border-gray-200 dark:border-white/10 shadow-2xl !rounded-xl">
+            <DialogContent className="max-w-[640px] p-0 overflow-hidden bg-[#fafafa] dark:bg-[#1D1E23] gap-0 border border-gray-200 dark:border-white/10 shadow-2xl !rounded-xl">
                 {/* Search Input Header */}
                 <div className="flex items-center px-4 py-3 border-b border-gray-200 dark:border-white/10">
                     <LdMagnifer className="w-[18px] h-[18px] text-gray-500 mr-3 shrink-0" />
                     <input
                         ref={inputRef}
                         type="text"
-                        placeholder="Search products, pages, and features..."
+                        placeholder="Search problems, pages, and more..."
                         className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-gray-400 text-gray-900 dark:text-gray-100"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
                     <div className="flex items-center gap-1 ml-3 shrink-0">
+                        {loading && (
+                            <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-600 border-t-gray-600 dark:border-t-gray-300 rounded-full animate-spin mr-2" />
+                        )}
                         <span className="text-[11px] font-semibold px-2 py-1 bg-gray-200/50 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-md border border-gray-200/80 dark:border-white/10">Esc</span>
                     </div>
                 </div>
 
                 {/* Search Results Body */}
-                <div className="max-h-[350px] overflow-y-auto custom-scrollbar p-2">
+                <div className="max-h-[400px] overflow-y-auto custom-scrollbar p-2">
                     {!debouncedQuery ? (
                         <div className="px-2 py-4">
                             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Search tips</h4>
                             <div className="space-y-1">
                                 {[
-                                    { label: "pages:", desc: "Search through platform pages", icon: LdFolder },
-                                    { label: "dsa:", desc: "Search Data Structures & Algorithms problems", icon: LdCode },
+                                    { label: "dsa:", desc: "Search Data Structures & Algorithms", icon: LdCode },
                                     { label: "sql:", desc: "Search Database problems", icon: LdDatabase },
                                     { label: "aptitude:", desc: "Search Aptitude challenges", icon: LdLightbulbBolt },
+                                    { label: "oops:", desc: "Search OOPS problems", icon: LdCrownStar },
+                                    { label: "pages:", desc: "Search platform pages only", icon: LdLaptop },
                                 ].map((tip, i) => (
-                                    <div 
-                                        key={i} 
+                                    <div
+                                        key={i}
                                         className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                                         onClick={() => {
                                             setQuery(tip.label + " ");
@@ -209,15 +303,14 @@ export function GlobalSearch() {
                                 ))}
                             </div>
                         </div>
-                    ) : currentResults.length > 0 ? (
+                    ) : results.length > 0 ? (
                         <div className="py-2">
-                            {/* Grouping by type for better UI */}
-                            {currentResults.some(r => r.type === "page") && (
-                                <div className="mb-4">
+                            {pages.length > 0 && (
+                                <div className="mb-3">
                                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 px-3">Pages</h4>
                                     <div className="space-y-0.5">
-                                        {currentResults.filter(r => r.type === "page").map((result) => {
-                                            const globalIndex = currentResults.indexOf(result);
+                                        {pages.map((result) => {
+                                            const globalIndex = results.indexOf(result);
                                             const isSelected = selectedIndex === globalIndex;
                                             return (
                                                 <div
@@ -233,6 +326,14 @@ export function GlobalSearch() {
                                                         <result.icon className={cn("w-4 h-4", isSelected ? "text-gray-900 dark:text-white" : "text-gray-400")} />
                                                         <span className="font-medium">{result.title}</span>
                                                     </div>
+                                                    {result.category && (
+                                                        <span className={cn(
+                                                            "text-[10px] font-semibold px-2 py-0.5 rounded-md border",
+                                                            isSelected ? "bg-white dark:bg-[#333] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-white/10 shadow-sm" : "bg-gray-100 dark:bg-[#222] text-gray-500 border-gray-200 dark:border-white/5"
+                                                        )}>
+                                                            {result.category}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             );
                                         })}
@@ -240,12 +341,12 @@ export function GlobalSearch() {
                                 </div>
                             )}
 
-                            {currentResults.some(r => r.type === "problem") && (
+                            {problems.length > 0 && (
                                 <div>
                                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 px-3">Problems</h4>
                                     <div className="space-y-0.5">
-                                        {currentResults.filter(r => r.type === "problem").map((result) => {
-                                            const globalIndex = currentResults.indexOf(result);
+                                        {problems.map((result) => {
+                                            const globalIndex = results.indexOf(result);
                                             const isSelected = selectedIndex === globalIndex;
                                             return (
                                                 <div
@@ -259,14 +360,40 @@ export function GlobalSearch() {
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <result.icon className={cn("w-4 h-4", isSelected ? "text-gray-900 dark:text-white" : "text-gray-400")} />
-                                                        <span className="font-medium">{result.title}</span>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium leading-tight">{result.title}</span>
+                                                            {result.tags && result.tags.length > 0 && (
+                                                                <div className="flex gap-1 mt-0.5">
+                                                                    {result.tags.slice(0, 3).map((tag) => (
+                                                                        <span key={tag.slug} className="text-[10px] text-gray-400 dark:text-gray-500">
+                                                                            {tag.name}
+                                                                        </span>
+                                                                    ))}
+                                                                    {result.tags.length > 3 && (
+                                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500">+{result.tags.length - 3}</span>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <span className={cn(
-                                                        "text-[10px] font-semibold px-2 py-0.5 rounded-md border",
-                                                        isSelected ? "bg-white dark:bg-[#333] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-white/10 shadow-sm" : "bg-gray-100 dark:bg-[#222] text-gray-500 border-gray-200 dark:border-white/5"
-                                                    )}>
-                                                        {result.category}
-                                                    </span>
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        {result.isSolved && (
+                                                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                        )}
+                                                        {result.difficulty && (
+                                                            <span className={cn("text-[10px] font-semibold", difficultyColors[result.difficulty] ?? "text-gray-500")}>
+                                                                {result.difficulty}
+                                                            </span>
+                                                        )}
+                                                        {result.category && (
+                                                            <span className={cn(
+                                                                "text-[10px] font-semibold px-2 py-0.5 rounded-md border",
+                                                                isSelected ? "bg-white dark:bg-[#333] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-white/10 shadow-sm" : "bg-gray-100 dark:bg-[#222] text-gray-500 border-gray-200 dark:border-white/5"
+                                                            )}>
+                                                                {result.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -274,11 +401,11 @@ export function GlobalSearch() {
                                 </div>
                             )}
                         </div>
-                    ) : (
+                    ) : !loading ? (
                         <div className="py-14 text-center text-gray-500 dark:text-gray-400 text-[14px]">
-                            No results found for "{debouncedQuery}"
+                            No results found for &ldquo;{debouncedQuery}&rdquo;
                         </div>
-                    )}
+                    ) : null}
                 </div>
 
                 {/* Footer hints */}

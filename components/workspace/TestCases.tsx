@@ -458,6 +458,10 @@ const TestCases = memo(({
                                             isHidden = !!problemCase.hidden;
                                         }
 
+                                        if (!testCase) {
+                                            return <div key="no-case" className="p-4 text-sm text-gray-500 flex items-center justify-center h-full">No test cases available.</div>;
+                                        }
+
                                         return (
                                             <TestCaseView
                                                 key={`case-${displayIndex}`}

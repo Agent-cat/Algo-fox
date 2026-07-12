@@ -95,16 +95,81 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
     }
 
     return (
-        <div className="space-y-8 w-full pb-20">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35 }}
+            className="flex flex-col gap-0 w-full py-8 px-6 lg:px-12 bg-[#fafafa] dark:bg-[#1D1E23] min-h-[calc(100vh-4rem)] pb-20"
+        >
+            {/* Page Header */}
+            <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 }}
+                className="mb-8"
+            >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            Live Tracking
+                        </h1>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* HEADER TOOLS */}
+            <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+            >
+                {data?.isTrackingActive && (
+                    <div className="flex flex-col md:flex-row gap-4 w-full">
+                        <div className="relative flex-1 group w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Locate student signature..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 pl-12 pr-4 py-2.5 rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                            />
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="relative group">
+                                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors pointer-events-none" />
+                                <select
+                                    value={minSubmissions}
+                                    onChange={(e) => setMinSubmissions(Number(e.target.value))}
+                                    className="h-[42px] pl-11 pr-10 bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 outline-none appearance-none cursor-pointer transition-all min-w-[180px] focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                >
+                                    <option value={0}>All Levels</option>
+                                    <option value={1}>MIN: 1 Entry</option>
+                                    <option value={3}>MIN: 3 Entries</option>
+                                    <option value={5}>MIN: 5 Entries</option>
+                                </select>
+                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 rotate-90 pointer-events-none" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </motion.div>
+
             {/* Header Control Panel */}
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-4xl p-6 shadow-xl transition-all duration-300">
+            <motion.div 
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.15 }}
+                className="bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm transition-all duration-300 mb-6"
+            >
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                     <div>
                         <div className="flex items-center gap-2.5 mb-2.5">
                              <div className={`flex items-center justify-center w-2 h-2 rounded-full ${data?.isTrackingActive ? 'bg-orange-600 animate-pulse' : 'bg-gray-300 dark:bg-gray-700'}`} />
                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Live Status Monitor</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-950 dark:text-white uppercase tracking-tightest leading-none">Classroom Performance</h2>
+                        <h2 className="text-2xl font-bold text-gray-950 dark:text-white tracking-tight leading-none">Classroom Performance</h2>
                         <div className="flex items-center gap-3 mt-4 text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">
                             {data?.isTrackingActive ? (
                                 <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/10">
@@ -122,20 +187,20 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
 
                     <div className="flex flex-wrap items-center gap-4">
                         {data?.isTrackingActive && stats && (
-                            <div className="hidden md:flex bg-gray-50 dark:bg-black/40 rounded-xl border border-gray-100 dark:border-white/5 p-1 gap-1">
-                                <div className="px-4 py-2 hover:bg-white dark:hover:bg-white/5 rounded-lg transition-colors cursor-default">
+                            <div className="hidden md:flex bg-gray-50 dark:bg-[#1D1E23] rounded-xl border border-gray-100 dark:border-white/5 p-1 gap-1">
+                                <div className="px-4 py-2 hover:bg-white dark:hover:bg-[#222328] rounded-lg transition-colors cursor-default">
                                     <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Active</div>
-                                    <div className="text-sm font-black text-gray-950 dark:text-white leading-none">{stats.activeStudents}<span className="text-gray-400 text-[10px] font-normal">/{stats.totalStudents}</span></div>
+                                    <div className="text-sm font-bold text-gray-950 dark:text-white leading-none">{stats.activeStudents}<span className="text-gray-400 text-[10px] font-normal">/{stats.totalStudents}</span></div>
                                 </div>
                                 <div className="h-4 w-px bg-gray-200 dark:bg-white/5 my-auto" />
-                                <div className="px-4 py-2 hover:bg-white dark:hover:bg-white/5 rounded-lg transition-colors cursor-default">
+                                <div className="px-4 py-2 hover:bg-white dark:hover:bg-[#222328] rounded-lg transition-colors cursor-default">
                                     <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Stream</div>
-                                    <div className="text-sm font-black text-gray-950 dark:text-white leading-none">{stats.totalSubmissions}</div>
+                                    <div className="text-sm font-bold text-gray-950 dark:text-white leading-none">{stats.totalSubmissions}</div>
                                 </div>
                                 <div className="h-4 w-px bg-gray-200 dark:bg-white/5 my-auto" />
-                                 <div className="px-4 py-2 hover:bg-white dark:hover:bg-white/5 rounded-lg transition-colors cursor-default">
+                                 <div className="px-4 py-2 hover:bg-white dark:hover:bg-[#222328] rounded-lg transition-colors cursor-default">
                                      <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Resolved</div>
-                                     <div className="text-sm font-black text-emerald-500 leading-none">{stats.acceptanceRate}%</div>
+                                     <div className="text-sm font-bold text-emerald-500 leading-none">{stats.acceptanceRate}%</div>
                                  </div>
                             </div>
                         )}
@@ -143,54 +208,24 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                         <button
                             onClick={() => handleToggle(!data?.isTrackingActive)}
                             disabled={isToggling}
-                            className={`h-11 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg active:scale-95 ${
+                            className={`h-[42px] px-6 rounded-xl text-sm font-medium transition-all flex items-center gap-3 shadow-sm active:scale-95 ${
                                 data?.isTrackingActive
-                                    ? "bg-red-500 text-white hover:bg-red-600 shadow-red-200/50"
-                                    : "bg-gray-950 dark:bg-white text-white dark:text-gray-950 hover:bg-orange-600 dark:hover:bg-gray-200"
+                                    ? "bg-red-500 text-white hover:bg-red-600"
+                                    : "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-orange-600 dark:hover:bg-gray-200"
                             } disabled:opacity-50`}
                         >
                             {isToggling ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                                data?.isTrackingActive ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />
+                                data?.isTrackingActive ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />
                             )}
-                             {data?.isTrackingActive ? "Stop" : "Start"}
+                             {data?.isTrackingActive ? "Stop Tracking" : "Start Tracking"}
                         </button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Filters Toolbar */}
-            {data?.isTrackingActive && (
-                <div className="flex flex-col md:flex-row gap-4 bg-white/30 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-4 shadow-lg">
-                    <div className="relative flex-1 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="Locate student signature..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-11 pl-11 pr-4 bg-white dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl text-xs font-bold focus:ring-1 focus:ring-orange-500/20 outline-none transition-all placeholder:text-gray-400 dark:text-white"
-                        />
-                    </div>
-                    <div className="flex gap-4">
-                         <div className="relative group">
-                            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors pointer-events-none" />
-                            <select
-                                value={minSubmissions}
-                                onChange={(e) => setMinSubmissions(Number(e.target.value))}
-                                className="h-11 pl-11 pr-10 bg-white dark:bg-black/40 border border-gray-200 dark:border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 outline-none appearance-none cursor-pointer transition-all min-w-[180px]"
-                            >
-                                <option value={0}>All Levels</option>
-                                <option value={1}>MIN: 1 Entry</option>
-                                <option value={3}>MIN: 3 Entries</option>
-                                <option value={5}>MIN: 5 Entries</option>
-                            </select>
-                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 rotate-90 pointer-events-none" />
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* Monitoring Matrix */}
             <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-6 px-1">
@@ -203,7 +238,7 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                         return (
                             <div
                                 key={student.id}
-                                className="bg-[#fafafa] dark:bg-[#1D1E23] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-500 group shadow-sm hover:shadow-xl hover:shadow-gray-200/10 dark:hover:shadow-none"
+                                className="bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-500 group shadow-sm hover:shadow-md hover:shadow-gray-200/10 dark:hover:shadow-none"
                             >
                                 {/* Matrix Card Header */}
                                 <div className="p-5 flex items-start justify-between border-b border-gray-100 dark:border-white/5">
@@ -337,6 +372,6 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }

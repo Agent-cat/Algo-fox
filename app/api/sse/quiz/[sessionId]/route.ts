@@ -73,7 +73,7 @@ export async function GET(
       });
 
       if (quiz.status === "ENDED") {
-        controller.close();
+        try { controller.close(); } catch {}
         return;
       }
 
@@ -92,7 +92,7 @@ export async function GET(
         clearTimeout(timeoutHandle);
         timeoutHandle = setTimeout(async () => {
           clearInterval(heartbeatInterval);
-          controller.close();
+          try { controller.close(); } catch {}
           await subscriber.quit().catch(() => {});
         }, 5 * 60 * 1000);
       };
@@ -106,13 +106,13 @@ export async function GET(
           if (event.type === "QUIZ_ENDED") {
             clearTimeout(timeoutHandle);
             clearInterval(heartbeatInterval);
-            controller.close();
+            try { controller.close(); } catch {}
             subscriber.quit().catch(() => {});
           }
         } catch {
           clearInterval(heartbeatInterval);
           clearTimeout(timeoutHandle);
-          controller.close();
+          try { controller.close(); } catch {}
           subscriber.quit().catch(() => {});
         }
       });
@@ -120,7 +120,7 @@ export async function GET(
       subscriber.on("error", () => {
         clearInterval(heartbeatInterval);
         clearTimeout(timeoutHandle);
-        controller.close();
+        try { controller.close(); } catch {}
         subscriber.quit().catch(() => {});
       });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Difficulty, ProblemDomain } from "@prisma/client";
+import { Difficulty, ProblemDomain, QuestionType } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -55,6 +55,7 @@ const formSchema = z.object({
     functionTemplates: z.array(functionTemplateSchema).optional(),
     solution: z.string().optional().nullable(),
     isMcq: z.boolean().optional(),
+    questionType: z.nativeEnum(QuestionType).optional(),
     options: z.array(z.string()).optional(),
     answer: z.string().optional(),
     categoryId: z.string().optional(),
@@ -133,11 +134,154 @@ export function MarkdownPreview({ content, placeholder }: { content: string; pla
     );
 }
 
+function TextAnswerEditor({ answer, onChange, inputCls, labelCls, isLong }: {
+    answer: string;
+    onChange: (val: string) => void;
+    inputCls: string;
+    labelCls: string;
+    isLong: boolean;
+}) {
+    let parsed = { minWords: 0, requiredWords: [] as string[] };
+    try {
+        const obj = JSON.parse(answer);
+        if (obj && typeof obj === "object") {
+            parsed = { minWords: obj.minWords || 0, requiredWords: Array.isArray(obj.requiredWords) ? obj.requiredWords : [] };
+        }
+    } catch {
+        if (answer.trim()) {
+            parsed = { minWords: 0, requiredWords: [] };
+        }
+    }
+
+    const [minWords, setMinWords] = useState(parsed.minWords);
+    const [requiredWords, setRequiredWords] = useState<string[]>(parsed.requiredWords);
+    const [keywordInput, setKeywordInput] = useState("");
+
+    const sync = (mw: number, rw: string[]) => {
+        onChange(JSON.stringify({ minWords: mw, requiredWords: rw }));
+    };
+
+    const addKeyword = () => {
+        const kw = keywordInput.trim();
+        if (kw && !requiredWords.includes(kw)) {
+            const next = [...requiredWords, kw];
+            setRequiredWords(next);
+            sync(minWords, next);
+            setKeywordInput("");
+        }
+    };
+
+    const removeKeyword = (kw: string) => {
+        const next = requiredWords.filter(k => k !== kw);
+        setRequiredWords(next);
+        sync(minWords, next);
+    };
+
+    return (
+        <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] space-y-5">
+            <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-[#39424e] dark:text-gray-300 uppercase tracking-widest">
+                    Answer Validation Rules
+                </label>
+                <span className="text-[10px] text-gray-500 font-medium italic">
+                    {isLong ? "Descriptive answer" : "Short answer"}
+                </span>
+            </div>
+
+            {/* Minimum Word Count */}
+            <div>
+                <label className={labelCls}>Minimum Word Count</label>
+                <div className="flex items-center gap-3">
+                    <input
+                        type="number"
+                        min={0}
+                        value={minWords || ""}
+                        onChange={(e) => {
+                            const v = parseInt(e.target.value) || 0;
+                            setMinWords(v);
+                            sync(v, requiredWords);
+                        }}
+                        placeholder="0 = no limit"
+                        className={`${inputCls} max-w-[180px]`}
+                    />
+                    <span className="text-[11px] text-gray-400 dark:text-gray-600">
+                        {minWords > 0 ? `Answer must have at least ${minWords} word${minWords !== 1 ? "s" : ""}` : "No minimum word limit"}
+                    </span>
+                </div>
+            </div>
+
+            {/* Required Keywords */}
+            <div>
+                <label className={labelCls}>Required Keywords / Phrases</label>
+                <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">
+                    Answer must contain all of these words or phrases (case-insensitive).
+                </p>
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addKeyword(); } }}
+                        placeholder="Type a keyword and press Enter..."
+                        className={`${inputCls} flex-1`}
+                    />
+                    <button
+                        type="button"
+                        onClick={addKeyword}
+                        disabled={!keywordInput.trim()}
+                        className="px-4 h-12 bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                        Add
+                    </button>
+                </div>
+                {requiredWords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                        {requiredWords.map((kw) => (
+                            <span
+                                key={kw}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/30 text-xs font-semibold text-orange-700 dark:text-orange-400"
+                            >
+                                {kw}
+                                <button
+                                    type="button"
+                                    onClick={() => removeKeyword(kw)}
+                                    className="text-orange-400 hover:text-orange-600 font-bold ml-0.5"
+                                >
+                                    &times;
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                )}
+                {requiredWords.length === 0 && (
+                    <div className="mt-3 text-[11px] text-gray-300 dark:text-gray-700 italic">No keywords added yet</div>
+                )}
+            </div>
+
+            {/* Summary */}
+            <div className="pt-2 border-t border-gray-200 dark:border-[#333]">
+                <div className="text-[11px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2">Validation Summary</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                    <div>• Minimum <span className="font-bold text-orange-600 dark:text-orange-400">{minWords || "any"}</span> word{minWords !== 1 ? "s" : ""}</div>
+                    <div>• Must contain <span className="font-bold text-orange-600 dark:text-orange-400">{requiredWords.length}</span> keyword{requiredWords.length !== 1 ? "s" : ""}: {requiredWords.length > 0 ? requiredWords.map(k => `"${k}"`).join(", ") : "none"}</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const DIFFICULTY_OPTIONS = [
     { value: "EASY", label: "Easy", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30" },
     { value: "MEDIUM", label: "Medium", color: "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30" },
     { value: "HARD", label: "Hard", color: "text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30" },
     { value: "CONCEPT", label: "Concept", color: "text-orange-600 bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30" },
+];
+
+const QUESTION_TYPE_OPTIONS = [
+    { value: "MCQ_SINGLE", label: "MCQ (Single Correct)", icon: "⊙", desc: "One correct answer" },
+    { value: "MCQ_MULTIPLE", label: "MCQ (Multiple Correct)", icon: "☑", desc: "Multiple correct answers" },
+    { value: "TEXT_SHORT", label: "Short Text Input", icon: "—", desc: "Single-line text answer" },
+    { value: "TEXT_LONG", label: "Long Text Input", icon: "¶", desc: "Descriptive answer with Markdown" },
 ];
 
 const PREDEFINED_COMPANIES = [
@@ -304,6 +448,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             functionTemplates: initialData?.functionTemplates || [],
             solution: initialData?.solution || "",
             isMcq: initialData?.isMcq || domain === "APTITUDE",
+            questionType: (initialData as any)?.questionType || "MCQ_SINGLE",
             options: (initialData as any)?.options || ["", "", "", ""],
             answer: (initialData as any)?.answer || "",
             categoryId: (initialData as any)?.categoryId || "",
@@ -343,8 +488,14 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
 
     const mcqOptions = watch("options");
     const mcqAnswer = watch("answer");
+    const questionTypeValue = watch("questionType") || "MCQ_SINGLE";
+    const isMcqSingle = questionTypeValue === "MCQ_SINGLE";
+    const isMcqMultiple = questionTypeValue === "MCQ_MULTIPLE";
+    const isTextShort = questionTypeValue === "TEXT_SHORT";
+    const isTextLong = questionTypeValue === "TEXT_LONG";
+    const isMcqType = isMcqSingle || isMcqMultiple;
     useEffect(() => {
-        if (mcqAnswer && mcqOptions) {
+        if (mcqAnswer && mcqOptions && isMcqSingle) {
             const idx = Number(mcqAnswer);
             if (isNaN(idx)) {
                 const foundIdx = mcqOptions.indexOf(mcqAnswer);
@@ -355,7 +506,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                 setValue("answer", "");
             }
         }
-    }, [mcqOptions, mcqAnswer, setValue]);
+    }, [mcqOptions, mcqAnswer, isMcqSingle, setValue]);
 
     const { ref: descriptionFormRef, ...descriptionRegister } = register("description");
     const { fields, append, remove } = useFieldArray({ control, name: "testCases" });
@@ -448,9 +599,16 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             companies: data.companies && data.companies.length > 0 ? { companies: data.companies } : null,
             useFunctionTemplate: isDSA && !isConcept ? useFunctionTemplate : false,
             functionTemplates: isDSA && useFunctionTemplate && !isConcept ? functionTemplates : [],
-            isMcq: data.isMcq,
-            options: data.isMcq ? data.options?.filter(o => o.trim() !== "") : [],
-            answer: data.isMcq ? (data.options && data.answer !== "" && data.answer !== undefined ? data.options[Number(data.answer)] : null) : null,
+            isMcq: watch("isMcq"),
+            questionType: watch("isMcq") || isAptitude ? questionTypeValue : "MCQ_SINGLE",
+            options: watch("isMcq") ? data.options?.filter(o => o.trim() !== "") : [],
+            answer: isMcqSingle
+                ? (data.options && data.answer !== "" && data.answer !== undefined ? data.options[Number(data.answer)] : null)
+                : isMcqMultiple
+                    ? (data.answer ? data.answer : null)
+                    : (isTextShort || isTextLong)
+                        ? (data.answer && data.answer.trim() !== "" ? data.answer : null)
+                        : null,
             testCases: (isAptitude || isConcept) ? [] : data.testCases,
             categoryId: data.categoryId || null,
             categoryIds: data.categoryIds || [],
@@ -770,59 +928,194 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                                             </div>
                                         )}
                                     </div>
+                                    {isDSA && !isConcept && (
+                                        <div className="pt-4 pb-2">
+                                            <label className={labelCls}>Problem Format</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setValue("isMcq", false)}
+                                                    className={`p-3 rounded-[3px] border text-left transition-all ${!watch("isMcq") ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10 shadow-sm" : "border-gray-300 dark:border-[#444] hover:border-gray-400 dark:hover:border-[#555]"}`}
+                                                >
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100">Coding Problem</div>
+                                                    <div className="text-[11px] text-gray-500 mt-0.5">Standard algorithm challenge</div>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setValue("isMcq", true);
+                                                        if (!watch("questionType") || !watch("questionType")?.startsWith("MCQ")) {
+                                                            setValue("questionType", "MCQ_SINGLE");
+                                                        }
+                                                    }}
+                                                    className={`p-3 rounded-[3px] border text-left transition-all ${watch("isMcq") ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10 shadow-sm" : "border-gray-300 dark:border-[#444] hover:border-gray-400 dark:hover:border-[#555]"}`}
+                                                >
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100">Quiz / MCQ</div>
+                                                    <div className="text-[11px] text-gray-500 mt-0.5">Multiple choice or text answer</div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {(watch("isMcq") || isAptitude) && (
-                                        <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <label className="text-[10px] font-bold text-[#39424e] dark:text-gray-300 uppercase tracking-widest">MCQ Options</label>
-                                                <div className="flex items-center gap-2">
-                                                    <input type="checkbox" {...register("isMcq")} className="hidden" />
-                                                    <span className="text-[10px] text-gray-500 font-medium italic">At least 2 required</span>
+                                        <div className="space-y-4">
+                                            {/* Question Type Selector */}
+                                            <div>
+                                                <label className={labelCls}>Question Type</label>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    {QUESTION_TYPE_OPTIONS.map(opt => (
+                                                        <button
+                                                            key={opt.value}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setValue("questionType", opt.value as QuestionType);
+                                                                if (opt.value.startsWith("MCQ")) {
+                                                                    setValue("isMcq", true);
+                                                                    if (!mcqOptions || mcqOptions.length < 2) {
+                                                                        setValue("options", ["", "", "", ""]);
+                                                                    }
+                                                                } else {
+                                                                    setValue("isMcq", false);
+                                                                    setValue("options", []);
+                                                                }
+                                                            }}
+                                                            className={`
+                                                                p-4 rounded-[3px] border text-left transition-all
+                                                                ${questionTypeValue === opt.value
+                                                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-500/10 shadow-sm"
+                                                                    : "border-gray-300 dark:border-[#444] hover:border-gray-400 dark:hover:border-[#555]"
+                                                                }
+                                                            `}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <span className={`text-lg ${questionTypeValue === opt.value ? "text-orange-600" : "text-gray-400"}`}>
+                                                                    {opt.icon}
+                                                                </span>
+                                                                <div>
+                                                                    <div className={`text-sm font-bold ${questionTypeValue === opt.value ? "text-orange-700 dark:text-orange-400" : "text-gray-700 dark:text-gray-300"}`}>
+                                                                        {opt.label}
+                                                                    </div>
+                                                                    <div className="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">
+                                                                        {opt.desc}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    ))}
                                                 </div>
                                             </div>
-                                            <div className="space-y-6">
-                                                {[0, 1, 2, 3].map((idx) => (
-                                                    <div key={idx} className="space-y-2">
-                                                        <div className="flex gap-3">
-                                                            <div className="pt-3">
-                                                                <input
-                                                                    type="radio"
-                                                                    value={idx}
-                                                                    checked={watch("answer") === idx.toString()}
-                                                                    onChange={() => setValue("answer", idx.toString())}
-                                                                    className="w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
-                                                                />
-                                                            </div>
-                                                            <div className="flex-1 space-y-2">
-                                                                <textarea
-                                                                    {...register(`options.${idx}` as const)}
-                                                                    placeholder={`Option ${idx + 1} (Markdown supported)`}
-                                                                    rows={3}
-                                                                    className={`${inputCls} py-2 min-h-[80px] resize-y`}
-                                                                />
-                                                                {watch(`options.${idx}`) && (
-                                                                    <div className="p-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-[3px]">
-                                                                        <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Preview</div>
-                                                                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                                                {watch(`options.${idx}`) || ""}
-                                                                            </ReactMarkdown>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
+
+                                            {/* MCQ Options Editor */}
+                                            {isMcqType && (
+                                                <div className="p-6 rounded-[3px] bg-gray-50 dark:bg-[#1D1E23] border border-gray-300 dark:border-[#444] space-y-4">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-[10px] font-bold text-[#39424e] dark:text-gray-300 uppercase tracking-widest">MCQ Options</label>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[10px] text-gray-500 font-medium italic">At least 2 required</span>
+                                                            {isMcqMultiple && (
+                                                                <span className="text-[10px] text-orange-500 font-bold ml-2">Select multiple correct answers</span>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                            <div className="pt-2">
-                                                <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
-                                                <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] truncate bg-white dark:bg-[#1D1E23] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
-                                                    {(watch("options") && watch("answer") !== "" && watch("answer") !== undefined)
-                                                        ? watch(`options.${Number(watch("answer"))}`)
-                                                        : "Select correct option using radio button"}
+                                                    <div className="space-y-6">
+                                                        {[0, 1, 2, 3].map((idx) => (
+                                                            <div key={idx} className="space-y-2">
+                                                                <div className="flex gap-3">
+                                                                    <div className="pt-3">
+                                                                        {isMcqSingle ? (
+                                                                            <input
+                                                                                type="radio"
+                                                                                value={idx}
+                                                                                checked={watch("answer") === idx.toString()}
+                                                                                onChange={() => setValue("answer", idx.toString())}
+                                                                                className="w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                                                                            />
+                                                                        ) : (
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                value={idx}
+                                                                                checked={(() => {
+                                                                                    try {
+                                                                                        const parsed = JSON.parse(watch("answer") || "[]");
+                                                                                        return Array.isArray(parsed) && parsed.includes(idx);
+                                                                                    } catch {
+                                                                                        return false;
+                                                                                    }
+                                                                                })()}
+                                                                                onChange={(e) => {
+                                                                                    try {
+                                                                                        const parsed = JSON.parse(watch("answer") || "[]");
+                                                                                        const arr = Array.isArray(parsed) ? parsed : [];
+                                                                                        if (e.target.checked) {
+                                                                                            setValue("answer", JSON.stringify([...arr, idx]));
+                                                                                        } else {
+                                                                                            setValue("answer", JSON.stringify(arr.filter((i: number) => i !== idx)));
+                                                                                        }
+                                                                                    } catch {
+                                                                                        setValue("answer", e.target.checked ? JSON.stringify([idx]) : "[]");
+                                                                                    }
+                                                                                }}
+                                                                                className="w-4 h-4 text-[#26bd58] bg-gray-100 border-gray-300 focus:ring-[#26bd58] dark:focus:ring-[#26bd58] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex-1 space-y-2">
+                                                                        <textarea
+                                                                            {...register(`options.${idx}` as const)}
+                                                                            placeholder={`Option ${idx + 1} (Markdown supported)`}
+                                                                            rows={3}
+                                                                            className={`${inputCls} py-2 min-h-[80px] resize-y`}
+                                                                        />
+                                                                        {watch(`options.${idx}`) && (
+                                                                            <div className="p-3 bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#222] rounded-[3px]">
+                                                                                <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Preview</div>
+                                                                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                                        {watch(`options.${idx}`) || ""}
+                                                                                    </ReactMarkdown>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="pt-2">
+                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest block mb-1">Correct Answer</label>
+                                                        <div className="text-sm font-semibold text-[#26bd58] dark:text-[#26bd58] bg-white dark:bg-[#1D1E23] px-3 py-2 rounded-[3px] border border-gray-300 dark:border-[#444] min-h-[40px] flex items-center font-mono">
+                                                            {isMcqSingle ? (
+                                                                (watch("options") && watch("answer") !== "" && watch("answer") !== undefined)
+                                                                    ? watch(`options.${Number(watch("answer"))}`)
+                                                                    : "Select correct option using radio button"
+                                                            ) : (
+                                                                (() => {
+                                                                    try {
+                                                                        const parsed = JSON.parse(watch("answer") || "[]");
+                                                                        if (Array.isArray(parsed) && parsed.length > 0) {
+                                                                            return parsed.map((i: number) => watch(`options.${i}`)).filter(Boolean).join(", ");
+                                                                        }
+                                                                        return "Select correct options using checkboxes";
+                                                                    } catch {
+                                                                        return "Select correct options using checkboxes";
+                                                                    }
+                                                                })()
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
+
+                                            {/* Text Input Answer Validation Fields */}
+                                            {(isTextShort || isTextLong) && (
+                                                <TextAnswerEditor
+                                                    answer={watch("answer") || ""}
+                                                    onChange={(val) => setValue("answer", val)}
+                                                    inputCls={inputCls}
+                                                    labelCls={labelCls}
+                                                    isLong={isTextLong}
+                                                />
+                                            )}
                                         </div>
                                     )}
 

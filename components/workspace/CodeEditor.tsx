@@ -62,6 +62,7 @@ interface CodeEditorProps {
   highlightLine?: number | null;
   allowedLanguages?: string[];
   hideToolbar?: boolean;
+  allowPaste?: boolean;
 }
 
 const AUTOSAVE_DELAY = 1000; // 1 second
@@ -83,6 +84,7 @@ const CodeEditor = memo(({
   highlightLine,
   allowedLanguages,
   hideToolbar = false,
+  allowPaste = false,
 }: CodeEditorProps) => {
   // Get system theme
   const { resolvedTheme } = useTheme();
@@ -556,71 +558,70 @@ const CodeEditor = memo(({
 
       // SECURE COPY/PASTE LOGIC
       // We generate a unique session token for this editor instance
-      const SESSION_TOKEN_KEY = "algofox_secure_token";
-      const instanceToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      if (!allowPaste) {
+        const SESSION_TOKEN_KEY = "algofox_secure_token";
+        const instanceToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
-      // We attach to the CONTAINER (editorContainerRef) for robust capture.
-      // 1. Mark container as allowed for DevToolsBlocker
-      if (editorContainerRef.current) {
-          const container = editorContainerRef.current;
-          container.setAttribute("data-allow-clipboard", "true");
+        // We attach to the CONTAINER (editorContainerRef) for robust capture.
+        // 1. Mark container as allowed for DevToolsBlocker
+        if (editorContainerRef.current) {
+            const container = editorContainerRef.current;
+            container.setAttribute("data-allow-clipboard", "true");
 
-          // Also allow internal domNode just to be safe with traversal logic
-          const domNode = editor.getDomNode();
-          if (domNode) {
-             domNode.setAttribute("data-allow-clipboard", "true");
-          }
+            // Also allow internal domNode just to be safe with traversal logic
+            const domNode = editor.getDomNode();
+            if (domNode) {
+               domNode.setAttribute("data-allow-clipboard", "true");
+            }
 
-          // 2. Attach Capture Phase Listeners
-          // We must remove previous listeners to avoid duplicates on re-mounts if any,
-          // but since this is a functional component mount, simple addEventListener is fine
-          // (closure captures unique instanceToken).
+            // 2. Attach Capture Phase Listeners
+            // We must remove previous listeners to avoid duplicates on re-mounts if any,
+            // but since this is a functional component mount, simple addEventListener is fine
+            // (closure captures unique instanceToken).
 
-          const handleCopy = (e: ClipboardEvent) => {
-              if (e.clipboardData) {
-                  const selection = editor.getModel()?.getValueInRange(editor.getSelection());
-                  if (selection) {
-                      e.clipboardData.setData('text/plain', selection);
-                      // Inject our secure token
-                      e.clipboardData.setData('application/x-algofox-token', instanceToken);
-                      e.preventDefault();
-                  }
-              }
-          };
+            const handleCopy = (e: ClipboardEvent) => {
+                if (e.clipboardData) {
+                    const selection = editor.getModel()?.getValueInRange(editor.getSelection());
+                    if (selection) {
+                        e.clipboardData.setData('text/plain', selection);
+                        // Inject our secure token
+                        e.clipboardData.setData('application/x-algofox-token', instanceToken);
+                        e.preventDefault();
+                    }
+                }
+            };
 
-          const handleCut = (e: ClipboardEvent) => {
-             if (e.clipboardData) {
-                  const selection = editor.getModel()?.getValueInRange(editor.getSelection());
-                  if (selection) {
-                      e.clipboardData.setData('text/plain', selection);
-                      e.clipboardData.setData('application/x-algofox-token', instanceToken);
-                      e.preventDefault();
-                      editor.trigger('source', 'cut', {});
-                  }
-              }
-          };
+            const handleCut = (e: ClipboardEvent) => {
+               if (e.clipboardData) {
+                    const selection = editor.getModel()?.getValueInRange(editor.getSelection());
+                    if (selection) {
+                        e.clipboardData.setData('text/plain', selection);
+                        e.clipboardData.setData('application/x-algofox-token', instanceToken);
+                        e.preventDefault();
+                        editor.trigger('source', 'cut', {});
+                    }
+                }
+            };
 
-          const handlePaste = (e: ClipboardEvent) => {
-              // Parse token
-              const token = e.clipboardData?.getData('application/x-algofox-token');
+            const handlePaste = (e: ClipboardEvent) => {
+                // Parse token
+                const token = e.clipboardData?.getData('application/x-algofox-token');
 
-              if (token === instanceToken) {
-                  // Verified! Allow to succeed.
-                  return;
-              } else {
-                  // External or Invalid
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toast.error("Paste blocked: You can only paste code copied from this editor.");
-              }
-          };
+                if (token === instanceToken) {
+                    // Verified! Allow to succeed.
+                    return;
+                } else {
+                    // External or Invalid
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toast.error("Paste blocked: You can only paste code copied from this editor.");
+                }
+            };
 
-          container.addEventListener("copy", handleCopy as any, true);
-          container.addEventListener("cut", handleCut as any, true);
-          container.addEventListener("paste", handlePaste as any, true);
-
-          // Note: In a production app, we should save these handler refs to remove them in cleanup
-          // but for now relying on component unmount and container lifecycle is acceptable
+            container.addEventListener("copy", handleCopy as any, true);
+            container.addEventListener("cut", handleCut as any, true);
+            container.addEventListener("paste", handlePaste as any, true);
+        }
       }
 
       // In readOnly mode, the editor might strictly follow `value` prop if we passed one,

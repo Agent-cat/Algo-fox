@@ -7,15 +7,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePersistentSplit } from '@/hooks/use-layout';
 import AptitudeMCQPanel from './AptitudeMCQPanel';
+import AptitudeTextPanel from './AptitudeTextPanel';
 import ProblemTour from '../tour/ProblemTour';
 import { PointsCelebration } from '../shared/PointsCelebration';
 import dynamic from 'next/dynamic';
 import { authClient } from '@/lib/auth-client';
-
-const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
-    loading: () => null,
-    ssr: false
-});
+import { WorkspaceSidebars } from './WorkspaceSidebars';
+import { getParticipationStatus } from '@/actions/contest';
+import { toast } from 'sonner';
 
 interface AptitudeWorkspaceProps {
     problem: Problem & {
@@ -24,6 +23,8 @@ interface AptitudeWorkspaceProps {
         tags?: { name: string; slug: string }[];
     };
     isSolved: boolean;
+    contestId?: string;
+    contest?: any;
     solvedProblemIds?: string[];
     nextProblemSlug?: string | null;
     prevProblemSlug?: string | null;
@@ -37,6 +38,8 @@ interface AptitudeWorkspaceProps {
 export default function AptitudeWorkspace({
     problem,
     isSolved: initialIsSolved,
+    contestId,
+    contest,
     solvedProblemIds = [],
     nextProblemSlug,
     prevProblemSlug,
@@ -54,12 +57,40 @@ export default function AptitudeWorkspace({
     const [solvedIds, setSolvedIds] = useState<string[]>(solvedProblemIds);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
     const [pointsGained, setPointsGained] = useState(0);
+    const [contestModeActive, setContestModeActive] = useState(false);
+    const [contestSessionId, setContestSessionId] = useState<string | null>(null);
+
+    const isContestMode = !!contestId && contestModeActive;
 
     // Sync state when problem changes
     useEffect(() => {
         setIsSolved(initialIsSolved);
         setSolvedIds(solvedProblemIds);
     }, [problem.id, initialIsSolved, solvedProblemIds]);
+
+    // Contest participation check
+    useEffect(() => {
+        if (!contestId) return;
+        const checkParticipation = async () => {
+            try {
+                const result = await getParticipationStatus(contestId);
+                if (result.success && result.participation) {
+                    if (result.participation.sessionId && result.participation.acceptedRules) {
+                        setContestSessionId(result.participation.sessionId);
+                        setContestModeActive(true);
+                    } else if (result.participation.isBlocked) {
+                        toast.error(result.participation.blockReason || "Security violation or manual block.");
+                    } else if (result.participation.isFinished) {
+                        toast.info("Contest already submitted or session expired.");
+                        router.push(`/contest/${contest?.slug || contestId}`);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to check participation:", err);
+            }
+        };
+        checkParticipation();
+    }, [contestId, contest?.slug, router]);
 
     const {
         sizes: mainSizes,
@@ -79,7 +110,7 @@ export default function AptitudeWorkspace({
     }, [problem.id, solvedIds]);
 
     const handleRevealSolution = useCallback(() => {
-        setIsSolved(true); // Temporarily mark as solved for viewing
+        setIsSolved(true);
         setActiveTab("solutions");
     }, []);
 
@@ -106,14 +137,15 @@ export default function AptitudeWorkspace({
         <div className="h-screen w-full bg-[#fafafa] dark:bg-[#1D1E23] flex flex-col overflow-hidden animate-fadeIn">
             <ProblemTour />
 
-            <ProblemSidebar
-                isOpen={isSidebarOpen}
-                onClose={handleCloseSidebar}
-                currentProblemId={problem.id}
-                domain={problem.domain}
-                problemType={problem.type}
-                solvedProblemIds={solvedIds}
+            <WorkspaceSidebars
+                contestId={isContestMode ? contestId : undefined}
+                isSidebarOpen={isSidebarOpen}
+                handleCloseSidebar={handleCloseSidebar}
+                problem={problem}
+                solvedIds={solvedIds}
+                contest={contest}
                 courseId={courseId}
+                courseName={courseName}
             />
 
             <WorkspaceHeader
@@ -131,6 +163,7 @@ export default function AptitudeWorkspace({
                 currentCourseProblemIndex={currentCourseProblemIndex}
                 onToggleSidebar={handleToggleSidebar}
                 problemId={problem.id}
+                contestId={isContestMode ? contestId : undefined}
             />
 
             <PointsCelebration
@@ -158,20 +191,35 @@ export default function AptitudeWorkspace({
                             domain={problem.domain}
                             nextProblemSlug={nextProblemSlug}
                             courseId={courseId}
+                            contestId={isContestMode ? contestId : undefined}
                         />
                     </div>
 
-                    {/* RIGHT SIDE: MCQ INTERFACE */}
+                    {/* RIGHT SIDE: QUESTION INTERFACE */}
                     <div className="h-full overflow-hidden flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r border-dashed border-gray-400 dark:border-white/10">
-                        <AptitudeMCQPanel
-                            problem={problem}
-                            isSolved={isSolved}
-                            onSolved={handleSolved}
-                            onRevealSolution={handleRevealSolution}
-                            nextProblemSlug={nextProblemSlug}
-                            userRole={(session?.user as any)?.role}
-                            courseId={courseId}
-                        />
+                        {(problem as any).questionType === "TEXT_SHORT" || (problem as any).questionType === "TEXT_LONG" ? (
+                            <AptitudeTextPanel
+                                problem={problem}
+                                isSolved={isSolved}
+                                onSolved={handleSolved}
+                                onRevealSolution={handleRevealSolution}
+                                nextProblemSlug={nextProblemSlug}
+                                userRole={(session?.user as any)?.role}
+                                courseId={courseId}
+                                contestMode={isContestMode}
+                            />
+                        ) : (
+                            <AptitudeMCQPanel
+                                problem={problem}
+                                isSolved={isSolved}
+                                onSolved={handleSolved}
+                                onRevealSolution={handleRevealSolution}
+                                nextProblemSlug={nextProblemSlug}
+                                userRole={(session?.user as any)?.role}
+                                courseId={courseId}
+                                contestMode={isContestMode}
+                            />
+                        )}
                     </div>
                 </Split>
             </div>

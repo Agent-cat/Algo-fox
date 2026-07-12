@@ -14,11 +14,34 @@ const PATH_TO_CONFIG = {
   "/api": RATE_LIMIT_CONFIGS.API_GENERAL,
 } as const;
 
+interface BetterAuthSession {
+  session: {
+    id: string;
+    userId: string;
+    impersonatedBy?: string | null;
+    [key: string]: unknown;
+  };
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    role?: string | null;
+    institutionId?: string | null;
+    [key: string]: unknown;
+  };
+}
+
 export async function proxy(request: NextRequest) {
   const clientIp = getClientIP(request);
   const url = new URL(request.url);
   const pathname = url.pathname;
-  let session: any = null;
+
+  // Skip proxy processing for better-auth API routes — they handle their own
+  // session/cookie logic via toNextJsHandler + nextCookies plugin.
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+  let session: BetterAuthSession | null = null;
   let sessionFetched = false;
 
   const getSession = async () => {
@@ -65,52 +88,48 @@ export async function proxy(request: NextRequest) {
   }
 
   // 3. Authentication & Access Control
-  const isAuthProtected =
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/dashboard/institution") ||
-    pathname.startsWith("/dashboard/teacher") ||
-    pathname.startsWith("/dashboard/contests");
+  const PUBLIC_PREFIXES = ["/api", "/auth/error"];
+  const PUBLIC_ROUTES = ["/", "/signin", "/signup", "/forgot-password", "/reset-password", "/terms", "/privacy"];
 
-  const isGuestOnly =
-    pathname.startsWith("/signin") ||
-    pathname.startsWith("/signup");
+  const isPublicPrefix = PUBLIC_PREFIXES.some(prefix => pathname.startsWith(prefix));
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
-  if (isAuthProtected || isGuestOnly) {
+  if (!isPublicPrefix) {
     try {
       const currentSession = await getSession();
 
-      if (isGuestOnly && currentSession) {
-        // If logged in and trying to access signin/signup, redirect to dashboard
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
-
-      if (isAuthProtected && !currentSession) {
-        // If not logged in and trying to access protected route, redirect to signin
-        return NextResponse.redirect(new URL("/signin", request.url));
-      }
-
       if (currentSession) {
-        const userRole = (currentSession.user as any).role;
+        // If logged in, visiting any guest-only or landing page redirects to /home
+        const isGuestOnly = pathname === "/" || pathname === "/signin" || pathname === "/signup" || pathname === "/forgot-password" || pathname === "/reset-password";
+        if (isGuestOnly) {
+          return NextResponse.redirect(new URL("/home", request.url));
+        }
+
+        const userRole = currentSession.user.role;
 
         // Role Checks
         if (pathname.startsWith("/admin") && userRole !== "ADMIN") {
-          return NextResponse.redirect(new URL("/", request.url));
+          return NextResponse.redirect(new URL("/home", request.url));
         }
 
         if (pathname.startsWith("/dashboard/institution") && userRole !== "INSTITUTION_MANAGER") {
-          return NextResponse.redirect(new URL("/", request.url));
+          return NextResponse.redirect(new URL("/home", request.url));
         }
 
         if ((pathname.startsWith("/dashboard/teacher") || pathname.startsWith("/dashboard/contests")) &&
-            !["TEACHER", "ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER"].includes(userRole)) {
+            (!userRole || !["TEACHER", "ADMIN", "INSTITUTION_MANAGER", "CONTEST_MANAGER"].includes(userRole))) {
+          return NextResponse.redirect(new URL("/home", request.url));
+        }
+      } else {
+        // If logged out and not trying to access a public route, redirect to landing page (/)
+        if (!isPublicRoute) {
           return NextResponse.redirect(new URL("/", request.url));
         }
       }
     } catch (error) {
       console.error("[Auth] Session validation failed:", error);
-      if (isAuthProtected) {
-        return NextResponse.redirect(new URL("/signin", request.url));
+      if (!isPublicRoute) {
+        return NextResponse.redirect(new URL("/", request.url));
       }
     }
   }

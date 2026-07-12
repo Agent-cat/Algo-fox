@@ -47,7 +47,7 @@ export default function PracticeClient({
     // Filter state from URL
     const difficulty = searchParams.get("difficulty") as Difficulty | undefined;
     const tags = searchParams.getAll("tags");
-    const sortBy = searchParams.get("sortBy") || "newest";
+    const sortBy = searchParams.get("sortBy") || "oldest";
     const selectedCompany = searchParams.get("company");
 
     useEffect(() => {

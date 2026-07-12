@@ -6,7 +6,7 @@ import { useSidebar } from "@/context/SidebarContext";
 
 type BetterAuthSession = {
   session: { impersonatedBy?: string };
-  user: any;
+  user: { id: string; role?: string };
 } | null;
 
 export default function MainContentWrapper({
@@ -19,6 +19,7 @@ export default function MainContentWrapper({
   const { sidebarWidth, isDragging } = useSidebar();
   const [mounted, setMounted] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   const isImpersonating = mounted && !!session?.session?.impersonatedBy;
@@ -27,7 +28,7 @@ export default function MainContentWrapper({
   return (
     <div
       style={{
-        marginLeft: sidebarWidth,
+        marginLeft: session?.user ? sidebarWidth : 0,
         ...({ "--content-height": contentHeight } as React.CSSProperties),
       }}
       className={[

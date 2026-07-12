@@ -81,7 +81,7 @@ export default function ProblemSidebar({
 
   // Filter State
   const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
-  const [sortBy, setSortBy] = useState<string>("newest");
+  const [sortBy, setSortBy] = useState<string>("oldest");
 
   // Search Handler
   useEffect(() => {

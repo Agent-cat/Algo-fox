@@ -101,28 +101,30 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
     };
 
     return (
-        <div className={`min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] ${isTeacher ? 'pl-0 md:pl-72' : ''}`}>
+        <div className="flex min-h-[calc(100vh-4rem)] bg-[#fafafa] dark:bg-[#1D1E23]">
              {isTeacher && (
-                <ClassroomSidebar
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                    onDownload={handleDownload}
-                    onProgressDownload={() => setIsProgressModalOpen(true)}
-                    showDownload={activeTab === 'leaderboard'}
-                    isTeacher={isTeacher}
-                    classroomName={classroom.name}
-                    classroomDetails={{
-                        instructor: classroom.teacher.name || "Anonymous",
-                        domain: classroom.subject || "Logic & Coding",
-                        section: classroom.section || "General",
-                        joinCode: classroom.joinCode
-                    }}
-                    onCopyLink={handleCopyLink}
-                    isCopied={isCopied}
-                />
+                <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-white/10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+                    <ClassroomSidebar
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
+                        onDownload={handleDownload}
+                        onProgressDownload={() => setIsProgressModalOpen(true)}
+                        showDownload={activeTab === 'leaderboard'}
+                        isTeacher={isTeacher}
+                        classroomName={classroom.name}
+                        classroomDetails={{
+                            instructor: classroom.teacher.name || "Anonymous",
+                            domain: classroom.subject || "Logic & Coding",
+                            section: classroom.section || "General",
+                            joinCode: classroom.joinCode
+                        }}
+                        onCopyLink={handleCopyLink}
+                        isCopied={isCopied}
+                    />
+                </aside>
             )}
 
-             <div className="w-full h-[calc(100vh-64px)] overflow-hidden">
+             <main className="flex-1 min-w-0 h-[calc(100vh-4rem)] overflow-hidden">
                 <AnimatePresence mode="wait">
                         {activeTab === 'leaderboard' && (
                             <motion.div
@@ -131,7 +133,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                                className="w-full h-full"
+                                className="w-full h-full overflow-y-auto"
                             >
                                 <ClassroomLeaderboard
                                     students={classroom.students}
@@ -158,7 +160,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                                className="w-full h-full"
+                                className="w-full h-full overflow-y-auto"
                             >
                                 <ContestPerformance classroomId={classroom.id} />
                             </motion.div>
@@ -175,7 +177,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                             </motion.div>
                         )}
                     </AnimatePresence>
-                </div>
+                </main>
 
                 {isProgressModalOpen && (
                     <DownloadProgressModal

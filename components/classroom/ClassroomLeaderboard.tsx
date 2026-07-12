@@ -176,39 +176,72 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
     }
 
     return (
-        <div ref={containerRef} className={`flex flex-col gap-0 w-full ${isFullscreen ? 'h-screen bg-[#f0f0f0] dark:bg-[#1D1E23] overflow-auto' : 'h-full bg-[#f0f0f0] dark:bg-[#1D1E23]'}`}>
-            <div className="bg-[#f0f0f0] dark:bg-[#1D1E23]/40 border-b border-gray-200 dark:border-white/5 p-6 rounded-none flex items-center gap-4">
-                <div className="relative group flex-1">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+        <motion.div 
+            ref={containerRef} 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35 }}
+            className={`flex flex-col gap-0 w-full py-8 ${isFullscreen ? 'h-screen bg-[#fafafa] dark:bg-[#1D1E23] overflow-auto px-6 lg:px-12' : 'h-full bg-[#fafafa] dark:bg-[#1D1E23] px-6 lg:px-12'}`}
+        >
+            {/* Page Header */}
+            <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 }}
+                className="mb-8"
+            >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            Leaderboard
+                        </h1>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* HEADER TOOLS */}
+            <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+            >
+                <div className="relative group flex-1 w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Locate student by identifier or roll number..."
+                        placeholder="Search student by name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/50 dark:bg-[#1D1E23]/40 backdrop-blur-sm border border-gray-200 dark:border-white/5 pl-14 pr-6 py-4 rounded-none text-xs font-medium focus:ring-0 outline-none transition-all placeholder:text-gray-400 dark:text-white"
+                        className="w-full bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 pl-12 pr-4 py-2.5 rounded-xl text-sm font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all placeholder:text-gray-400 dark:text-white"
                     />
                 </div>
 
                 <button
                     onClick={toggleFullscreen}
-                    className="h-[52px] px-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 flex items-center gap-3 hover:border-orange-500/50 transition-all group shadow-sm active:scale-95"
+                    className="h-[42px] px-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex items-center gap-3 hover:border-orange-500/50 transition-all group shadow-sm active:scale-95 whitespace-nowrap"
                     title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
                 >
                     {isFullscreen ? (
                         <>
                             <Minimize className="w-4 h-4 text-orange-600" />
-                            <span className="text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-400">Windowed</span>
+                            <span className="text-[12px] font-semibold uppercase text-gray-600 dark:text-gray-400">Windowed</span>
                         </>
                     ) : (
                         <>
                             <Maximize className="w-4 h-4 text-orange-600" />
-                            <span className="text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-400">Fullscreen</span>
+                            <span className="text-[12px] font-semibold uppercase text-gray-600 dark:text-gray-400">Fullscreen</span>
                         </>
                     )}
                 </button>
-            </div>
+            </motion.div>
 
-            <div className="flex-1 bg-transparent border-x border-transparent rounded-none overflow-hidden flex flex-col">
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.15 }}
+                className="flex-1 bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col"
+            >
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -356,7 +389,7 @@ export function ClassroomLeaderboard({ students, isTeacher, classroomId }: Class
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

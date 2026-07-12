@@ -1,7 +1,7 @@
 "use server";
 
 import { ProblemService } from "@/core/services/problem.service";
-import { Difficulty, ProblemType, ProblemDomain } from "@prisma/client";
+import { Difficulty, ProblemType, ProblemDomain, QuestionType } from "@prisma/client";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
@@ -18,7 +18,7 @@ export async function getProblems(
     difficulty?: Difficulty,
     tags?: string[],
     cursor?: string,
-    sortBy: string = 'newest'
+    sortBy: string = 'oldest'
 ) {
     "use cache: private"; // Must be at top - allows headers() inside
     cacheLife(getCacheLifeConfig("problems"));
@@ -120,6 +120,10 @@ export async function createProblem(data: {
     solution?: string | null;
     companies?: any;
     hints?: string[];
+    isMcq?: boolean;
+    questionType?: QuestionType;
+    options?: any;
+    answer?: string | null;
 }) {
     const session = await getSession();
 

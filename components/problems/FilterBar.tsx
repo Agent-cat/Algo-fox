@@ -44,7 +44,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
 
     const difficulty = searchParams.get("difficulty");
     const selectedTags = searchParams.getAll("tags");
-    const sortBy = searchParams.get("sortBy") || "newest";
+    const sortBy = searchParams.get("sortBy") || "oldest";
     const selectedCompany = searchParams.get("company");
 
     useEffect(() => {
@@ -91,7 +91,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
         setCompanySearch("");
     };
 
-    const hasFilters = difficulty || selectedTags.length > 0 || sortBy !== "newest" || selectedCompany;
+    const hasFilters = difficulty || selectedTags.length > 0 || sortBy !== "oldest" || selectedCompany;
 
     return (
         <div className="flex flex-wrap items-center gap-3 mb-4" ref={containerRef}>
@@ -100,7 +100,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
             <div className="relative">
                 <button
                     onClick={() => setOpenDropdown(prev => prev === "difficulty" ? null : "difficulty")}
-                    className={`flex items-center gap-2.5 px-4 py-2 bg-[#fafafa] dark:bg-[#24262C] border border-gray-200 dark:border-[#1e1e1e] rounded-xl text-[13px] font-bold text-gray-700 dark:text-gray-300 transition-all duration-200 hover:border-gray-300 dark:hover:border-[#333] tracking-tight ${difficulty ? 'ring-2 ring-orange-500/10 border-orange-400/50 text-orange-600' : ''}`}
+                    className={`flex items-center gap-2.5 px-4 py-2 bg-[#fafafa] dark:bg-[#24262C] border border-gray-200 dark:border-[#1e1e1e] rounded-xl text-[13px] font-medium text-gray-700 dark:text-gray-300 transition-all duration-200 hover:border-gray-300 dark:hover:border-[#333] tracking-tight ${difficulty ? 'ring-2 ring-orange-500/10 border-orange-400/50 text-orange-600' : ''}`}
                 >
                     <span>{difficulty ? difficulty.charAt(0) + difficulty.slice(1).toLowerCase() : "Difficulty"}</span>
                     <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${openDropdown === "difficulty" ? 'rotate-180' : ''}`} />
@@ -287,7 +287,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
             <div className="relative">
                 <button
                     onClick={() => setOpenDropdown(prev => prev === "sort" ? null : "sort")}
-                    className={`flex items-center gap-2.5 px-4 py-2 bg-[#fafafa] dark:bg-[#24262C] border border-gray-200 dark:border-[#1e1e1e] rounded-xl text-[13px] font-bold text-gray-700 dark:text-gray-300 transition-all duration-200 hover:border-gray-300 dark:hover:border-[#333] tracking-tight ${sortBy !== "newest" ? 'ring-2 ring-orange-500/10 border-orange-400/50 text-orange-600' : ''}`}
+                    className={`flex items-center gap-2.5 px-4 py-2 bg-[#fafafa] dark:bg-[#24262C] border border-gray-200 dark:border-[#1e1e1e] rounded-xl text-[13px] font-bold text-gray-700 dark:text-gray-300 transition-all duration-200 hover:border-gray-300 dark:hover:border-[#333] tracking-tight ${sortBy !== "oldest" ? 'ring-2 ring-orange-500/10 border-orange-400/50 text-orange-600' : ''}`}
                 >
                     <ArrowUpDown className="w-3.5 h-3.5 text-gray-400" />
                     <span className="capitalize">{sortBy}</span>

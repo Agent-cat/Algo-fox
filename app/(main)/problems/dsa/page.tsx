@@ -65,7 +65,7 @@ async function DsaProblemsContent({
     const params = await searchParams;
     const page = Number(params?.page) || 1;
     const difficulty = (params?.difficulty as any) || undefined;
-    const sortBy = (params?.sortBy as string) || "newest";
+    const sortBy = (params?.sortBy as string) || "oldest";
 
     // tags can be string or string[]
     let tags: string[] = [];
