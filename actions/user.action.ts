@@ -13,9 +13,6 @@ import { getSession } from "@/lib/auth-utils";
  */
 
 export async function getUserScore(): Promise<number> {
-    "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes
-
     const session = await getSession();
 
     if (!session?.user?.id) {
@@ -23,7 +20,12 @@ export async function getUserScore(): Promise<number> {
     }
 
     const userId = session.user.id;
+    return getCachedUserScore(userId);
+}
 
+async function getCachedUserScore(userId: string): Promise<number> {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes
     cacheTag(`user-score-${userId}`, `user-${userId}`);
 
     return UserService.getUserScore(userId);
@@ -175,9 +177,6 @@ export async function syncUserProfile(): Promise<{ success: boolean; error?: str
  * Get user settings data (cached)
  */
 export async function getUserSettings() {
-    "use cache: private";
-    cacheLife({ stale: 300, revalidate: 300 });
-
     const session = await getSession();
 
     if (!session?.user?.id) {
@@ -185,6 +184,12 @@ export async function getUserSettings() {
     }
 
     const userId = session.user.id;
+    return getCachedUserSettings(userId);
+}
+
+async function getCachedUserSettings(userId: string) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
     cacheTag(`user-${userId}`);
 
     return UserService.getUserSettings(userId);
@@ -194,18 +199,22 @@ export async function getUserSettings() {
  * Get user institution details
  */
 export async function getUserInstitutionDetails() {
-    "use cache: private";
-    cacheLife({ stale: 3600, revalidate: 3600 }); // 1 hour
-
     const session = await getSession();
 
     if (!session?.user?.institutionId) {
         return null;
     }
 
+    const institutionId = session.user.institutionId;
+    return getCachedUserInstitutionDetails(institutionId);
+}
+
+async function getCachedUserInstitutionDetails(institutionId: string) {
+    "use cache: private";
+    cacheLife({ stale: 3600, revalidate: 3600 }); // 1 hour
+    cacheTag(`institution-${institutionId}`);
+
     try {
-        const institutionId = session.user.institutionId;
-        cacheTag(`institution-${institutionId}`);
         const institution = await prisma.institution.findUnique({
             where: { id: institutionId },
             select: { name: true, logo: true, slug: true }

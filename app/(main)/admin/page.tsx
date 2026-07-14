@@ -9,9 +9,6 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth-utils";
 
 async function AdminDashboardStats() {
-    "use cache: private";
-    cacheLife("minutes");
-
     const session = await getSession();
 
     if (!session?.user || (session.user as any).role !== "ADMIN") {

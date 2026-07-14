@@ -13,8 +13,6 @@ interface PageProps {
 }
 
 async function SubmissionContent({ params }: PageProps) {
-    "use cache: private";
-    cacheLife("minutes"); // Fix: Use explicit built-in profile for nested cache compliance
     const { id } = await params;
     const submission = await getSubmission(id);
 

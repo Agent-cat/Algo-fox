@@ -8,9 +8,6 @@ import { getSession } from "@/lib/auth-utils";
 
 // GETTING DASHBOARD STATS
 export async function getDashboardStats() {
-    "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for dashboard stats
-
     const session = await getSession();
     // CHECKING IF USER IS AUTHENTICATED --> RETURNING NULL IF NOT AUTHENTICATED
     if (!session?.user) {
@@ -18,7 +15,12 @@ export async function getDashboardStats() {
     }
 
     const userId = session.user.id;
+    return getCachedDashboardStats(userId);
+}
 
+async function getCachedDashboardStats(userId: string) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 }); // 5 minutes for dashboard stats
     cacheTag(`dashboard-${userId}`, 'dashboard-stats');
 
     return DashboardService.getDashboardStats(userId);
@@ -26,9 +28,6 @@ export async function getDashboardStats() {
 
 // GET USER PROFILE (PUBLIC READ-ONLY)
 export async function getUserProfile(userId: string) {
-    "use cache: private";
-    cacheLife({ stale: 300, revalidate: 300 });
-
     const session = await getSession();
 
     // Still require authentication to view profiles
@@ -36,6 +35,12 @@ export async function getUserProfile(userId: string) {
         return null;
     }
 
+    return getCachedUserProfile(userId);
+}
+
+async function getCachedUserProfile(userId: string) {
+    "use cache: private";
+    cacheLife({ stale: 300, revalidate: 300 });
     cacheTag(`dashboard-${userId}`, 'dashboard-stats');
 
     return DashboardService.getDashboardStats(userId);

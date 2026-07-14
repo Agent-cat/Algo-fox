@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { throwIfNextBailoutError } from "@/lib/auth-utils";
 
 export async function getPlacementStudents() {
     try {
@@ -34,6 +35,7 @@ export async function getPlacementStudents() {
 
         return { success: true, students };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch placement students:", error);
         return { success: false, error: error.message, students: [] };
     }
@@ -78,6 +80,7 @@ export async function assignTagsToStudents(studentIds: string[], newTags: string
         revalidatePath("/placementdashboard/students");
         return { success: true };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to assign tags:", error);
         return { success: false, error: error.message };
     }
@@ -113,6 +116,7 @@ export async function getStudentTagCounts() {
 
         return { success: true, tags: sortedTags };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch tag counts:", error);
         return { success: false, error: error.message, tags: [] };
     }

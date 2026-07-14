@@ -9,9 +9,6 @@ import { ArrowRight } from "lucide-react";
 import { getSession } from "@/lib/auth-utils";
 
 async function CreateContestContent() {
-    "use cache: private";
-    cacheLife("minutes");
-
     const session = await getSession();
 
     if (!session?.user) {

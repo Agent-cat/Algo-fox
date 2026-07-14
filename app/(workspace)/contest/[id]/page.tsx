@@ -38,9 +38,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 async function ContestDetailContent({ params }: { params: Promise<{ id: string }> }) {
-    "use cache: private";
-    cacheLife("minutes");
-
     const { id } = await params;
 
     const session = await getSession();

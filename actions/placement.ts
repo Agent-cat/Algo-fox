@@ -2,8 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getSession, throwIfNextBailoutError } from "@/lib/auth-utils";
 import { Prisma } from "@prisma/client";
 
 function hasPlacementDirectorRole(user: any): user is { role: string } {
@@ -32,9 +31,7 @@ export async function createPlacementJob(data: {
     workflow: { title: string; venue?: string; order: number }[];
 }) {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user || !hasPlacementDirectorRole(session.user)) {
             return { success: false, error: "Unauthorized" };
@@ -88,6 +85,7 @@ export async function createPlacementJob(data: {
         revalidatePath("/placementdashboard/placement-drive");
         return { success: true, job: result };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to create placement job:", error);
         return { success: false, error: "An error occurred while creating the placement job." };
     }
@@ -95,9 +93,7 @@ export async function createPlacementJob(data: {
 
 export async function getPlacementJobs() {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user || !hasPlacementDirectorRole(session.user)) {
             return { success: false, error: "Unauthorized", jobs: [] };
@@ -114,6 +110,7 @@ export async function getPlacementJobs() {
         });
         return { success: true, jobs };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch placement jobs:", error);
         return { success: false, error: "An error occurred while fetching placement jobs.", jobs: [] };
     }
@@ -121,9 +118,7 @@ export async function getPlacementJobs() {
 
 export async function getEligiblePlacementJobs() {
     try {
-        const session = await auth.api.getSession({
-            headers: await headers()
-        });
+        const session = await getSession();
 
         if (!session?.user) {
             return { success: false, error: "Unauthorized" };
@@ -176,6 +171,7 @@ export async function getEligiblePlacementJobs() {
 
         return { success: true, jobs: jobsWithEligibility };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch eligible placement jobs:", error);
         return { success: false, error: "An error occurred while fetching eligible placement jobs.", jobs: [] };
     }

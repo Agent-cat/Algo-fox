@@ -8,6 +8,14 @@ services:
       POSTGRES_USER: algofox
       POSTGRES_PASSWORD: algofox
       POSTGRES_DB: algofox
+    # PERF: Increase max_connections for PgBouncer and tune shared_buffers
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -16,6 +24,43 @@ services:
       timeout: 5s
       retries: 5
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  # PERF: PgBouncer sits between the app and Postgres.
+  # In transaction mode, it pools N app connections into far fewer real PG connections.
+  # At 10K concurrent users, this is the single highest-impact infra change.
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: algofox-pgbouncer
+    ports:
+      - "5433:5432"
+    environment:
+      DATABASE_URL: "postgres://algofox:algofox@postgres:5432/algofox"
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: "1000"
+      DEFAULT_POOL_SIZE: "20"
+      MIN_POOL_SIZE: "5"
+      RESERVE_POOL_SIZE: "5"
+      RESERVE_POOL_TIMEOUT: "3"
+      SERVER_RESET_QUERY: "DISCARD ALL"
+      # Disable prepared statements — incompatible with transaction-mode pooling
+      MAX_PREPARED_STATEMENTS: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U algofox"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 128m
 
   redis:
     image: redis:7-alpine
@@ -30,6 +75,10 @@ services:
       timeout: 5s
       retries: 5
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   app:
     image: agentcat1/algofox
@@ -47,21 +96,26 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Use postgres (service name) for runtime communication inside the Docker network
-      - DATABASE_URL=postgresql://algofox:algofox@postgres:5432/algofox
+      # PERF: Route through PgBouncer (port 5433) instead of direct Postgres.
+      # This reduces connection count from N_requests to DEFAULT_POOL_SIZE (20).
+      - DATABASE_URL=postgresql://algofox:algofox@pgbouncer:5432/algofox
       - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
       # All secrets (BETTER_AUTH_SECRET, OAuth client secrets, TELEGRAM_BOT_TOKEN, etc.)
       # are loaded from the .env file below — never hardcode them here.
     env_file:
       - .env
-
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "2"
 
 volumes:
   # Standard volume creation for persistence

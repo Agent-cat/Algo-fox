@@ -9,11 +9,18 @@ type BetterAuthSession = {
   user: { id: string; role?: string };
 } | null;
 
+interface MainContentWrapperProps {
+  children: React.ReactNode;
+  initialSession?: {
+    session?: any;
+    user?: any;
+  } | null;
+}
+
 export default function MainContentWrapper({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  initialSession,
+}: MainContentWrapperProps) {
   const { data } = authClient.useSession();
   const session = data as BetterAuthSession;
   const { sidebarWidth, isDragging } = useSidebar();
@@ -22,13 +29,16 @@ export default function MainContentWrapper({
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
-  const isImpersonating = mounted && !!session?.session?.impersonatedBy;
+  const currentSession = session || initialSession;
+  const hasUser = !!currentSession?.user;
+
+  const isImpersonating = mounted && !!currentSession?.session?.impersonatedBy;
   const contentHeight = isImpersonating ? "calc(100vh - 104px)" : "calc(100vh - 64px)";
 
   return (
     <div
       style={{
-        marginLeft: session?.user ? sidebarWidth : 0,
+        marginLeft: hasUser ? sidebarWidth : 0,
         ...({ "--content-height": contentHeight } as React.CSSProperties),
       }}
       className={[

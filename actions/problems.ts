@@ -20,12 +20,26 @@ export async function getProblems(
     cursor?: string,
     sortBy: string = 'oldest'
 ) {
-    "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife(getCacheLifeConfig("problems"));
-
     // CHECKING IF USER IS AUTHENTICATED
     const session = await getSession();
     const userId = session?.user?.id;
+
+    return getCachedProblems(page, pageSize, type, domain, userId, difficulty, tags, cursor, sortBy);
+}
+
+async function getCachedProblems(
+    page: number,
+    pageSize: number,
+    type: ProblemType,
+    domain: ProblemDomain,
+    userId?: string,
+    difficulty?: Difficulty,
+    tags?: string[],
+    cursor?: string,
+    sortBy: string = 'oldest'
+) {
+    "use cache: private";
+    cacheLife(getCacheLifeConfig("problems"));
 
     const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}-sort-${sortBy}`;
     cacheTag(tagKey, 'problems-list', `problems-${domain}-${type}`);
@@ -42,15 +56,25 @@ export async function getAdminProblems(
     excludeDifficulty?: Difficulty,
     type?: ProblemType
 ) {
-    "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife(getCacheLifeConfig("problems"));
-
     // CHECKING IF USER IS AUTHENTICATED
     const session = await getSession();
 
     if (!session || session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");
     }
+
+    return getCachedAdminProblems(page, pageSize, domain, excludeDifficulty, type);
+}
+
+async function getCachedAdminProblems(
+    page: number,
+    pageSize: number,
+    domain?: ProblemDomain,
+    excludeDifficulty?: Difficulty,
+    type?: ProblemType
+) {
+    "use cache: private";
+    cacheLife(getCacheLifeConfig("problems"));
 
     const tagKey = `admin-problems-${domain || 'all'}${excludeDifficulty ? `-exclude-${excludeDifficulty}` : ''}${type ? `-type-${type}` : ''}-page-${page}`;
     cacheTag(tagKey, 'admin-problems-list');
@@ -65,11 +89,20 @@ export async function searchProblems(
     type?: ProblemType,
     domain?: ProblemDomain
 ) {
-    "use cache: private"; // Must be at top - allows headers() inside
-    cacheLife(getCacheLifeConfig("problems"));
-
     const session = await getSession();
     const userId = session?.user?.id;
+
+    return getCachedSearchProblems(term, type, domain, userId);
+}
+
+async function getCachedSearchProblems(
+    term: string,
+    type?: ProblemType,
+    domain?: ProblemDomain,
+    userId?: string
+) {
+    "use cache: private";
+    cacheLife(getCacheLifeConfig("problems"));
 
     const tagKey = `search-${domain || 'all'}-${type || 'all'}-${term.toLowerCase().slice(0, 20)}${userId ? `-user-${userId}` : ''}`;
     cacheTag(tagKey, 'problems-search');

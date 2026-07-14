@@ -23,7 +23,7 @@ export default async function MainLayout({
       </Suspense>
 
       {/* Main content — offset by sidebar + navbar */}
-      <MainContentWrapper>{children}</MainContentWrapper>
+      <MainContentWrapper initialSession={session}>{children}</MainContentWrapper>
     </SidebarProvider>
   );
 }

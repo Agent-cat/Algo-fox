@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { auth } from './auth';
 import { headers } from 'next/headers';
+import { connection } from 'next/server';
 
 // FIX: Matches the Role enum in prisma/schema.prisma exactly.
 // Previously had 'MODERATOR' which doesn't exist, and was missing TEACHER, INSTITUTION_MANAGER, CONTEST_MANAGER.
@@ -19,10 +20,52 @@ export interface AuthUser {
  * Subsequent calls within the same request return the same Promise,
  * eliminating repeated decoding and DB hits when multiple server actions
  * call getSession() within one request lifecycle.
+ *
+ * Next.js 16: `await connection()` declares this as a Request-time boundary.
+ * Per the bundled docs (node_modules/next/dist/docs/.../connection.md),
+ * connection() is the idiomatic replacement for force-dynamic/unstable_noStore
+ * when using dynamic APIs like headers(). This prevents HANGING_PROMISE_REJECTION
+ * during PPR static prerendering at build time.
  */
-export const getSession = async () => {
+export const getSession = cache(async () => {
+    // Declare the dynamic boundary — everything below runs at request time only.
+    await connection();
     return auth.api.getSession({ headers: await headers() });
-};
+});
+
+export function isNextBailoutError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const err = error as any;
+  if (
+    err.digest === 'DYNAMIC_SERVER_USAGE' ||
+    err.digest === 'HANGING_PROMISE_REJECTION' ||
+    err.digest === 'NEXT_REDIRECT' ||
+    err.digest === 'NEXT_NOT_FOUND' ||
+    (err.message && (
+      err.message.includes('Dynamic server usage') ||
+      err.message.includes('prerendering') ||
+      err.message.includes('headers') ||
+      err.message.includes('connection()')
+    ))
+  ) {
+    return true;
+  }
+  try {
+    const { isDynamicServerError } = require('next/dist/client/components/hooks-server-context');
+    if (isDynamicServerError(error)) {
+      return true;
+    }
+  } catch (_) {}
+  return false;
+}
+
+export function throwIfNextBailoutError(error: unknown): void {
+  if (isNextBailoutError(error)) {
+    throw error;
+  }
+}
 
 /**
  * Get the current authenticated user from the (memoized) session
@@ -42,17 +85,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       institutionId: (session.user as any).institutionId,
     };
   } catch (error: any) {
-    if (
-      error instanceof Error &&
-      (error.message.includes('Dynamic server usage') ||
-       error.message.includes('prerendering') ||
-       error.message.includes('headers') ||
-       (error as any).digest?.includes('DYNAMIC_SERVER_USAGE') ||
-       (error as any).digest?.includes('HANGING_PROMISE_REJECTION'))
-    ) {
-      throw error; // Rethrow Next.js bailout errors
-    }
-     console.error('Error getting current user:', error);
+    throwIfNextBailoutError(error);
+    console.error('Error getting current user:', error);
     return null;
   }
 }

@@ -37,10 +37,6 @@ export async function getSubmission(id: string) {
 }
 
 export async function getProblemSubmissionsAction(problemId: string, take: number = 20, cursor?: string) {
-    "use cache: private"; // Must be at top - allows headers() inside
-    // FIXED: Use centralized cache config
-    cacheLife(getCacheLifeConfig("submission"));
-
     const session = await getSession();
 
     if (!session || !session.user) {
@@ -48,6 +44,12 @@ export async function getProblemSubmissionsAction(problemId: string, take: numbe
     }
 
     const userId = session.user.id;
+    return getCachedProblemSubmissions(problemId, userId, take, cursor);
+}
+
+async function getCachedProblemSubmissions(problemId: string, userId: string, take: number, cursor?: string) {
+    "use cache: private";
+    cacheLife(getCacheLifeConfig("submission"));
 
     const tagKey = `problem-submissions-${userId}-${problemId}${cursor ? `-cursor-${cursor}` : ""}-take-${take}`;
     cacheTag(tagKey, `user-submissions-${userId}`, `problem-${problemId}`);

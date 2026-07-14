@@ -27,16 +27,19 @@ export async function getCourseAllocations() {
 
 // Get user's allocated courses (based on their year)
 export async function getUserAllocatedCourses() {
-  "use cache: private";
-  cacheLife({ stale: 900, revalidate: 900 });
-
   const session = await getSession();
 
   if (!session?.user) {
-    return { success: false, error: "Unauthorized", domains: [] as ProblemDomain[] };
+    return { success: false, error: "Unauthorized", domains: [] as ProblemDomain[], isPrivileged: false };
   }
 
   const userId = session.user.id;
+  return getCachedUserAllocatedCourses(userId);
+}
+
+async function getCachedUserAllocatedCourses(userId: string) {
+  "use cache: private";
+  cacheLife({ stale: 900, revalidate: 900 });
   cacheTag(`user-courses-${userId}`);
 
   try {
@@ -47,7 +50,7 @@ export async function getUserAllocatedCourses() {
     });
 
     if (!user) {
-      return { success: false, error: "User not found", domains: [] as ProblemDomain[] };
+      return { success: false, error: "User not found", domains: [] as ProblemDomain[], isPrivileged: false };
     }
 
     // Admins, teachers, institution managers, and contest managers can see all courses
@@ -82,7 +85,7 @@ export async function getUserAllocatedCourses() {
     };
   } catch (error) {
      console.error("Error fetching user allocated courses:", error);
-    return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[] };
+    return { success: false, error: "Failed to fetch courses", domains: [] as ProblemDomain[], isPrivileged: false };
   }
 }
 

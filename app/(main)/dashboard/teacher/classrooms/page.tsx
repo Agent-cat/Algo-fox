@@ -8,9 +8,6 @@ import { cacheLife } from "next/cache";
 import { getSession } from "@/lib/auth-utils";
 
 async function TeacherClassroomsPageContent() {
-    "use cache: private";
-    cacheLife("minutes");
-
     const session = await getSession();
 
     if (!session?.user) {

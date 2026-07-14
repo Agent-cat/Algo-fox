@@ -20,7 +20,7 @@ export default async function CoursesLayout({
       <Suspense fallback={null}>
         <Navbar initialSession={session} />
       </Suspense>
-      <MainContentWrapper>{children}</MainContentWrapper>
+      <MainContentWrapper initialSession={session}>{children}</MainContentWrapper>
     </SidebarProvider>
   );
 }

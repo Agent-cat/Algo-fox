@@ -49,8 +49,6 @@ async function ProblemContentWithParams({
   params: Promise<{ slug: string; tab?: string[] }>;
   searchParams: Promise<{ contestId?: string; courseId?: string }>;
 }) {
-  "use cache: private";
-  cacheLife("minutes"); // Fix: Use explicit built-in profile for nested cache compliance
   const { slug } = await params;
   const { contestId, courseId } = await searchParams;
 

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getCachedNotifications, setCachedNotifications, invalidateNotificationCache } from "@/lib/notification-cache";
+import { throwIfNextBailoutError } from "@/lib/auth-utils";
 
 function hasPlacementDirectorRole(user: any): user is { role: string } {
     return user && typeof user === "object" && "role" in user && user.role === "PLACEMENT_DIRECTOR";
@@ -40,6 +41,7 @@ export async function getAvailableTags() {
 
         return { success: true, tags: sortedTags };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch available tags:", error);
         return { success: false, error: "Failed to fetch tags", tags: [] };
     }
@@ -78,6 +80,7 @@ export async function createNotification(data: {
         await invalidateNotificationCache();
         return { success: true, notification };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to create notification:", error);
         return { success: false, error: "An error occurred while creating the notification." };
     }
@@ -131,6 +134,7 @@ export async function updateNotification(
         await invalidateNotificationCache();
         return { success: true, notification };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to update notification:", error);
         return { success: false, error: "An error occurred while updating the notification." };
     }
@@ -165,6 +169,7 @@ export async function deleteNotification(id: string) {
         await invalidateNotificationCache();
         return { success: true };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to delete notification:", error);
         return { success: false, error: "An error occurred while deleting the notification." };
     }
@@ -199,6 +204,7 @@ export async function getNotifications(cursor?: string, limit: number = 20) {
 
         return { success: true, notifications, nextCursor };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch notifications:", error);
         return { success: false, error: "An error occurred while fetching notifications.", notifications: [], nextCursor: null };
     }
@@ -221,6 +227,7 @@ export async function getNotificationById(id: string) {
 
         return { success: true, notification };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch notification:", error);
         return { success: false, error: "An error occurred while fetching the notification." };
     }
@@ -279,6 +286,7 @@ export async function getStudentNotifications(limit: number = 5) {
 
         return { success: true, notifications: filtered };
     } catch (error: any) {
+        throwIfNextBailoutError(error);
         console.error("Failed to fetch student notifications:", error);
         return { success: false, error: "An error occurred while fetching notifications.", notifications: [] };
     }

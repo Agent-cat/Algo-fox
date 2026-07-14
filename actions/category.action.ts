@@ -17,11 +17,15 @@ export async function getCategoriesTag(domain: ProblemDomain, courseId?: string,
 // GETTING ALL CATEGORIES
 
 export async function getCategories(domain: ProblemDomain = "DSA", courseId?: string) {
-  "use cache: private"; // Must be at top - allows headers() inside
-  cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-
   const session = await getSession();
   const userId = session?.user?.id;
+
+  return getCachedCategories(domain, userId, courseId);
+}
+
+async function getCachedCategories(domain: ProblemDomain, userId?: string, courseId?: string) {
+  "use cache: private";
+  cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
 
   cacheTag(await getCategoriesTag(domain, courseId, userId), 'categories-list');
 
@@ -53,11 +57,21 @@ export async function getCategoryProblems(
   pageSize: number = 10,
   cursor?: string
 ) {
-  "use cache: private"; // Must be at top - allows headers() inside
-  cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-
   const session = await getSession();
   const userId = session?.user?.id;
+
+  return getCachedCategoryProblems(categoryId, page, pageSize, userId, cursor);
+}
+
+async function getCachedCategoryProblems(
+  categoryId: string,
+  page: number,
+  pageSize: number,
+  userId?: string,
+  cursor?: string
+) {
+  "use cache: private";
+  cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
 
   const tagKey = `category-problems-${categoryId}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}`;
   cacheTag(tagKey, `category-${categoryId}`, 'categories-list');

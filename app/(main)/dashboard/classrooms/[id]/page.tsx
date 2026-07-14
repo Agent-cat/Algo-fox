@@ -15,8 +15,6 @@ interface PageProps {
 }
 
 async function ClassroomDetailContent({ params }: { params: Promise<{ id: string }> }) {
-    "use cache: private";
-    cacheLife("minutes");
     const { id } = await params;
 
     const session = await getSession();

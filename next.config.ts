@@ -40,12 +40,21 @@ const nextConfig: NextConfig = {
     },
     optimizePackageImports: [
       '@aws-sdk/client-s3',
+      '@aws-sdk/s3-request-presigner',
       'framer-motion',
       'highlight.js',
       '@tanstack/react-table',
       'react-markdown',
       'zod',
-      'xlsx'
+      'xlsx',
+      // PERF: These ship large barrel exports — tree-shake at build time
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'sonner',
+      '@iconify/react',
+      '@solar-icons/react',
+      'solar-icon-react',
     ],
   },
   cacheHandlers: {

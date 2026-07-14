@@ -7,6 +7,7 @@ import { StreakCalendarWidget } from "@/components/home/StreakCalendarWidget";
 import { UpcomingContestsWidget } from "@/components/home/UpcomingContestsWidget";
 import { getSession } from "@/lib/auth-utils";
 import Link from "next/link";
+import Image from "next/image";
 
 import { getTopicSheets } from "@/actions/topic.action";
 import { TopicsCarousel } from "@/components/home/TopicsCarousel";
@@ -91,7 +92,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen lg:min-h-0 lg:h-[var(--content-height)] bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans relative overflow-hidden">
-      <div className="w-full h-full px-6 lg:px-12 py-6 relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-14 overflow-hidden">
+      <div className="w-full h-full pl-6 lg:pl-12 pr-3 lg:pr-6 py-6 relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-14 overflow-hidden">
         
         {/* Main Content Area */}
         <div className="flex-1 min-h-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-6">
@@ -100,9 +101,12 @@ export default async function Home() {
             <div className="flex items-center gap-4 py-4">
                 {isLoggedIn && (
                     session?.user?.image ? (
-                        <img 
+                        <Image 
                             src={session.user.image} 
                             alt={session.user.name || "User Avatar"} 
+                            width={48}
+                            height={48}
+                            priority
                             className="w-12 h-12 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-white/10"
                         />
                     ) : (

@@ -40,9 +40,12 @@ ENV SKIP_CACHE_HANDLER=1
 # Using dynamic build-time DATABASE_URL (passed via build args) to allow static generation
 RUN bun run build
 
-# Stage 3: Runner
-FROM oven/bun:1-alpine AS runner
-# Add openssl to the runner image because Prisma needs it at runtime
+# Stage 3: Runner — use Node.js, not Bun.
+# Next.js standalone output creates server.js which is a plain Node HTTP server.
+# Using Bun to execute it works but adds unnecessary overhead; Node 22 is lighter
+# and the intended runtime for the Next.js standalone server.
+FROM node:22-alpine AS runner
+# Add openssl for Prisma native bindings
 RUN apk add --no-cache openssl
 WORKDIR /app
 
@@ -74,4 +77,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build when output: 'standalone' is enabled
-CMD ["bun", "server.js"]
+CMD ["node", "server.js"]

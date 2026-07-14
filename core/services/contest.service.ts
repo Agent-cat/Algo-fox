@@ -709,8 +709,11 @@ export class ContestService {
                         }
                     });
 
-                    // Re-create links/problems
+                    // Re-create links/problems: collect all resolved problemIds first,
+                    // then bulk-insert via createMany — eliminates N individual inserts.
                     if (sec.problems) {
+                        const resolvedLinks: { sectionId: string; problemId: string; order: number }[] = [];
+
                         for (let i = 0; i < sec.problems.length; i++) {
                             const p = sec.problems[i];
                             let problemId = typeof p === 'string' ? p : p.id;
@@ -763,13 +766,12 @@ export class ContestService {
                                 }
                             }
 
-                            await tx.contestSectionProblem.create({
-                                data: {
-                                    sectionId: actualSection.id,
-                                    problemId,
-                                    order: i,
-                                }
-                            });
+                            resolvedLinks.push({ sectionId: actualSection.id, problemId, order: i });
+                        }
+
+                        // PERF: Single bulk insert instead of N individual creates
+                        if (resolvedLinks.length > 0) {
+                            await tx.contestSectionProblem.createMany({ data: resolvedLinks });
                         }
                     }
                 }

@@ -323,6 +323,9 @@ model TestCase {
   submission       Submission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
+  // PERF: Composite index for MAX(passed_count) aggregation in leaderboard raw SQL.
+  // Without this, PG does a sequential scan on the entire TestCase table per contest.
+  @@index([submissionId, status])
 }
 
 model Category {
@@ -575,6 +578,8 @@ model ContestParticipation {
   @@index([contestId])
   @@index([userId])
   @@index([sessionId])
+  // PERF: Composite index for leaderboard query that filters by contestId + isFinished
+  @@index([contestId, isFinished])
   @@map("contest_participation")
 }
 
@@ -625,6 +630,10 @@ model Comment {
 
   @@index([problemId])
   @@index([userId])
+  // PERF: Composite index for paginated comment listing ordered by createdAt.
+  // A query like WHERE problemId = ? ORDER BY createdAt DESC uses only the first
+  // index otherwise; this composite covers both the filter and the sort.
+  @@index([problemId, createdAt])
 }
 
 model CommentVote {

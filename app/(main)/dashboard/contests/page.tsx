@@ -9,9 +9,6 @@ import BackButton from "@/components/BackButton";
 import { getSession } from "@/lib/auth-utils";
 
 async function ContestsContent() {
-    "use cache: private";
-    cacheLife("minutes");
-
     const session = await getSession();
 
     if (!session?.user) {
