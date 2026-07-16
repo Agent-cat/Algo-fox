@@ -64,6 +64,14 @@ export default function PracticeClient({
     const [isSearching, setIsSearching] = useState(false);
     const observerTarget = useRef<HTMLDivElement>(null);
 
+    // ─── Stable ref to always-current loadMore ────────────────────────────────
+    // Keeping loadMore in a ref means the IntersectionObserver never needs to be
+    // torn down and re-created when pagination state changes. Without this, every
+    // successful fetch mutates `problems` → `loadMore` changes → observer
+    // re-registers → sentinel still intersecting → immediate re-fetch loop.
+    const isLoadingRef = useRef(false);
+    const loadMoreRef = useRef<() => Promise<void>>(async () => {});
+
     useEffect(() => {
         let isMounted = true;
         const performSearch = async () => {
@@ -100,8 +108,9 @@ export default function PracticeClient({
     }, [searchTerm, searchResults, problems, selectedCompany]);
 
     const loadMore = useCallback(async () => {
-        if (isLoading || !hasMore || searchTerm || problems.length === 0) return;
+        if (isLoadingRef.current || !hasMore || searchTerm || problems.length === 0) return;
 
+        isLoadingRef.current = true;
         setIsLoading(true);
         try {
             const lastProblem = problems[problems.length - 1];
@@ -118,17 +127,27 @@ export default function PracticeClient({
         } catch (error) {
              console.error("Failed to load more problems", error);
         } finally {
+            isLoadingRef.current = false;
             setIsLoading(false);
         }
-    }, [isLoading, hasMore, page, type, domain, searchTerm, problems, difficulty, tags, sortBy]);
+    }, [hasMore, page, type, domain, searchTerm, problems, difficulty, tags, sortBy]);
 
+    // Keep the ref in sync with the latest callback
+    useEffect(() => {
+        loadMoreRef.current = loadMore;
+    }, [loadMore]);
+
+    // ─── Observer: only depends on hasMore & searchTerm ──────────────────────
+    // By calling `loadMoreRef.current()` instead of `loadMore` directly, this
+    // effect never needs to re-run due to pagination state changes, eliminating
+    // the re-registration loop that caused repeated fetches on scroll.
     useEffect(() => {
         if (searchTerm) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0]?.isIntersecting && hasMore && !isLoading) {
-                    loadMore();
+                if (entries[0]?.isIntersecting && !isLoadingRef.current) {
+                    loadMoreRef.current();
                 }
             },
             { threshold: INTERSECTION_THRESHOLD }
@@ -144,7 +163,7 @@ export default function PracticeClient({
                 observer.unobserve(currentTarget);
             }
         };
-    }, [hasMore, isLoading, searchTerm, loadMore]);
+    }, [hasMore, searchTerm]);
 
     return (
         <div className="w-full">

@@ -61,6 +61,7 @@ const NAV_SECTIONS = [
     items: [
       { label: "Courses", href: "/courses", icon: LdDiploma },
       { label: "Topic Sheets", href: "/topics", icon: LdBookBookmark },
+      { label: "Blogs", href: "/blogs", icon: LdNotebook },
     ],
   },
   {

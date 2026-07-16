@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import DevToolsBlocker from "@/components/DevToolsBlocker";
@@ -23,6 +23,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 import { StreakProvider } from "@/context/StreakContext";
@@ -92,7 +99,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body
         suppressHydrationWarning
-        className={`${geistMono.variable} antialiased select-none bg-[#fafafa] dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 font-sans`}
+        className={`${geistMono.variable} ${nunito.variable} antialiased select-none bg-[#fafafa] dark:bg-[#1D1E23] text-gray-900 dark:text-gray-100 font-sans`}
       >
         <ThemeProvider>
           <Suspense fallback={

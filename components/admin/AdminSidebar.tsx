@@ -13,7 +13,8 @@ import {
   LdCase,
   LdCupStar,
   LdUsersGroupTwoRounded,
-  LdAltArrowRight
+  LdAltArrowRight,
+  LdNotebook
 } from "solar-icon-react/ld";
 
 const ADMIN_SECTIONS = [
@@ -46,7 +47,8 @@ const ADMIN_SECTIONS = [
   {
     label: "Content",
     items: [
-      { label: "Manage Courses", href: "/admin/courses", icon: LdDiploma }
+      { label: "Manage Courses", href: "/admin/courses", icon: LdDiploma },
+      { label: "Manage Blogs", href: "/admin/blogs", icon: LdNotebook }
     ]
   },
   {

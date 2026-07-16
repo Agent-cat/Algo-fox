@@ -78,6 +78,8 @@ model User {
   bookmarkLists         BookmarkList[]
   authoredNotifications Notification[]
   quizTemplates         QuizTemplate[]
+  blogPosts             BlogPost[]
+  blogUpvotes           BlogUpvote[]
 
   githubRepo     String?
   githubSyncMode String?   @default("ACCEPTED_ONLY")
@@ -967,6 +969,45 @@ model QuizTemplateAssignment {
   @@index([classroomId])
   @@index([sessionId])
   @@map("quiz_template_assignment")
+}
+
+model BlogPost {
+  id             String       @id @default(cuid())
+  title          String
+  slug           String       @unique
+  content        String       // Markdown text
+  description    String       // Excerpt for listing and meta description
+  coverImage     String?
+  isPublished    Boolean      @default(false)
+  readTime       Int          @default(1)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  publishedAt    DateTime?
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  upvotesCount   Int          @default(0)
+  upvotes        BlogUpvote[]
+  seoKeywords    String[]     @default([])
+  focusKeyword   String?
+
+  @@index([authorId])
+  @@index([slug])
+  @@index([isPublished, publishedAt(sort: Desc)])
+  @@map("blog_post")
+}
+
+model BlogUpvote {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@map("blog_upvote")
 }
 
 
