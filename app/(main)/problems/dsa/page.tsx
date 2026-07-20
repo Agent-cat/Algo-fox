@@ -1,40 +1,68 @@
-import { getProblems } from "@/actions/problems";
+import { getProblems, getSolvedCount } from "@/actions/problems";
 import { getCategories } from "@/actions/category.action";
 import DsaProblemsClient from "./_components/DsaProblemsClient";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { getUserAllocatedCourses } from "@/actions/courseAllocation.action";
 import Link from "next/link";
 import { Metadata } from "next";
 import ProblemListSkeleton from "../_components/ProblemListSkeleton";
 import { getSession } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
     title: "DSA Problems",
     description: "Practice Data Structures and Algorithms problems and improve your skills.",
 };
 
+// Allowed page sizes — whitelist prevents abusive ?limit=99999 cache flooding
+const ALLOWED_LIMITS = [10, 16, 25, 50] as const;
+type AllowedLimit = (typeof ALLOWED_LIMITS)[number];
+
+function parseLimit(raw: string | string[] | undefined): AllowedLimit {
+    const n = Number(Array.isArray(raw) ? raw[0] : raw);
+    return (ALLOWED_LIMITS.includes(n as AllowedLimit) ? n : 16) as AllowedLimit;
+}
+
 async function DsaProblemsContent({
     searchParams
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-    // Check user access
+    // getSession is React cache()-wrapped — both this call and the one inside
+    // getUserAllocatedCourses resolve from the same deduped request.
     const session = await getSession();
 
     if (!session?.user) {
         redirect("/signin");
     }
 
-    const allocatedCourses = await getUserAllocatedCourses();
+    const params = await searchParams;
+    const page = Number(params?.page) || 1;
+    const limit = parseLimit(params?.limit);
+    const difficulty = (params?.difficulty as any) || undefined;
+    const sortBy = (params?.sortBy as string) || "oldest";
+    const mode = (params?.mode as string) || "practice";
+
+    // tags can be string or string[]
+    let tags: string[] = [];
+    if (typeof params?.tags === 'string') {
+        tags = [params.tags];
+    } else if (Array.isArray(params?.tags)) {
+        tags = params.tags;
+    }
+
+    // Fire all independent fetches concurrently — access check, problems, categories,
+    // and solved count all run in parallel instead of a waterfall.
+    const [allocatedCourses, { problems, totalPages, total }, categoriesRes, solvedCount] = await Promise.all([
+        getUserAllocatedCourses(),
+        getProblems(page, limit, "PRACTICE", "DSA", difficulty, tags, undefined, sortBy),
+        mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] }),
+        getSolvedCount(session.user.id, difficulty, tags),
+    ]);
 
     // Check if user has access to DSA
     if (allocatedCourses.success && !allocatedCourses.isPrivileged) {
         if (!allocatedCourses.domains.includes("DSA")) {
-            // User doesn't have access to DSA
             return (
                 <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center px-4">
                     <div className="max-w-md text-center">
@@ -62,43 +90,6 @@ async function DsaProblemsContent({
         }
     }
 
-    const params = await searchParams;
-    const page = Number(params?.page) || 1;
-    const difficulty = (params?.difficulty as any) || undefined;
-    const sortBy = (params?.sortBy as string) || "oldest";
-
-    // tags can be string or string[]
-    let tags: string[] = [];
-    if (typeof params?.tags === 'string') {
-        tags = [params.tags];
-    } else if (Array.isArray(params?.tags)) {
-        tags = params.tags;
-    }
-
-    const mode = (params?.mode as string) || "practice";
-
-    // FETCHING DATA BASED ON MODE
-    const [{ problems, totalPages, total }, categoriesRes, solvedCount] = await Promise.all([
-        getProblems(page, 10, "PRACTICE", "DSA", difficulty, tags, undefined, sortBy),
-        mode === "learn" ? getCategories("DSA") : Promise.resolve({ categories: [] }),
-        prisma.userProblemSolved.count({
-            where: {
-                userId: session.user.id,
-                problem: {
-                    domain: "DSA",
-                    type: "PRACTICE",
-                    hidden: false,
-                    difficulty: difficulty,
-                    tags: tags.length > 0 ? {
-                        some: {
-                            slug: { in: tags }
-                        }
-                    } : undefined
-                }
-            }
-        })
-    ]);
-
     return (
         <DsaProblemsClient
             initialProblems={problems}
@@ -107,6 +98,7 @@ async function DsaProblemsContent({
             userRole={session?.user?.role as string}
             totalProblems={total}
             solvedProblems={solvedCount}
+            pageSize={limit}
         />
     );
 }
