@@ -35,6 +35,7 @@ interface DsaProblemsClientProps {
     userRole: string;
     totalProblems?: number;
     solvedProblems?: number;
+    pageSize?: number;
 }
 
 export default function DsaProblemsClient({
@@ -43,7 +44,8 @@ export default function DsaProblemsClient({
     initialCategories = [],
     userRole,
     totalProblems,
-    solvedProblems
+    solvedProblems,
+    pageSize = 16,
 }: DsaProblemsClientProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -186,6 +188,7 @@ export default function DsaProblemsClient({
                                 initialTotalPages={initialTotalPages}
                                 searchTerm={searchTerm}
                                 domain="DSA"
+                                pageSize={pageSize}
                             />
                         </>
                     ) : (

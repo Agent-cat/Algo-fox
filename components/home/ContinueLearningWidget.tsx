@@ -131,7 +131,7 @@ export function ContinueLearningWidget({ enrollments }: ContinueLearningWidgetPr
                             <div className="shrink-0 sm:pl-2">
                                 <Link
                                     href={`/courses/${en.course.slug}`}
-                                    className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-white border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white dark:bg-neutral-900 dark:border-orange-500/40 dark:text-orange-400 dark:hover:bg-orange-500 dark:hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                                    className="inline-flex items-center justify-center px-5 py-3 rounded-xl text-xs font-bold tracking-wider bg-white text-gray-900 border border-gray-200 hover:border-gray-300 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/20 active:scale-[0.98] transition-all shadow-sm whitespace-nowrap"
                                 >
                                     Continue
                                 </Link>

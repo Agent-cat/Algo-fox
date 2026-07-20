@@ -41,10 +41,39 @@ async function getCachedProblems(
     "use cache: private";
     cacheLife(getCacheLifeConfig("problems"));
 
-    const tagKey = `problems-${domain}-${type}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}-sort-${sortBy}`;
+    const tagKey = `problems-${domain}-${type}-ps${pageSize}${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}${cursor ? `-cursor-${cursor}` : `-page-${page}`}${userId ? `-user-${userId}` : ''}-sort-${sortBy}`;
     cacheTag(tagKey, 'problems-list', `problems-${domain}-${type}`);
 
     return ProblemService.getProblems(page, pageSize, type, domain, userId, difficulty, tags || [], cursor, sortBy);
+}
+
+// GETTING SOLVED PROBLEM COUNT FOR A USER (cached per-user)
+export async function getSolvedCount(
+    userId: string,
+    difficulty?: Difficulty,
+    tags?: string[]
+) {
+    "use cache: private";
+    cacheLife(getCacheLifeConfig("problems"));
+
+    const tagKey = `solved-count-DSA-PRACTICE${difficulty ? `-${difficulty}` : ''}${tags && tags.length > 0 ? `-${tags.join('-')}` : ''}-user-${userId}`;
+    cacheTag(tagKey, `user-solved-${userId}`, 'problems-list');
+
+    const { prisma } = await import("@/lib/prisma");
+    return prisma.userProblemSolved.count({
+        where: {
+            userId,
+            problem: {
+                domain: "DSA",
+                type: "PRACTICE",
+                hidden: false,
+                difficulty,
+                tags: tags && tags.length > 0 ? {
+                    some: { slug: { in: tags } }
+                } : undefined
+            }
+        }
+    });
 }
 
 // GETTING ADMIN PROBLEMS

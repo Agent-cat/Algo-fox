@@ -14,7 +14,8 @@ import {
   LdCupStar,
   LdUsersGroupTwoRounded,
   LdAltArrowRight,
-  LdNotebook
+  LdNotebook,
+  LdCalendar
 } from "solar-icon-react/ld";
 
 const ADMIN_SECTIONS = [
@@ -59,6 +60,12 @@ const ADMIN_SECTIONS = [
       { label: "Contests", href: "/dashboard/contests", icon: LdCupStar },
       { label: "Users", href: "/admin/users", icon: LdUsersGroupTwoRounded }
     ]
+  },
+  {
+    label: "Daily Challenge",
+    items: [
+      { label: "Manage Daily Challenge", href: "/admin/daily-challenge", icon: LdCalendar }
+    ]
   }
 ];
 
@@ -72,6 +79,7 @@ export default function AdminSidebar() {
     "Aptitude Tracker": true,
     "Content": true,
     "Management": true,
+    "Daily Challenge": true,
   });
 
   const toggleSection = (label: string) => {

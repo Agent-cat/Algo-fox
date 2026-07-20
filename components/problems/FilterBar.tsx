@@ -85,7 +85,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
             params.set(key, value);
         }
 
-        params.set("page", "1");
+        params.delete("page"); // reset to page 1 on any filter change (clean URL)
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
         setOpenDropdown(null);
         setCompanySearch("");
@@ -376,7 +376,7 @@ export function FilterBar({ domain, companies = [] }: { domain?: ProblemDomain; 
                         params.delete("tags");
                         params.delete("sortBy");
                         params.delete("company");
-                        params.set("page", "1");
+                        params.delete("page");
                         router.push(`${pathname}?${params.toString()}`, { scroll: false });
                         setOpenDropdown(null);
                     }}

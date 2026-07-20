@@ -180,6 +180,7 @@ model Problem {
   courseId               String?
   course                 Course?                   @relation("CourseProblems", fields: [courseId], references: [id], onDelete: Cascade)
   bookmarks              Bookmark[]
+  dailyChallenges        DailyChallenge[]
 
   @@index([courseId])
   @@index([createdAt])
@@ -1011,3 +1012,15 @@ model BlogUpvote {
 }
 
 
+model DailyChallenge {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date])
+  @@index([date])
+  @@map("daily_challenge")
+}

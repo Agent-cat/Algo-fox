@@ -78,7 +78,7 @@ async function SqlProblemsContent({
 
     // FETCHING DATA BASED ON MODE
     const [{ problems, totalPages, total }, categoriesRes, solvedCount] = await Promise.all([
-        getProblems(page, 10, "PRACTICE", "SQL", difficulty, tags),
+        getProblems(page, 16, "PRACTICE", "SQL", difficulty, tags),
         mode === "learn" ? getCategories("SQL") : Promise.resolve({ categories: [] }),
         prisma.userProblemSolved.count({
             where: {

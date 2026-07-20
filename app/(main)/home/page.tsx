@@ -13,6 +13,8 @@ import { getTopicSheets } from "@/actions/topic.action";
 import { TopicsCarousel } from "@/components/home/TopicsCarousel";
 import { CourseService } from "@/core/services/course.service";
 import { ContinueLearningWidget } from "@/components/home/ContinueLearningWidget";
+import { getDailyChallenge, getWeeklyDailyChallengeHistory, type WeekDayEntry } from "@/actions/daily-challenge.action";
+import { DailyChallengeWidget } from "@/components/home/DailyChallengeWidget";
 
 export const metadata: Metadata = {
   title: "Dashboard | Algo-fox Master DSA & SQL Mastery",
@@ -49,13 +51,18 @@ export default async function Home() {
   const currentStreak = stats?.currentStreak || 0;
   const bestStreak = stats?.bestStreak || 0;
 
-  // Fetch contests, topic sheets, and enrollments in parallel
-  const [internalRes, externalRes, topicSheetsRes, enrollments] = await Promise.all([
+  // Fetch contests, topic sheets, enrollments, and daily challenge in parallel
+  const [internalRes, externalRes, topicSheetsRes, enrollments, dailyChallengeRes, weekHistoryRes] = await Promise.all([
     getVisibleContests({ status: "active" }),
     getUpcomingContests(),
     getTopicSheets(),
-    isLoggedIn ? CourseService.getUserEnrolledCourses(session.user.id) : Promise.resolve([])
+    isLoggedIn ? CourseService.getUserEnrolledCourses(session.user.id) : Promise.resolve([]),
+    getDailyChallenge(),
+    getWeeklyDailyChallengeHistory(),
   ]);
+
+  const todayChallenge = dailyChallengeRes?.challenge ?? null;
+  const weekHistory: WeekDayEntry[] = weekHistoryRes.week ?? [];
 
   const internalContests = (internalRes.success && "contests" in internalRes) ? internalRes.contests || [] : [];
   const externalContests = (externalRes.success && "contests" in externalRes) ? externalRes.contests || [] : [];
@@ -131,6 +138,8 @@ export default async function Home() {
 
             <div className="border-t border-gray-200 dark:border-white/10" />
 
+
+
             {/* Topics Carousel */}
             <TopicsCarousel categories={categories} />
 
@@ -171,6 +180,9 @@ export default async function Home() {
                  </div>
               )}
            </div>
+           {todayChallenge && (
+             <DailyChallengeWidget problem={todayChallenge.problem as any} weekHistory={weekHistory} />
+           )}
            <UpcomingContestsWidget contests={allUpcomingContests} />
         </div>
 
