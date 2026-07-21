@@ -321,8 +321,8 @@ export function SettingsSidebar({ user }: { user: any }) {
                          )}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <h3 className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">{user.name}</h3>
-                        <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                        <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100 truncate">{user.name}</h3>
+                        <p className="text-[13px] text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                     </div>
                  </div>
             </div>
@@ -333,7 +333,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                     <div key={idx} className="flex flex-col">
                         {group.label && (
                             <div className="px-3 mb-2">
-                                <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide">
+                                <span className="text-[13.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide">
                                     {group.label}
                                 </span>
                             </div>
@@ -350,7 +350,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                                             <button
                                                 onClick={() => toggleGroup(item.name)}
                                                 className={cn(
-                                                    "w-full flex items-center justify-between px-3 py-2 text-[13.5px] font-medium rounded-lg transition-colors group",
+                                                    "w-full flex items-center justify-between px-3 py-2 text-[14.5px] font-medium rounded-lg transition-colors group",
                                                     (isActiveBase && !isExpanded)
                                                         ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
                                                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"
@@ -380,7 +380,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                                                                     key={subItem.href}
                                                                     href={subItem.href}
                                                                     className={cn(
-                                                                        "flex items-center gap-2 px-3 py-[7px] text-[13px] font-medium rounded-lg transition-colors relative",
+                                                                        "flex items-center gap-2 px-3 py-[7px] text-[13.5px] font-medium rounded-lg transition-colors relative",
                                                                         isSubActive
                                                                             ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
                                                                             : "text-gray-500 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"
@@ -406,7 +406,7 @@ export function SettingsSidebar({ user }: { user: any }) {
                                         key={itemHref}
                                         href={itemHref}
                                         className={cn(
-                                            "flex items-center gap-3 px-3 py-2 text-[13.5px] font-medium rounded-lg transition-colors group",
+                                            "flex items-center gap-3 px-3 py-2 text-[14.5px] font-medium rounded-lg transition-colors group",
                                             isActive
                                                 ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
                                                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"

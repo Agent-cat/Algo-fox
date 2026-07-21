@@ -6,15 +6,8 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import { Users, FileCode, Trophy, Send, ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { getSession } from "@/lib/auth-utils";
 
 async function AdminDashboardStats() {
-    const session = await getSession();
-
-    if (!session?.user || (session.user as any).role !== "ADMIN") {
-        redirect("/dashboard");
-    }
-
     const [userCount, problemCount, submissionCount, contestCount] = await Promise.all([
         prisma.user.count(),
         prisma.problem.count(),

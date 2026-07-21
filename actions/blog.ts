@@ -15,6 +15,13 @@ export async function getBlogPostsAction(options: {
   keyword?: string;
   onlyPublished?: boolean;
 }) {
+  if (options.onlyPublished === false) {
+    const session = await getSession();
+    if (!session?.user || (session.user as any).role !== "ADMIN") {
+      throw new Error("Unauthorized");
+    }
+  }
+
   // Since we use caching, we separate into a cached sub-function
   return getCachedBlogPosts(options);
 }

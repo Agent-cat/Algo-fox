@@ -176,13 +176,6 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* Cover Image */}
-        {post.coverImage && (
-          <div className="relative w-full aspect-[16/6] rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:border-white/5 my-8 shadow-sm">
-            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
-          </div>
-        )}
-
         {/* Article body + sticky TOC sidebar */}
         <div className="flex items-start gap-10 mt-10">
 

@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth-utils";
 import { getDailyChallengesForMonth } from "@/actions/daily-challenge.action";
 import DailyChallengeClient from "./_components/DailyChallengeClient";
 import { Sparkles } from "lucide-react";
@@ -11,12 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function DailyChallengePage() {
-  const session = await getSession();
-
-  if (!session?.user || session.user.role !== "ADMIN") {
-    redirect("/dashboard");
-  }
-
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;

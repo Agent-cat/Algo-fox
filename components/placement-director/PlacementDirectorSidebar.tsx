@@ -43,7 +43,7 @@ export function PlacementDirectorSidebar() {
                                     "w-6 h-6",
                                     isActive ? "stroke-[2px]" : "stroke-[1.5px]"
                                 )} />
-                                <span className="text-[11px] font-medium text-center px-1 leading-tight">
+                                <span className="text-[12.5px] font-medium text-center px-1 leading-tight">
                                     {item.name}
                                 </span>
                             </div>
