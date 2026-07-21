@@ -49,7 +49,8 @@ const ADMIN_SECTIONS = [
     label: "Content",
     items: [
       { label: "Manage Courses", href: "/admin/courses", icon: LdDiploma },
-      { label: "Manage Blogs", href: "/admin/blogs", icon: LdNotebook }
+      { label: "Manage Blogs", href: "/admin/blogs", icon: LdNotebook },
+      { label: "Manage Featured", href: "/admin/featured", icon: LdWidget }
     ]
   },
   {
@@ -101,7 +102,7 @@ export default function AdminSidebar() {
                   onClick={() => toggleSection(section.label)}
                   className="w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1"
                 >
-                  <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
+                  <span className="text-[13.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
                     {section.label}
                   </span>
                   <LdAltArrowRight
@@ -143,7 +144,7 @@ export default function AdminSidebar() {
                               : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300",
                           ].join(" ")}
                         />
-                        <span className="text-[13.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
+                        <span className="text-[14.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
                           {item.label}
                         </span>
                       </Link>

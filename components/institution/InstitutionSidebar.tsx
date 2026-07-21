@@ -46,7 +46,7 @@ export default function InstitutionSidebar() {
           if (item.type === "header") {
             return (
               <div key={`header-${index}`} className="flex items-center gap-3 mt-8 mb-4 px-2">
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
+                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
                   {item.name}
                 </span>
                 <div className="h-px bg-gray-200 dark:bg-[#262626] flex-1"></div>
@@ -61,7 +61,7 @@ export default function InstitutionSidebar() {
               key={`link-${index}`}
               href={item.href}
               className={`
-                flex items-center gap-4 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
+                flex items-center gap-4 px-3 py-2.5 rounded-lg text-[14.5px] font-medium transition-colors group
                 ${isActive
                   ? "text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-500/10"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D1E23]"

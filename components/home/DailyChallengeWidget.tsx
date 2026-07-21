@@ -25,7 +25,7 @@ interface Problem {
 }
 
 interface DailyChallengeWidgetProps {
-  problem: Problem;
+  problem?: Problem | null;
   weekHistory: WeekDayEntry[];
 }
 
@@ -145,7 +145,7 @@ export function DailyChallengeWidget({
   weekHistory,
 }: DailyChallengeWidgetProps) {
   const countdown = useCountdown();
-  const diffConfig = DIFFICULTY_CONFIG[problem.difficulty] ?? DIFFICULTY_CONFIG.EASY;
+  const diffConfig = problem ? (DIFFICULTY_CONFIG[problem.difficulty] ?? DIFFICULTY_CONFIG.EASY) : null;
 
   return (
     <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-5 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 gap-4 shadow-sm">
@@ -161,45 +161,58 @@ export function DailyChallengeWidget({
 
         {/* Countdown */}
         {countdown !== null && (
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
             <Clock className="w-3 h-3 shrink-0" />
             <span className="tabular-nums">{countdown}</span>
           </div>
         )}
       </div>
 
-      {/* Main Problem Details */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          {/* Difficulty and Solved stats */}
-          <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${diffConfig.pill}`}>
-              {diffConfig.label}
-            </span>
-            {problem.solved != null && (
-              <span className="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
-                <Trophy className="w-3 h-3 text-amber-500" />
-                {problem.solved.toLocaleString()} solved
-              </span>
-            )}
+      {/* Main Content Area */}
+      {!problem ? (
+        <div className="flex flex-col gap-2 py-4 px-2 border border-gray-100 dark:border-white/5 rounded-2xl bg-gray-50/50 dark:bg-white/[0.02] text-center">
+          <h3 className="text-[13px] font-bold text-gray-900 dark:text-white">
+            No problem today!
+          </h3>
+          <p className="text-[11.5px] text-gray-500 dark:text-gray-400 leading-relaxed">
+            Enjoy your rest day! Keep your streak warm by practicing other topics.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
+            {/* Difficulty and Solved stats */}
+            <div className="flex items-center justify-between">
+              {diffConfig && (
+                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${diffConfig.pill}`}>
+                  {diffConfig.label}
+                </span>
+              )}
+              {problem.solved != null && (
+                <span className="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
+                  <Trophy className="w-3 h-3 text-amber-500" />
+                  {problem.solved.toLocaleString()} solved
+                </span>
+              )}
+            </div>
+
+            {/* Problem title */}
+            <h3 className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+              {problem.title}
+            </h3>
           </div>
 
-          {/* Problem title */}
-          <h3 className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
-            {problem.title}
-          </h3>
+          {/* Action Button - Redesigned White/Translucent Solve Button */}
+          <Link
+            href={`/problems/${problem.slug}`}
+            id="daily-challenge-solve-btn"
+            className="group w-full bg-white text-gray-900 border border-gray-200 hover:border-gray-300 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/20 active:scale-[0.98] font-bold text-xs tracking-wider py-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm"
+          >
+            <span>Solve Now</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
-
-        {/* Action Button - Redesigned White/Translucent Solve Button */}
-        <Link
-          href={`/problems/${problem.slug}`}
-          id="daily-challenge-solve-btn"
-          className="group w-full bg-white text-gray-900 border border-gray-200 hover:border-gray-300 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/20 active:scale-[0.98] font-bold text-xs tracking-wider py-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm"
-        >
-          <span>Solve Now</span>
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-        </Link>
-      </div>
+      )}
 
       {/* Week Progress Tracker */}
       {weekHistory.length > 0 && (

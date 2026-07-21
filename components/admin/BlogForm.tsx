@@ -38,6 +38,45 @@ export default function BlogForm({ initialData, onSubmitAction }: BlogFormProps)
     initialData?.seoKeywords?.join(", ") || ""
   );
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    const toastId = toast.loading("Uploading image...");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload-document", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await uploadRes.json();
+      if (!uploadRes.ok || !data.success) {
+        throw new Error(data.error || "Failed to upload image");
+      }
+
+      setCoverImage(data.url);
+      toast.success("Image uploaded successfully!", { id: toastId });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to upload image", { id: toastId });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !description.trim()) {
@@ -193,17 +232,53 @@ export default function BlogForm({ initialData, onSubmitAction }: BlogFormProps)
             </h3>
 
             {/* Cover Image */}
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
-                Cover Image URL
-              </label>
-              <input
-                type="text"
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="https://example.com/cover.jpg"
-                className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-white/2 border border-gray-200 dark:border-white/5 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none text-xs transition-all text-gray-700 dark:text-gray-300"
-              />
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
+                  Cover Image
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={coverImage}
+                    onChange={(e) => setCoverImage(e.target.value)}
+                    placeholder="https://example.com/cover.jpg"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-white/2 border border-gray-200 dark:border-white/5 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none text-xs transition-all text-gray-700 dark:text-gray-300"
+                  />
+                  <label className="flex items-center justify-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-755 dark:text-gray-300 text-xs font-bold rounded-xl transition-all cursor-pointer border border-gray-200 dark:border-white/5 shrink-0 select-none">
+                    {uploading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      "Upload"
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {coverImage && (
+                <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-white/2 border border-gray-200 dark:border-white/5 group">
+                  <img
+                    src={coverImage}
+                    alt="Cover preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage("")}
+                    className="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors cursor-pointer shadow-sm text-xs font-bold"
+                    style={{ backgroundColor: "rgba(239, 68, 68, 0.9)" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Status (Publish immediately) */}

@@ -281,7 +281,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
           {renderLogoMark()}
           <span
             className={[
-              "text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",
+              "text-[15px] font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",
               isExpanded ? "opacity-100 max-w-[190px]" : "opacity-0 max-w-0",
             ].join(" ")}
           >
@@ -305,7 +305,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                   isExpanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0 mb-0",
                 ].join(" ")}
               >
-                <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
+                <span className="text-[13.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
                   {section.label}
                 </span>
                 <LdAltArrowRight
@@ -352,7 +352,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                       />
 
                       {isExpanded && (
-                        <span className="font-semibold text-[13.5px] whitespace-nowrap opacity-100 max-w-[200px] transition-all duration-300">
+                        <span className="font-semibold text-[14.5px] whitespace-nowrap opacity-100 max-w-[200px] transition-all duration-300">
                           {item.label}
                         </span>
                       )}
@@ -390,11 +390,11 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <ThemeToggle />
-                  <span className="text-[12px] font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                  <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400">Theme</span>
                 </div>
                 <button
                   onClick={() => setIsLogoutOpen(true)}
-                  className="text-[11px] font-medium text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  className="text-[12px] font-medium text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                 >
                   Sign out
                 </button>
