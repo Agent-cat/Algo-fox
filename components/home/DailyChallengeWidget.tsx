@@ -114,24 +114,24 @@ function DayPill({ day }: { day: WeekDayEntry }) {
   };
 
   const icons: Record<State, React.ReactNode> = {
-    completed: <Check className="w-3 h-3 text-white stroke-[3.5]" />,
-    missed: <Minus className="w-2.5 h-2.5 stroke-[3]" />,
-    "today-pending": <Flame className="w-3 h-3 fill-current" />,
-    future: <span className="text-[9px] font-bold">{day.dayLabel[0]}</span>,
-    "no-challenge": <span className="text-[9px] font-medium">{day.dayLabel[0]}</span>,
+    completed: <Check className="w-3 h-3 lg:w-1.5 lg:h-1.5 xl:w-2 xl:h-2 2xl:w-3 2xl:h-3 text-white stroke-[3.5]" />,
+    missed: <Minus className="w-2.5 h-2.5 lg:w-1.5 lg:h-1.5 xl:w-2 xl:h-2 2xl:w-2.5 2xl:h-2.5 stroke-[3]" />,
+    "today-pending": <Flame className="w-3 h-3 lg:w-1.5 lg:h-1.5 xl:w-2 xl:h-2 2xl:w-3 2xl:h-3 fill-current" />,
+    future: <span className="text-[9px] lg:text-[6.5px] xl:text-[7.5px] 2xl:text-[9px] font-bold">{day.dayLabel[0]}</span>,
+    "no-challenge": <span className="text-[9px] lg:text-[6.5px] xl:text-[7.5px] 2xl:text-[9px] font-medium">{day.dayLabel[0]}</span>,
   };
 
   return (
     <div className="flex flex-col items-center gap-1 flex-1" title={day.dateStr}>
       <div
         className={[
-          "w-7 h-7 rounded-full border flex items-center justify-center transition-all",
+          "w-7 h-7 lg:w-4.5 lg:h-4.5 xl:w-5.5 xl:h-5.5 2xl:w-7 2xl:h-7 rounded-full border flex items-center justify-center transition-all",
           circleStyles[state],
         ].join(" ")}
       >
         {icons[state]}
       </div>
-      <span className={["text-[9px] uppercase tracking-wider font-semibold", labelStyles[state]].join(" ")}>
+      <span className={["text-[9px] lg:text-[6.5px] xl:text-[7.5px] 2xl:text-[9px] uppercase tracking-wider font-semibold", labelStyles[state]].join(" ")}>
         {day.dayLabel.slice(0, 2)}
       </span>
     </div>
@@ -148,21 +148,21 @@ export function DailyChallengeWidget({
   const diffConfig = problem ? (DIFFICULTY_CONFIG[problem.difficulty] ?? DIFFICULTY_CONFIG.EASY) : null;
 
   return (
-    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-5 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 gap-4 shadow-sm">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-5 lg:p-2.5 xl:p-3.5 2xl:p-5 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 gap-4 lg:gap-2 xl:gap-3 2xl:gap-4 shadow-sm">
 
       {/* Header section (clean alignment) */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5 text-orange-500 fill-orange-500 shrink-0" />
-          <h2 className="text-[13.5px] font-bold text-gray-900 dark:text-white tracking-wide">
+        <div className="flex items-center gap-2 lg:gap-1">
+          <Flame className="w-5 h-5 lg:w-3.5 lg:h-3.5 xl:w-4.5 xl:h-4.5 text-orange-500 fill-orange-500 shrink-0" />
+          <h2 className="text-[13.5px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13.5px] font-bold text-gray-900 dark:text-white tracking-wide">
             Daily Challenge
           </h2>
         </div>
 
         {/* Countdown */}
         {countdown !== null && (
-          <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-            <Clock className="w-3 h-3 shrink-0" />
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-2 py-0.5 text-[11px] lg:text-[8.5px] xl:text-[10px] 2xl:text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+            <Clock className="w-3 h-3 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 shrink-0" />
             <span className="tabular-nums">{countdown}</span>
           </div>
         )}
@@ -184,20 +184,20 @@ export function DailyChallengeWidget({
             {/* Difficulty and Solved stats */}
             <div className="flex items-center justify-between">
               {diffConfig && (
-                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${diffConfig.pill}`}>
+                <span className={`text-[10px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${diffConfig.pill}`}>
                   {diffConfig.label}
                 </span>
               )}
               {problem.solved != null && (
-                <span className="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
-                  <Trophy className="w-3 h-3 text-amber-500" />
+                <span className="flex items-center gap-1 text-[10px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
+                  <Trophy className="w-3 h-3 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 text-amber-500" />
                   {problem.solved.toLocaleString()} solved
                 </span>
               )}
             </div>
 
             {/* Problem title */}
-            <h3 className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+            <h3 className="text-[13px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
               {problem.title}
             </h3>
           </div>
@@ -206,18 +206,18 @@ export function DailyChallengeWidget({
           <Link
             href={`/problems/${problem.slug}`}
             id="daily-challenge-solve-btn"
-            className="group w-full bg-white text-gray-900 border border-gray-200 hover:border-gray-300 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/20 active:scale-[0.98] font-bold text-xs tracking-wider py-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm"
+            className="group w-full bg-white text-gray-900 border border-gray-200 hover:border-gray-300 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 dark:hover:border-white/20 active:scale-[0.98] font-bold text-xs lg:text-[9.5px] xl:text-[11px] 2xl:text-xs tracking-wider py-3 lg:py-1.5 xl:py-2.5 2xl:py-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-sm"
           >
             <span>Solve Now</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-3.5 h-3.5 lg:w-2.5 lg:h-2.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       )}
 
       {/* Week Progress Tracker */}
       {weekHistory.length > 0 && (
-        <div className="pt-4 border-t border-gray-100 dark:border-white/8 flex flex-col gap-2.5">
-          <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+        <div className="pt-4 lg:pt-2 xl:pt-3 border-t border-gray-100 dark:border-white/8 flex flex-col gap-2.5 lg:gap-1 xl:gap-2">
+          <div className="flex justify-between items-center text-[10px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
             <span>Weekly Progress</span>
             <span className="text-orange-500 dark:text-orange-400 normal-case tracking-normal">
               {weekHistory.filter((d) => d.completed).length} / 7 Solved

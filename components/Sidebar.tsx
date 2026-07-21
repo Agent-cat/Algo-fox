@@ -211,20 +211,26 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   // ── Logo mark ─────────────────────────────────────────────
   const renderLogoMark = () => {
+    const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
+    const isExpanded = mounted ? expanded : true;
+    const isVeryNarrow = isExpanded && currentWidth < 210;
+    const logoSize = isVeryNarrow ? 32 : 40;
+    const sizeClass = isVeryNarrow ? "w-8 h-8 rounded-xl" : "w-10 h-10 rounded-2xl";
     if (institution?.logo) {
       return (
         <img
           src={institution.logo}
           alt={institution.name}
-          width={40}
-          height={40}
-          className="w-10 h-10 object-contain rounded-2xl shadow-sm flex-shrink-0"
+          width={logoSize}
+          height={logoSize}
+          className={`${sizeClass} object-contain shadow-sm flex-shrink-0`}
         />
       );
     }
     if (institution) {
+      const textClass = isVeryNarrow ? "text-sm rounded-xl" : "text-base rounded-2xl";
       return (
-        <span className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center text-white shadow-md shadow-orange-500/20 text-base font-bold flex-shrink-0">
+        <span className={`${sizeClass} bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 font-bold flex-shrink-0 ${textClass}`}>
           {institution.name.charAt(0).toUpperCase()}
         </span>
       );
@@ -233,9 +239,9 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       <img
         src="/icons/fox.png"
         alt="AlgoFox"
-        width={40}
-        height={40}
-        className="w-10 h-10 object-contain rounded-2xl flex-shrink-0"
+        width={logoSize}
+        height={logoSize}
+        className={`${sizeClass} object-contain flex-shrink-0`}
       />
     );
   };
@@ -244,6 +250,8 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
   const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
   const isExpanded = mounted ? expanded : true;
+  const isVeryNarrow = isExpanded && currentWidth < 210;
+  const isNarrow = isExpanded && currentWidth >= 210 && currentWidth < 250;
 
   if (initialSession === null || (initialSession && !initialSession.user)) {
     return null;
@@ -274,15 +282,16 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       <div
         className={[
           "flex items-center h-16 flex-shrink-0 border-b-2 border-dotted border-gray-300 dark:border-white/20",
-          isExpanded ? "px-5 gap-3" : "justify-center px-0",
+          isExpanded ? (isVeryNarrow ? "px-3 gap-2" : isNarrow ? "px-4 gap-2.5" : "px-5 gap-3") : "justify-center px-0",
         ].join(" ")}
       >
         <Link href="/home" className="flex items-center gap-3 min-w-0 group">
           {renderLogoMark()}
           <span
             className={[
-              "text-[15px] font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",
-              isExpanded ? "opacity-100 max-w-[190px]" : "opacity-0 max-w-0",
+              isVeryNarrow ? "text-[13.5px]" : isNarrow ? "text-[14px]" : "text-[15px]",
+              "font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-[opacity,max-width] duration-300",
+              isExpanded ? (isVeryNarrow ? "opacity-100 max-w-[120px]" : isNarrow ? "opacity-100 max-w-[150px]" : "opacity-100 max-w-[190px]") : "opacity-0 max-w-0",
             ].join(" ")}
           >
             {brandName}
@@ -301,16 +310,21 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
               <button
                 onClick={() => toggleSection(section.label)}
                 className={[
-                  "w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1",
+                  "w-full flex items-center justify-between transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1",
+                  isVeryNarrow ? "px-1.5 py-0.5" : isNarrow ? "px-2 py-0.5" : "px-2 py-1",
                   isExpanded ? "opacity-100 max-h-8" : "opacity-0 max-h-0 py-0 mb-0",
                 ].join(" ")}
               >
-                <span className="text-[13.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
+                <span className={[
+                  isVeryNarrow ? "text-[11px] ml-0.5" : isNarrow ? "text-[12.5px] ml-1" : "text-[13.5px] ml-1",
+                  "font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors"
+                ].join(" ")}>
                   {section.label}
                 </span>
                 <LdAltArrowRight
                   className={[
-                    "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                    isVeryNarrow ? "w-3 h-3" : "w-3.5 h-3.5",
+                    "text-gray-400 transition-transform duration-200",
                     isOpen ? "rotate-90" : "",
                   ].join(" ")}
                 />
@@ -328,13 +342,27 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                   const Icon = item.icon;
                   const active = isActive(item.href);
 
+                  const paddingClass = isVeryNarrow
+                    ? "pl-3 pr-2 py-1.5 gap-2"
+                    : isNarrow
+                      ? "pl-4 pr-2 py-2 gap-2.5"
+                      : "pl-5 pr-3 py-2 gap-3";
+                  const textClass = isVeryNarrow
+                    ? "text-[12.5px]"
+                    : isNarrow
+                      ? "text-[13.5px]"
+                      : "text-[14.5px]";
+                  const iconClass = isVeryNarrow
+                    ? "w-[16px] h-[16px]"
+                    : "w-[18px] h-[18px]";
+
                   const linkContent = (
                     <Link
                       href={item.href}
                       className={[
                         "relative flex rounded-lg transition-colors duration-200 group",
                         isExpanded 
-                          ? "flex-row items-center gap-3 pl-5 pr-3 py-2 w-full" 
+                          ? `flex-row items-center w-full ${paddingClass}` 
                           : "justify-center w-12 h-12 flex items-center",
                         active
                           ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
@@ -344,7 +372,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                       <Icon
                         className={[
                           "flex-shrink-0 transition-colors",
-                          isExpanded ? "w-[18px] h-[18px]" : "w-[24px] h-[24px]",
+                          isExpanded ? iconClass : "w-[24px] h-[24px]",
                           active
                             ? "text-gray-900 dark:text-white"
                             : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"
@@ -352,7 +380,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
                       />
 
                       {isExpanded && (
-                        <span className="font-semibold text-[14.5px] whitespace-nowrap opacity-100 max-w-[200px] transition-all duration-300">
+                        <span className={`font-semibold whitespace-nowrap opacity-100 max-w-[200px] transition-all duration-300 ${textClass}`}>
                           {item.label}
                         </span>
                       )}
@@ -383,14 +411,14 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
 
       {/* ── Footer Actions ─────────────────────────────────── */}
       {session?.user && (
-        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 ${isExpanded ? "p-4 ml-2" : "px-1 py-3"}`}>
+        <div className={`flex-shrink-0 border-t border-gray-200 dark:border-white/10 ${isExpanded ? (isVeryNarrow ? "p-2 ml-1" : isNarrow ? "p-3 ml-1.5" : "p-4 ml-2") : "px-1 py-3"}`}>
           {isExpanded ? (
             <div className="space-y-3">
               {/* Theme & Quick Settings */}
-              <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
+              <div className={`flex items-center justify-between ${isVeryNarrow ? "px-0 gap-1" : "px-1"}`}>
+                <div className="flex items-center gap-1.5">
                   <ThemeToggle />
-                  <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                  {!isVeryNarrow && <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400">Theme</span>}
                 </div>
                 <button
                   onClick={() => setIsLogoutOpen(true)}

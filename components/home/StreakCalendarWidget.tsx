@@ -46,9 +46,9 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
   const daysInGrid = eachDayOfInterval({ start: startDate, end: endDate });
 
   return (
-    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-3 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 shadow-sm">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-3 lg:p-1.5 xl:p-2 2xl:p-3 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 lg:mb-1 xl:mb-2 2xl:mb-3">
         <button
           onClick={handlePrevMonth}
           className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400"
@@ -68,16 +68,16 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
       </div>
 
       {/* Days of Week Header */}
-      <div className="grid grid-cols-7 gap-0.5 mb-1.5">
+      <div className="grid grid-cols-7 gap-0.5 mb-1.5 lg:mb-1">
         {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
-          <div key={idx} className="text-center text-[9px] font-bold text-gray-400 dark:text-gray-500">
+          <div key={idx} className="text-center text-[9px] lg:text-[7px] xl:text-[8px] 2xl:text-[9px] font-bold text-gray-400 dark:text-gray-500">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-y-2.5 gap-x-0.5 mb-2">
+      <div className="grid grid-cols-7 gap-y-2.5 lg:gap-y-0.5 xl:gap-y-1 2xl:gap-y-2.5 gap-x-0.5 mb-2 lg:mb-1">
         {daysInGrid.map((day, idx) => {
           const dateStr = format(day, "yyyy-MM-dd");
           const hasSubmitted = activitySet.has(dateStr);
@@ -90,7 +90,7 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
           }
 
           let circleClass =
-            "w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-bold transition-all";
+            "w-8 h-8 lg:w-5.5 lg:h-5.5 xl:w-6.5 xl:h-6.5 2xl:w-8 2xl:h-8 rounded-full flex items-center justify-center transition-all";
           let textClass = "";
 
           if (hasSubmitted) {
@@ -111,7 +111,7 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
           return (
             <div key={idx} className="flex justify-center items-center">
               <div className={circleClass}>
-                <span className={textClass}>{format(day, "d")}</span>
+                <span className={`${textClass} text-[10px] lg:text-[7px] xl:text-[8px] 2xl:text-[10px]`}>{format(day, "d")}</span>
               </div>
             </div>
           );
@@ -119,16 +119,16 @@ export function StreakCalendarWidget({ activityDates, currentStreak, bestStreak 
       </div>
 
       {/* Footer Stats */}
-      <div className="flex items-center justify-around pt-2 border-t border-gray-100 dark:border-white/10">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-orange-500" />
-          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Current</span>
-          <span className="text-[11px] font-bold text-gray-900 dark:text-white">{currentStreak}</span>
+      <div className="flex items-center justify-around pt-2 border-t border-gray-100 dark:border-white/10 lg:pt-1 xl:pt-1.5 2xl:pt-2">
+        <div className="flex items-center gap-1.5 lg:gap-0.5 xl:gap-1">
+          <div className="w-2 h-2 lg:w-1 lg:h-1 rounded-full bg-orange-500" />
+          <span className="text-[11px] lg:text-[8px] xl:text-[9px] 2xl:text-[11px] font-medium text-gray-500 dark:text-gray-400">Current</span>
+          <span className="text-[11px] lg:text-[8px] xl:text-[9px] 2xl:text-[11px] font-bold text-gray-900 dark:text-white">{currentStreak}</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Flame className="w-3 h-3 text-green-500 fill-current" />
-          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">Best</span>
-          <span className="text-[11px] font-bold text-gray-900 dark:text-white">{bestStreak}</span>
+        <div className="flex items-center gap-1.5 lg:gap-0.5 xl:gap-1">
+          <Flame className="w-3 h-3 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 text-green-500 fill-current" />
+          <span className="text-[11px] lg:text-[8px] xl:text-[9px] 2xl:text-[11px] font-medium text-gray-500 dark:text-gray-400">Best</span>
+          <span className="text-[11px] lg:text-[8px] xl:text-[9px] 2xl:text-[11px] font-bold text-gray-900 dark:text-white">{bestStreak}</span>
         </div>
       </div>
     </div>

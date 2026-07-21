@@ -100,14 +100,14 @@ export default async function Home() {
     .slice(0, 8);
 
   return (
-    <div className="min-h-screen lg:min-h-0 lg:h-[var(--content-height)] bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans relative overflow-hidden">
-      <div className="w-full h-full pl-6 lg:pl-12 pr-3 lg:pr-6 py-6 relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-14 overflow-hidden">
+    <div className="min-h-screen lg:h-[var(--content-height)] bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans relative overflow-y-auto lg:overflow-hidden">
+      <div className="w-full h-auto lg:h-full pl-4 lg:pl-4 xl:pl-6 2xl:pl-12 pr-2 lg:pr-2 xl:pr-3 2xl:pr-6 py-6 relative z-10 flex flex-col lg:flex-row gap-4 lg:gap-4 xl:gap-6 2xl:gap-14">
         
         {/* Main Content Area */}
-        <div className="flex-1 min-h-0 h-full overflow-y-auto no-scrollbar flex flex-col gap-6">
+        <div className="flex-1 min-h-0 lg:h-full lg:overflow-y-auto no-scrollbar flex flex-col gap-6">
             
             {/* Clean Welcome Header */}
-            <div className="flex items-center gap-4 py-4">
+            <div className="flex items-center gap-4 lg:gap-2.5 xl:gap-3 py-4 lg:py-2 xl:py-3 2xl:py-4">
                 {isLoggedIn && (
                     session?.user?.image ? (
                         <Image 
@@ -116,20 +116,20 @@ export default async function Home() {
                             width={48}
                             height={48}
                             priority
-                            className="w-12 h-12 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-white/10"
+                            className="w-12 h-12 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-white/10"
                         />
                     ) : (
-                        <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-lg border border-gray-200 dark:border-white/10">
+                        <div className="w-12 h-12 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 flex items-center justify-center font-bold text-lg lg:text-sm xl:text-base 2xl:text-lg border border-gray-200 dark:border-white/10">
                             {(session?.user?.name || "D").charAt(0).toUpperCase()}
                         </div>
                     )
                 )}
                 <div className="flex flex-col">
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h1 className="text-xl lg:text-[15px] xl:text-[17px] 2xl:text-xl font-bold text-gray-900 dark:text-white leading-tight">
                         {isLoggedIn ? `Welcome back, ${session?.user?.name || "Developer"}!` : "Welcome to Algo-fox!"}
                     </h1>
                     {isLoggedIn && (stats?.email || stats?.collegeId) && (
-                        <div className="flex flex-wrap items-center gap-x-2 text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
+                        <div className="flex flex-wrap items-center gap-x-2 text-xs lg:text-[10px] xl:text-[11px] 2xl:text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">
                             {stats?.email && <span>{stats.email}</span>}
                             {stats?.email && stats?.collegeId && <span>•</span>}
                             {stats?.collegeId && <span>Roll No: {stats.collegeId}</span>}
@@ -143,12 +143,12 @@ export default async function Home() {
             {/* Featured Banners Section */}
             {featuredBanners && featuredBanners.length > 0 && (
               <>
-                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide shrink-0">
+                <div className="flex gap-4 overflow-x-auto no-scrollbar w-full shrink-0 pb-1 scroll-smooth">
                   {featuredBanners.map((banner) => (
                     <Link
                       key={banner.id}
                       href={banner.redirectUrl}
-                      className="relative block aspect-[16/9] w-[350px] min-w-[350px] max-w-[350px] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out flex-shrink-0 cursor-pointer"
+                      className="relative block aspect-[16/9] w-[260px] sm:w-[300px] xl:w-[320px] 2xl:w-[350px] shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
                     >
                       <img
                         src={banner.imageUrl}
@@ -172,7 +172,7 @@ export default async function Home() {
         </div>
 
         {/* Right Sidebar (Widgets) */}
-        <div className="w-full lg:w-[350px] shrink-0 min-h-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-6">
+        <div className="w-full lg:w-[230px] xl:w-[270px] 2xl:w-[350px] shrink-0 min-h-0 lg:h-full lg:overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4 lg:gap-3 xl:gap-4 2xl:gap-6">
            <div className="relative group">
               <div className={!isLoggedIn ? "filter blur-[6px] opacity-70 pointer-events-none select-none" : ""}>
                  <StreakCalendarWidget
