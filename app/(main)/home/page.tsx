@@ -104,7 +104,7 @@ export default async function Home() {
       <div className="w-full h-full pl-6 lg:pl-12 pr-3 lg:pr-6 py-6 relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-14 overflow-hidden">
         
         {/* Main Content Area */}
-        <div className="flex-1 min-h-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-6">
+        <div className="flex-1 min-h-0 h-full overflow-y-auto no-scrollbar flex flex-col gap-6">
             
             {/* Clean Welcome Header */}
             <div className="flex items-center gap-4 py-4">
@@ -143,12 +143,12 @@ export default async function Home() {
             {/* Featured Banners Section */}
             {featuredBanners && featuredBanners.length > 0 && (
               <>
-                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide shrink-0">
                   {featuredBanners.map((banner) => (
                     <Link
                       key={banner.id}
                       href={banner.redirectUrl}
-                      className="relative block aspect-[16/9] w-[350px] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out flex-shrink-0 cursor-pointer"
+                      className="relative block aspect-[16/9] w-[350px] min-w-[350px] max-w-[350px] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out flex-shrink-0 cursor-pointer"
                     >
                       <img
                         src={banner.imageUrl}

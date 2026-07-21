@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getDailyChallengesForMonth } from "@/actions/daily-challenge.action";
 import DailyChallengeClient from "./_components/DailyChallengeClient";
 import { Sparkles } from "lucide-react";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Daily Challenge | Admin",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DailyChallengePage() {
+  await headers();
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;

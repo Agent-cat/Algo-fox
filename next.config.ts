@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // output: 'standalone',
+  allowedDevOrigins: ['143.110.189.110', 'localhost:3000'],
   images: {
     remotePatterns: [
       {
@@ -145,7 +146,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.amazonaws.com https://www.codechef.com https://codeforces.org https://assets.leetcode.com https://cdn.simpleicons.org",
               "font-src 'self' data: https://cdn.jsdelivr.net",
               "worker-src blob: 'self'",
-              "connect-src 'self' https://cdn.jsdelivr.net https://leetcode.com https://codeforces.com https://www.codechef.com https://api.github.com",
+              "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://leetcode.com https://codeforces.com https://www.codechef.com https://api.github.com",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
