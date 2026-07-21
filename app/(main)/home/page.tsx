@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getTopicSheets } from "@/actions/topic.action";
+import { getFeaturedItemsAction } from "@/actions/featured";
 import { TopicsCarousel } from "@/components/home/TopicsCarousel";
 import { CourseService } from "@/core/services/course.service";
 import { ContinueLearningWidget } from "@/components/home/ContinueLearningWidget";
@@ -51,14 +52,15 @@ export default async function Home() {
   const currentStreak = stats?.currentStreak || 0;
   const bestStreak = stats?.bestStreak || 0;
 
-  // Fetch contests, topic sheets, enrollments, and daily challenge in parallel
-  const [internalRes, externalRes, topicSheetsRes, enrollments, dailyChallengeRes, weekHistoryRes] = await Promise.all([
+  // Fetch contests, topic sheets, enrollments, daily challenge, and featured banners in parallel
+  const [internalRes, externalRes, topicSheetsRes, enrollments, dailyChallengeRes, weekHistoryRes, featuredBanners] = await Promise.all([
     getVisibleContests({ status: "active" }),
     getUpcomingContests(),
     getTopicSheets(),
     isLoggedIn ? CourseService.getUserEnrolledCourses(session.user.id) : Promise.resolve([]),
     getDailyChallenge(),
     getWeeklyDailyChallengeHistory(),
+    getFeaturedItemsAction(),
   ]);
 
   const todayChallenge = dailyChallengeRes?.challenge ?? null;
@@ -138,7 +140,27 @@ export default async function Home() {
 
             <div className="border-t border-gray-200 dark:border-white/10" />
 
-
+            {/* Featured Banners Section */}
+            {featuredBanners && featuredBanners.length > 0 && (
+              <>
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                  {featuredBanners.map((banner) => (
+                    <Link
+                      key={banner.id}
+                      href={banner.redirectUrl}
+                      className="relative block aspect-[16/9] w-[350px] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out flex-shrink-0 cursor-pointer"
+                    >
+                      <img
+                        src={banner.imageUrl}
+                        alt="Featured banner"
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+                  ))}
+                </div>
+                <div className="border-t border-gray-200 dark:border-white/10" />
+              </>
+            )}
 
             {/* Topics Carousel */}
             <TopicsCarousel categories={categories} />
@@ -180,9 +202,7 @@ export default async function Home() {
                  </div>
               )}
            </div>
-           {todayChallenge && (
-             <DailyChallengeWidget problem={todayChallenge.problem as any} weekHistory={weekHistory} />
-           )}
+           <DailyChallengeWidget problem={todayChallenge?.problem as any} weekHistory={weekHistory} />
            <UpcomingContestsWidget contests={allUpcomingContests} />
         </div>
 

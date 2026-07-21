@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import Sidebar from "@/components/Sidebar";
 import { PlacementDirectorSidebar } from "@/components/placementdashboard/PlacementDirectorSidebar";
 import { getSession } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 
 export default async function PlacementDashboardLayout({
     children,
@@ -10,6 +11,10 @@ export default async function PlacementDashboardLayout({
     children: React.ReactNode;
 }) {
     const session = await getSession();
+
+    if (!session?.user || (session.user as any).role !== "PLACEMENT_DIRECTOR") {
+        redirect("/dashboard");
+    }
 
     return (
         <SidebarProvider>
