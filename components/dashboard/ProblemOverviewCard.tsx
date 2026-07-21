@@ -802,7 +802,11 @@ function StatCard({ label, value, icon, trend, className }: any) {
 function EmptyState({ logoPath, Icon, message, subMessage }: any) {
     return (
         <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-            <div className="w-16 h-16 p-2 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-white/5">
+            <div className={`w-16 h-16 p-2.5 rounded-full flex items-center justify-center shadow-sm border ${
+                logoPath 
+                    ? "bg-white border-gray-200" 
+                    : "bg-gray-100 dark:bg-white/5 border-gray-100 dark:border-white/5"
+            }`}>
                 {Icon ? <Icon className="w-8 h-8 text-gray-900 dark:text-gray-100" /> : <img src={logoPath} alt={message} className="w-full h-full object-contain" />}
             </div>
             <div>

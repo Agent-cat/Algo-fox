@@ -99,7 +99,7 @@ export function ClassroomSidebar({
                         {showDetails ? 'Hide' : 'View'}
                     </button>
                 </div>
-                <h3 className="text-sm font-black text-gray-950 dark:text-white truncate tracking-tight" title={classroomName}>
+                <h3 className="text-[15px] font-black text-gray-950 dark:text-white truncate tracking-tight" title={classroomName}>
                     {classroomName}
                 </h3>
 
@@ -161,7 +161,7 @@ export function ClassroomSidebar({
                                     onClick={() => toggleSection(section.label)}
                                     className="w-full flex items-center justify-between px-2 py-1 transition-[opacity,max-height] duration-300 overflow-hidden group cursor-pointer mb-1"
                                 >
-                                    <span className="text-[12.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
+                                    <span className="text-[13.5px] font-medium text-gray-500 dark:text-gray-400 tracking-wide transition-colors ml-1">
                                         {section.label}
                                     </span>
                                     <LdAltArrowRight
@@ -204,7 +204,7 @@ export function ClassroomSidebar({
                                                             : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300",
                                                     ].join(" ")}
                                                 />
-                                                <span className="text-[13.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
+                                                <span className="text-[14.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
                                                     {item.label}
                                                 </span>
                                             </button>
