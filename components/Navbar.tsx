@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import UserPoints from "./UserPoints";
 import { StreakBadge } from "./shared/StreakBadge";
-import { ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
+import { ChevronDown, PanelLeft, PanelLeftClose, Search, Menu } from "lucide-react";
 import { useSidebar, EXPANDED_WIDTH } from "@/context/SidebarContext";
 import { NotificationDropdown, Notification } from "./home/NotificationDropdown";
 
@@ -17,11 +17,12 @@ interface NavbarProps {
     session?: { impersonatedBy?: string | null };
     user?: { id: string; name?: string | null; image?: string | null; role?: string | null } | null;
   } | null;
+  onMobileMenuToggle?: () => void;
 }
 
-export default function Navbar({ initialSession }: NavbarProps = {}) {
+export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarProps = {}) {
   const { data: clientSession, isPending } = authClient.useSession();
-  const { sidebarWidth, expanded, toggle, isDragging, isForceCollapsed } = useSidebar();
+  const { sidebarWidth, expanded, toggle, isDragging, isForceCollapsed, toggleMobileDrawer } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const session = !mounted || isPending ? initialSession : clientSession;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -72,83 +73,112 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
     <nav
       style={{ left: currentWidth }}
       className={[
-        "fixed right-0 z-50 h-16 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
+        // Fixed height h-16 always — overflow-hidden ensures nothing can push it taller
+        "fixed right-0 z-50 h-16 overflow-hidden bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
         isImpersonating ? "top-10" : "top-0",
         !isDragging && "transition-[left] duration-300 ease-in-out"
       ].filter(Boolean).join(" ")}
     >
-      <div className="h-full px-4 flex items-center justify-between gap-4">
-        {/* Left: sidebar toggle / brand logo */}
-        {session?.user ? (
-          !isForceCollapsed ? (
+      {/* Single row — items-center keeps everything on one line */}
+      <div className="h-full px-2 sm:px-3 lg:px-4 flex items-center justify-between gap-2 sm:gap-3 lg:gap-4 min-w-0">
+
+        {/* LEFT: sidebar toggle / brand logo / mobile menu */}
+        <div className="flex items-center gap-1.5 shrink-0 min-w-0">
+          {/* Mobile hamburger — only shown when sidebar is hidden on mobile */}
+          {session?.user && (
             <button
-              onClick={toggle}
-              aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
+              onClick={toggleMobileDrawer}
+              aria-label="Open menu"
+              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
             >
-              {isExpanded
-                ? <PanelLeftClose className="w-[18px] h-[18px]" />
-                : <PanelLeft className="w-[18px] h-[18px]" />}
+              <Menu className="w-4.5 h-4.5" />
             </button>
+          )}
+
+          {session?.user ? (
+            !isForceCollapsed ? (
+              <button
+                onClick={toggle}
+                aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+                className="hidden md:flex flex-shrink-0 w-9 h-9 items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
+              >
+                {isExpanded
+                  ? <PanelLeftClose className="w-[18px] h-[18px]" />
+                  : <PanelLeft className="w-[18px] h-[18px]" />}
+              </button>
+            ) : (
+              <div className="hidden md:block w-9 h-9" />
+            )
           ) : (
-            <div className="w-9 h-9" />
-          )
-        ) : (
-          <Link href="/" className="flex items-center gap-3 min-w-0 group flex-shrink-0 select-none">
-            <Image
-              src="/icons/fox.png"
-              alt="AlgoFox"
-              width={36}
-              height={36}
-              className="w-9 h-9 object-contain rounded-xl flex-shrink-0"
-            />
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
-              AlgoFox
-            </span>
-          </Link>
-        )}
+            <Link href="/" className="flex items-center gap-2 min-w-0 group flex-shrink-0 select-none">
+              <Image
+                src="/icons/fox.png"
+                alt="AlgoFox"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain rounded-xl flex-shrink-0"
+              />
+              <span className="hidden sm:block text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate">
+                AlgoFox
+              </span>
+            </Link>
+          )}
+        </div>
 
-        {/* Search Bar */}
+        {/* CENTER: Search Bar (hidden on mobile — icon only) */}
         {session?.user ? (
-          <button
-            type="button"
-            className="relative group cursor-pointer text-left flex-1 max-w-lg focus:outline-none"
-            onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
-          >
-            <svg className="absolute left-3.5 lg:left-2.5 xl:left-3 2xl:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-gray-400 group-hover:text-orange-500 dark:text-gray-500 dark:group-hover:text-orange-400 transition-colors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <div
-              className="w-full flex items-center pl-10 lg:pl-8 lg:pr-12 lg:py-1.5 xl:pl-9 xl:pr-14 xl:py-2 2xl:pl-10 2xl:pr-16 2xl:py-2.5 text-[13px] lg:text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 group-focus-within:bg-[#FAFAFB] dark:bg-[#1a1a1f] dark:hover:bg-[#222228] dark:focus-within:bg-[#222228] border border-gray-200 dark:border-white/10 group-focus-within:border-orange-400/50 dark:group-focus-within:border-orange-400/30 group-focus-within:ring-4 group-focus-within:ring-orange-500/10 rounded-xl transition-all text-gray-400 dark:text-gray-500 dark:shadow-sm"
+          <>
+            {/* Mobile: icon-only search button */}
+            <button
+              type="button"
+              aria-label="Search"
+              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
             >
-              Search problems, topics, contests...
-            </div>
-            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none lg:hidden xl:flex 2xl:flex">
-              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">Ctrl</span>
-              <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">K</span>
-            </div>
-          </button>
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Tablet/Desktop: full search bar */}
+            <button
+              type="button"
+              className="relative group cursor-pointer text-left flex-1 max-w-lg focus:outline-none hidden md:block min-w-0"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
+            >
+              <svg className="absolute left-3 lg:left-2.5 xl:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 lg:w-3.5 lg:h-3.5 text-gray-400 group-hover:text-orange-500 dark:text-gray-500 dark:group-hover:text-orange-400 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <div
+                className="w-full flex items-center pl-8 lg:pl-8 xl:pl-9 2xl:pl-10 pr-3 lg:pr-12 xl:pr-14 2xl:pr-16 py-1.5 lg:py-1.5 xl:py-2 2xl:py-2.5 text-[12px] lg:text-[11.5px] xl:text-[12.5px] 2xl:text-[13px] font-medium bg-[#FAFAFB] hover:bg-gray-100 dark:bg-[#1a1a1f] dark:hover:bg-[#222228] border border-gray-200 dark:border-white/10 group-hover:border-gray-300 dark:group-hover:border-white/20 rounded-xl transition-all text-gray-400 dark:text-gray-500 truncate"
+              >
+                <span className="truncate">Search problems, topics, contests...</span>
+              </div>
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-1 pointer-events-none hidden xl:flex 2xl:flex">
+                <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">Ctrl</span>
+                <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a30] px-1.5 py-0.5 rounded-md border border-gray-200 dark:border-white/10">K</span>
+              </div>
+            </button>
+          </>
         ) : (
-          <div className="flex-1" />
+          <div className="flex-1 min-w-0" />
         )}
 
-        {/* Right: user actions */}
-        <div className="flex items-center gap-4 lg:gap-2 xl:gap-3 2xl:gap-4">
+        {/* RIGHT: user actions — all shrink-0 to prevent flex collapse */}
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-2 xl:gap-3 2xl:gap-4 shrink-0">
           {shouldRender && session ? (
             <>
               {notifications.length > 0 && <NotificationDropdown notifications={notifications} />}
               <StreakBadge />
-              <div className="h-4 w-px bg-gray-200 dark:bg-white/10 lg:hidden xl:block" />
-              <UserPoints />
+              <div className="h-4 w-px bg-gray-200 dark:bg-white/10 hidden lg:block xl:block" />
+              <UserPoints className="hidden lg:flex" />
 
               {/* User avatar dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen((p) => !p)}
-                  className="flex items-center gap-2 lg:gap-1.5 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
+                  className="flex items-center gap-1.5 pl-1.5 sm:pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-[#262626]"
                 >
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden xl:block">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 hidden xl:block max-w-[100px] truncate">
                     {session?.user?.name}
                   </span>
-                  <div className="w-8 h-8 lg:w-7 lg:h-7 xl:w-7.5 xl:h-7.5 2xl:w-8 2xl:h-8 rounded-full overflow-hidden ring-2 ring-white bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs lg:text-[10px] xl:text-[11px] 2xl:text-xs">
+                  <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 lg:w-7 lg:h-7 xl:w-7.5 xl:h-7.5 2xl:w-8 2xl:h-8 rounded-full overflow-hidden ring-2 ring-white dark:ring-[#1D1E23] bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-[10px] xl:text-[11px] 2xl:text-xs flex-shrink-0">
                     {session?.user?.image ? (
                       <Image
                         src={session.user?.image || ""}
@@ -163,7 +193,7 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
                     )}
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+                    className={`w-3.5 h-3.5 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
@@ -215,15 +245,15 @@ export default function Navbar({ initialSession }: NavbarProps = {}) {
             </>
           ) : shouldRender ? (
             <>
-              <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+              <Link href="/signin" className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors whitespace-nowrap">
                 Sign In
               </Link>
-              <Link href="/signup" className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
+              <Link href="/signup" className="px-3 sm:px-4 py-1.5 sm:py-2 bg-black dark:bg-white text-white dark:text-black text-xs sm:text-sm rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap">
                 Get Started
               </Link>
             </>
           ) : (
-            <div className="w-[280px]" />
+            <div className="w-8 sm:w-[100px]" />
           )}
         </div>
       </div>
@@ -271,3 +301,5 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+

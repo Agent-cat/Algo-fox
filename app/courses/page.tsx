@@ -23,7 +23,7 @@ export default async function CoursesPage() {
 
     return (
         <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23]">
-            <main className="w-full px-6 lg:px-12 pt-6 pb-20">
+            <main className="w-full px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 pt-4 sm:pt-6 pb-12 sm:pb-20">
                 <CoursesClient courses={courses} enrollments={enrollments} />
             </main>
         </div>

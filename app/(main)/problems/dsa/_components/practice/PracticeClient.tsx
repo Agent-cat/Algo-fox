@@ -124,12 +124,12 @@ export default function PracticeClient({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
-                    className="grid grid-cols-12 gap-4 md:gap-8 px-6 py-3.5 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
+                    className="grid grid-cols-12 gap-2 sm:gap-4 md:gap-8 px-3 sm:px-4 md:px-6 py-3 sm:py-3.5 text-[10px] sm:text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest"
                 >
-                    <div className="col-span-6 md:col-span-5">Title</div>
-                    <div className="col-span-2 md:col-span-2 md:text-center">Difficulty</div>
-                    <div className="col-span-2 md:col-span-2 md:text-right">Acceptance</div>
-                    <div className="col-span-2 md:col-span-3 md:text-center">Company</div>
+                    <div className="col-span-9 md:col-span-5">Title</div>
+                    <div className="col-span-3 md:col-span-2 md:text-center">Difficulty</div>
+                    <div className="hidden md:block col-span-2 md:text-right">Acceptance</div>
+                    <div className="hidden md:block col-span-3 md:text-center">Company</div>
                 </motion.div>
             </div>
 
