@@ -482,13 +482,14 @@ export default function CompilerPage() {
       />
 
       {/* Editor & Resizable Output Layout */}
-      <div className="flex-1 flex min-w-0 bg-[#f0f0f0] dark:bg-[#1D1E23] relative">
+      {/* Mobile: flex-col (stacked). Desktop: flex-row (side-by-side with drag resize) */}
+      <div className="flex-1 flex flex-col md:flex-row min-w-0 bg-[#f0f0f0] dark:bg-[#1D1E23] relative overflow-hidden">
         {/* Left: Code Editor Container */}
         <div 
-          className={`min-h-0 h-full overflow-hidden flex flex-col bg-white dark:bg-[#1D1E23] ${
-            isFullscreen ? "fixed inset-0 z-[60] w-full" : ""
+          className={`min-h-0 overflow-hidden flex flex-col bg-white dark:bg-[#1D1E23] ${
+            isFullscreen ? "fixed inset-0 z-[60] w-full" : "h-[55vh] md:h-full flex-shrink-0 md:flex-shrink"
           }`} 
-          style={isFullscreen ? undefined : { width: `${100 - terminalWidth}%` }}
+          style={isFullscreen ? undefined : { width: typeof window !== 'undefined' && window.innerWidth >= 768 ? `${100 - terminalWidth}%` : undefined }}
         >
           {/* Custom Editor Toolbar matching Workspace */}
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#1C1D21] h-14 px-4 shrink-0 select-none">
@@ -554,17 +555,17 @@ export default function CompilerPage() {
               <button
                 onClick={handleRun}
                 disabled={isRunning}
-                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer shadow-sm shadow-orange-500/10 ml-1"
+                className="flex items-center gap-1.5 sm:gap-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs sm:text-sm font-semibold px-3 sm:px-5 py-1.5 sm:py-2 rounded-lg transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer shadow-sm shadow-orange-500/10 ml-1"
               >
                 {isRunning ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Running...</span>
+                    <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
+                    <span className="hidden xs:inline sm:inline">Running...</span>
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Run</span>
+                    <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
+                    <span className="hidden xs:inline sm:inline">Run</span>
                   </>
                 )}
               </button>
@@ -606,10 +607,16 @@ export default function CompilerPage() {
         )}
 
         {/* Right: Terminal Console */}
-        {terminalWidth > 0 && (
-          <div 
-            className="min-h-0 h-full flex flex-col bg-[#FFFFFE] dark:bg-[#1D1E23] border-l border-gray-200 dark:border-white/10 relative animate-slideLeft"
-            style={{ width: `${terminalWidth}%` }}
+        {/* Mobile: always show terminal below editor (full width) */}
+        {/* Desktop: show terminal in side panel when terminalWidth > 0 */}
+        <div 
+          className={`min-h-0 flex flex-col bg-[#FFFFFE] dark:bg-[#1D1E23] border-t md:border-t-0 md:border-l border-gray-200 dark:border-white/10 relative ${
+            terminalWidth > 0 ? 'animate-slideLeft' : 'hidden md:hidden'
+          }`}
+          style={{ 
+            height: typeof window !== 'undefined' && window.innerWidth < 768 ? '45vh' : undefined,
+            width: typeof window !== 'undefined' && window.innerWidth >= 768 && terminalWidth > 0 ? `${terminalWidth}%` : undefined 
+          }}
           >
             {/* Console Header - Matches Image Layout */}
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 px-4 shrink-0 bg-gray-50/50 dark:bg-[#1C1D21] h-14 select-none">
@@ -630,8 +637,7 @@ export default function CompilerPage() {
               {outputContent()}
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
   );
 }

@@ -20,6 +20,9 @@ interface SidebarContextValue {
   isDragging: boolean;
   setIsDragging: (v: boolean) => void;
   isForceCollapsed: boolean;
+  isMobileDrawerOpen: boolean;
+  toggleMobileDrawer: () => void;
+  closeMobileDrawer: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextValue>({
@@ -30,6 +33,9 @@ const SidebarContext = createContext<SidebarContextValue>({
   isDragging: false,
   setIsDragging: () => {},
   isForceCollapsed: false,
+  isMobileDrawerOpen: false,
+  toggleMobileDrawer: () => {},
+  closeMobileDrawer: () => {},
 });
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
@@ -37,6 +43,15 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   const [sidebarWidth, setSidebarWidth] = useState(EXPANDED_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Close mobile drawer on route changes
+  useEffect(() => {
+    setIsMobileDrawerOpen(false);
+  }, [pathname]);
+
+  const toggleMobileDrawer = () => setIsMobileDrawerOpen((prev) => !prev);
+  const closeMobileDrawer = () => setIsMobileDrawerOpen(false);
 
   useEffect(() => {
     const getResponsiveDefaultWidth = (width: number) => {
@@ -158,6 +173,9 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
         isDragging,
         setIsDragging,
         isForceCollapsed,
+        isMobileDrawerOpen,
+        toggleMobileDrawer,
+        closeMobileDrawer,
       }}
     >
       {children}

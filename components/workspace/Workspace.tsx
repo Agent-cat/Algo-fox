@@ -152,6 +152,17 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|community|submissions)/);
         return tabMatch ? (tabMatch[1] as "description" | "solutions" | "community" | "submissions") : "description";
     });
+    const [isMobile, setIsMobile] = useState(false);
+    const [activeSectionTab, setActiveSectionTab] = useState<"description" | "code" | "testcases">("description");
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     useEffect(() => {
         const tabMatch = pathname.match(/\/problems\/[^\/]+\/(description|solutions|community|submissions)/);
@@ -167,8 +178,23 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
         const newUrl = newTab === "description" ? `${basePath}/description` : `${basePath}/${newTab}`;
         const searchParams = new URLSearchParams(window.location.search);
         const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
-        window.history.replaceState(null, '', `${newUrl}${query}`);
-    }, [problem.slug, activeTab]);
+        const fullUrl = `${newUrl}${query}`;
+
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            const rawReplace = iframe.contentWindow?.history.replaceState;
+            if (rawReplace) {
+                rawReplace.call(window.history, null, '', fullUrl);
+            } else {
+                window.history.replaceState(null, '', fullUrl);
+            }
+            document.body.removeChild(iframe);
+        } catch (e) {
+            window.history.replaceState(null, '', fullUrl);
+        }
+    }, [problem.slug]);
     const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
     const [streakCount, setStreakCount] = useState(0);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
@@ -559,63 +585,155 @@ export default function Workspace({ problem, isSolved, contestId, contest, solve
                 problemId={problem.id}
                 isSubmissionPassed={submissionStatus === 'ACCEPTED'}
             />
-            <div className="flex-1 overflow-hidden flex flex-row min-h-0 bg-[#f0f0f0] dark:bg-[#1D1E23]">
-                <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={8} snapOffset={30} onDragEnd={setMainSizes}>
-                    <div id="problem-description" className="h-full overflow-hidden border-l border-dashed border-gray-400 dark:border-white/10">
-                        <ProblemDescription
-                            problem={problem}
-                            activeTab={activeTab}
-                            onTabChange={setActiveTab}
-                            isSolved={isSolvedState}
-                            contestId={contestId}
-                            domain={problem.domain}
-                            nextProblemSlug={nextProblemSlug}
-                            courseId={courseId}
-                            onRestoreCode={handleRestoreCode}
-                            isSubmitting={isSubmitting}
-                            latestSubmissionId={submissionId}
-                        />
+            {isMobile && (
+                <div className="flex border-b border-gray-200 dark:border-white/5 bg-[#fafafa] dark:bg-[#1C1D21] shrink-0 select-none">
+                    <button
+                        onClick={() => setActiveSectionTab("description")}
+                        className={`flex-1 py-3 text-center text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${
+                            activeSectionTab === "description"
+                                ? "border-orange-500 text-orange-500"
+                                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        }`}
+                    >
+                        Description
+                    </button>
+                    <button
+                        onClick={() => setActiveSectionTab("code")}
+                        className={`flex-1 py-3 text-center text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${
+                            activeSectionTab === "code"
+                                ? "border-orange-500 text-orange-500"
+                                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        }`}
+                    >
+                        Code
+                    </button>
+                    <button
+                        onClick={() => setActiveSectionTab("testcases")}
+                        className={`flex-1 py-3 text-center text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${
+                            activeSectionTab === "testcases"
+                                ? "border-orange-500 text-orange-500"
+                                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        }`}
+                    >
+                        Test Cases
+                    </button>
+                </div>
+            )}
+            <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-[#f0f0f0] dark:bg-[#1D1E23]">
+                {isMobile ? (
+                    <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+                        {/* Description Panel */}
+                        <div className={`h-full w-full overflow-hidden ${activeSectionTab === "description" ? "block" : "hidden"}`}>
+                            <ProblemDescription
+                                problem={problem}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                isSolved={isSolvedState}
+                                contestId={contestId}
+                                domain={problem.domain}
+                                nextProblemSlug={nextProblemSlug}
+                                courseId={courseId}
+                                onRestoreCode={handleRestoreCode}
+                                isSubmitting={isSubmitting}
+                                latestSubmissionId={submissionId}
+                            />
+                        </div>
+                        {/* Code Panel */}
+                        <div className={`h-full w-full flex flex-col min-h-0 overflow-hidden ${activeSectionTab === "code" ? "block" : "hidden"}`}>
+                            <CodeEditor
+                                key={`${problem.id}-${languageId}`}
+                                value={code}
+                                onChange={handleEditorChange}
+                                languageId={languageId}
+                                onLanguageChange={handleLanguageChange}
+                                problemId={problem.id}
+                                domain={problem.domain}
+                                functionTemplates={problem.useFunctionTemplate && problem.functionTemplates ? problem.functionTemplates : undefined}
+                                settings={editorSettings}
+                                onOpenSettings={handleOpenSettings}
+                                readOnly={isSubmitting}
+                                userId={session?.user?.id || ""}
+                                fileTabs={fileTabsNode}
+                                highlightLine={highlightLine}
+                                allowedLanguages={problem.allowedLanguages}
+                            />
+                        </div>
+                        {/* Test Cases Panel */}
+                        <div className={`h-full w-full overflow-hidden flex flex-col min-h-0 bg-[#fafafa] dark:bg-[#1D1E23] ${activeSectionTab === "testcases" ? "block" : "hidden"}`}>
+                            <TestCases
+                                cases={problem.testCases}
+                                customCases={customTestCases}
+                                onAddCustomCase={handleAddCustomCase}
+                                onUpdateCustomCase={handleUpdateCustomCase}
+                                onRemoveCustomCase={handleRemoveCustomCase}
+                                results={submissionResults}
+                                status={submissionStatus}
+                                mode={submissionMode}
+                                problemId={problem.id}
+                                isCollapsed={false}
+                                onToggleCollapse={() => {}}
+                                onErrorLineDetected={setHighlightLine}
+                            />
+                        </div>
                     </div>
-                    <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10 min-h-0">
-                        <Split className="split-vertical flex flex-col h-full min-h-0" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
-                            <div id="code-editor" className="overflow-hidden flex flex-col min-h-0 h-full">
-                                <CodeEditor
-                                    key={`${problem.id}-${languageId}`}
-                                    value={code}
-                                    onChange={handleEditorChange}
-                                    languageId={languageId}
-                                    onLanguageChange={handleLanguageChange}
-                                    problemId={problem.id}
-                                    domain={problem.domain}
-                                    functionTemplates={problem.useFunctionTemplate && problem.functionTemplates ? problem.functionTemplates : undefined}
-                                    settings={editorSettings}
-                                    onOpenSettings={handleOpenSettings}
-                                    readOnly={isSubmitting}
-                                    userId={session?.user?.id || ""}
-                                    fileTabs={fileTabsNode}
-                                    highlightLine={highlightLine}
-                                    allowedLanguages={problem.allowedLanguages}
-                                  />
-                            </div>
-                            <div id="test-cases" className="overflow-hidden flex flex-col min-h-0 h-full bg-[#fafafa] dark:bg-[#1D1E23] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
-                                <TestCases
-                                    cases={problem.testCases}
-                                    customCases={customTestCases}
-                                    onAddCustomCase={handleAddCustomCase}
-                                    onUpdateCustomCase={handleUpdateCustomCase}
-                                    onRemoveCustomCase={handleRemoveCustomCase}
-                                    results={submissionResults}
-                                    status={submissionStatus}
-                                    mode={submissionMode}
-                                    problemId={problem.id}
-                                    isCollapsed={isTestCasesCollapsed}
-                                    onToggleCollapse={toggleTestCases}
-                                    onErrorLineDetected={setHighlightLine}
-                                />
-                            </div>
-                        </Split>
-                    </div>
-                </Split>
+                ) : (
+                    <Split className="split flex h-full w-full" sizes={mainSizes} minSize={300} gutterSize={8} snapOffset={30} onDragEnd={setMainSizes}>
+                        <div id="problem-description" className="h-full overflow-hidden border-l border-dashed border-gray-400 dark:border-white/10">
+                            <ProblemDescription
+                                problem={problem}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                isSolved={isSolvedState}
+                                contestId={contestId}
+                                domain={problem.domain}
+                                nextProblemSlug={nextProblemSlug}
+                                courseId={courseId}
+                                onRestoreCode={handleRestoreCode}
+                                isSubmitting={isSubmitting}
+                                latestSubmissionId={submissionId}
+                            />
+                        </div>
+                        <div className="h-full overflow-hidden flex flex-col border-r border-dashed border-gray-400 dark:border-white/10 min-h-0">
+                            <Split className="split-vertical flex flex-col h-full min-h-0" direction="vertical" sizes={verticalSizes} minSize={[100, 40]} gutterSize={8} onDragEnd={setVerticalSizes}>
+                                <div id="code-editor" className="overflow-hidden flex flex-col min-h-0 h-full">
+                                    <CodeEditor
+                                        key={`${problem.id}-${languageId}`}
+                                        value={code}
+                                        onChange={handleEditorChange}
+                                        languageId={languageId}
+                                        onLanguageChange={handleLanguageChange}
+                                        problemId={problem.id}
+                                        domain={problem.domain}
+                                        functionTemplates={problem.useFunctionTemplate && problem.functionTemplates ? problem.functionTemplates : undefined}
+                                        settings={editorSettings}
+                                        onOpenSettings={handleOpenSettings}
+                                        readOnly={isSubmitting}
+                                        userId={session?.user?.id || ""}
+                                        fileTabs={fileTabsNode}
+                                        highlightLine={highlightLine}
+                                        allowedLanguages={problem.allowedLanguages}
+                                      />
+                                </div>
+                                <div id="test-cases" className="overflow-hidden flex flex-col min-h-0 h-full bg-[#fafafa] dark:bg-[#1D1E23] border-b border-l border-r border-dashed border-gray-300 dark:border-white/10">
+                                    <TestCases
+                                        cases={problem.testCases}
+                                        customCases={customTestCases}
+                                        onAddCustomCase={handleAddCustomCase}
+                                        onUpdateCustomCase={handleUpdateCustomCase}
+                                        onRemoveCustomCase={handleRemoveCustomCase}
+                                        results={submissionResults}
+                                        status={submissionStatus}
+                                        mode={submissionMode}
+                                        problemId={problem.id}
+                                        isCollapsed={isTestCasesCollapsed}
+                                        onToggleCollapse={toggleTestCases}
+                                        onErrorLineDetected={setHighlightLine}
+                                    />
+                                </div>
+                            </Split>
+                        </div>
+                    </Split>
+                )}
                 <style jsx global>{`
                     .split { display: flex; }
                     .split-vertical { display: flex; flex-direction: column; }

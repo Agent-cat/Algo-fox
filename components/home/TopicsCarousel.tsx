@@ -25,11 +25,8 @@ function TopicCard({ category }: { category: TopicCategory }) {
       href={`/topic/${category.slug}`}
       className={`
         group relative flex flex-col
-        min-w-[300px] max-w-[300px] h-[190px]
-        lg:min-w-[220px] lg:max-w-[220px] lg:h-[140px]
-        xl:min-w-[250px] xl:max-w-[250px] xl:h-[160px]
-        2xl:min-w-[300px] 2xl:max-w-[300px] 2xl:h-[190px]
-        rounded-2xl p-5 lg:p-3 xl:p-4 2xl:p-5 cursor-pointer
+        min-w-[280px] max-w-[280px] h-[170px]
+        rounded-2xl p-4 cursor-pointer
         bg-[url('/card_bg.svg')] bg-cover bg-center
         dark:bg-[url('/card_bg_dark.svg')]
         before:content-[''] before:absolute before:inset-0
@@ -46,17 +43,17 @@ function TopicCard({ category }: { category: TopicCategory }) {
       <img
         src="/icons/fox.png"
         alt="AlgoFox"
-        width={48}
-        height={48}
-        className="absolute bottom-3 right-3 w-12 h-12 lg:w-8 lg:h-8 lg:bottom-2 lg:right-2 xl:w-10 xl:h-10 xl:bottom-2.5 xl:right-2.5 2xl:w-12 2xl:h-12 2xl:bottom-3 2xl:right-3 object-contain rounded-xl opacity-30"
+        width={40}
+        height={40}
+        className="absolute bottom-2.5 right-2.5 w-10 h-10 object-contain rounded-xl opacity-30"
       />
 
-      <h3 className="text-xl lg:text-[14px] xl:text-[16px] 2xl:text-xl font-bold text-gray-800 dark:text-gray-100 leading-snug mb-3">
+      <h3 className="text-[16px] font-bold text-gray-800 dark:text-gray-100 leading-snug mb-3">
         {category.name}
       </h3>
 
       <div className="mt-auto">
-        <span className="text-[13px] lg:text-[11px] xl:text-[12px] 2xl:text-[13px] font-semibold text-gray-500 dark:text-gray-400">
+        <span className="text-[12px] font-semibold text-gray-500 dark:text-gray-400">
           {solved} of {total} solved
         </span>
       </div>

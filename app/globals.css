@@ -105,6 +105,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Prevent horizontal body scroll on mobile */
+  overflow-x: hidden;
+}
+
+/* ── Responsive touch-friendly utilities ─────────────────────── */
+
+/* Minimum 44×44px touch target (iOS HIG / WCAG 2.5.5) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Safe viewport width — avoids scrollbar affecting layout */
+.w-safe {
+  width: min(100%, 100vw);
 }
 
 @keyframes fadeIn {
