@@ -362,3 +362,28 @@ body {
 .slide-out-right[data-state="closed"] {
   animation: slideOutRightModal 0.4s ease-in forwards;
 }
+
+/* ── Tldraw clean canvas overrides ───────────────────────────── */
+/* Hide all tldraw UI chrome when used as a read-only AI drawing board */
+.tlui-toolbar,
+.tlui-style-panel,
+.tlui-page-menu,
+.tlui-help-menu,
+.tlui-zoom-menu,
+.tlui-main-menu,
+.tlui-actions-menu,
+.tlui-helper-buttons,
+.tlui-debug-panel,
+.tlui-debug-menu,
+.tlui-menu-panel,
+.tlui-top-panel,
+.tlui-share-panel,
+.tlui-minimap,
+.tlui-contextual-toolbar,
+.tlui-image__toolbar,
+.tlui-video__toolbar,
+.tlui-following-indicator,
+.tlui-toast,
+.tl-dialog__positioner {
+  display: none !important;
+}

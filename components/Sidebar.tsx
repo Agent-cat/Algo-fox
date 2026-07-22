@@ -18,7 +18,8 @@ import {
   LdLogout2,
   LdNotebook,
   LdBookBookmark,
-  LdCodeSquare
+  LdCodeSquare,
+  LdPen2
 } from "solar-icon-react/ld";
 import { authClient } from "@/lib/auth-client";
 import { getUserInstitutionDetails } from "@/actions/user.action";
@@ -60,6 +61,7 @@ const NAV_SECTIONS = [
     label: "Learn",
     items: [
       { label: "Courses", href: "/courses", icon: LdDiploma },
+      { label: "Drawing Canvas", href: "/canvas", icon: LdPen2 },
       { label: "Topic Sheets", href: "/topics", icon: LdBookBookmark },
       { label: "Blogs", href: "/blogs", icon: LdNotebook },
     ],

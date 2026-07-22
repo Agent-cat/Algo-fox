@@ -37,6 +37,7 @@ interface TreeCategory extends Category {
 
 export default function LearnMode({ searchTerm = "", categories, isLoading, userRole, domain, courseId, courseTitle, isEnrolled }: LearnModeProps) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const disappointed = false;
   const canDownload = userRole === "TEACHER" || userRole === "INSTITUTION_MANAGER";
 
   // Build tree structure
