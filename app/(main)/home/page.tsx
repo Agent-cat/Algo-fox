@@ -16,6 +16,7 @@ import { CourseService } from "@/core/services/course.service";
 import { ContinueLearningWidget } from "@/components/home/ContinueLearningWidget";
 import { getDailyChallenge, getWeeklyDailyChallengeHistory, type WeekDayEntry } from "@/actions/daily-challenge.action";
 import { DailyChallengeWidget } from "@/components/home/DailyChallengeWidget";
+import { FeaturedSection } from "@/components/home/FeaturedSection";
 
 export const metadata: Metadata = {
   title: "Dashboard | Algo-fox Master DSA & SQL Mastery",
@@ -143,21 +144,7 @@ export default async function Home() {
             {/* Featured Banners Section */}
             {featuredBanners && featuredBanners.length > 0 && (
               <>
-                <div className="flex gap-4 overflow-x-auto no-scrollbar w-full shrink-0 pb-1 scroll-smooth">
-                  {featuredBanners.map((banner) => (
-                    <Link
-                      key={banner.id}
-                      href={banner.redirectUrl}
-                      className="relative block aspect-[16/9] w-[260px] sm:w-[300px] xl:w-[320px] 2xl:w-[350px] shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
-                    >
-                      <img
-                        src={banner.imageUrl}
-                        alt="Featured banner"
-                        className="w-full h-full object-cover"
-                      />
-                    </Link>
-                  ))}
-                </div>
+                <FeaturedSection banners={featuredBanners} />
                 <div className="border-t border-gray-200 dark:border-white/10" />
               </>
             )}

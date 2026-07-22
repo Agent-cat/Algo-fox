@@ -111,7 +111,7 @@ export function ContinueLearningWidget({ enrollments }: ContinueLearningWidgetPr
                                 </div>
 
                                 {/* Progress Bar & Percent (beside the name) */}
-                                <div className="w-full md:flex-1 flex flex-col justify-center max-w-[550px] md:ml-10 lg:ml-4 xl:ml-6 2xl:ml-10 md:mr-auto">
+                                <div className="w-full md:flex-1 flex flex-col justify-center max-w-[800px] md:ml-10 lg:ml-4 xl:ml-6 2xl:ml-10 md:mr-auto">
                                     <div className="text-[10px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[10px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest flex justify-between items-center mb-1">
                                         <span>Progress</span>
                                         <span className="font-mono text-gray-700 dark:text-gray-300">

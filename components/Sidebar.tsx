@@ -84,7 +84,7 @@ const NAV_SECTIONS = [
 export default function Sidebar({ initialSession }: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
-  const { expanded, sidebarWidth, setSidebarWidth, isDragging, setIsDragging, isForceCollapsed } = useSidebar();
+  const { expanded, sidebarWidth, setSidebarWidth, isDragging, setIsDragging, isForceCollapsed, isMobileDrawerOpen, closeMobileDrawer } = useSidebar();
   const { data: clientSession, isPending } = authClient.useSession();
   const [mounted, setMounted] = useState(false);
   const [institution, setInstitution] = useState<{
@@ -262,12 +262,30 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
   }
 
   return (
-    <aside
-      style={{ width: currentWidth }}
-      className={[
-        "fixed top-0 left-0 z-40 h-screen flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r-2 border-dotted border-gray-300 dark:border-white/20 overflow-hidden",
-        !isDragging && "transition-[width] duration-300 ease-in-out"
-      ].filter(Boolean).join(" ")}
+    <>
+      {/* Mobile Backdrop */}
+      {isMobileDrawerOpen && (
+        <div
+          className="fixed inset-0 z-[45] bg-black/40 backdrop-blur-sm md:hidden"
+          onClick={closeMobileDrawer}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        style={{ width: currentWidth }}
+        className={[
+          // Desktop: fixed sidebar using width from context
+          // Mobile: drawer that slides in from left at full expanded width, hidden by default
+          "fixed top-0 left-0 z-[46] h-screen flex flex-col bg-[#fafafa] dark:bg-[#1D1E23] border-r-2 border-dotted border-gray-300 dark:border-white/20 overflow-hidden",
+          // On mobile, override the style width — show as full drawer or off-screen
+          isMobileDrawerOpen
+            ? "translate-x-0 shadow-2xl"
+            : "-translate-x-full md:translate-x-0",
+          "transition-transform md:transition-[width] duration-300 ease-in-out",
+          // On mobile, always use the expanded width for the drawer
+          "md:w-[var(--sidebar-width)]",
+        ].filter(Boolean).join(" ")}
     >
       {/* ── Drag Overlay ────────────────────────────────────── */}
       {isDragging && (
@@ -490,5 +508,6 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
         </div>
       )}
     </aside>
+    </>
   );
 }

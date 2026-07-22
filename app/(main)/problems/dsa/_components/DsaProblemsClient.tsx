@@ -116,9 +116,9 @@ export default function DsaProblemsClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-8"
+            className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] py-4 sm:py-6 md:py-8"
         >
-            <div className="w-full px-6 lg:px-12">
+            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12">
                 {/* Page Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -8 }}
@@ -126,9 +126,9 @@ export default function DsaProblemsClient({
                     transition={{ duration: 0.3, delay: 0.05 }}
                     className="mb-8"
                 >
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-1">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                                 DSA Problems
                             </h1>
                             <PageTooltip description="Solve Data Structures & Algorithms problems to sharpen your coding skills and ace technical interviews." />
