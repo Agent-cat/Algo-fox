@@ -20,6 +20,7 @@
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@iconify/react": "^6.0.2",
+    "@langchain/core": "^1.2.3",
     "@langchain/google-genai": "^2.2.0",
     "@lottiefiles/dotlottie-react": "^0.18.7",
     "@monaco-editor/react": "^4.7.0",
