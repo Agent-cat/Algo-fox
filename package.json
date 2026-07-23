@@ -66,6 +66,7 @@
     "react-joyride": "^2.9.3",
     "react-markdown": "^10.1.0",
     "react-split": "^2.0.14",
+    "react-text-to-speech": "^5.1.10",
     "recharts": "^3.6.0",
     "rehype-raw": "^7.0.0",
     "remark-breaks": "^4.0.0",
