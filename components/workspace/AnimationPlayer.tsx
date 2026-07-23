@@ -17,7 +17,17 @@ interface AnimationStep {
   line?: number;
   caption?: string;
   speech?: string;
-  animation?: { type: string; object: string; index?: number; name?: string; value?: any }[];
+  animation?: {
+    type: string;
+    object: string;
+    index?: number;
+    name?: string;
+    value?: any;
+    key?: any;
+    found?: boolean;
+    foundKey?: any;
+    expression?: string;
+  }[];
   state?: {
     array?: any[];
     stack?: any[];
@@ -103,6 +113,32 @@ function getPointerColor(name: string) {
   };
 }
 
+// Extracts return indices from a string representation like "[6,7]" or "6,7"
+function getReturnIndices(val: string): number[] {
+  try {
+    const parsed = JSON.parse(val);
+    if (Array.isArray(parsed)) return parsed.map(Number);
+  } catch {}
+  
+  const matches = val.match(/-?\d+/g);
+  if (matches) return matches.map(Number);
+  return [];
+}
+
+// Dynamically substitutes variable values in mathematical expressions
+function getFormattedExpression(expr: string, variables: Record<string, any>) {
+  if (expr === "target-current") {
+    const target = variables.target;
+    const current = variables.current;
+    const remainder = variables.remainder;
+    if (target !== undefined && current !== undefined && remainder !== undefined) {
+      return `${target} - ${current} = ${remainder}`;
+    }
+    return "target - current";
+  }
+  return expr;
+}
+
 export default function AnimationPlayer({
   animationScript,
   language = "javascript",
@@ -156,6 +192,85 @@ export default function AnimationPlayer({
 
   const speechText = currentStep?.speech || currentStep?.caption || "";
   const captionText = currentStep?.caption || `Step ${currentStepIdx + 1} / ${script?.steps.length || 0}`;
+
+  // Parse rich animation properties from the current step DSL
+  const activeAnimations = useMemo(() => {
+    if (!currentStep) {
+      return {
+        lookup: null,
+        insert: null,
+        highlightedKeys: new Set<number>(),
+        pulsingKeys: new Set<number>(),
+        highlightedVars: new Set<string>(),
+        calculation: null,
+        retVal: null,
+        focusObj: null,
+      };
+    }
+    
+    const anims = currentStep.animation || [];
+    
+    let lookup: { key: number; found: boolean; foundKey?: number } | null = null;
+    let insert: { key: number; value: number } | null = null;
+    const highlightedKeys = new Set<number>();
+    const pulsingKeys = new Set<number>();
+    const highlightedVars = new Set<string>();
+    let calculation: string | null = null;
+    let retVal: string | null = null;
+    let focusObj: string | null = null;
+
+    for (const anim of anims) {
+      switch (anim.type) {
+        case "mapLookup":
+          lookup = {
+            key: Number(anim.key),
+            found: !!anim.found,
+            foundKey: anim.foundKey !== undefined ? Number(anim.foundKey) : undefined,
+          };
+          break;
+        case "mapInsert":
+          insert = {
+            key: Number(anim.key),
+            value: Number(anim.value),
+          };
+          break;
+        case "mapHighlight":
+          if (anim.key !== undefined) highlightedKeys.add(Number(anim.key));
+          break;
+        case "mapPulse":
+          if (anim.key !== undefined) pulsingKeys.add(Number(anim.key));
+          break;
+        case "variableHighlight":
+          if (anim.name) highlightedVars.add(anim.name);
+          break;
+        case "calculate":
+          if (anim.expression) calculation = anim.expression;
+          break;
+        case "return":
+          if (anim.value !== undefined) retVal = String(anim.value);
+          break;
+        case "focus":
+          if (anim.object) focusObj = anim.object;
+          break;
+      }
+    }
+
+    return {
+      lookup,
+      insert,
+      highlightedKeys,
+      pulsingKeys,
+      highlightedVars,
+      calculation,
+      retVal,
+      focusObj,
+    };
+  }, [currentStep]);
+
+  // Extract result indices for cell bouncing celebration
+  const returnIndices = useMemo(() => {
+    return activeAnimations.retVal ? getReturnIndices(activeAnimations.retVal) : [];
+  }, [activeAnimations.retVal]);
 
   // Process swap animations
   useEffect(() => {
@@ -521,13 +636,27 @@ export default function AnimationPlayer({
 
       {/* 4. Input Display Card */}
       {inputString && (
-        <div className="px-4 py-2 bg-gray-50/80 dark:bg-black/15 border-b border-gray-200 dark:border-white/5 flex items-center gap-3">
-          <span className="text-[9px] font-black text-gray-400 dark:text-[#a3a3a3] tracking-wider uppercase font-mono bg-gray-200/50 dark:bg-white/5 px-2 py-0.5 rounded border border-gray-300/40 dark:border-white/5">
-            INPUT
-          </span>
-          <code className="text-[11px] font-mono text-orange-600 dark:text-orange-400 font-bold select-all whitespace-pre-wrap">
-            {inputString}
-          </code>
+        <div className="px-4 py-2 bg-gray-50/80 dark:bg-black/15 border-b border-gray-200 dark:border-white/5 flex items-center gap-3 justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-[9px] font-black text-gray-400 dark:text-[#a3a3a3] tracking-wider uppercase font-mono bg-gray-200/50 dark:bg-white/5 px-2 py-0.5 rounded border border-gray-300/40 dark:border-white/5 select-none">
+              INPUT
+            </span>
+            <code className="text-[11px] font-mono text-orange-600 dark:text-orange-400 font-bold select-all whitespace-pre-wrap">
+              {inputString}
+            </code>
+          </div>
+          
+          {/* Active Math Formula calculation overlay badge */}
+          {activeAnimations.calculation && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-[0_0_8px_rgba(245,158,11,0.05)] select-none"
+            >
+              <span className="text-[8px] text-amber-500/60 font-sans uppercase font-black">Math:</span>
+              {getFormattedExpression(activeAnimations.calculation, currentStep?.state?.variables || {})}
+            </motion.div>
+          )}
         </div>
       )}
 
@@ -539,8 +668,12 @@ export default function AnimationPlayer({
             
             {/* Array Grid with Indices & Sliding Pointers */}
             {currentStep.state.array && Array.isArray(currentStep.state.array) && (
-              <div className="flex flex-col items-center gap-1 w-full max-w-full overflow-x-auto pb-2 custom-scrollbar no-scrollbar">
-                <div className="flex justify-center items-center gap-3 px-4 min-w-max relative py-1">
+              <div 
+                className={`flex flex-col items-center gap-1 w-full max-w-full overflow-x-auto pb-2 custom-scrollbar no-scrollbar transition-all duration-300 ${
+                  activeAnimations.focusObj && activeAnimations.focusObj !== 'array' ? 'opacity-40 filter blur-[0.3px]' : 'opacity-100'
+                }`}
+              >
+                <div className="flex justify-center items-center gap-3 px-4 min-w-max relative py-3.5">
                   
                   {/* Pointer index -1 spacer */}
                   {pointerList.some((p) => p.index === -1) && (
@@ -586,13 +719,24 @@ export default function AnimationPlayer({
                     const isSwapping =
                       swapIndices !== null &&
                       (swapIndices[0] === idx || swapIndices[1] === idx);
+                    const isReturnedResult = returnIndices.includes(idx);
 
                     return (
                       <div key={idx} className="flex flex-col items-center relative w-14 select-none">
                         <motion.div
                           initial={{ scale: 0.95, opacity: 0 }}
                           animate={
-                            isSwapping
+                            isReturnedResult
+                              ? {
+                                  scale: [1.1, 1.2, 1.15, 1.1],
+                                  y: [0, -12, 0, -6, 0],
+                                  opacity: 1,
+                                  transition: { 
+                                    y: { repeat: Infinity, duration: 1.6, ease: "easeInOut" },
+                                    scale: { duration: 0.3 }
+                                  }
+                                }
+                              : isSwapping
                               ? {
                                   scale: [1, 1.25, 1.1, 1],
                                   y: [0, -10, -10, 0],
@@ -605,7 +749,9 @@ export default function AnimationPlayer({
                           className={`
                             w-14 h-14 flex items-center justify-center rounded-xl font-sans font-bold text-xl border transition-all
                             ${
-                              isSwapping
+                              isReturnedResult
+                                ? "bg-emerald-500/20 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-[3px_3px_0px_#10b981]"
+                                : isSwapping
                                 ? "bg-amber-500/10 border-2 border-amber-500 text-amber-600 dark:text-amber-400 shadow-[3px_3px_0px_#f59e0b]"
                                 : visiting
                                 ? "bg-orange-500/10 border-2 border-orange-500 text-orange-600 dark:text-orange-400 shadow-[3px_3px_0px_#f97316] scale-105"
@@ -658,7 +804,11 @@ export default function AnimationPlayer({
 
             {/* Stack Visualizer */}
             {currentStep.state.stack && Array.isArray(currentStep.state.stack) && (
-              <div className="flex flex-col items-center gap-2">
+              <div 
+                className={`flex flex-col items-center gap-2 transition-all duration-300 ${
+                  activeAnimations.focusObj && activeAnimations.focusObj !== 'stack' ? 'opacity-40 filter blur-[0.3px]' : 'opacity-100'
+                }`}
+              >
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
                   Stack
                 </div>
@@ -683,7 +833,11 @@ export default function AnimationPlayer({
 
             {/* Queue Visualizer */}
             {currentStep.state.queue && Array.isArray(currentStep.state.queue) && (
-              <div className="flex flex-col items-center gap-2">
+              <div 
+                className={`flex flex-col items-center gap-2 transition-all duration-300 ${
+                  activeAnimations.focusObj && activeAnimations.focusObj !== 'queue' ? 'opacity-40 filter blur-[0.3px]' : 'opacity-100'
+                }`}
+              >
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
                   Queue
                 </div>
@@ -711,24 +865,35 @@ export default function AnimationPlayer({
               <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 
                 {/* 1. Symbol Table Variable Card */}
-                <div className="bg-gray-50/50 dark:bg-black/10 border border-gray-200 dark:border-white/5 rounded-xl p-3 flex flex-col h-[190px]">
+                <div 
+                  className={`bg-gray-50/50 dark:bg-black/10 border border-gray-200 dark:border-white/5 rounded-xl p-3 flex flex-col h-[190px] transition-all duration-300 ${
+                    activeAnimations.focusObj && activeAnimations.focusObj !== 'variables' ? 'opacity-40 filter blur-[0.3px]' : 'opacity-100'
+                  }`}
+                >
                   <div className="text-[9px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 font-mono border-b border-gray-200 dark:border-white/5 pb-1">
                     Symbol Table (Local Variables)
                   </div>
-                  <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1.5">
                     {Object.entries(currentStep.state.variables)
                       .filter(([key]) => key !== "map")
-                      .map(([key, val]: [string, any]) => (
-                        <div
-                          key={key}
-                          className="flex justify-between items-center bg-white dark:bg-black/15 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-white/5 text-[11px]"
-                        >
-                          <span className="font-mono font-semibold text-gray-500 dark:text-gray-400">{key}</span>
-                          <span className="font-bold text-orange-600 dark:text-orange-400 font-mono">
-                            {displayVal(val)}
-                          </span>
-                        </div>
-                      ))}
+                      .map(([key, val]: [string, any]) => {
+                        const isVarHighlighted = activeAnimations.highlightedVars.has(key);
+                        return (
+                          <div
+                            key={key}
+                            className={`flex justify-between items-center px-2.5 py-1.5 rounded-lg border transition-all ${
+                              isVarHighlighted
+                                ? "bg-orange-500/10 border-orange-500 scale-[1.02] text-orange-600 dark:text-orange-400 font-bold"
+                                : "bg-white dark:bg-black/15 border-gray-100 dark:border-white/5"
+                            } text-[11px]`}
+                          >
+                            <span className="font-mono font-semibold text-gray-500 dark:text-gray-400">{key}</span>
+                            <span className="font-bold text-orange-600 dark:text-orange-400 font-mono">
+                              {displayVal(val)}
+                            </span>
+                          </div>
+                        );
+                      })}
                     {Object.keys(currentStep.state.variables).filter(([key]) => key !== "map").length === 0 && (
                       <div className="text-[10px] italic text-gray-500 font-mono p-2">empty</div>
                     )}
@@ -739,23 +904,27 @@ export default function AnimationPlayer({
                 {Object.keys(currentStep.state.variables).includes("map") && (
                   <div
                     className={`bg-gray-50/50 dark:bg-black/10 border rounded-xl p-3 flex flex-col h-[190px] transition-all duration-300 ${
-                      isMapCompared
+                      activeAnimations.focusObj && activeAnimations.focusObj !== 'map' ? 'opacity-40 filter blur-[0.3px]' : 'opacity-100'
+                    } ${
+                      isMapCompared || activeAnimations.lookup
                         ? "border-amber-500/50"
-                        : isMapHighlighted
+                        : isMapHighlighted || activeAnimations.insert
                         ? "border-orange-500/50"
                         : "border-gray-200 dark:border-white/5"
                     }`}
                   >
-                    <div className="text-[9px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 font-mono border-b border-gray-200 dark:border-white/5 pb-1 flex justify-between items-center">
+                    <div className="text-[9px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 font-mono border-b border-gray-200 dark:border-white/5 pb-1 flex justify-between items-center select-none">
                       <span>HashMap</span>
-                      {isMapCompared && (
-                        <span className="text-[8px] font-black text-amber-500 dark:text-amber-400 animate-pulse font-mono uppercase tracking-wider">
-                          Lookup
+                      {activeAnimations.lookup && (
+                        <span className={`text-[8px] font-black animate-pulse font-mono uppercase tracking-wider ${
+                          activeAnimations.lookup.found ? "text-amber-500 dark:text-amber-400" : "text-rose-500"
+                        }`}>
+                          {activeAnimations.lookup.found ? `Found Key ${activeAnimations.lookup.foundKey ?? activeAnimations.lookup.key}` : `Lookup Fail: ${activeAnimations.lookup.key}`}
                         </span>
                       )}
-                      {isMapHighlighted && !isMapCompared && (
+                      {activeAnimations.insert && !activeAnimations.lookup && (
                         <span className="text-[8px] font-black text-orange-500 dark:text-orange-400 animate-pulse font-mono uppercase tracking-wider">
-                          Insert
+                          Insert: {activeAnimations.insert.key}
                         </span>
                       )}
                     </div>
@@ -776,28 +945,49 @@ export default function AnimationPlayer({
                       return (
                         <div className="flex-1 flex flex-col min-h-0">
                           {entries.length === 0 ? (
-                            <div className="text-[10px] italic text-gray-500 font-mono p-2 bg-white dark:bg-black/15 rounded border border-dashed border-gray-200 dark:border-white/5">
+                            <div className="text-[10px] italic text-gray-500 font-mono p-2 bg-white dark:bg-black/15 rounded border border-dashed border-gray-200 dark:border-white/5 select-none">
                               Empty HashMap
                             </div>
                           ) : (
                             <div className="flex-1 overflow-y-auto custom-scrollbar border border-gray-200 dark:border-white/5 rounded-lg bg-white dark:bg-black/15">
                               <table className="w-full text-left border-collapse text-[11px] font-mono">
                                 <thead>
-                                  <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-black/30 text-[8px] text-gray-400 dark:text-zinc-500 uppercase tracking-wider font-bold">
-                                    <th className="px-2.5 py-1 border-r border-gray-200 dark:border-white/5">Key (Num)</th>
-                                    <th className="px-2.5 py-1">Value (Idx)</th>
+                                  <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-black/30 text-[8px] text-gray-400 dark:text-zinc-500 uppercase tracking-wider font-bold select-none">
+                                    <th className="px-2.5 py-1.5 border-r border-gray-200 dark:border-white/5">Key (Num)</th>
+                                    <th className="px-2.5 py-1.5">Value (Idx)</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {entries.map(([k, v]) => (
-                                    <tr 
-                                      key={k} 
-                                      className="border-b last:border-0 border-gray-200 dark:border-white/5 hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
-                                    >
-                                      <td className="px-2.5 py-1 font-bold text-orange-600 dark:text-orange-400 border-r border-gray-200 dark:border-white/5">{k}</td>
-                                      <td className="px-2.5 py-1 font-bold text-emerald-600 dark:text-emerald-400">{v}</td>
-                                    </tr>
-                                  ))}
+                                  {entries.map(([k, v]) => {
+                                    const keyNum = Number(k);
+                                    const isLookupMatch = activeAnimations.lookup && (activeAnimations.lookup.key === keyNum || activeAnimations.lookup.foundKey === keyNum);
+                                    const isInsertMatch = activeAnimations.insert && activeAnimations.insert.key === keyNum;
+                                    const isHighlighted = activeAnimations.highlightedKeys.has(keyNum);
+                                    const isPulsing = activeAnimations.pulsingKeys.has(keyNum);
+
+                                    return (
+                                      <tr 
+                                        key={k} 
+                                        className={`
+                                          border-b last:border-0 border-gray-200 dark:border-white/5 transition-all
+                                          ${
+                                            isInsertMatch
+                                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border-l-2 border-l-emerald-500 animate-pulse"
+                                              : isLookupMatch
+                                              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border-l-2 border-l-amber-500 scale-[1.01]"
+                                              : isHighlighted
+                                              ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold border-l-2 border-l-orange-500"
+                                              : isPulsing
+                                              ? "animate-pulse bg-gray-50 dark:bg-white/5 scale-[1.01]"
+                                              : "hover:bg-gray-50/50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+                                          }
+                                        `}
+                                      >
+                                        <td className="px-2.5 py-1 border-r border-gray-200 dark:border-white/5">{k}</td>
+                                        <td className="px-2.5 py-1">{v}</td>
+                                      </tr>
+                                    );
+                                  })}
                                 </tbody>
                               </table>
                             </div>
