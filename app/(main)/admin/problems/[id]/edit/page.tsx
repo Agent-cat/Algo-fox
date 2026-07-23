@@ -3,23 +3,22 @@
 import { getProblemById, updateProblem } from "@/actions/problems";
 import ProblemForm from "@/components/admin/ProblemForm";
 import ConceptForm from "@/components/admin/ConceptForm";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import { toast } from "sonner";
 import { Difficulty } from "@prisma/client";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-function EditProblemContent() {
-    const params = useParams();
-    const id = params?.id as string;
+function EditProblemContent({ id }: { id: string }) {
     const [problem, setProblem] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const fetchedRef = useRef(false);
 
     useEffect(() => {
+        if (fetchedRef.current) return;
         const fetchProblem = async () => {
-            if (!id) return;
+            fetchedRef.current = true;
             const res = await getProblemById(id);
             if (res.success) {
                 setProblem(res.data);
@@ -94,6 +93,7 @@ function EditProblemContent() {
                             useFunctionTemplate: problem.useFunctionTemplate || false,
                             functionTemplates: problem.functionTemplates || [],
                             solution: problem.solution || "",
+                            animationScript: problem.animationScript ? JSON.stringify(problem.animationScript) : "",
                             isMcq: problem.isMcq,
                             questionType: problem.questionType,
                             options: problem.options || ["", "", "", ""],
@@ -115,7 +115,8 @@ function EditProblemContent() {
     );
 }
 
-export default function EditProblemPage() {
+export default function EditProblemPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     return (
         <Suspense fallback={
             <div className="h-[60vh] flex items-center justify-center">
@@ -125,7 +126,7 @@ export default function EditProblemPage() {
                 </div>
             </div>
         }>
-            <EditProblemContent />
+            <EditProblemContent id={id} />
         </Suspense>
     );
 }

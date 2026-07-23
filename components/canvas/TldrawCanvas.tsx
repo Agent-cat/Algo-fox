@@ -159,12 +159,6 @@ export default function TldrawCanvas() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
-  // Swap animation state
-  const prevArrayRef = useRef<any[] | null>(null);
-  const [swapPhase, setSwapPhase] = useState<"none" | "lift" | "drop">("none");
-  const [swapIndices, setSwapIndices] = useState<[number, number] | null>(null);
-  const swapTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   // Initialize Speech Synthesis
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -226,73 +220,6 @@ export default function TldrawCanvas() {
     return animationPlan.steps[currentStepIdx];
   }, [animationPlan, currentStepIdx]);
 
-  // Detect swaps and trigger multi-phase animation
-  useEffect(() => {
-    if (!currentStep) return;
-    const arr = currentStep.state?.array;
-    if (!arr || !Array.isArray(arr)) {
-      setSwapIndices(null);
-      setSwapPhase("none");
-      prevArrayRef.current = arr;
-      return;
-    }
-
-    const anims = currentStep.animation || [];
-    let detected: [number, number] | null = null;
-
-    // Check animation metadata for explicit swap
-    for (const anim of anims) {
-      if (anim.type === "swap" && anim.object === "array") {
-        const i = anim.index ?? anim.fromIndex;
-        const j = anim.toIndex ?? anim.with;
-        if (i !== undefined && j !== undefined) {
-          detected = [Math.min(i, j), Math.max(i, j)];
-          break;
-        }
-      }
-    }
-
-    // Detect by comparing previous vs current array state
-    if (!detected && prevArrayRef.current) {
-      const prev = prevArrayRef.current;
-      if (prev.length === arr.length) {
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i] !== prev[i]) {
-            for (let j = i + 1; j < arr.length; j++) {
-              if (arr[j] === prev[i] && arr[i] === prev[j]) {
-                detected = [i, j];
-                break;
-              }
-            }
-            if (detected) break;
-          }
-        }
-      }
-    }
-
-    prevArrayRef.current = [...arr];
-
-    if (detected) {
-      setSwapIndices(detected);
-      setSwapPhase("lift");
-
-      swapTimerRef.current = setTimeout(() => {
-        setSwapPhase("drop");
-        setTimeout(() => {
-          setSwapPhase("none");
-          setSwapIndices(null);
-        }, 300);
-      }, 400);
-    } else {
-      setSwapIndices(null);
-      setSwapPhase("none");
-    }
-
-    return () => {
-      if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
-    };
-  }, [currentStepIdx, currentStep]);
-
   // Whiteboard drawing-engine triggered on currentStepIdx or editor mount
   const isFirstStepRef = useRef(true);
   useEffect(() => {
@@ -300,7 +227,7 @@ export default function TldrawCanvas() {
       drawStateToTldraw(editor, currentStep, isFirstStepRef.current);
       isFirstStepRef.current = false;
     }
-  }, [editor, currentStepIdx, currentStep, swapPhase, swapIndices]);
+  }, [editor, currentStepIdx, currentStep]);
 
   // Programmatic drawing core rules mapping state models to Tldraw vector shapes
   const drawStateToTldraw = (editorInstance: Editor, step: any, isFirstStep: boolean) => {
@@ -328,8 +255,6 @@ export default function TldrawCanvas() {
 
         // Custom styling colors based on active animations
         let color = "blue";
-        let swapLift = 0;
-
         anims.forEach((anim: any) => {
           if (anim.object === "array") {
             if (anim.index === idx || (anim.name === "mid" && state.pointer?.mid === idx)) {
@@ -341,21 +266,12 @@ export default function TldrawCanvas() {
           }
         });
 
-        // Apply swap animation offset
-        if (swapPhase === "lift" && swapIndices && (swapIndices[0] === idx || swapIndices[1] === idx)) {
-          color = "orange";
-          swapLift = -30;
-        } else if (swapPhase === "drop" && swapIndices && (swapIndices[0] === idx || swapIndices[1] === idx)) {
-          color = "orange";
-          swapLift = -10;
-        }
-
         // 1. Grid cell border box
         shapesToCreate.push({
           id: createShapeId(`arr-cell-${idx}`),
           type: "geo",
           x,
-          y: y + swapLift,
+          y,
           props: {
             geo: "rectangle",
             w: cellW,
@@ -370,7 +286,7 @@ export default function TldrawCanvas() {
           id: createShapeId(`arr-val-${idx}`),
           type: "text",
           x: x + 20,
-          y: y + swapLift + 16,
+          y: y + 16,
           props: {
             richText: toRichText(displayValue(val)),
             size: "m",
@@ -389,52 +305,6 @@ export default function TldrawCanvas() {
           },
         });
       });
-
-      // Draw swap cross-arrow indicator during lift phase
-      if (swapPhase === "lift" && swapIndices) {
-        const [i, j] = swapIndices;
-        const x1 = startX + i * (cellW + gap) + cellW / 2;
-        const x2 = startX + j * (cellW + gap) + cellW / 2;
-        const arrowY = startY - 50;
-
-        // Cross arrow connecting the two swapping cells
-        shapesToCreate.push({
-          id: createShapeId("swap-arrow-1"),
-          type: "arrow",
-          x: 0,
-          y: 0,
-          props: {
-            start: { x: x1, y: startY + 10 },
-            end: { x: x2, y: arrowY },
-            color: "orange",
-          },
-        });
-
-        shapesToCreate.push({
-          id: createShapeId("swap-arrow-2"),
-          type: "arrow",
-          x: 0,
-          y: 0,
-          props: {
-            start: { x: x2, y: startY + 10 },
-            end: { x: x1, y: arrowY },
-            color: "orange",
-          },
-        });
-
-        // SWAP label at the crossing point
-        const midX = (x1 + x2) / 2;
-        shapesToCreate.push({
-          id: createShapeId("swap-label"),
-          type: "text",
-          x: midX - 18,
-          y: arrowY - 15,
-          props: {
-            richText: toRichText("⇄ SWAP"),
-            size: "s",
-          },
-        });
-      }
 
       // B. Draw Pointers
       if (state.pointer) {

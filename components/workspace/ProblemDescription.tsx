@@ -369,7 +369,7 @@ const ProblemDescription = memo(({ problem, activeTab, onTabChange, isSolved, co
 
                     {activeTab === "solutions" && (
                         <motion.div key="solutions" variants={contentVariants} initial="hidden" animate="visible" exit="exit" className="h-full">
-                            <ProblemSolutions problemId={problem.id} officialSolution={problem.solution} isSolved={isSolved} />
+                            <ProblemSolutions problemId={problem.id} officialSolution={problem.solution} animationScript={problem.animationScript} isSolved={isSolved} />
                         </motion.div>
                     )}
 

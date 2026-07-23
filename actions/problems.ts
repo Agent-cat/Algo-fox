@@ -180,6 +180,7 @@ export async function createProblem(data: {
     useFunctionTemplate?: boolean;
     functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
     solution?: string | null;
+    animationScript?: any;
     companies?: any;
     hints?: string[];
     isMcq?: boolean;

@@ -12,10 +12,12 @@ import { remarkSolutionDirective } from "@/lib/markdown-plugins";
 import { preprocessMarkdown } from "@/lib/markdown-utils";
 import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import SolutionTabs from "@/components/markdown/SolutionTabs";
+import AnimationPlayer from "./AnimationPlayer";
 
 interface ProblemSolutionsProps {
     problemId: string;
     officialSolution?: string | null;
+    animationScript?: any;
     isSolved: boolean;
 }
 
@@ -66,7 +68,7 @@ function parseSolutions(markdown: string) {
     return results;
 }
 
-export function ProblemSolutions({ officialSolution, isSolved }: ProblemSolutionsProps) {
+export function ProblemSolutions({ officialSolution, animationScript, isSolved }: ProblemSolutionsProps) {
     const solutions = useMemo(() => parseSolutions(officialSolution || ""), [officialSolution]);
     const [activeTabId, setActiveTabId] = useState<string>(solutions[0]?.id || "none");
 
@@ -161,6 +163,15 @@ export function ProblemSolutions({ officialSolution, isSolved }: ProblemSolution
                             exit={{ opacity: 0, y: -6 }} 
                             className="prose prose-slate dark:prose-invert max-w-none"
                         >
+                            {/* Animation Player (shown for all solution tabs if script exists) */}
+                            {activeSolution && animationScript && (
+                                <div className="mb-6 not-prose">
+                                    <AnimationPlayer
+                                        animationScript={animationScript}
+                                        compact
+                                    />
+                                </div>
+                            )}
                             {activeSolution && renderMarkdown(activeSolution.content)}
                         </motion.div>
                     </AnimatePresence>

@@ -74,7 +74,7 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
       style={{ left: currentWidth }}
       className={[
         // Fixed height h-16 always — overflow-hidden ensures nothing can push it taller
-        "fixed right-0 z-50 h-16 overflow-hidden bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
+        "fixed right-0 z-50 h-16 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
         isImpersonating ? "top-10" : "top-0",
         !isDragging && "transition-[left] duration-300 ease-in-out"
       ].filter(Boolean).join(" ")}

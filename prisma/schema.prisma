@@ -157,6 +157,7 @@ model Problem {
   hiddenQuery            String?
   useFunctionTemplate    Boolean                   @default(false)
   solution               String?
+  animationScript        Json?
   isMcq                  Boolean                   @default(false)
   questionType           QuestionType              @default(MCQ_SINGLE)
   options                Json?

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
     Plus, Trash2, Eye, EyeOff, Code2, Check, List,
-    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon, BadgeCheck, Edit3, Save
+    FileText, BookOpen, FlaskConical, Braces, ChevronRight, ChevronLeft, Loader2, Image as ImageIcon, BadgeCheck, Edit3, Save, Sparkles
 } from "lucide-react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import SolutionCodeGroup from "@/components/markdown/SolutionCodeGroup";
 import SolutionTabs from "@/components/markdown/SolutionTabs";
 import { preprocessMarkdown } from '@/lib/markdown-utils';
 import SolutionsEditor from "./SolutionsEditor";
+import AnimationPlayer from "@/components/workspace/AnimationPlayer";
 
 
 // FUNCTION TEMPLATE SCHEMA
@@ -54,6 +55,7 @@ const formSchema = z.object({
     useFunctionTemplate: z.boolean().optional(),
     functionTemplates: z.array(functionTemplateSchema).optional(),
     solution: z.string().optional().nullable(),
+    animationScript: z.string().optional().nullable(),
     isMcq: z.boolean().optional(),
     questionType: z.nativeEnum(QuestionType).optional(),
     options: z.array(z.string()).optional(),
@@ -398,9 +400,6 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     };
 
     useEffect(() => {
-        if (initialData?.useFunctionTemplate !== undefined) setUseFunctionTemplate(initialData.useFunctionTemplate);
-        if (initialData?.functionTemplates) setFunctionTemplates(initialData.functionTemplates);
-
         const loadCategories = async () => {
             const res = await getCategories(domain);
             if (res.categories) {
@@ -431,7 +430,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             }
         };
         loadCategories();
-    }, [initialData, domain]);
+    }, [domain]);
 
     const { register, control, handleSubmit, watch, getValues, setValue, trigger, formState: { errors } } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -447,6 +446,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
             useFunctionTemplate: initialData?.useFunctionTemplate || false,
             functionTemplates: initialData?.functionTemplates || [],
             solution: initialData?.solution || "",
+            animationScript: (initialData as any)?.animationScript || "",
             isMcq: initialData?.isMcq || domain === "APTITUDE",
             questionType: (initialData as any)?.questionType || "MCQ_SINGLE",
             options: (initialData as any)?.options || ["", "", "", ""],
@@ -529,7 +529,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
     const titleValue = watch("title") || "";
     const difficultyValue = watch("difficulty");
     const isConcept = difficultyValue === "CONCEPT";
-    const totalSteps = isConcept ? 2 : (isDSA ? 5 : isAptitude ? 3 : 4);
+    const totalSteps = isConcept ? 2 : (isDSA ? 6 : isAptitude ? 3 : 4);
 
     const steps = isConcept
         ? [
@@ -541,8 +541,9 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                 { id: 1, name: "Basics", icon: FileText, desc: "Title, slug & settings" },
                 { id: 2, name: "Description", icon: BookOpen, desc: "Problem statement" },
                 { id: 3, name: "Solution", icon: Code2, desc: "Editorial & explanation" },
-                { id: 4, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
-                { id: 5, name: "Templates", icon: Braces, desc: "Starter code" },
+                { id: 4, name: "Animation", icon: Sparkles, desc: "Visual animation script" },
+                { id: 5, name: "Test Cases", icon: FlaskConical, desc: "Input/output pairs" },
+                { id: 6, name: "Templates", icon: Braces, desc: "Starter code" },
             ]
             : isAptitude
                 ? [
@@ -564,7 +565,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         if (currentStep === 1) isValid = await trigger(["title", "slug", "difficulty"]);
         else if (currentStep === 2) isValid = await trigger(["description"]);
         else if (currentStep === 3 && !isConcept) isValid = await trigger(["solution"]);
-        else if (currentStep === 4 && !isAptitude && !isConcept) isValid = await trigger(["testCases"]);
+        else if (currentStep === 4 && isDSA) isValid = true; // Animation script is optional
+        else if (currentStep === 5 && !isAptitude && !isConcept) isValid = await trigger(["testCases"]);
         else isValid = true;
         
         if (isValid && currentStep < totalSteps) {
@@ -592,6 +594,7 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
         const submissionData = {
             ...data,
             solution: data.solution || "",
+            animationScript: data.animationScript ? (() => { try { return JSON.parse(data.animationScript); } catch { return null; } })() : null,
             hidden: data.hidden,
             hiddenQuery: domain === "SQL" ? (data.hiddenQuery?.trim() || null) : null,
             domain,
@@ -1439,8 +1442,84 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         </div>
                     )}
 
-                    {/* ─── STEP 4: Test Cases ─── */}
-                    {currentStep === 4 && (
+                    {/* ─── STEP 4: Animation Script (DSA only) ─── */}
+                    {currentStep === 4 && isDSA && (
+                        <div className="py-2 space-y-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight">Animation Script</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
+                                        Define a step-by-step animation to visualize the algorithm. Paste a JSON script below.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* JSON Editor */}
+                                <div className="space-y-3">
+                                    <label className={labelCls}>Animation JSON Script</label>
+                                    <textarea
+                                        {...register("animationScript")}
+                                        rows={20}
+                                        placeholder={`{
+  "title": "Bubble Sort",
+  "steps": [
+    {
+      "id": 1,
+      "line": 2,
+      "caption": "Initialize array",
+      "speech": "We start with an unsorted array.",
+      "state": {
+        "array": [5, 3, 8, 1, 2],
+        "variables": { "i": 0, "j": 0 }
+      }
+    }
+  ]
+}`}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#333] focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none font-mono text-xs text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-[#111] resize-none"
+                                    />
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-600">
+                                        Paste the JSON animation script. See the format guide below.
+                                    </p>
+                                </div>
+
+                                {/* Preview */}
+                                <div className="space-y-3">
+                                    <label className={labelCls}>Live Preview</label>
+                                    {watch("animationScript") ? (
+                                        <AnimationPlayer
+                                            animationScript={watch("animationScript") || ""}
+                                            compact
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-64 rounded-xl border border-dashed border-gray-300 dark:border-[#444] bg-gray-50 dark:bg-[#1D1E23] text-center">
+                                            <div className="text-gray-400 dark:text-gray-600">
+                                                <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                                                <p className="text-xs">Paste a JSON script to preview</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Format Guide */}
+                            <div className="p-5 rounded-xl border border-gray-200 dark:border-[#333] bg-gray-50 dark:bg-[#1D1E23]">
+                                <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Animation Script Format</h4>
+                                <div className="text-[11px] text-gray-600 dark:text-gray-400 space-y-2 font-mono">
+                                    <p><span className="text-orange-600 dark:text-orange-400">title</span>: Algorithm name (string)</p>
+                                    <p><span className="text-orange-600 dark:text-orange-400">steps</span>: Array of step objects</p>
+                                    <p className="ml-4">Each step: {"{ id, line, caption, speech, animation: [], state: {} }"}</p>
+                                    <p className="ml-4"><span className="text-orange-600 dark:text-orange-400">state.array</span>: Array of values to display</p>
+                                    <p className="ml-4"><span className="text-orange-600 dark:text-orange-400">state.pointer</span>: {"{ name: index }"} for pointer labels</p>
+                                    <p className="ml-4"><span className="text-orange-600 dark:text-orange-400">state.variables</span>: {"{ key: value }"} for variable display</p>
+                                    <p className="ml-4"><span className="text-orange-600 dark:text-orange-400">animation</span>: [{"{ type: 'swap'|'compare'|'visit'|'highlight', object: 'array', index: N }"}]</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ─── STEP 5: Test Cases ─── */}
+                    {currentStep === 5 && (
                         <div className="py-2 space-y-8">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -1526,8 +1605,8 @@ export default function ProblemForm({ initialData, onSubmit, submitLabel, domain
                         </div>
                     )}
 
-                    {/* ─── STEP 5: Code Templates (DSA only) ─── */}
-                    {isDSA && currentStep === 5 && (
+                    {/* ─── STEP 6: Code Templates (DSA only) ─── */}
+                    {isDSA && currentStep === 6 && (
                         <div className="py-2 space-y-8">
                             <div>
                                 <h2 className="text-[28px] font-bold text-[#39424e] dark:text-white mb-2 font-mono tracking-tight">Code Templates</h2>

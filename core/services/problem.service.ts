@@ -631,6 +631,7 @@ export class ProblemService {
         useFunctionTemplate?: boolean;
         functionTemplates?: { languageId: number; functionTemplate: string; driverCode: string }[];
         solution?: string | null;
+        animationScript?: any;
         isMcq?: boolean;
         questionType?: QuestionType;
         options?: any;
@@ -658,6 +659,7 @@ export class ProblemService {
                     type: data.type || (hasCategory ? "LEARN" : "PRACTICE"),
                     useFunctionTemplate: data.useFunctionTemplate || false,
                     solution: data.solution || null,
+                    animationScript: data.animationScript || null,
                     isMcq: data.isMcq || false,
                     questionType: data.questionType || "MCQ_SINGLE",
                     options: data.options || null,
