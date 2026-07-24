@@ -266,11 +266,11 @@ const WorkspaceHeader = memo(({
             transition={{ delay: 0.1 }}
             className="hidden md:flex items-center gap-1.5"
           >
-            {/* NAVIGATION_BUTTON_ALREADY_MOVED_UP */}
             <Link
               href={getProblemListUrl()}
               className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-50 dark:hover:bg-[#24262C]"
             >
+              <ChevronLeft className="w-4 h-4" />
               {courseId ? "Course Home" : "Problem List"}
             </Link>
             {courseId && (

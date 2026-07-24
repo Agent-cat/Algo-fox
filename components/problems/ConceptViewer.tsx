@@ -110,25 +110,37 @@ export default function ConceptViewer({
                 <div className="w-full max-w-none px-4 md:px-8">
                     {/* Header */}
                     <div className="px-6 py-6 border-b border-gray-100 dark:border-[#262626] bg-white dark:bg-[#24262C]">
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
-                                    Concept
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <button
+                                    onClick={() => {
+                                        if (courseSlug) router.push(`/courses/${courseSlug}`);
+                                        else if (courseId) router.push(`/courses/${courseId}`);
+                                        else router.push("/problems/dsa");
+                                    }}
+                                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-[#1D1E23] text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 border border-gray-200 dark:border-[#333] transition-all group cursor-pointer shadow-xs"
+                                >
+                                    <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                                    <span>{courseSlug || courseId ? (courseName ? `Back to ${courseName}` : "Back to Course") : "Back to Problems"}</span>
+                                </button>
+                                <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-lg text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                                    Concept Document
                                 </span>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
                                 {problem.tags && problem.tags.length > 0 && (
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                                    <div className="flex flex-wrap items-center gap-1.5">
                                         {problem.tags.map(tag => (
-                                            <span key={tag.slug} className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            <span key={tag.slug} className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-[#1D1E23] text-[11px] font-semibold text-gray-500 dark:text-gray-400">
                                                 {tag.name}
                                             </span>
                                         ))}
                                     </div>
                                 )}
+                                <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
+                                    {problem.title}
+                                </h1>
                             </div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                                {problem.title}
-                            </h1>
                         </div>
                     </div>
 

@@ -21,7 +21,7 @@ import {
     Edit3,
     X
 } from "lucide-react";
-import { createModule, addProblemToModule, removeProblemFromModule, updateModule, deleteModule } from "@/actions/admin/course";
+import { createModule, addProblemToModule, removeProblemFromModule, updateModule, deleteModule, reorderModules } from "@/actions/admin/course";
 import { searchProblems } from "@/actions/problems";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -42,6 +42,12 @@ export default function ModuleManager({ course }: any) {
     const [editingModuleName, setEditingModuleName] = useState("");
     const [isUpdatingModule, setIsUpdatingModule] = useState(false);
 
+    // Drag and drop states
+    const [draggedModuleId, setDraggedModuleId] = useState<string | null>(null);
+    const [dragOverModuleId, setDragOverModuleId] = useState<string | null>(null);
+    const [draggedSubmoduleId, setDraggedSubmoduleId] = useState<string | null>(null);
+    const [dragOverSubmoduleId, setDragOverSubmoduleId] = useState<string | null>(null);
+
     // Build Module Tree
     const moduleTree = course.modules.reduce((acc: any[], current: any) => {
         if (!current.parentId) {
@@ -54,6 +60,96 @@ export default function ModuleManager({ course }: any) {
         setExpandedModules(prev =>
             prev.includes(id) ? prev.filter(mid => mid !== id) : [...prev, id]
         );
+    };
+
+    // Drag handlers for top-level modules
+    const handleDragStartModule = (e: React.DragEvent, id: string) => {
+        e.stopPropagation();
+        setDraggedModuleId(id);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDragOverModule = (e: React.DragEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (draggedModuleId && draggedModuleId !== id) {
+            setDragOverModuleId(id);
+        }
+    };
+
+    const handleDropModule = async (e: React.DragEvent, targetId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!draggedModuleId || draggedModuleId === targetId) {
+            setDraggedModuleId(null);
+            setDragOverModuleId(null);
+            return;
+        }
+
+        const ids = moduleTree.map((m: any) => m.id);
+        const fromIdx = ids.indexOf(draggedModuleId);
+        const toIdx = ids.indexOf(targetId);
+
+        if (fromIdx !== -1 && toIdx !== -1) {
+            const reordered = [...ids];
+            const [moved] = reordered.splice(fromIdx, 1);
+            reordered.splice(toIdx, 0, moved);
+
+            setDraggedModuleId(null);
+            setDragOverModuleId(null);
+
+            toast.promise(reorderModules(course.id, reordered), {
+                loading: 'Reordering modules...',
+                success: 'Module order saved!',
+                error: 'Failed to reorder modules'
+            });
+            router.refresh();
+        }
+    };
+
+    // Drag handlers for submodules
+    const handleDragStartSubmodule = (e: React.DragEvent, id: string) => {
+        e.stopPropagation();
+        setDraggedSubmoduleId(id);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDragOverSubmodule = (e: React.DragEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (draggedSubmoduleId && draggedSubmoduleId !== id) {
+            setDragOverSubmoduleId(id);
+        }
+    };
+
+    const handleDropSubmodule = async (e: React.DragEvent, targetId: string, parentModule: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!draggedSubmoduleId || draggedSubmoduleId === targetId) {
+            setDraggedSubmoduleId(null);
+            setDragOverSubmoduleId(null);
+            return;
+        }
+
+        const subIds = parentModule.children.map((sub: any) => sub.id);
+        const fromIdx = subIds.indexOf(draggedSubmoduleId);
+        const toIdx = subIds.indexOf(targetId);
+
+        if (fromIdx !== -1 && toIdx !== -1) {
+            const reordered = [...subIds];
+            const [moved] = reordered.splice(fromIdx, 1);
+            reordered.splice(toIdx, 0, moved);
+
+            setDraggedSubmoduleId(null);
+            setDragOverSubmoduleId(null);
+
+            toast.promise(reorderModules(course.id, reordered), {
+                loading: 'Reordering submodules...',
+                success: 'Submodule order saved!',
+                error: 'Failed to reorder submodules'
+            });
+            router.refresh();
+        }
     };
 
     const handleAddModule = async (parentId: string | null = null) => {
@@ -178,9 +274,27 @@ export default function ModuleManager({ course }: any) {
             {/* Module Hierarchy */}
             <div className="space-y-4">
                 {moduleTree.map((module: any) => (
-                    <div key={module.id} className="bg-white dark:bg-[#1D1E23] border border-gray-200 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+                    <div
+                        key={module.id}
+                        draggable
+                        onDragStart={(e) => handleDragStartModule(e, module.id)}
+                        onDragOver={(e) => handleDragOverModule(e, module.id)}
+                        onDrop={(e) => handleDropModule(e, module.id)}
+                        onDragEnd={() => { setDraggedModuleId(null); setDragOverModuleId(null); }}
+                        className={`bg-white dark:bg-[#1D1E23] border rounded-2xl shadow-sm overflow-hidden transition-all duration-300 ${
+                            draggedModuleId === module.id ? 'opacity-40 border-dashed border-orange-500' : ''
+                        } ${
+                            dragOverModuleId === module.id ? 'border-2 border-orange-500 scale-[1.01]' : 'border-gray-200 dark:border-[#262626]'
+                        }`}
+                    >
                         <div className="p-5 flex items-center justify-between bg-gray-50/50 dark:bg-[#161616]/50 border-b border-gray-100 dark:border-[#262626]">
-                            <div className="flex items-center gap-4 flex-1 mr-4">
+                            <div className="flex items-center gap-3 flex-1 mr-4">
+                                <div
+                                    className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-gray-200/60 dark:hover:bg-white/10 rounded-lg text-gray-400 hover:text-orange-500 transition-colors"
+                                    title="Drag to reorder module"
+                                >
+                                    <GripVertical className="w-4 h-4" />
+                                </div>
                                 <button
                                     onClick={() => toggleModule(module.id)}
                                     className={`p-2 rounded-lg transition-colors ${expandedModules.includes(module.id) ? 'bg-orange-500/10 text-orange-500' : 'text-gray-400 hover:bg-gray-100'}`}
@@ -265,9 +379,27 @@ export default function ModuleManager({ course }: any) {
                                 {module.children.length > 0 && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {module.children.map((sub: any) => (
-                                            <div key={sub.id} className="p-4 bg-gray-50 dark:bg-[#1D1E23] rounded-xl border border-gray-100 dark:border-[#262626] group/sub transition-all hover:border-blue-500/20">
+                                            <div
+                                                key={sub.id}
+                                                draggable
+                                                onDragStart={(e) => handleDragStartSubmodule(e, sub.id)}
+                                                onDragOver={(e) => handleDragOverSubmodule(e, sub.id)}
+                                                onDrop={(e) => handleDropSubmodule(e, sub.id, module)}
+                                                onDragEnd={() => { setDraggedSubmoduleId(null); setDragOverSubmoduleId(null); }}
+                                                className={`p-4 bg-gray-50 dark:bg-[#1D1E23] rounded-xl border group/sub transition-all hover:border-blue-500/20 ${
+                                                    draggedSubmoduleId === sub.id ? 'opacity-40 border-dashed border-blue-500' : ''
+                                                } ${
+                                                    dragOverSubmoduleId === sub.id ? 'border-2 border-blue-500 scale-[1.01]' : 'border-gray-100 dark:border-[#262626]'
+                                                }`}
+                                            >
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center gap-3 flex-1 mr-2">
+                                                    <div className="flex items-center gap-2 flex-1 mr-2">
+                                                        <div
+                                                            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200/60 dark:hover:bg-white/10 rounded text-gray-400 hover:text-blue-500 transition-colors"
+                                                            title="Drag to reorder submodule"
+                                                        >
+                                                            <GripVertical className="w-3.5 h-3.5" />
+                                                        </div>
                                                         <BookOpen className="w-4 h-4 text-blue-500" />
                                                         {editingModuleId === sub.id ? (
                                                             <div className="flex items-center gap-2 flex-1">
@@ -296,6 +428,7 @@ export default function ModuleManager({ course }: any) {
                                                             </div>
                                                         )}
                                                     </div>
+
                                                     <div className="flex items-center gap-1 opacity-0 group-hover/sub:opacity-100 transition-opacity">
                                                         <Link
                                                             href={`/admin/courses/${course.id}/modules/${sub.id}/problems/new`}

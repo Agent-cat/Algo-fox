@@ -12,6 +12,8 @@ import { List, Code2, Plus, Eye, EyeOff } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import rehypeRaw from "rehype-raw";
+
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     slug: z.string().min(1, "Slug is required"),
@@ -174,6 +176,7 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                             <div className="px-6 py-6 min-h-[400px] bg-white dark:bg-[#1D1E23] prose prose-sm dark:prose-invert max-w-none prose-pre:bg-[#1a1a2e] prose-headings:mb-4">
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
+                                    rehypePlugins={[rehypeRaw]}
                                     components={{
                                         table: ({ children }) => (
                                             <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>

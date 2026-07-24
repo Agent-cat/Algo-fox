@@ -25,13 +25,14 @@ function parseSolutions(markdown: string) {
     if (!markdown) {
         return [];
     }
-    const regex = /:::solution\{title="((?:[^"\\]|\\.)*)"\}([\s\S]*?):::/g;
+    const regex = /:::solution\{(?:title="((?:[^"\\]|\\.)*)")?(?:\s*animation="((?:[^"\\]|\\.)*)")?[\s\S]*?\}([\s\S]*?):::/g;
     const results = [];
     let match;
     let index = 0;
     while ((match = regex.exec(markdown)) !== null) {
-        const title = match[1].replace(/\\"/g, '"');
-        const content = match[2].trim();
+        const title = (match[1] || "Solution").replace(/\\"/g, '"');
+        const animation = match[2] ? match[2].replace(/\\"/g, '"') : "";
+        const content = match[3].trim();
         
         // Simple deterministic hash
         const raw = `${title}:${content}:${index}`;
@@ -45,6 +46,7 @@ function parseSolutions(markdown: string) {
         results.push({
             id,
             title,
+            animation,
             content
         });
         index++;
@@ -62,6 +64,7 @@ function parseSolutions(markdown: string) {
         results.push({
             id,
             title,
+            animation: "",
             content
         });
     }
@@ -163,11 +166,11 @@ export function ProblemSolutions({ officialSolution, animationScript, isSolved }
                             exit={{ opacity: 0, y: -6 }} 
                             className="prose prose-slate dark:prose-invert max-w-none"
                         >
-                            {/* Animation Player (shown for all solution tabs if script exists) */}
-                            {activeSolution && animationScript && (
+                            {/* Animation Player (shown only if active solution has custom animation) */}
+                            {activeSolution && activeSolution.animation && (
                                 <div className="mb-6 not-prose">
                                     <AnimationPlayer
-                                        animationScript={animationScript}
+                                        animationScript={activeSolution.animation}
                                         compact
                                     />
                                 </div>

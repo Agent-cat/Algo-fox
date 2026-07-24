@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Volume2,
   VolumeX,
+  ArrowLeftRight,
 } from "lucide-react";
 
 interface AnimationStep {
@@ -764,6 +765,16 @@ export default function AnimationPlayer({
                           `}
                         >
                           {displayVal(val)}
+                          {isSwapping && (
+                            <motion.div
+                              initial={{ scale: 0, rotate: -45 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              exit={{ scale: 0 }}
+                              className="absolute -top-3.5 bg-amber-500 text-white p-1 rounded-full shadow-md flex items-center justify-center border-2 border-white dark:border-[#1D1E23] z-20"
+                            >
+                              <ArrowLeftRight className="w-3 h-3 animate-pulse" />
+                            </motion.div>
+                          )}
                         </motion.div>
 
                         <span className="text-[11px] font-mono text-gray-400 dark:text-gray-500 mt-2 font-bold">

@@ -1,0 +1,39 @@
+name: CI/CD Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Remote Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            # Navigate to project directory (change path if your project is elsewhere)
+            cd ~/Algo-fox
+
+            # Pull latest changes from git
+            git pull origin main
+
+            # Install dependencies (using Bun or PM2/Node depending on server setup)
+            if command -v bun &> /dev/null; then
+              bun install
+              bun run build
+              pm2 restart algofox || pm2 start "bun start" --name algofox
+            else
+              npm install
+              npm run build
+              pm2 restart algofox || pm2 start "npm start" --name algofox
+            fi

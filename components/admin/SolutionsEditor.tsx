@@ -1,44 +1,50 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Plus, Trash2, Eye, Code2, Edit3, Save, Loader2, List, BadgeCheck, Image as ImageIcon } from "lucide-react";
 import { MarkdownPreview } from "./ProblemForm";
+import AnimationPlayer from "@/components/workspace/AnimationPlayer";
 
 function parseSolutions(markdown: string) {
     if (!markdown) {
         return [{
             id: Math.random().toString(36).substr(2, 9),
             title: "Optimal Solution",
+            animation: "",
             content: "```cpp\n// C++ Solution\n```\n\n```python\n# Python Solution\n```\n\n```java\n// Java Solution\n```"
         }];
     }
-    const regex = /:::solution\{title="((?:[^"\\]|\\.)*)"\}([\s\S]*?):::/g;
+    const regex = /:::solution\{(?:title="((?:[^"\\]|\\.)*)")?(?:\s*animation="((?:[^"\\]|\\.)*)")?[\s\S]*?\}([\s\S]*?):::/g;
     const results = [];
     let match;
     while ((match = regex.exec(markdown)) !== null) {
         results.push({
             id: Math.random().toString(36).substr(2, 9),
-            title: match[1].replace(/\\"/g, '"'),
-            content: match[2].trim()
+            title: (match[1] || "Solution").replace(/\\"/g, '"'),
+            animation: match[2] ? match[2].replace(/\\"/g, '"') : "",
+            content: match[3].trim()
         });
     }
     if (results.length === 0 && markdown.trim()) {
         results.push({
             id: Math.random().toString(36).substr(2, 9),
             title: "Optimal Solution",
+            animation: "",
             content: markdown.trim()
         });
     }
     return results.length > 0 ? results : [{
         id: Math.random().toString(36).substr(2, 9),
         title: "Optimal Solution",
+        animation: "",
         content: ""
     }];
 }
 
-function serializeSolutions(solutions: { title: string; content: string }[]) {
+function serializeSolutions(solutions: { title: string; animation?: string; content: string }[]) {
     if (solutions.length === 0) return "";
     return solutions.map(s => {
         const escapedTitle = s.title.replace(/"/g, '\\"');
-        return `:::solution{title="${escapedTitle}"}\n\n${s.content}\n\n:::`;
+        const animationAttr = s.animation && s.animation.trim() ? ` animation="${s.animation.replace(/"/g, '\\"')}"` : "";
+        return `:::solution{title="${escapedTitle}"${animationAttr}}\n\n${s.content}\n\n:::`;
     }).join("\n\n");
 }
 
@@ -51,12 +57,13 @@ interface SolutionsEditorProps {
 }
 
 export default function SolutionsEditor({ value, onChange, onSave, isSaving, onImageUpload }: SolutionsEditorProps) {
-    const [solutionsList, setSolutionsList] = useState<{ id: string, title: string, content: string }[]>(() => parseSolutions(value));
+    const [solutionsList, setSolutionsList] = useState<{ id: string, title: string, animation?: string, content: string }[]>(() => parseSolutions(value));
     const [activeSolutionId, setActiveSolutionId] = useState<string>(solutionsList[0]?.id || "");
     const [editingSolutionId, setEditingSolutionId] = useState<string | null>(null);
     const [newSolutionTitle, setNewSolutionTitle] = useState("");
     const [isAddingSolution, setIsAddingSolution] = useState(false);
     const [solutionPreview, setSolutionPreview] = useState(false);
+    const [showAnimationEditor, setShowAnimationEditor] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -64,8 +71,7 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
     // Tracks when WE triggered an onChange so useEffect doesn't re-parse our own updates
     const isInternalUpdateRef = useRef(false);
 
-    // Re-initialize when the parent loads async data (e.g. edit page fetches problem then sets value)
-    // isInternalUpdateRef guards against re-parsing our own onChange emissions (which would reset state)
+    // Re-initialize when the parent loads async data
     useEffect(() => {
         if (isInternalUpdateRef.current) {
             isInternalUpdateRef.current = false;
@@ -76,7 +82,7 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
         setActiveSolutionId(parsed[0]?.id || "");
     }, [value]);
 
-    const updateParent = (newList: { id: string, title: string, content: string }[]) => {
+    const updateParent = (newList: { id: string, title: string, animation?: string, content: string }[]) => {
         isInternalUpdateRef.current = true;
         onChange(serializeSolutions(newList));
     };
@@ -89,7 +95,7 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
 
     const handleAddSolution = () => {
         const id = Math.random().toString(36).substr(2, 9);
-        const newSolution = { id, title: newSolutionTitle || "New Solution", content: "" };
+        const newSolution = { id, title: newSolutionTitle || `Solution ${solutionsList.length + 1}`, animation: "", content: "" };
         const newList = [...solutionsList, newSolution];
         setSolutionsList(newList);
         updateParent(newList);
@@ -117,6 +123,12 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
 
     const updateActiveContent = (newContent: string) => {
         const newList = solutionsList.map(s => s.id === activeSolutionId ? { ...s, content: newContent } : s);
+        setSolutionsList(newList);
+        updateParent(newList);
+    };
+
+    const updateActiveAnimation = (newAnimation: string) => {
+        const newList = solutionsList.map(s => s.id === activeSolutionId ? { ...s, animation: newAnimation } : s);
         setSolutionsList(newList);
         updateParent(newList);
     };
@@ -198,14 +210,24 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
         }
     };
 
-    const activeContent = solutionsList.find(s => s.id === activeSolutionId)?.content || "";
+    const activeSolution = solutionsList.find(s => s.id === activeSolutionId);
+    const activeContent = activeSolution?.content || "";
+    const activeAnimation = activeSolution?.animation || "";
 
     return (
         <div className="border border-gray-200 dark:border-[#333] rounded-xl overflow-hidden shadow-sm bg-white dark:bg-[#111]">
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-[#333] bg-gray-50/80 dark:bg-[#1D1E23]">
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar flex-1">
-                    {solutionsList.map(sol => (
-                        <div key={sol.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-bold transition-all flex-shrink-0 ${activeSolutionId === sol.id ? 'border-orange-500 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 cursor-pointer'}`}>
+            {/* Header with Solution Tabs & Counter */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 gap-3 border-b border-gray-200 dark:border-[#333] bg-gray-50/80 dark:bg-[#1D1E23]">
+                <div className="flex items-center gap-3 overflow-x-auto pb-1 custom-scrollbar flex-1">
+                    {/* Solution Counter Badge */}
+                    <div className="px-2.5 py-1 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-lg text-xs font-black uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0 border border-orange-500/20">
+                        <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                        {solutionsList.length} {solutionsList.length === 1 ? "Solution" : "Solutions"}
+                    </div>
+
+                    {solutionsList.map((sol, index) => (
+                        <div key={sol.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-bold transition-all flex-shrink-0 ${activeSolutionId === sol.id ? 'border-orange-500 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 shadow-sm' : 'border-gray-200 bg-white text-gray-600 dark:bg-[#1a1a1a] dark:text-gray-400 dark:border-[#333] hover:bg-gray-50 cursor-pointer'}`}>
+                            <span className="text-[10px] opacity-50 font-mono">#{index + 1}</span>
                             {editingSolutionId === sol.id ? (
                                 <input
                                     autoFocus
@@ -216,11 +238,16 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
                                     className="bg-transparent outline-none border-b border-orange-500 w-24 text-orange-600"
                                 />
                             ) : (
-                                <button type="button" onClick={() => handleSwitchSolution(sol.id)}>{sol.title}</button>
+                                <button type="button" onClick={() => handleSwitchSolution(sol.id)} className="flex items-center gap-1.5">
+                                    {sol.title}
+                                    {sol.animation && (
+                                        <span className="w-2 h-2 rounded-full bg-blue-500" title="Has custom animation" />
+                                    )}
+                                </button>
                             )}
 
                             {activeSolutionId === sol.id && editingSolutionId !== sol.id && (
-                                <div className="flex items-center gap-1 ml-2 border-l pl-2 border-orange-200">
+                                <div className="flex items-center gap-1 ml-2 border-l pl-2 border-orange-200 dark:border-orange-500/30">
                                     <button type="button" onClick={() => { setEditingSolutionId(sol.id); setNewSolutionTitle(sol.title); }} className="text-orange-400 hover:text-orange-600">
                                         <Edit3 className="w-3.5 h-3.5" />
                                     </button>
@@ -242,8 +269,8 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
                                 onChange={e => setNewSolutionTitle(e.target.value)}
                                 onBlur={handleAddSolution}
                                 onKeyDown={e => e.key === 'Enter' && handleAddSolution()}
-                                className="bg-transparent outline-none text-sm font-bold text-gray-700 dark:text-gray-200 w-24"
-                                placeholder="Title..."
+                                className="bg-transparent outline-none text-sm font-bold text-gray-700 dark:text-gray-200 w-28"
+                                placeholder={`Solution ${solutionsList.length + 1}...`}
                             />
                         </div>
                     ) : (
@@ -257,7 +284,18 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
                     )}
                 </div>
 
-                <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-200 dark:border-[#444] flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={() => setShowAnimationEditor(!showAnimationEditor)}
+                        className={`px-3 py-1.5 text-xs font-bold border rounded-lg shadow-sm transition-colors flex items-center gap-1.5 ${
+                            showAnimationEditor || activeAnimation
+                                ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/30"
+                                : "bg-white dark:bg-[#222] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-[#444] hover:bg-gray-50"
+                        }`}
+                    >
+                        <span className="text-sm">✨</span> Solution Animation {activeAnimation ? "(Configured)" : ""}
+                    </button>
                     <button
                         type="button"
                         onClick={() => setSolutionPreview(!solutionPreview)}
@@ -277,6 +315,59 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
                     )}
                 </div>
             </div>
+
+            {/* Animation Config Panel for Active Solution */}
+            {showAnimationEditor && (
+                <div className="p-4 bg-blue-50/40 dark:bg-blue-500/5 border-b border-blue-100 dark:border-blue-500/10 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                                <span>✨</span> Custom Animation for "{activeSolution?.title}"
+                            </h4>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                Add an animation JSON script specific to this solution. If empty, the default problem animation is used.
+                            </p>
+                        </div>
+                        {activeAnimation && (
+                            <button
+                                type="button"
+                                onClick={() => updateActiveAnimation("")}
+                                className="text-xs text-red-500 hover:text-red-700 font-bold"
+                            >
+                                Clear Animation
+                            </button>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <textarea
+                            value={activeAnimation}
+                            onChange={(e) => updateActiveAnimation(e.target.value)}
+                            rows={8}
+                            placeholder={`{
+  "title": "${activeSolution?.title} Animation",
+  "steps": [
+    {
+      "id": 1,
+      "caption": "Step 1...",
+      "state": { "array": [1, 2, 3] }
+    }
+  ]
+}`}
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#333] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-mono text-xs text-gray-900 dark:text-gray-100 bg-white dark:bg-[#111] resize-none"
+                        />
+                        <div className="rounded-xl border border-gray-200 dark:border-[#333] bg-white dark:bg-[#111] p-3">
+                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Live Animation Preview</div>
+                            {activeAnimation ? (
+                                <AnimationPlayer animationScript={activeAnimation} compact />
+                            ) : (
+                                <div className="h-40 flex items-center justify-center text-xs text-gray-400 italic border border-dashed border-gray-200 dark:border-[#333] rounded-lg">
+                                    Paste animation JSON to preview solution animation
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1">
                 {!solutionPreview ? (
@@ -340,6 +431,12 @@ export default function SolutionsEditor({ value, onChange, onSave, isSaving, onI
                     </div>
                 ) : (
                     <div className="bg-[#f8f9fa] dark:bg-[#1D1E23] overflow-y-auto min-h-[500px] p-6 custom-scrollbar prose prose-slate dark:prose-invert max-w-none">
+                        {/* Preview animation if present */}
+                        {activeAnimation && (
+                            <div className="mb-6 not-prose">
+                                <AnimationPlayer animationScript={activeAnimation} compact />
+                            </div>
+                        )}
                         <MarkdownPreview content={activeContent} placeholder="Nothing to preview yet..." />
                     </div>
                 )}

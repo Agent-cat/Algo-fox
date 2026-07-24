@@ -300,3 +300,26 @@ export async function deleteModule(moduleId: string) {
     return deleted;
 }
 
+export async function reorderModules(courseId: string, orderedModuleIds: string[]) {
+    await requireAdmin();
+    const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        select: { slug: true }
+    });
+
+    if (!course) throw new Error("Course not found");
+
+    await prisma.$transaction(
+        orderedModuleIds.map((id, index) =>
+            prisma.category.update({
+                where: { id },
+                data: { order: index }
+            })
+        )
+    );
+
+    revalidateTag(`course-${course.slug}`, 'max');
+    revalidatePath(`/admin/courses/${courseId}/modules`);
+}
+
+
