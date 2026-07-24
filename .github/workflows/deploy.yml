@@ -33,7 +33,7 @@ jobs:
               bun run build
               pm2 restart algofox || pm2 start "bun start" --name algofox
             else
-              npm install
+              npm install 
               npm run build
               pm2 restart algofox || pm2 start "npm start" --name algofox
             fi
