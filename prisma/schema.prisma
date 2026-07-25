@@ -472,6 +472,8 @@ model Contest {
   @@index([slug])
   @@index([startTime])
   @@index([endTime])
+  @@index([hidden, endTime, startTime(sort: Desc)])
+  @@index([visibility, hidden, endTime])
   @@map("contest")
 }
 
@@ -1034,5 +1036,6 @@ model FeaturedItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([order, createdAt(sort: Desc)])
   @@map("featured_item")
 }

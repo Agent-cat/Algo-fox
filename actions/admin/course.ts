@@ -8,7 +8,15 @@ import { requireAdmin } from "@/lib/auth-utils";
 export async function getAdminCourses() {
     await requireAdmin();
     return await prisma.course.findMany({
-        include: {
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            difficulty: true,
+            domain: true,
+            isPublished: true,
+            createdAt: true,
             _count: {
                 select: {
                     modules: true,

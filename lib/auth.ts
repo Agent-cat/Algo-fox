@@ -3,12 +3,49 @@ import { admin, emailOTP } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { prisma } from "./prisma";
+import redis from "./redis";
 import { sendEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  secondaryStorage: {
+    get: async (key: string) => {
+      try {
+        const val = await redis.get(key);
+        return val ?? null;
+      } catch {
+        return null;
+      }
+    },
+    set: async (key: string, value: string, ttl?: number) => {
+      try {
+        if (ttl) {
+          await redis.set(key, value, "EX", ttl);
+        } else {
+          await redis.set(key, value);
+        }
+      } catch (e) {
+        console.error("[Auth Cache] Redis set error:", e);
+      }
+    },
+    delete: async (key: string) => {
+      try {
+        await redis.del(key);
+      } catch (e) {
+        console.error("[Auth Cache] Redis del error:", e);
+      }
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // verification handled manually via OTP before registration

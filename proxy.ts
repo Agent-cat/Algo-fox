@@ -46,6 +46,18 @@ export async function proxy(request: NextRequest) {
 
   const getSession = async () => {
     if (sessionFetched) return session;
+    const cookieHeader = request.headers.get("cookie") || "";
+    const hasSessionToken =
+      cookieHeader.includes("better-auth.session_token") ||
+      cookieHeader.includes("session_token") ||
+      cookieHeader.includes("__Secure-better-auth.session_token");
+
+    if (!hasSessionToken) {
+      sessionFetched = true;
+      session = null;
+      return null;
+    }
+
     try {
       session = await auth.api.getSession({ headers: request.headers });
     } catch (e) {
@@ -197,8 +209,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with local assets
+     * Match all request paths except for static files & local assets
      */
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot|mp4|webm)$).*)',
   ],
 };

@@ -11,9 +11,7 @@ const prismaClientSingleton = () => {
                     const result = await query(args);
                     const durationMs = performance.now() - start;
 
-                    if (process.env.NODE_ENV === 'development' && durationMs > 100) {
-                        // PERF: Lowered from 500ms → 100ms to catch the 100-500ms blind spot
-                        // that accumulates and kills P95 latency in production.
+                    if (process.env.NODE_ENV === 'development' && durationMs > 200) {
                         console.warn(
                             `[slow-query] ${model}.${operation} took ${durationMs.toFixed(2)}ms`
                         );

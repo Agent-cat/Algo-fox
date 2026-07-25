@@ -30,7 +30,18 @@ export interface AuthUser {
 export const getSession = cache(async () => {
     // Declare the dynamic boundary — everything below runs at request time only.
     await connection();
-    return auth.api.getSession({ headers: await headers() });
+    const reqHeaders = await headers();
+    const cookieHeader = reqHeaders.get("cookie") || "";
+    const hasSessionToken =
+      cookieHeader.includes("better-auth.session_token") ||
+      cookieHeader.includes("session_token") ||
+      cookieHeader.includes("__Secure-better-auth.session_token");
+
+    if (!hasSessionToken) {
+      return null;
+    }
+
+    return auth.api.getSession({ headers: reqHeaders });
 });
 
 export function isNextBailoutError(error: unknown): boolean {

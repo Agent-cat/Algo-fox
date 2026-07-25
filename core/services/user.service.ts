@@ -233,8 +233,32 @@ export class UserService {
     static async getUserSettings(userId: string) {
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            include: {
-                institution: true
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                image: true,
+                bio: true,
+                collegeId: true,
+                collegeName: true,
+                branch: true,
+                dateOfBirth: true,
+                gender: true,
+                permanentAddress: true,
+                currentAddress: true,
+                educationDetails: true,
+                experienceDetails: true,
+                leetCodeHandle: true,
+                codeChefHandle: true,
+                codeforcesHandle: true,
+                githubHandle: true,
+                leetCodeVerified: true,
+                codeChefVerified: true,
+                codeforcesVerified: true,
+                institution: {
+                    select: { name: true }
+                }
             }
         });
 
@@ -256,14 +280,14 @@ export class UserService {
             currentAddress: user.currentAddress,
             institutionName: user.institution?.name,
             educationDetails: user.educationDetails || null,
-            experienceDetails: (user as any).experienceDetails || null,
-            leetCodeHandle: (user as any).leetCodeHandle || null,
-            codeChefHandle: (user as any).codeChefHandle || null,
-            codeforcesHandle: (user as any).codeforcesHandle || null,
-            githubHandle: (user as any).githubHandle || null,
-            leetCodeVerified: (user as any).leetCodeVerified || false,
-            codeChefVerified: (user as any).codeChefVerified || false,
-            codeforcesVerified: (user as any).codeforcesVerified || false,
+            experienceDetails: user.experienceDetails || null,
+            leetCodeHandle: user.leetCodeHandle || null,
+            codeChefHandle: user.codeChefHandle || null,
+            codeforcesHandle: user.codeforcesHandle || null,
+            githubHandle: user.githubHandle || null,
+            leetCodeVerified: user.leetCodeVerified || false,
+            codeChefVerified: user.codeChefVerified || false,
+            codeforcesVerified: user.codeforcesVerified || false,
         };
     }
 }

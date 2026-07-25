@@ -60,11 +60,12 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
   const isFuture = contest.startTime > now;
 
   const targetTime = isLive ? contest.endTime : contest.startTime;
-  const [secondsLeft, setSecondsLeft] = useState(() =>
-    Math.max(0, differenceInSeconds(targetTime, new Date()))
-  );
+  const [mounted, setMounted] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
+    setMounted(true);
+    setSecondsLeft(Math.max(0, differenceInSeconds(targetTime, new Date())));
     const interval = setInterval(() => {
       setSecondsLeft(Math.max(0, differenceInSeconds(targetTime, new Date())));
     }, 30_000);
@@ -124,7 +125,7 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
 
         {/* Time remaining */}
         <p className={`text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] font-bold ${isLive ? "text-red-500" : "text-gray-400 dark:text-gray-500"}`}>
-          {formatTimeLeft(secondsLeft)}
+          {mounted ? formatTimeLeft(secondsLeft) : "..."}
         </p>
       </div>
 
