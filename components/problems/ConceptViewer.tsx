@@ -17,6 +17,7 @@ import { preprocessMarkdown } from "@/lib/markdown-utils";
 import { PointsCelebration } from "../shared/PointsCelebration";
 import WorkspaceHeader from "../workspace/WorkspaceHeader";
 import { WorkspaceSidebars } from "../workspace/WorkspaceSidebars";
+import { DynamicHtmlContent } from "@/components/shared/DynamicHtmlContent";
 // Removed static highlight.js import to allow custom adaptive styling
 
 interface ConceptViewerProps {
@@ -155,35 +156,7 @@ export default function ConceptViewer({
                             prose-pre:bg-white dark:prose-pre:bg-[#1D1E23] prose-pre:p-0 prose-pre:m-0 prose-pre:border-none prose-pre:shadow-none prose-pre:rounded-lg prose-pre:my-6
                             prose-img:rounded-lg prose-img:border prose-img:border-gray-100 dark:prose-img:border-[#262626] prose-img:my-6
                             prose-blockquote:border-l-2 prose-blockquote:border-orange-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-[#1D1E23] prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:my-6">
-                            <Markdown
-                                remarkPlugins={[
-                                    remarkGfm,
-                                    remarkBreaks,
-                                    remarkDirective,
-                                    remarkSolutionDirective
-                                ]}
-                                rehypePlugins={[rehypeRaw]}
-                                 components={{
-                                    'solution-group': SolutionCodeGroup,
-                                    table: ({ children }) => (
-                                        <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
-                                    ),
-                                    thead: ({ children, ...props }) => (
-                                        <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono" {...props}>{children}</thead>
-                                    ),
-                                    th: ({ children, ...props }) => (
-                                        <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle border border-gray-200 dark:border-[#262626]" {...props}>{children}</th>
-                                    ),
-                                    td: ({ children, ...props }) => (
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] tabular-nums font-mono text-[13px] align-middle" {...props}>{children}</td>
-                                    ),
-                                    tr: ({ children, ...props }) => (
-                                        <tr className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors duration-150" {...props}>{children}</tr>
-                                    ),
-                                } as Components}
-                            >
-                                {preprocessMarkdown(problem.description)}
-                            </Markdown>
+                            <DynamicHtmlContent content={problem.description} />
                         </article>
                     </div>
 

@@ -102,7 +102,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen lg:h-[var(--content-height)] bg-[#fafafa] dark:bg-[#1D1E23] text-black dark:text-white font-sans relative overflow-y-auto lg:overflow-hidden">
-      <div className="w-full h-auto lg:h-full pl-4 lg:pl-4 xl:pl-6 2xl:pl-12 pr-2 lg:pr-2 xl:pr-3 2xl:pr-6 py-6 relative z-10 flex flex-col lg:flex-row gap-4 lg:gap-4 xl:gap-6 2xl:gap-14">
+      <div className="w-full h-auto lg:h-full pl-4 lg:pl-4 xl:pl-5 2xl:pl-10 pr-2 lg:pr-2 xl:pr-3 2xl:pr-5 py-6 relative z-10 flex flex-col lg:flex-row gap-4 lg:gap-4 xl:gap-5 2xl:gap-10">
         
         {/* Main Content Area */}
         <div className="flex-1 min-h-0 lg:h-full lg:overflow-y-auto no-scrollbar flex flex-col gap-6">
@@ -159,7 +159,7 @@ export default async function Home() {
         </div>
 
         {/* Right Sidebar (Widgets) */}
-        <div className="w-full lg:w-[230px] xl:w-[270px] 2xl:w-[350px] shrink-0 min-h-0 lg:h-full lg:overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4 lg:gap-3 xl:gap-4 2xl:gap-6">
+        <div className="w-full lg:w-[200px] xl:w-[235px] 2xl:w-[300px] shrink-0 min-h-0 lg:h-full lg:overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-4 lg:gap-3 xl:gap-4 2xl:gap-6">
            <div className="relative group">
               <div className={!isLoggedIn ? "filter blur-[6px] opacity-70 pointer-events-none select-none" : ""}>
                  <StreakCalendarWidget
