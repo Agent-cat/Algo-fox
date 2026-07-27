@@ -77,7 +77,7 @@ export function FeaturedSection({ banners }: FeaturedSectionProps) {
           <Link
             key={banner.id}
             href={banner.redirectUrl}
-            className="relative block aspect-[16/9] w-[360px] shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
+            className="relative block aspect-[16/9] w-[240px] lg:w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
           >
             <img
               src={banner.imageUrl}
