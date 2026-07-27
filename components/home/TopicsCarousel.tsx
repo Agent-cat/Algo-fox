@@ -25,7 +25,7 @@ function TopicCard({ category }: { category: TopicCategory }) {
       href={`/topic/${category.slug}`}
       className={`
         group relative flex flex-col
-        min-w-[280px] max-w-[280px] h-[170px]
+        min-w-[220px] max-w-[220px] lg:min-w-[240px] lg:max-w-[240px] xl:min-w-[260px] xl:max-w-[260px] 2xl:min-w-[280px] 2xl:max-w-[280px] h-[150px] lg:h-[160px] xl:h-[165px] 2xl:h-[170px]
         rounded-2xl p-4 cursor-pointer
         bg-[url('/card_bg.svg')] bg-cover bg-center
         dark:bg-[url('/card_bg_dark.svg')]
