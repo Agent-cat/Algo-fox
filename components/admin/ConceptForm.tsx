@@ -13,6 +13,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import rehypeRaw from "rehype-raw";
+import { DynamicHtmlContent } from "@/components/shared/DynamicHtmlContent";
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -174,27 +175,7 @@ export default function ConceptForm({ onSubmit, submitLabel = "Create Concept", 
                             />
                         ) : (
                             <div className="px-6 py-6 min-h-[400px] bg-white dark:bg-[#1D1E23] prose prose-sm dark:prose-invert max-w-none prose-pre:bg-[#1a1a2e] prose-headings:mb-4">
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeRaw]}
-                                    components={{
-                                        table: ({ children }) => (
-                                            <table className="my-6 w-full border-collapse text-sm border border-gray-200 dark:border-[#262626] rounded-xl overflow-hidden">{children}</table>
-                                        ),
-                                        thead: ({ children }) => (
-                                            <thead className="bg-gray-100/40 dark:bg-white/2 border-b border-gray-200/60 dark:border-[#262626] font-mono">{children}</thead>
-                                        ),
-                                        th: ({ children }) => (
-                                            <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-[11px] font-mono align-middle border border-gray-200 dark:border-[#262626]">{children}</th>
-                                        ),
-                                        td: ({ children }) => (
-                                            <td className="px-6 py-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#262626] tabular-nums font-mono text-[13px] align-middle">{children}</td>
-                                        ),
-                                        tr: ({ node, ...props }) => <tr className="border-b border-gray-100/80 dark:border-white/5 transition-colors dark:hover:bg-white/2" {...props} />,
-                                    }}
-                                >
-                                    {descriptionValue}
-                                </ReactMarkdown>
+                                <DynamicHtmlContent content={descriptionValue} />
                             </div>
                         )}
                     </div>
