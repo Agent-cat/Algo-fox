@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { getClassroomLiveTracking, toggleClassroomTracking } from "@/actions/classroom";
 import { toast } from "sonner";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 import { Play, Square, Loader2, Code, Clock, CheckCircle2, XCircle, ChevronRight, Activity, Filter, Search, BarChart3, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -95,34 +96,22 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
     }
 
     return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.35 }}
-            className="flex flex-col gap-0 w-full py-8 px-6 lg:px-12 bg-[#fafafa] dark:bg-[#1D1E23] min-h-[calc(100vh-4rem)] pb-20"
-        >
+        <div className="w-full">
             {/* Page Header */}
-            <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 }}
-                className="mb-8"
-            >
+            <div className="mb-8 px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 pt-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                             Live Tracking
                         </h1>
+                        <PageTooltip description="Monitor real-time student activity and submission status. View active students, total submissions, and acceptance rates." />
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             {/* HEADER TOOLS */}
-            <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+            <div
+                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12"
             >
                 {data?.isTrackingActive && (
                     <div className="flex flex-col md:flex-row gap-4 w-full">
@@ -154,15 +143,10 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                         </div>
                     </div>
                 )}
-            </motion.div>
+            </div>
 
             {/* Header Control Panel */}
-            <motion.div 
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.15 }}
-                className="bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm transition-all duration-300 mb-6"
-            >
+            <div className="bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm transition-all duration-300 mb-6 mx-3 sm:mx-4 md:mx-6 lg:mx-10 xl:mx-12">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                     <div>
                         <div className="flex items-center gap-2.5 mb-2.5">
@@ -220,10 +204,10 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                                 data?.isTrackingActive ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />
                             )}
                              {data?.isTrackingActive ? "Stop Tracking" : "Start Tracking"}
-                        </button>
+                         </button>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
 
 
@@ -372,6 +356,6 @@ export function LiveTracking({ classroomId }: LiveTrackingProps) {
                     </div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </div>
     );
 }

@@ -10,6 +10,7 @@ import { AssignmentAnalyticsView } from "./AssignmentAnalyticsView";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
+import { PageTooltip } from "@/components/shared/PageTooltip";
 
 interface Assignment {
     id: string;
@@ -77,34 +78,22 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
     );
 
     return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.35 }}
-            className="flex flex-col gap-0 w-full py-8 px-6 lg:px-12 bg-[#fafafa] dark:bg-[#1D1E23] min-h-[calc(100vh-4rem)]"
-        >
+        <div className="w-full">
             {/* Page Header */}
-            <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 }}
-                className="mb-8"
-            >
+            <div className="mb-8 px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12 pt-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-1">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                             Assignments
                         </h1>
+                        <PageTooltip description="View and manage all classroom assignments. Track submission counts, due dates, and student completion status." />
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             {/* HEADER TOOLS */}
-            <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
+            <div
+                className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 px-3 sm:px-4 md:px-6 lg:px-10 xl:px-12"
             >
                 <div className="relative group flex-1 w-full">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
@@ -126,14 +115,9 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                         New Assignment
                     </button>
                 )}
-            </motion.div>
+            </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.15 }}
-                className="flex-1 bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6"
-            >
+            <div className="flex-1 bg-white dark:bg-[#222328] border border-gray-200 dark:border-white/10 rounded-2xl p-6 mx-3 sm:mx-4 md:mx-6 lg:mx-10 xl:mx-12 mb-8">
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-24">
@@ -222,7 +206,7 @@ export function AssignmentsTab({ classroomId, isTeacher }: AssignmentsTabProps) 
                     }}
                 />
             )}
-            </motion.div>
-        </motion.div>
+            </div>
+        </div>
     );
 }
