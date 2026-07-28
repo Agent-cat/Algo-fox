@@ -25,14 +25,16 @@ function TopicCard({ category }: { category: TopicCategory }) {
       href={`/topic/${category.slug}`}
       className={`
         group relative flex flex-col
-        min-w-[220px] max-w-[220px] lg:min-w-[240px] lg:max-w-[240px] xl:min-w-[260px] xl:max-w-[260px] 2xl:min-w-[280px] 2xl:max-w-[280px] h-[150px] lg:h-[160px] xl:h-[165px] 2xl:h-[170px]
-        rounded-2xl p-4 cursor-pointer
+        min-w-[140px] max-w-[140px] sm:min-w-[170px] sm:max-w-[170px] md:min-w-[200px] md:max-w-[200px]
+        lg:min-w-[240px] lg:max-w-[240px] xl:min-w-[260px] xl:max-w-[260px] 2xl:min-w-[280px] 2xl:max-w-[280px]
+        h-[110px] sm:h-[130px] md:h-[140px] lg:h-[160px] xl:h-[165px] 2xl:h-[170px]
+        rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 cursor-pointer
         bg-[url('/card_bg.svg')] bg-cover bg-center
         dark:bg-[url('/card_bg_dark.svg')]
         before:content-[''] before:absolute before:inset-0
         before:bg-[url('/topography.svg')] before:bg-cover before:bg-center
         before:opacity-10 dark:before:opacity-5
-        before:pointer-events-none before:rounded-2xl
+        before:pointer-events-none before:rounded-xl sm:before:rounded-2xl
         border border-gray-200 dark:border-white/10
         hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30
         hover:-translate-y-1 active:translate-y-0
@@ -45,15 +47,15 @@ function TopicCard({ category }: { category: TopicCategory }) {
         alt="AlgoFox"
         width={40}
         height={40}
-        className="absolute bottom-2.5 right-2.5 w-10 h-10 object-contain rounded-xl opacity-30"
+        className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2.5 w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain rounded-lg sm:rounded-xl opacity-30"
       />
 
-      <h3 className="text-[16px] font-bold text-gray-800 dark:text-gray-100 leading-snug mb-3">
+      <h3 className="text-[11px] sm:text-[13px] md:text-[14px] lg:text-[16px] font-bold text-gray-800 dark:text-gray-100 leading-snug mb-1.5 sm:mb-2 md:mb-3 line-clamp-2">
         {category.name}
       </h3>
 
       <div className="mt-auto">
-        <span className="text-[12px] font-semibold text-gray-500 dark:text-gray-400">
+        <span className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold text-gray-500 dark:text-gray-400">
           {solved} of {total} solved
         </span>
       </div>
@@ -75,24 +77,24 @@ export function TopicsCarousel({ categories }: TopicsCarouselProps) {
   return (
     <div className="w-full">
       {/* Section header */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[15px] font-bold text-gray-900 dark:text-white">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <h2 className="text-xs sm:text-sm md:text-[15px] font-bold text-gray-900 dark:text-white">
           Topic Sheets
         </h2>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <button
             onClick={() => scroll("left")}
             aria-label="Scroll left"
-            className="p-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20 transition-all"
+            className="p-1 sm:p-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20 transition-all"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
           <button
             onClick={() => scroll("right")}
             aria-label="Scroll right"
-            className="p-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20 transition-all"
+            className="p-1 sm:p-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/20 transition-all"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
       </div>
@@ -100,7 +102,7 @@ export function TopicsCarousel({ categories }: TopicsCarouselProps) {
       {/* Scrollable row */}
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-1 scroll-smooth"
+        className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {categories.map((cat) => (

@@ -35,32 +35,32 @@ function SheetCard({ sheet }: { sheet: Sheet }) {
   return (
     <Link
       href={`/sheets/${sheet.slug}`}
-      className="group relative flex-shrink-0 w-48 sm:w-52 bg-white dark:bg-[#1e1f24] border border-gray-100 dark:border-white/8 rounded-2xl p-4 overflow-hidden hover:border-gray-200 dark:hover:border-white/15 hover:shadow-md dark:hover:shadow-black/30 transition-all duration-200"
+      className="group relative flex-shrink-0 w-[120px] sm:w-[140px] md:w-[160px] lg:w-[190px] xl:w-[205px] 2xl:w-[220px] bg-white dark:bg-[#1e1f24] border border-gray-100 dark:border-white/8 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-3.5 xl:p-4 overflow-hidden hover:border-gray-200 dark:hover:border-white/15 hover:shadow-md dark:hover:shadow-black/30 transition-all duration-200"
     >
       {/* Gradient bg accent */}
       <div className={`absolute inset-0 bg-gradient-to-br ${color.bg} opacity-60 pointer-events-none`} />
 
-      <div className="relative z-10 flex flex-col h-full gap-3">
+      <div className="relative z-10 flex flex-col h-full gap-2 sm:gap-2.5 lg:gap-3">
         {/* Progress badge */}
         <div className="flex items-center justify-between">
-          <div className={`text-xs font-bold ${color.accent}`}>
+          <div className={`text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-bold ${color.accent}`}>
             <span>{solved}</span>
             <span className="text-gray-400 dark:text-gray-500 font-medium">/{total}</span>
           </div>
-          <div className={`w-2 h-2 rounded-full ${color.dot} opacity-80`} />
+          <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${color.dot} opacity-80`} />
         </div>
 
         {/* Name */}
         <div className="flex-1">
-          <h3 className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+          <h3 className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-[13px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
             {sheet.name}
           </h3>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-medium">
-          <BookOpen className="w-3 h-3 shrink-0" />
-          <span>By Algo-fox</span>
+        <div className="flex items-center gap-1 sm:gap-1.5 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+          <BookOpen className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 shrink-0" />
+          <span className="hidden sm:inline">By Algo-fox</span>
         </div>
       </div>
     </Link>
@@ -75,7 +75,7 @@ export function TopicSheetsCarousel({ sheets }: TopicSheetsCarouselProps) {
   const scroll = (direction: "left" | "right") => {
     const container = scrollRef.current;
     if (!container) return;
-    const amount = 220;
+    const amount = 180;
     container.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
   };
 
@@ -91,26 +91,26 @@ export function TopicSheetsCarousel({ sheets }: TopicSheetsCarouselProps) {
   return (
     <div className="w-full">
       {/* Header row */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[13px] font-bold text-gray-900 dark:text-white tracking-tight">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <h2 className="text-[11px] sm:text-[12px] md:text-[13px] font-bold text-gray-900 dark:text-white tracking-tight">
           Topic Sheets
         </h2>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <button
             onClick={() => scroll("left")}
             disabled={!canScrollLeft}
             aria-label="Scroll left"
-            className="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1 sm:p-1.5 rounded-md sm:rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
           <button
             onClick={() => scroll("right")}
             disabled={!canScrollRight}
             aria-label="Scroll right"
-            className="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1 sm:p-1.5 rounded-md sm:rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
       </div>
@@ -119,7 +119,7 @@ export function TopicSheetsCarousel({ sheets }: TopicSheetsCarouselProps) {
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-none pb-1"
+        className="flex gap-2 sm:gap-2.5 md:gap-3 overflow-x-auto scrollbar-none pb-1"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {sheets.map((sheet) => (
