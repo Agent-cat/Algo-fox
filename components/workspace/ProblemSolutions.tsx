@@ -122,16 +122,16 @@ export function ProblemSolutions({ officialSolution, animationScript, isSolved }
 
     return (
         <div className="flex flex-col h-full bg-[#fafafa] dark:bg-[#1D1E23]">
-            {/* Horizontal scrollable tabs container */}
-            <div className="flex items-center gap-2 px-4 py-2 border-b border-dashed border-gray-200 dark:border-white/10 bg-[#fafafa] dark:bg-[#1D1E23] overflow-x-auto custom-scrollbar no-scrollbar">
+            {/* Solution Tabs */}
+            <div className="flex items-center gap-1 px-4 py-2.5 border-b border-gray-200 dark:border-white/10 bg-white/60 dark:bg-[#222328]/60 backdrop-blur-sm overflow-x-auto custom-scrollbar no-scrollbar">
                 {solutions.map((sol) => (
                     <button
                         key={sol.id}
                         onClick={() => setActiveTabId(sol.id)}
-                        className={`relative px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                        className={`relative px-3.5 py-1.5 text-[13px] font-semibold whitespace-nowrap rounded-lg transition-all duration-200 ${
                             activeTabId === sol.id
-                                ? "text-gray-900 dark:text-gray-100 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-900 dark:after:bg-gray-100 after:rounded-full"
-                                : "text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                ? "text-gray-900 dark:text-white bg-gray-100 dark:bg-white/10"
+                                : "text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                         }`}
                     >
                         {sol.title}
@@ -139,10 +139,11 @@ export function ProblemSolutions({ officialSolution, animationScript, isSolved }
                 ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {solutions.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center opacity-60">
-                        <FileText className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-2" />
+                    <div className="flex flex-col items-center justify-center h-full text-center py-20 opacity-60">
+                        <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
                         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No solutions available for this problem yet.</p>
                     </div>
                 ) : !isSolved ? (
@@ -150,32 +151,34 @@ export function ProblemSolutions({ officialSolution, animationScript, isSolved }
                         key="locked-solution"
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        className="flex flex-col items-center justify-center py-20 text-center h-full"
+                        className="flex flex-col items-center justify-center py-20 text-center"
                     >
                         <BadgeCheck className="w-12 h-12 text-gray-300 mb-4" />
-                        <h2 className="text-lg font-bold">Solutions Locked</h2>
-                        <p className="text-gray-500 text-sm">Solve this problem to unlock all solutions.</p>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Solutions Locked</h2>
+                        <p className="text-gray-500 text-sm mt-1">Solve this problem to unlock all solutions.</p>
                     </motion.div>
                 ) : (
                     <AnimatePresence mode="wait">
-                        <motion.div 
-                            key={activeTabId} 
-                            initial={{ opacity: 0, y: 8 }} 
-                            animate={{ opacity: 1, y: 0 }} 
-                            exit={{ opacity: 0, y: -6 }} 
-                            className="prose prose-slate dark:prose-invert max-w-none"
+                        <motion.div
+                            key={activeTabId}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
                         >
-                            {/* Animation Player (shown only if active solution has custom animation) */}
+                            {/* Animation Player - full width, no border wrapper */}
                             {activeSolution && activeSolution.animation && (
-                                <div className="mb-6 not-prose">
+                                <div className="mb-0">
                                     <AnimationPlayer
                                         animationScript={activeSolution.animation}
                                         compact
                                     />
                                 </div>
                             )}
-                            {activeSolution && renderMarkdown(activeSolution.content)}
+
+                            {/* Solution text - flows directly below animation */}
+                            <div className="px-6 py-6 prose prose-slate dark:prose-invert max-w-none">
+                                {activeSolution && renderMarkdown(activeSolution.content)}
+                            </div>
                         </motion.div>
                     </AnimatePresence>
                 )}

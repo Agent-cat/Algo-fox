@@ -138,6 +138,8 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       pathname.startsWith("/placements/") ||
       pathname === "/dashboard/settings" ||
       pathname.startsWith("/dashboard/settings/") ||
+      pathname === "/dashboard/classrooms" ||
+      pathname.startsWith("/dashboard/classrooms/") ||
       pathname === "/placementdashboard" ||
       pathname.startsWith("/placementdashboard/")
     )
