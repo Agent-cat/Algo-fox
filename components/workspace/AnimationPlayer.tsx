@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, MouseEvent } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
@@ -153,38 +153,72 @@ export default function AnimationPlayer({
   const [voiceNarration, setVoiceNarration] = useState(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
+  const voicesLoadedRef = useRef(false);
+  const pendingUtteranceRef = useRef<string | null>(null);
 
   const [swapIndices, setSwapIndices] = useState<[number, number] | null>(null);
   const prevArrayRef = useRef<any[] | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      synthRef.current = window.speechSynthesis;
-    }
-    return () => {
-      if (synthRef.current) {
-        synthRef.current.cancel();
+    if (typeof window === "undefined") return;
+
+    const synth = window.speechSynthesis;
+    synthRef.current = synth;
+
+    const loadVoices = () => {
+      const voices = synth.getVoices();
+      if (voices.length > 0) {
+        voicesLoadedRef.current = true;
+        if (pendingUtteranceRef.current) {
+          speakText(pendingUtteranceRef.current);
+          pendingUtteranceRef.current = null;
+        }
       }
+    };
+
+    loadVoices();
+    synth.onvoiceschanged = loadVoices;
+
+    return () => {
+      synth.cancel();
+      synth.onvoiceschanged = null;
     };
   }, []);
 
-  const speakText = (text: string) => {
+  const speakText = useCallback((text: string) => {
     if (!voiceNarration) return;
-    if (!synthRef.current && typeof window !== "undefined") {
-      synthRef.current = window.speechSynthesis;
+    if (typeof window === "undefined") return;
+
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    synth.cancel();
+
+    if (!text || text.trim().length === 0) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    const voices = synth.getVoices();
+    if (voices.length > 0) {
+      const englishVoice = voices.find(
+        (v) => v.lang.startsWith("en") && v.localService
+      ) || voices.find(
+        (v) => v.lang.startsWith("en")
+      ) || voices[0];
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
     }
-    if (!synthRef.current) return;
-    
+
     try {
-      synthRef.current.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.05 * playbackSpeed;
-      synthRef.current.speak(utterance);
+      synth.speak(utterance);
     } catch (err) {
-      console.warn("SpeechSynthesis error:", err);
+      console.warn("Speech synthesis failed:", err);
     }
-  };
+  }, [voiceNarration]);
 
   const currentStep = useMemo(() => {
     if (!script || !script.steps || script.steps.length === 0) return null;
@@ -367,19 +401,9 @@ export default function AnimationPlayer({
   const handleReset = () => {
     setIsPlaying(false);
     setCurrentStepIdx(0);
-    if (synthRef.current) synthRef.current.cancel();
-  };
-
-  // Jump to closest notch on timeline click
-  const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
-    if (!timelineRef.current || !script?.steps || script.steps.length <= 1) return;
-    const rect = timelineRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const width = rect.width;
-    const ratio = Math.max(0, Math.min(1, clickX / width));
-    const stepIdx = Math.round(ratio * (script.steps.length - 1));
-    setCurrentStepIdx(stepIdx);
-    setIsPlaying(false);
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
   };
 
   // Extract pointer positions
@@ -461,209 +485,131 @@ export default function AnimationPlayer({
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#24262C] text-[#171717] dark:text-[#f5f5f5] overflow-hidden font-sans">
+    <div className="bg-white dark:bg-[#24262C] overflow-hidden font-sans">
       
-      {/* 1. Header Layout */}
-      <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-black/10">
-        <div>
-          <h3 className="text-[13px] font-extrabold flex items-center gap-2 tracking-tight">
+      {/* Header */}
+      <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
             {script.title || "Execution Visualizer"}
-            {script.complexity?.time && (
-              <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400">
-                Time: {script.complexity.time}
-              </span>
-            )}
           </h3>
-          <p className="text-[9px] text-gray-500 dark:text-[#a3a3a3] mt-0.5 font-medium">
-            {script.steps.length} steps algorithm walk
-          </p>
+          {script.complexity?.time && (
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400">
+              {script.complexity.time}
+            </span>
+          )}
         </div>
-        
-        <div className="text-[10px] font-mono font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-md border border-gray-200 dark:border-white/5">
-          Step {currentStepIdx + 1} / {script.steps.length}
-        </div>
+        <span className="text-[11px] font-mono text-gray-400">
+          {currentStepIdx + 1} / {script.steps.length}
+        </span>
       </div>
 
-      {/* 2. Playback Controls Row */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-2 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-black/5">
-        
-        {/* Playback Controls (SkipBack, Play/Pause, SkipForward, Reset) */}
+      {/* Controls */}
+      <div className="flex items-center justify-between gap-4 px-5 py-2.5 border-b border-gray-100 dark:border-white/5">
         <div className="flex items-center gap-2">
           <button
             onClick={handleBack}
             disabled={currentStepIdx === 0}
-            className="p-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl border border-gray-200/60 dark:border-white/5 disabled:opacity-20 disabled:hover:bg-transparent disabled:scale-100 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-            title="Previous Step"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 disabled:opacity-20 transition-all cursor-pointer"
           >
             <SkipBack className="w-4 h-4" />
           </button>
           
           <button
             onClick={handlePlayPause}
-            className="p-3 bg-orange-600 hover:bg-orange-500 active:scale-90 text-white rounded-full transition-all flex items-center justify-center hover:scale-105 cursor-pointer"
-            title={isPlaying ? "Pause" : "Play"}
+            className="p-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full transition-all flex items-center justify-center cursor-pointer"
           >
-            {isPlaying ? (
-              <Pause className="w-4 h-4 fill-white" />
-            ) : (
-              <Play className="w-4 h-4 fill-white ml-0.5" />
-            )}
+            {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
           </button>
 
           <button
             onClick={handleNext}
             disabled={currentStepIdx === script.steps.length - 1}
-            className="p-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl border border-gray-200/60 dark:border-white/5 disabled:opacity-20 disabled:hover:bg-transparent disabled:scale-100 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-            title="Next Step"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 disabled:opacity-20 transition-all cursor-pointer"
           >
             <SkipForward className="w-4 h-4" />
           </button>
 
           <button
             onClick={handleReset}
-            className="p-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl border border-gray-200/60 dark:border-white/5 transition-all active:scale-95 ml-1 flex items-center justify-center cursor-pointer"
-            title="Reset to Start"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-all cursor-pointer ml-1"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Speed selectors and audio */}
-        <div className="flex items-center gap-3">
-          
-          {/* Segmented Speed Selector Control with Framer Motion background sliding */}
-          <div className="relative flex bg-gray-100 dark:bg-black/25 p-1 rounded-xl border border-gray-200 dark:border-white/5">
-            {[0.5, 1, 2].map((speed) => {
-              const isActive = playbackSpeed === speed;
-              return (
-                <button
-                  key={speed}
-                  onClick={() => setPlaybackSpeed(speed)}
-                  className={`relative px-3.5 py-1.5 rounded-lg text-xs font-mono font-extrabold transition-colors duration-200 z-10 cursor-pointer ${
-                    isActive
-                      ? "text-white"
-                      : "text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="active-speed-pill"
-                      className="absolute inset-0 bg-orange-600 rounded-lg -z-10"
-                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                    />
-                  )}
-                  {speed}x
-                </button>
-              );
-            })}
+        <div className="flex items-center gap-2">
+          <div className="flex bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg">
+            {[0.5, 1, 2].map((speed) => (
+              <button
+                key={speed}
+                onClick={() => setPlaybackSpeed(speed)}
+                className={`relative px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                  playbackSpeed === speed
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                }`}
+              >
+                {speed}x
+              </button>
+            ))}
           </div>
 
           <button
             onClick={() => setVoiceNarration(!voiceNarration)}
-            className={`p-2.5 rounded-xl border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+            className={`p-2 rounded-lg transition-all cursor-pointer ${
               voiceNarration
-                ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
-                : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                ? "text-orange-500"
+                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             }`}
-            title="Toggle voice speech"
           >
-            {voiceNarration ? (
-              <Volume2 className="w-4 h-4" />
-            ) : (
-              <VolumeX className="w-4 h-4" />
-            )}
+            {voiceNarration ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* 3. Sleek Slider Timeline with Internal Dots */}
-      <div className="px-4 py-3 bg-gray-50/30 dark:bg-black/5 border-b border-gray-200 dark:border-white/5">
-        <div
-          ref={timelineRef}
-          onClick={handleTimelineClick}
-          className="relative w-full h-6 flex items-center group cursor-pointer"
-        >
-          {/* Track Line */}
-          <div className="absolute left-0 right-0 h-1.5 bg-gray-200 dark:bg-white/5 rounded-full" />
-
-          {/* Progress fill */}
-          <div
-            className="absolute left-0 h-1.5 bg-orange-500 rounded-full transition-all duration-200"
-            style={{
-              width: `${
-                script.steps.length > 1
-                  ? (currentStepIdx / (script.steps.length - 1)) * 100
-                  : 100
-              }%`,
-            }}
-          />
-
-          {/* Notch indicator dots inside track */}
-          {script.steps.map((_, idx) => {
-            const isCompleted = idx <= currentStepIdx;
-            const percentage =
-              script.steps.length > 1 ? (idx / (script.steps.length - 1)) * 100 : 0;
-            return (
-              <div
-                key={idx}
-                className={`absolute -translate-x-1/2 w-1.5 h-1.5 rounded-full transition-all duration-200 pointer-events-none ${
-                  idx === currentStepIdx
-                    ? "bg-white scale-125 border border-orange-500"
-                    : isCompleted
-                    ? "bg-orange-200 dark:bg-orange-400"
-                    : "bg-gray-300 dark:bg-white/20"
-                }`}
-                style={{ left: `${percentage}%` }}
-              />
-            );
-          })}
-
-          {/* Interactive thumb bubble */}
-          <motion.div
-            className="absolute -translate-x-1/2 w-4 h-4 rounded-full bg-orange-500 border-2 border-white dark:border-[#24262C] pointer-events-none flex items-center justify-center hover:scale-110 transition-transform"
-            animate={{
-              left: `${
-                script.steps.length > 1
-                  ? (currentStepIdx / (script.steps.length - 1)) * 100
-                  : 100
-              }%`,
-            }}
-            transition={{ type: "spring", stiffness: 350, damping: 28 }}
-          >
-            <div className="w-1 h-1 bg-white rounded-full" />
-          </motion.div>
+      {/* Step Dots */}
+      <div className="px-5 py-3 border-b border-gray-100 dark:border-white/5">
+        <div className="flex items-center justify-center gap-1.5">
+          {script.steps.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setCurrentStepIdx(idx);
+                setIsPlaying(false);
+              }}
+              className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                idx === currentStepIdx
+                  ? "w-6 bg-orange-500"
+                  : idx < currentStepIdx
+                  ? "w-1.5 bg-orange-400/40"
+                  : "w-1.5 bg-gray-300 dark:bg-white/10"
+              }`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* 4. Input Display Card */}
+      {/* Input */}
       {inputString && (
-        <div className="px-4 py-2 bg-gray-50/80 dark:bg-black/15 border-b border-gray-200 dark:border-white/5 flex items-center gap-3 justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] font-black text-gray-400 dark:text-[#a3a3a3] tracking-wider uppercase font-mono bg-gray-200/50 dark:bg-white/5 px-2 py-0.5 rounded border border-gray-300/40 dark:border-white/5 select-none">
-              INPUT
-            </span>
-            <code className="text-[11px] font-mono text-orange-600 dark:text-orange-400 font-bold select-all whitespace-pre-wrap">
-              {inputString}
-            </code>
-          </div>
-          
-          {/* Active Math Formula calculation overlay badge */}
+        <div className="px-5 py-2 border-b border-gray-100 dark:border-white/5 flex items-center gap-3">
+          <code className="text-[11px] font-mono text-orange-600 dark:text-orange-400 font-bold select-all">
+            {inputString}
+          </code>
           {activeAnimations.calculation && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-[0_0_8px_rgba(245,158,11,0.05)] select-none"
+              className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold"
             >
-              <span className="text-[8px] text-amber-500/60 font-sans uppercase font-black">Math:</span>
               {getFormattedExpression(activeAnimations.calculation, currentStep?.state?.variables || {})}
             </motion.div>
           )}
         </div>
       )}
 
-      {/* 5. Main Visualizer Workspace */}
-      <div className="px-4 py-4 bg-white dark:bg-[#1D1E23] flex flex-col items-center justify-center gap-6">
-        
+      {/* Visualizer */}
+      <div className="px-5 py-6 bg-white dark:bg-[#1D1E23] flex flex-col items-center justify-center gap-6 min-h-[200px]">
         {currentStep && currentStep.state && (
           <div className="w-full flex flex-col items-center gap-6">
             
@@ -1017,33 +963,27 @@ export default function AnimationPlayer({
 
       </div>
 
-      {/* 6. Caption / Explanation Block (Transparent bg, merges with parent container) */}
+      {/* Caption */}
       {currentStep && (
-        <div className="px-4 py-3.5 border-t border-gray-200 dark:border-white/5 bg-transparent">
+        <div className="px-5 py-4 border-t border-gray-100 dark:border-white/5">
           <div className="flex flex-col items-center text-center gap-1.5">
-            
-            {/* Step Caption label */}
-            <div className="flex items-center gap-2 select-none">
+            <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-              <span className="text-[9px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest font-mono">
+              <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider font-mono">
                 {captionText}
               </span>
             </div>
-
-            {/* Step speech text description */}
             <AnimatePresence mode="wait">
               <motion.p
                 key={currentStepIdx}
-                initial={{ opacity: 0, y: 5 }}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.2 }}
-                className="text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed max-w-xl font-medium"
+                exit={{ opacity: 0, y: -4 }}
+                className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium max-w-lg"
               >
                 {speechText}
               </motion.p>
             </AnimatePresence>
-
           </div>
         </div>
       )}

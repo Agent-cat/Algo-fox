@@ -44,12 +44,12 @@ function formatTimeLeft(seconds: number): string {
 function PlatformLogo({ platform }: { platform: string }) {
   const src = PLATFORM_LOGOS[platform];
   if (src) {
-    return <img src={src} alt={platform} className="w-8 h-8 lg:w-5.5 lg:h-5.5 xl:w-6.5 xl:h-6.5 2xl:w-8 2xl:h-8 rounded-lg object-contain" />;
+    return <img src={src} alt={platform} className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-5.5 lg:h-5.5 xl:w-6.5 xl:h-6.5 2xl:w-8 2xl:h-8 rounded-md sm:rounded-lg object-contain" />;
   }
   // Algo-fox internal
   return (
-    <div className="w-8 h-8 lg:w-5.5 lg:h-5.5 xl:w-6.5 xl:h-6.5 2xl:w-8 2xl:h-8 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center">
-      <Trophy className="w-4 h-4 lg:w-2.5 lg:h-2.5 xl:w-3.5 xl:h-3.5 text-orange-500" />
+    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-5.5 lg:h-5.5 xl:w-6.5 xl:h-6.5 2xl:w-8 2xl:h-8 rounded-md sm:rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center">
+      <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-2.5 lg:h-2.5 xl:w-3.5 xl:h-3.5 text-orange-500" />
     </div>
   );
 }
@@ -83,7 +83,7 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
   const isInternalContest = contest.platform === "Algo-fox";
 
   return (
-    <div className="flex items-center gap-3 lg:gap-1.5 xl:gap-2 p-3 lg:p-1.5 xl:p-2.5 2xl:p-3 rounded-2xl bg-[#FAFAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 transition-all">
+    <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-1.5 xl:gap-2 p-2 sm:p-2.5 md:p-3 lg:p-1.5 xl:p-2.5 2xl:p-3 rounded-xl sm:rounded-2xl bg-[#FAFAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 transition-all">
       {/* Platform logo */}
       <div className="shrink-0">
         <PlatformLogo platform={contest.platform} />
@@ -92,17 +92,17 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Top row: LIVE badge + name */}
-        <div className="flex items-center gap-2 lg:gap-1 mb-0.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 mb-0.5">
           {isLive && (
-            <span className="inline-flex items-center gap-1 px-1 py-0.5 lg:px-0.5 lg:py-0 rounded text-[10px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] font-bold bg-red-500 text-white uppercase tracking-wide shrink-0">
-              <span className="w-1.5 h-1.5 lg:w-1 lg:h-1 rounded-full bg-white animate-pulse inline-block" />
+            <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1 py-0.5 sm:px-1 sm:py-0.5 lg:px-0.5 lg:py-0 rounded text-[8px] sm:text-[9px] md:text-[10px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] font-bold bg-red-500 text-white uppercase tracking-wide shrink-0">
+              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-1 lg:h-1 rounded-full bg-white animate-pulse inline-block" />
               Live
             </span>
           )}
           {isInternalContest ? (
             <Link
               href={contest.url}
-              className="text-[13px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight hover:text-orange-500 hover:underline hover:underline-offset-2 transition-colors"
+              className="text-[11px] sm:text-[12px] md:text-[13px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight hover:text-orange-500 hover:underline hover:underline-offset-2 transition-colors"
             >
               {contest.name}
             </Link>
@@ -111,7 +111,7 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
               href={contest.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[13px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight hover:text-orange-500 hover:underline hover:underline-offset-2 transition-colors"
+              className="text-[11px] sm:text-[12px] md:text-[13px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight hover:text-orange-500 hover:underline hover:underline-offset-2 transition-colors"
             >
               {contest.name}
             </a>
@@ -119,24 +119,24 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
         </div>
 
         {/* Time */}
-        <p className="text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] text-gray-400 dark:text-gray-500 mb-0.5">
+        <p className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] text-gray-400 dark:text-gray-500 mb-0.5">
           {dayLabel}, {timeLabel} – {endLabel}
         </p>
 
         {/* Time remaining */}
-        <p className={`text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] font-bold ${isLive ? "text-red-500" : "text-gray-400 dark:text-gray-500"}`}>
+        <p className={`text-[9px] sm:text-[10px] md:text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] font-bold ${isLive ? "text-red-500" : "text-gray-400 dark:text-gray-500"}`}>
           {mounted ? formatTimeLeft(secondsLeft) : "..."}
         </p>
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-col gap-2 lg:gap-1 shrink-0 items-end">
+      <div className="flex flex-col gap-1 sm:gap-1.5 lg:gap-1 shrink-0 items-end">
         {/* Join / View */}
         {isLive && (
           isInternalContest ? (
             <Link
               href={contest.url}
-              className="px-3 py-1.5 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-3 2xl:py-1.5 rounded-lg text-[11px] lg:text-[8.5px] xl:text-[10px] 2xl:text-[11px] font-bold bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
+              className="px-2 py-1 sm:px-2.5 sm:py-1 md:px-3 md:py-1.5 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-3 2xl:py-1.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] md:text-[11px] lg:text-[8.5px] xl:text-[10px] 2xl:text-[11px] font-bold bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
             >
               Join
             </Link>
@@ -145,7 +145,7 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
               href={contest.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-3 2xl:py-1.5 rounded-lg text-[11px] lg:text-[8.5px] xl:text-[10px] 2xl:text-[11px] font-bold bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
+              className="px-2 py-1 sm:px-2.5 sm:py-1 md:px-3 md:py-1.5 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-3 2xl:py-1.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] md:text-[11px] lg:text-[8.5px] xl:text-[10px] 2xl:text-[11px] font-bold bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
             >
               Join
             </a>
@@ -158,10 +158,11 @@ function ContestCard({ contest }: { contest: ContestEvent }) {
           target="_blank"
           rel="noopener noreferrer"
           title="Add to Google Calendar"
-          className="flex items-center gap-1.5 lg:gap-0.5 px-2.5 py-1 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-2.5 2xl:py-1 rounded-lg text-[10px] lg:text-[7.5px] xl:text-[8.5px] 2xl:text-[10px] font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all whitespace-nowrap"
+          className="flex items-center gap-1 sm:gap-1.5 lg:gap-0.5 px-2 py-0.5 sm:px-2.5 sm:py-1 lg:px-1 lg:py-0.5 xl:px-1.5 xl:py-0.5 2xl:px-2.5 2xl:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[9px] md:text-[10px] lg:text-[7.5px] xl:text-[8.5px] 2xl:text-[10px] font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all whitespace-nowrap"
         >
-          <CalendarPlus className="w-3 h-3 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5" />
-          <span>Add to Cal</span>
+          <CalendarPlus className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5" />
+          <span className="hidden sm:inline">Add to Cal</span>
+          <span className="sm:hidden">+</span>
         </a>
       </div>
     </div>
@@ -173,22 +174,22 @@ export function UpcomingContestsWidget({ contests }: UpcomingContestsWidgetProps
   const topTwo = contests.slice(0, 2);
 
   return (
-    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-3xl p-5 lg:p-2.5 xl:p-3.5 2xl:p-5 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 shadow-sm">
+    <div className="bg-[#FDFDFD] dark:bg-[#202227] rounded-2xl sm:rounded-3xl p-3 sm:p-4 lg:p-2.5 xl:p-3.5 2xl:p-5 w-full flex flex-col border-2 border-dotted border-gray-300 dark:border-white/20 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 lg:mb-2 xl:mb-3">
-        <h2 className="text-[15px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[15px] font-bold text-gray-900 dark:text-white">Upcoming Contests</h2>
+      <div className="flex items-center justify-between mb-2.5 sm:mb-3 md:mb-4 lg:mb-2 xl:mb-3">
+        <h2 className="text-[12px] sm:text-[13px] md:text-[15px] lg:text-[10.5px] xl:text-[12px] 2xl:text-[15px] font-bold text-gray-900 dark:text-white">Upcoming Contests</h2>
         <a
           href="/contests?view=global"
-          className="text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+          className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[8.5px] xl:text-[9.5px] 2xl:text-[11px] font-semibold text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
         >
           View All
         </a>
       </div>
 
       {/* Contest cards */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:gap-2.5 lg:gap-3">
         {topTwo.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">No upcoming contests</p>
+          <p className="text-xs sm:text-sm text-gray-400 text-center py-3 sm:py-4">No upcoming contests</p>
         ) : (
           topTwo.map((contest) => <ContestCard key={contest.id} contest={contest} />)
         )}
