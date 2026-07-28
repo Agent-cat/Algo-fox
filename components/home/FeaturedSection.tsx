@@ -70,14 +70,14 @@ export function FeaturedSection({ banners }: FeaturedSectionProps) {
       {/* Scrollable Container */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto no-scrollbar w-full shrink-0 pb-1 scroll-smooth"
+        className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto no-scrollbar w-full shrink-0 pb-1 scroll-smooth"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {banners.map((banner) => (
           <Link
             key={banner.id}
             href={banner.redirectUrl}
-            className="relative block aspect-[16/9] w-[240px] lg:w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
+            className="relative block aspect-[16/9] w-[160px] sm:w-[200px] md:w-[240px] lg:w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shadow-sm hover:shadow-lg hover:shadow-orange-200/40 dark:hover:shadow-orange-900/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 ease-out cursor-pointer"
           >
             <img
               src={banner.imageUrl}
@@ -92,23 +92,23 @@ export function FeaturedSection({ banners }: FeaturedSectionProps) {
       {/* Left button */}
       <button
         onClick={() => handleScroll("left")}
-        className={`absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/70 dark:bg-[#1D1E23]/70 hover:bg-white/95 dark:hover:bg-[#1D1E23]/95 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer ${
+        className={`absolute left-1.5 sm:left-2 md:left-2.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-white/70 dark:bg-[#1D1E23]/70 hover:bg-white/95 dark:hover:bg-[#1D1E23]/95 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer ${
           isHovered && showLeft ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
         }`}
         aria-label="Scroll left"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
       </button>
 
       {/* Right button */}
       <button
         onClick={() => handleScroll("right")}
-        className={`absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/70 dark:bg-[#1D1E23]/70 hover:bg-white/95 dark:hover:bg-[#1D1E23]/95 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer ${
+        className={`absolute right-1.5 sm:right-2 md:right-2.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-white/70 dark:bg-[#1D1E23]/70 hover:bg-white/95 dark:hover:bg-[#1D1E23]/95 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 shadow-md backdrop-blur-sm flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer ${
           isHovered && showRight ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
         }`}
         aria-label="Scroll right"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
       </button>
     </div>
   );
