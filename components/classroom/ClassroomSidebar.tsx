@@ -9,6 +9,7 @@ import {
     LdAltArrowRight
 } from "solar-icon-react/ld";
 import { Info, Copy, Check } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface SidebarProps {
     activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance';
@@ -58,28 +59,29 @@ export function ClassroomSidebar({
             id: string;
             label: string;
             icon: any;
+            description: string;
             onClick?: () => void;
         }[]
     }[] = [
         {
             label: "Classroom Hub",
             items: [
-                { id: 'leaderboard', label: 'Leaderboard', icon: LdCupStar },
-                { id: 'assignments', label: 'Assignments', icon: LdClipboardList },
+                { id: 'leaderboard', label: 'Leaderboard', icon: LdCupStar, description: 'View student rankings sorted by total points and track individual progress.' },
+                { id: 'assignments', label: 'Assignments', icon: LdClipboardList, description: 'View and manage all classroom assignments with due dates and submission status.' },
             ]
         },
         ...(isTeacher ? [{
             label: "Monitoring",
             items: [
-                { id: 'tracking', label: 'Live Tracking', icon: LdWidget },
-                { id: 'performance', label: 'Performance Reports', icon: LdDiploma }
+                { id: 'tracking', label: 'Live Tracking', icon: LdWidget, description: 'Monitor real-time student activity, submission status, and acceptance rates.' },
+                { id: 'performance', label: 'Performance Reports', icon: LdDiploma, description: 'Analyze contest performance across all students and export detailed reports.' }
             ]
         }] : []),
         ...(showDownload ? [{
             label: "Data Management",
             items: [
-                { id: 'download', label: 'Leaderboard Export', icon: LdDatabase, onClick: onDownload },
-                { id: 'progress-download', label: 'Detailed Progress', icon: LdDatabase, onClick: onProgressDownload }
+                { id: 'download', label: 'Leaderboard Export', icon: LdDatabase, description: 'Export student rankings and scores as a CSV file.', onClick: onDownload },
+                { id: 'progress-download', label: 'Detailed Progress', icon: LdDatabase, description: 'Download a detailed progress report with individual student data.', onClick: onProgressDownload }
             ]
         }] : [])
     ];
@@ -185,29 +187,37 @@ export function ClassroomSidebar({
                                         const active = activeTab === item.id;
                                         
                                         return (
-                                            <button
-                                                key={item.id}
-                                                tabIndex={isOpen ? undefined : -1}
-                                                onClick={item.onClick ? item.onClick : () => onTabChange(item.id as any)}
-                                                className={[
-                                                    "w-full relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group text-left",
-                                                    active && !item.onClick
-                                                        ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
-                                                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200",
-                                                ].join(" ")}
-                                            >
-                                                <Icon
-                                                    className={[
-                                                        "flex-shrink-0 w-[18px] h-[18px] transition-colors",
-                                                        active && !item.onClick
-                                                            ? "text-gray-900 dark:text-white"
-                                                            : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300",
-                                                    ].join(" ")}
-                                                />
-                                                <span className="text-[14.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
-                                                    {item.label}
-                                                </span>
-                                            </button>
+                                            <TooltipProvider key={item.id} delayDuration={300}>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <button
+                                                            tabIndex={isOpen ? undefined : -1}
+                                                            onClick={item.onClick ? item.onClick : () => onTabChange(item.id as any)}
+                                                            className={[
+                                                                "w-full relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group text-left",
+                                                                active && !item.onClick
+                                                                    ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
+                                                                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200",
+                                                            ].join(" ")}
+                                                        >
+                                                            <Icon
+                                                                className={[
+                                                                    "flex-shrink-0 w-[18px] h-[18px] transition-colors",
+                                                                    active && !item.onClick
+                                                                        ? "text-gray-900 dark:text-white"
+                                                                        : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300",
+                                                                ].join(" ")}
+                                                            />
+                                                            <span className="text-[14.5px] whitespace-nowrap overflow-hidden font-medium opacity-100">
+                                                                {item.label}
+                                                            </span>
+                                                        </button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="right" className="bg-gray-900 dark:bg-white/90 text-white dark:text-gray-900 max-w-[200px] text-[11px] font-medium">
+                                                        {item.description}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                         );
                                     })}
                                 </div>

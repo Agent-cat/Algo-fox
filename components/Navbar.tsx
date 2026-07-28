@@ -215,7 +215,7 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
                       {isTeacher && (
                         <>
                           <DropdownLink href="/dashboard/teacher/classrooms" close={() => setIsDropdownOpen(false)}>Teacher Dashboard</DropdownLink>
-                          <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>⚡ Quizzes</DropdownLink>
+                          <DropdownLink href="/dashboard/teacher/quiz" close={() => setIsDropdownOpen(false)} accent>Quizzes</DropdownLink>
                         </>
                       )}
                       {isInstitutionManager && (
