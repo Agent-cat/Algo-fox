@@ -22,7 +22,7 @@ interface NavbarProps {
 
 export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarProps = {}) {
   const { data: clientSession, isPending } = authClient.useSession();
-  const { sidebarWidth, expanded, toggle, isDragging, isForceCollapsed, toggleMobileDrawer } = useSidebar();
+  const { sidebarWidth, expanded, toggle, isDragging, isForceCollapsed, isMobile, toggleMobileDrawer } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const session = !mounted || isPending ? initialSession : clientSession;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -66,7 +66,7 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
   const isPlacementDirector = userRole === "PLACEMENT_DIRECTOR";
   const isImpersonating = !!session?.session?.impersonatedBy;
 
-  const currentWidth = session?.user ? (mounted ? sidebarWidth : EXPANDED_WIDTH) : 0;
+  const currentWidth = isMobile ? 0 : (session?.user ? (mounted ? sidebarWidth : EXPANDED_WIDTH) : 0);
   const isExpanded = mounted ? expanded : true;
 
   return (

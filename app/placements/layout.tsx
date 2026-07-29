@@ -5,7 +5,7 @@ import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 import Sidebar from "@/components/Sidebar";
 
 function PlacementsLayoutContent({ children }: { children: React.ReactNode }) {
-    const { sidebarWidth, isDragging } = useSidebar();
+    const { sidebarWidth, isDragging, isMobile } = useSidebar();
     
     return (
         <div 
@@ -13,7 +13,7 @@ function PlacementsLayoutContent({ children }: { children: React.ReactNode }) {
                 "h-screen bg-[#fafafa] dark:bg-[#1D1E23] font-sans flex flex-col overflow-hidden",
                 !isDragging && "transition-[margin-left] duration-300 ease-in-out"
             ].filter(Boolean).join(" ")}
-            style={{ marginLeft: sidebarWidth }}
+            style={{ marginLeft: isMobile ? 0 : sidebarWidth }}
         >
             <Navbar />
             

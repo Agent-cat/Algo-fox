@@ -11,7 +11,7 @@ export function PlacementDashboardContent({
     children: React.ReactNode;
     session: any;
 }) {
-    const { sidebarWidth, isDragging } = useSidebar();
+    const { sidebarWidth, isDragging, isMobile } = useSidebar();
     
     return (
         <div 
@@ -19,7 +19,7 @@ export function PlacementDashboardContent({
                 "h-screen bg-[#fafafa] dark:bg-[#1D1E23] font-sans flex flex-col overflow-hidden",
                 !isDragging && "transition-[margin-left] duration-300 ease-in-out"
             ].filter(Boolean).join(" ")}
-            style={{ marginLeft: sidebarWidth }}
+            style={{ marginLeft: isMobile ? 0 : sidebarWidth }}
         >
             <Navbar initialSession={session} />
             
