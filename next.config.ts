@@ -133,7 +133,7 @@ const nextConfig: NextConfig = {
           // Restrict browser feature access
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=()',
+            value: 'camera=(self), microphone=(), geolocation=(), payment=()',
           },
           // CSP: allow Next.js inline scripts + our trusted sources
           // 'unsafe-inline' is required for Next.js hydration scripts
@@ -146,7 +146,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.amazonaws.com https://www.codechef.com https://codeforces.org https://assets.leetcode.com https://cdn.simpleicons.org https://unpkg.com",
               "font-src 'self' data: https://cdn.jsdelivr.net https://unpkg.com",
               "worker-src blob: 'self'",
-              "connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://leetcode.com https://codeforces.com https://www.codechef.com https://api.github.com https://unpkg.com",
+              "connect-src 'self' ws: wss: blob: https://cdn.jsdelivr.net https://storage.googleapis.com https://tfhub.dev https://raw.githubusercontent.com https://fonts.googleapis.com https://www.kaggle.com https://leetcode.com https://codeforces.com https://www.codechef.com https://api.github.com https://unpkg.com",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
