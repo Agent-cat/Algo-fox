@@ -79,21 +79,28 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
         !isDragging && "transition-[padding-left] duration-300 ease-in-out"
       ].filter(Boolean).join(" ")}
     >
-      {/* Sidebar close button — positioned on top of the sidebar */}
+      {/* Sidebar brand logo — positioned on top of the sidebar */}
       {session?.user && !isMobile && !isForceCollapsed && (
-        <button
-          onClick={toggle}
-          aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+        <Link
+          href="/home"
+          aria-label="AlgoFox Home"
           className={[
-            "absolute top-0 left-0 z-50 h-16 w-[var(--btn-width)] flex items-center justify-center bg-[#fafafa] dark:bg-[#1D1E23] border-b-2 border-r-2 border-dotted border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200",
+            "absolute top-0 left-0 z-50 h-16 w-[var(--btn-width)] flex items-center gap-3 bg-[#fafafa] dark:bg-[#1D1E23] border-b-2 border-r-2 border-dotted border-gray-300 dark:border-white/20 hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-200 px-5 min-w-0 group",
             isImpersonating ? "top-10" : "top-0",
           ].join(" ")}
           style={{ "--btn-width": `${currentWidth}px` } as React.CSSProperties}
         >
-          {isExpanded
-            ? <PanelLeftClose className="w-[18px] h-[18px]" />
-            : <PanelLeft className="w-[18px] h-[18px]" />}
-        </button>
+          <Image
+            src="/icons/fox.png"
+            alt="AlgoFox"
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain rounded-xl flex-shrink-0"
+          />
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight truncate transition-opacity duration-300">
+            AlgoFox
+          </span>
+        </Link>
       )}
 
       {/* Single row — items-center keeps everything on one line */}
@@ -113,7 +120,15 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
           )}
 
           {session?.user ? (
-            <div className="hidden md:block w-9 h-9" />
+            <button
+              onClick={toggle}
+              aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+              className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all"
+            >
+              {isExpanded
+                ? <PanelLeftClose className="w-[18px] h-[18px]" />
+                : <PanelLeft className="w-[18px] h-[18px]" />}
+            </button>
           ) : (
             <Link href="/" className="flex items-center gap-2 min-w-0 group flex-shrink-0 select-none">
               <Image
