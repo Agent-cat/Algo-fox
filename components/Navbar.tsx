@@ -71,18 +71,35 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
 
   return (
     <nav
-      style={{ left: currentWidth }}
+      style={{ left: 0, paddingLeft: currentWidth }}
       className={[
         // Fixed height h-16 always — overflow-hidden ensures nothing can push it taller
         "fixed right-0 z-50 h-16 bg-[#fafafa] dark:bg-[#1D1E23] backdrop-blur-md border-b-2 border-dotted border-gray-300 dark:border-white/20 font-navbar",
         isImpersonating ? "top-10" : "top-0",
-        !isDragging && "transition-[left] duration-300 ease-in-out"
+        !isDragging && "transition-[padding-left] duration-300 ease-in-out"
       ].filter(Boolean).join(" ")}
     >
+      {/* Sidebar close button — positioned on top of the sidebar */}
+      {session?.user && !isMobile && !isForceCollapsed && (
+        <button
+          onClick={toggle}
+          aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+          className={[
+            "absolute top-0 left-0 z-50 h-16 w-[var(--btn-width)] flex items-center justify-center bg-[#fafafa] dark:bg-[#1D1E23] border-b-2 border-r-2 border-dotted border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200",
+            isImpersonating ? "top-10" : "top-0",
+          ].join(" ")}
+          style={{ "--btn-width": `${currentWidth}px` } as React.CSSProperties}
+        >
+          {isExpanded
+            ? <PanelLeftClose className="w-[18px] h-[18px]" />
+            : <PanelLeft className="w-[18px] h-[18px]" />}
+        </button>
+      )}
+
       {/* Single row — items-center keeps everything on one line */}
       <div className="h-full px-2 sm:px-3 lg:px-4 flex items-center justify-between gap-2 sm:gap-3 lg:gap-4 min-w-0">
 
-        {/* LEFT: sidebar toggle / brand logo / mobile menu */}
+        {/* LEFT: brand logo / mobile menu */}
         <div className="flex items-center gap-1.5 shrink-0 min-w-0">
           {/* Mobile hamburger — only shown when sidebar is hidden on mobile */}
           {session?.user && (
@@ -96,19 +113,7 @@ export default function Navbar({ initialSession, onMobileMenuToggle }: NavbarPro
           )}
 
           {session?.user ? (
-            !isForceCollapsed ? (
-              <button
-                onClick={toggle}
-                aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-                className="hidden md:flex flex-shrink-0 w-9 h-9 items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200"
-              >
-                {isExpanded
-                  ? <PanelLeftClose className="w-[18px] h-[18px]" />
-                  : <PanelLeft className="w-[18px] h-[18px]" />}
-              </button>
-            ) : (
-              <div className="hidden md:block w-9 h-9" />
-            )
+            <div className="hidden md:block w-9 h-9" />
           ) : (
             <Link href="/" className="flex items-center gap-2 min-w-0 group flex-shrink-0 select-none">
               <Image

@@ -4,7 +4,7 @@ import { getContestDetail } from "@/actions/contest";
 import { notFound, redirect } from "next/navigation";
 import WorkspaceClientWrapper from "@/components/workspace/WorkspaceClientWrapper";
 import { prisma } from "@/lib/prisma";
-import { Laptop2 } from "lucide-react";
+
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import ConceptViewer from "@/components/problems/ConceptViewer";
@@ -207,74 +207,38 @@ async function ProblemContentWithParams({
 
   if (problem.domain === "APTITUDE") {
     return (
-      <>
-        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#1D1E23] relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="relative z-10 space-y-6">
-            <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
-              <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
-              <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
-                The aptitude practice workspace is optimized for desktop. Please open this on a larger screen for the best experience.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="hidden md:block">
-        <AptitudeWorkspaceClientWrapper
-          problem={problem}
-          isSolved={isSolved}
-          contestId={contestData?.id || contestId}
-          contest={contestData}
-          solvedProblemIds={solvedProblemIds}
-          nextProblemSlug={nextProblemSlug}
-          prevProblemSlug={prevProblemSlug}
-          courseId={activeCourseId}
-          courseName={courseName}
-          courseSlug={courseSlug}
-          totalCourseProblems={totalCourseProblems}
-          currentCourseProblemIndex={currentCourseProblemIndex}
-        />
-      </div>
-    </>
-  );
-}
+      <AptitudeWorkspaceClientWrapper
+        problem={problem}
+        isSolved={isSolved}
+        contestId={contestData?.id || contestId}
+        contest={contestData}
+        solvedProblemIds={solvedProblemIds}
+        nextProblemSlug={nextProblemSlug}
+        prevProblemSlug={prevProblemSlug}
+        courseId={activeCourseId}
+        courseName={courseName}
+        courseSlug={courseSlug}
+        totalCourseProblems={totalCourseProblems}
+        currentCourseProblemIndex={currentCourseProblemIndex}
+      />
+    );
+  }
   if (problem.domain === "DSA" || problem.domain === "SQL" || problem.domain === "WEBDEV" || problem.domain === "OOPS") {
     return (
-      <>
-        <div className="md:hidden flex flex-col items-center justify-center min-h-screen p-8 text-center bg-gray-50 dark:bg-[#1D1E23] relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="relative z-10 space-y-6">
-            <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/15 rounded-2xl flex items-center justify-center mx-auto border border-orange-200 dark:border-orange-500/30">
-              <Laptop2 className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Desktop Required</h1>
-              <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-sm leading-relaxed">
-                For the best coding experience, please open this problem on a desktop or laptop device.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="hidden md:block">
-          <WorkspaceClientWrapper
-            problem={problem}
-            isSolved={isSolved}
-            contestId={contestData?.id || contestId}
-            contest={contestData}
-            solvedProblemIds={solvedProblemIds}
-            nextProblemSlug={nextProblemSlug}
-            prevProblemSlug={prevProblemSlug}
-            courseId={activeCourseId}
-            courseName={courseName}
-            courseSlug={courseSlug}
-            totalCourseProblems={totalCourseProblems}
-            currentCourseProblemIndex={currentCourseProblemIndex}
-          />
-        </div>
-      </>
+      <WorkspaceClientWrapper
+        problem={problem}
+        isSolved={isSolved}
+        contestId={contestData?.id || contestId}
+        contest={contestData}
+        solvedProblemIds={solvedProblemIds}
+        nextProblemSlug={nextProblemSlug}
+        prevProblemSlug={prevProblemSlug}
+        courseId={activeCourseId}
+        courseName={courseName}
+        courseSlug={courseSlug}
+        totalCourseProblems={totalCourseProblems}
+        currentCourseProblemIndex={currentCourseProblemIndex}
+      />
     );
   }
 
