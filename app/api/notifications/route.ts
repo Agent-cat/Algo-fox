@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    await headers();
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "5", 10);
     const cursor = searchParams.get("cursor");

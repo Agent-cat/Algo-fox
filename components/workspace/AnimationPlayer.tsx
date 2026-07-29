@@ -151,72 +151,48 @@ export default function AnimationPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [voiceNarration, setVoiceNarration] = useState(true);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
-  const voicesLoadedRef = useRef(false);
-  const pendingUtteranceRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [swapIndices, setSwapIndices] = useState<[number, number] | null>(null);
   const prevArrayRef = useRef<any[] | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const synth = window.speechSynthesis;
-    synthRef.current = synth;
-
-    const loadVoices = () => {
-      const voices = synth.getVoices();
-      if (voices.length > 0) {
-        voicesLoadedRef.current = true;
-        if (pendingUtteranceRef.current) {
-          speakText(pendingUtteranceRef.current);
-          pendingUtteranceRef.current = null;
-        }
-      }
-    };
-
-    loadVoices();
-    synth.onvoiceschanged = loadVoices;
-
     return () => {
-      synth.cancel();
-      synth.onvoiceschanged = null;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, []);
 
-  const speakText = useCallback((text: string) => {
-    if (!voiceNarration) return;
-    if (typeof window === "undefined") return;
+  const speakText = useCallback(async (text: string): Promise<void> => {
+    if (!voiceNarration || typeof window === "undefined") return;
 
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-
-    synth.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
 
     if (!text || text.trim().length === 0) return;
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-
-    const voices = synth.getVoices();
-    if (voices.length > 0) {
-      const englishVoice = voices.find(
-        (v) => v.lang.startsWith("en") && v.localService
-      ) || voices.find(
-        (v) => v.lang.startsWith("en")
-      ) || voices[0];
-      if (englishVoice) {
-        utterance.voice = englishVoice;
-      }
-    }
-
     try {
-      synth.speak(utterance);
+      const ttsUrl = `/api/tts?text=${encodeURIComponent(text)}&_t=${Date.now()}`;
+
+      const audio = new Audio(ttsUrl);
+      audioRef.current = audio;
+      audio.volume = 1.0;
+      audio.onerror = () => {
+        console.warn("[TTS] audio error code:", audio.error?.code, "msg:", audio.error?.message);
+      };
+
+      await new Promise<void>((resolve) => {
+        audio.onended = () => resolve();
+        audio.onerror = () => resolve();
+        audio.load();
+        audio.play().catch(() => resolve());
+      });
     } catch (err) {
-      console.warn("Speech synthesis failed:", err);
+      console.warn("Google TTS fetch failed:", err);
     }
   }, [voiceNarration]);
 
@@ -358,33 +334,57 @@ export default function AnimationPlayer({
     }
   }, [currentStepIdx, currentStep]);
 
-  // Autoplay progression effect
+  // Autoplay: advance step by step, waiting for narration to finish
   useEffect(() => {
-    if (isPlaying && script && script.steps) {
-      const stepDuration = Math.max(2000 / playbackSpeed, 2500 / playbackSpeed);
-      timerRef.current = setTimeout(() => {
-        if (currentStepIdx < script.steps.length - 1) {
-          setCurrentStepIdx((prev) => prev + 1);
-        } else {
-          setIsPlaying(false);
-        }
-      }, stepDuration);
-    }
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+    if (!isPlaying || !script || !script.steps) return;
+
+    const speech = currentStep?.speech || currentStep?.caption || "";
+
+    const advance = async () => {
+      if (voiceNarration && speech) {
+        await speakText(speech);
+      } else {
+        await new Promise((r) => setTimeout(r, Math.max(2000 / playbackSpeed, 2500 / playbackSpeed)));
+      }
+
+      if (!isPlaying) return;
+
+      if (currentStepIdx < script.steps.length - 1) {
+        setCurrentStepIdx((prev) => prev + 1);
+      } else {
+        setIsPlaying(false);
+      }
     };
-  }, [isPlaying, currentStepIdx, script, playbackSpeed]);
 
-  // Narrate on step change
-  useEffect(() => {
-    if (currentStep && voiceNarration) {
-      speakText(currentStep.speech || currentStep.caption || "");
+    advance();
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [isPlaying, currentStepIdx, script, playbackSpeed, voiceNarration, speakText]);
+
+  // No narration on manual step changes — narration only happens during autoplay
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setIsPlaying(false);
+    } else {
+      setIsPlaying(true);
     }
-  }, [currentStepIdx, currentStep, voiceNarration]);
-
-  const handlePlayPause = () => setIsPlaying(!isPlaying);
+  };
 
   const handleNext = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setIsPlaying(false);
     if (script && currentStepIdx < script.steps.length - 1) {
       setCurrentStepIdx((prev) => prev + 1);
@@ -392,6 +392,10 @@ export default function AnimationPlayer({
   };
 
   const handleBack = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setIsPlaying(false);
     if (currentStepIdx > 0) {
       setCurrentStepIdx((prev) => prev - 1);
@@ -401,8 +405,9 @@ export default function AnimationPlayer({
   const handleReset = () => {
     setIsPlaying(false);
     setCurrentStepIdx(0);
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
     }
   };
 
