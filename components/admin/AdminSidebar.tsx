@@ -70,7 +70,7 @@ const ADMIN_SECTIONS = [
   }
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const pathname = usePathname();
   
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -129,6 +129,7 @@ export default function AdminSidebar() {
                         key={item.href}
                         href={item.href}
                         tabIndex={isOpen ? undefined : -1}
+                        onClick={onNavigate}
                         className={[
                           "relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group",
                           active

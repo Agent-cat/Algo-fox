@@ -137,7 +137,7 @@ export function ProblemOverviewCard({
     }, [activeTab, checkScroll]);
 
     return (
-        <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-6 hover:shadow-lg transition-all flex flex-col h-[500px]">
+        <div className="bg-[#fafafa] dark:bg-[#1D1E23] rounded-3xl border-2 border-dotted border-gray-300 dark:border-white/20 p-4 sm:p-6 hover:shadow-lg transition-all flex flex-col h-auto sm:h-[500px]">
              {/* Header Section */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                 <div className="flex items-center gap-3">
@@ -407,7 +407,7 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
     };
 
      return (
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 h-full pb-4" onMouseMove={handleMouseMove}>
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 sm:gap-8 h-full pb-4 overflow-hidden" onMouseMove={handleMouseMove}>
              <div className="w-full md:w-1/3 flex flex-col justify-center h-full">
                 <div className="space-y-4">
                     <StatRow color="bg-green-500" label="Easy" value={easyCount} total={totalProblems.EASY} onHoverChange={(h) => setHoveredBreakdown(h ? solvedByDifficulty.EASY.breakdown : null)} />
@@ -429,7 +429,7 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
             </div>
 
             <div className="relative flex-1 flex items-center justify-center h-full" onMouseMove={handleMouseMove}>
-                <div className="relative w-56 h-56 md:w-64 md:h-64">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64">
                     <CircularProgress
                         solved={calculatedSolved}
                         total={total}
@@ -441,7 +441,7 @@ function OverviewView({ solvedByDifficulty, totalProblems, contestStats }: any) 
                         onHoverHard={(h: boolean) => setHoveredBreakdown(h ? solvedByDifficulty.HARD.breakdown : null)}
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">{percentage}%</span>
+                        <span className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">{percentage}%</span>
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Practice</span>
                     </div>
                 </div>

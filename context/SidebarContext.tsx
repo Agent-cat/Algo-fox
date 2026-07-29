@@ -20,6 +20,7 @@ interface SidebarContextValue {
   isDragging: boolean;
   setIsDragging: (v: boolean) => void;
   isForceCollapsed: boolean;
+  isMobile: boolean;
   isMobileDrawerOpen: boolean;
   toggleMobileDrawer: () => void;
   closeMobileDrawer: () => void;
@@ -33,6 +34,7 @@ const SidebarContext = createContext<SidebarContextValue>({
   isDragging: false,
   setIsDragging: () => {},
   isForceCollapsed: false,
+  isMobile: false,
   isMobileDrawerOpen: false,
   toggleMobileDrawer: () => {},
   closeMobileDrawer: () => {},
@@ -43,6 +45,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   const [sidebarWidth, setSidebarWidth] = useState(EXPANDED_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Close mobile drawer on route changes
@@ -67,6 +70,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
     if (typeof window !== "undefined") {
       setWindowWidth(window.innerWidth);
+      setIsMobile(window.innerWidth < 1024);
     }
 
     try {
@@ -88,6 +92,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     const handleResize = () => {
       const width = window.innerWidth;
       setWindowWidth(width);
+      setIsMobile(width < 1024);
       const isBelow = width < 1024;
       const isSmall = width >= 1024 && width < 1280;
       const isMedium = width >= 1280 && width < 1536;
@@ -175,6 +180,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
         isDragging,
         setIsDragging,
         isForceCollapsed,
+        isMobile,
         isMobileDrawerOpen,
         toggleMobileDrawer,
         closeMobileDrawer,

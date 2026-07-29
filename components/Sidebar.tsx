@@ -249,9 +249,9 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
   const brandName = institution ? institution.name : "AlgoFox";
 
   const currentWidth = mounted ? sidebarWidth : EXPANDED_WIDTH;
-  const isExpanded = mounted ? expanded : true;
-  const isVeryNarrow = isExpanded && currentWidth < 210;
-  const isNarrow = isExpanded && currentWidth >= 210 && currentWidth < 250;
+  const isExpanded = isMobileDrawerOpen ? true : (mounted ? expanded : true);
+  const isVeryNarrow = isExpanded && currentWidth < 210 && !isMobileDrawerOpen;
+  const isNarrow = isExpanded && currentWidth >= 210 && currentWidth < 250 && !isMobileDrawerOpen;
 
   if (initialSession === null || (initialSession && !initialSession.user)) {
     return null;
@@ -273,7 +273,7 @@ export default function Sidebar({ initialSession }: SidebarProps = {}) {
       )}
 
       <aside
-        style={{ width: currentWidth }}
+        style={{ width: isMobileDrawerOpen ? EXPANDED_WIDTH : currentWidth }}
         className={[
           // Desktop: fixed sidebar using width from context
           // Mobile: drawer that slides in from left at full expanded width, hidden by default

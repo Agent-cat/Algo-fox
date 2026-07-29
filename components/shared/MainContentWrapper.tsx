@@ -23,7 +23,7 @@ export default function MainContentWrapper({
 }: MainContentWrapperProps) {
   const { data } = authClient.useSession();
   const session = data as BetterAuthSession;
-  const { sidebarWidth, isDragging } = useSidebar();
+  const { sidebarWidth, isDragging, isMobile } = useSidebar();
   const [mounted, setMounted] = useState(false);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -38,7 +38,7 @@ export default function MainContentWrapper({
   return (
     <div
       style={{
-        marginLeft: hasUser ? sidebarWidth : 0,
+        marginLeft: hasUser && !isMobile ? sidebarWidth : 0,
         ...({ "--content-height": contentHeight } as React.CSSProperties),
       }}
       className={[

@@ -6,7 +6,7 @@ import { ClassroomSidebar } from "./ClassroomSidebar";
 import { ClassroomLeaderboard } from "./ClassroomLeaderboard";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, ChevronRight, Copy, Check } from "lucide-react";
+import { ArrowLeft, ChevronRight, Copy, Check, Menu, X } from "lucide-react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import DownloadProgressModal from "@/components/problems/DownloadProgressModal";
@@ -60,6 +60,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
     const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments' | 'performance'>('leaderboard');
     const [isCopied, setIsCopied] = useState(false);
     const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const { data: session } = authClient.useSession();
     const isTeacher = classroom.teacher.id === currentUserId;
 
@@ -102,11 +103,34 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
 
     return (
         <div className="flex min-h-[calc(100vh-4rem)] bg-[#fafafa] dark:bg-[#1D1E23]">
+             {/* Mobile sidebar toggle */}
              {isTeacher && (
-                <aside className="w-64 shrink-0 border-r border-gray-200 dark:border-white/10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+                    className="lg:hidden fixed bottom-20 left-4 z-[60] w-10 h-10 flex items-center justify-center rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg hover:scale-105 transition-transform"
+                >
+                    {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+             )}
+
+             {/* Mobile backdrop */}
+             {isTeacher && sidebarOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm"
+                    onClick={() => setSidebarOpen(false)}
+                />
+             )}
+
+             {isTeacher && (
+                <aside className={[
+                    "w-64 shrink-0 border-r border-gray-200 dark:border-white/10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar bg-[#fafafa] dark:bg-[#1D1E23]",
+                    "fixed lg:relative z-[56] -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out",
+                    sidebarOpen ? "!translate-x-0" : "",
+                ].join(" ")}>
                     <ClassroomSidebar
                         activeTab={activeTab}
-                        onTabChange={setActiveTab}
+                        onTabChange={(tab) => { setActiveTab(tab); setSidebarOpen(false); }}
                         onDownload={handleDownload}
                         onProgressDownload={() => setIsProgressModalOpen(true)}
                         showDownload={activeTab === 'leaderboard'}

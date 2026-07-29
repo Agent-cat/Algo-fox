@@ -36,11 +36,11 @@ const sidebarItems: SidebarItem[] = [
   { type: "link", name: "Invites", icon: LinkIcon, href: "/dashboard/institution/invites" },
 ];
 
-export default function InstitutionSidebar() {
+export default function InstitutionSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 pt-24 pb-8 z-40 bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-[#262626] overflow-y-auto font-mono scrollbar-hide">
+    <aside className="w-64 h-screen lg:h-[calc(100vh-0rem)] pt-24 pb-8 bg-white dark:bg-[#24262C] border-r border-gray-200 dark:border-[#262626] overflow-y-auto font-mono scrollbar-hide">
       <nav className="px-5 space-y-1">
         {sidebarItems.map((item, index) => {
           if (item.type === "header") {
@@ -60,6 +60,7 @@ export default function InstitutionSidebar() {
             <Link
               key={`link-${index}`}
               href={item.href}
+              onClick={onNavigate}
               className={`
                 flex items-center gap-4 px-3 py-2.5 rounded-lg text-[14.5px] font-medium transition-colors group
                 ${isActive
