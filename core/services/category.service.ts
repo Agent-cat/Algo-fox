@@ -4,8 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ProblemDomain, Difficulty, QuestionType } from "@prisma/client";
 import redis from "@/lib/redis";
 import { scanAndDelete } from "@/lib/redis-utils";
-
-const CACHE_TTL = 300; // 5 minutes
+const CACHE_TTL = 60; // 1 minute cache
 
 // CACHE KEY HELPERS
 const getCategoriesCacheKey = (domain: ProblemDomain, courseId?: string) =>
