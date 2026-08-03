@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SessionConflictModal } from "@/components/auth/SessionConflictModal";
 import FocusBlur from "@/components/FocusBlur";
 import { ImpersonationBanner } from "@/components/auth/ImpersonationBanner";
+import { PageNavigationLoader } from "@/components/shared/PageNavigationLoader";
 import { Suspense } from "react";
 
 const inter = Inter({
@@ -104,7 +105,7 @@ export default function RootLayout({
         <ThemeProvider>
           <Suspense fallback={
             <div className="min-h-screen bg-[#fafafa] dark:bg-[#1D1E23] flex items-center justify-center">
-               <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
             </div>
           }>
             <StreakProvider>
@@ -133,6 +134,7 @@ export default function RootLayout({
               <FocusBlur />
               <ImpersonationBanner />
               <GlobalSearch />
+              <PageNavigationLoader />
               {children}
             </StreakProvider>
           </Suspense>

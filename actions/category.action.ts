@@ -20,15 +20,6 @@ export async function getCategories(domain: ProblemDomain = "DSA", courseId?: st
   const session = await getSession();
   const userId = session?.user?.id;
 
-  return getCachedCategories(domain, userId, courseId);
-}
-
-async function getCachedCategories(domain: ProblemDomain, userId?: string, courseId?: string) {
-  "use cache: private";
-  cacheLife({ stale: 900, revalidate: 900 }); // 15 minutes default
-
-  cacheTag(await getCategoriesTag(domain, courseId, userId), 'categories-list');
-
   return CategoryService.getCategories(domain, userId, courseId);
 }
 
