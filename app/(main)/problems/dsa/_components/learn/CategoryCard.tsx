@@ -101,7 +101,6 @@ export default function CategoryCard({
        console.error("Failed to load category problems:", error);
     } finally {
       setIsLoading(false);
-      setIsInitialLoad(true); // Ensure isInitialLoad is true after first load attempt
       setIsInitialLoad(false);
     }
   }, [id, isLoading, problems, searchTerm]);
