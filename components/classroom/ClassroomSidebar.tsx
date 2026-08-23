@@ -5,6 +5,7 @@ import {
     LdClipboardList, 
     LdWidget, 
     LdDiploma, 
+    LdChart,
     LdDatabase,
     LdAltArrowRight
 } from "solar-icon-react/ld";
@@ -12,8 +13,8 @@ import { Info, Copy, Check } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface SidebarProps {
-    activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance';
-    onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments' | 'performance') => void;
+    activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance' | 'analytics';
+    onTabChange: (tab: 'leaderboard' | 'tracking' | 'assignments' | 'performance' | 'analytics') => void;
     onDownload: () => void;
     onProgressDownload?: () => void;
     showDownload: boolean;
@@ -74,6 +75,7 @@ export function ClassroomSidebar({
             label: "Monitoring",
             items: [
                 { id: 'tracking', label: 'Live Tracking', icon: LdWidget, description: 'Monitor real-time student activity, submission status, and acceptance rates.' },
+                { id: 'analytics', label: 'Analytics', icon: LdChart, description: 'Deep analytics on tag mastery, risk scores, assignments, and contests.' },
                 { id: 'performance', label: 'Performance Reports', icon: LdDiploma, description: 'Analyze contest performance across all students and export detailed reports.' }
             ]
         }] : []),

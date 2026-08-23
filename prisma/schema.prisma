@@ -81,10 +81,11 @@ model User {
   blogPosts             BlogPost[]
   blogUpvotes           BlogUpvote[]
 
-  githubRepo     String?
-  githubSyncMode String?   @default("ACCEPTED_ONLY")
-  githubAutoSync Boolean   @default(true)
-  lastSyncedAt   DateTime?
+  githubRepo         String?
+  githubSyncMode     String?   @default("ACCEPTED_ONLY")
+  githubAutoSync     Boolean   @default(true)
+  lastSyncedAt       DateTime?
+  assignmentProgress AssignmentStudent[]
 
   @@index([collegeId])
   @@index([collegeId, totalScore])
@@ -665,8 +666,29 @@ model Assignment {
   updatedAt   DateTime            @updatedAt
   classroom   Classroom           @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   problems    AssignmentProblem[]
+  students    AssignmentStudent[]
 
   @@index([classroomId])
+}
+
+model AssignmentStudent {
+  id                String                  @id @default(cuid())
+  assignmentId      String
+  userId            String
+  startedAt         DateTime?
+  completedAt       DateTime?
+  status            AssignmentStudentStatus @default(NOT_STARTED)
+  problemsSolved    Int                     @default(0)
+  problemsAttempted Int                     @default(0)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  assignment        Assignment              @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, userId])
+  @@index([userId, assignmentId])
+  @@index([assignmentId, status])
+  @@map("assignment_student")
 }
 
 model AssignmentProblem {
@@ -793,6 +815,13 @@ enum FinishReason {
   TIME_EXPIRED
   ADMIN_TERMINATED
   SYSTEM_AUTO
+}
+
+enum AssignmentStudentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
 }
 
 model DailyStreak {
