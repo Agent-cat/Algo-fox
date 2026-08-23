@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'algofox',
-      script: '.next/standalone/server.js',
+      script: '.next/standalone/Algo-fox/server.js',
       cwd: __dirname,
       instances: 'max',
       exec_mode: 'cluster',
@@ -19,8 +19,8 @@ module.exports = {
     },
     {
       name: 'algofox-worker',
-      script: 'npx',
-      args: 'tsx core/queues/submission.queue.ts',
+      script: 'node_modules/.bin/tsx',
+      args: 'core/queues/submission.queue.ts',
       cwd: __dirname,
       instances: 1,
       exec_mode: 'fork',

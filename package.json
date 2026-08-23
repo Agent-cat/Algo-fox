@@ -84,6 +84,7 @@
     "tldraw": "^5.2.5",
     "unist-util-visit": "^5.1.0",
     "xlsx": "^0.18.5",
+    "tsx": "^4.23.5",
     "zod": "^4.3.4"
   },
   "devDependencies": {
