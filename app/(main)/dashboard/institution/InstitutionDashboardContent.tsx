@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
+import { AIAgentToggle } from "../_components/AIAgentToggle";
 
 interface Stats {
   students: number;
@@ -172,6 +173,8 @@ export function InstitutionDashboardContent({
 
 
       </div>
+
+      <AIAgentToggle />
     </div>
   );
 }

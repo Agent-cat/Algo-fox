@@ -139,6 +139,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       pathname === "/compiler" ||
       pathname === "/admin" ||
       pathname.startsWith("/admin/") ||
+      pathname === "/ai" ||
       pathname === "/placements" ||
       pathname.startsWith("/placements/") ||
       pathname === "/dashboard/settings" ||

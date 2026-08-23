@@ -6,6 +6,7 @@ import { CreateClassroomDialog } from "@/components/classroom/CreateClassroomDia
 import { Search, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageTooltip } from "@/components/shared/PageTooltip";
+import { AIAgentToggle } from "../../_components/AIAgentToggle";
 
 interface TeacherDashboardContentProps {
     classrooms: any[];
@@ -109,6 +110,8 @@ export function TeacherDashboardContent({ classrooms, institutionId }: TeacherDa
                     />
                 )}
             </div>
+
+            <AIAgentToggle />
         </motion.div>
     );
 }

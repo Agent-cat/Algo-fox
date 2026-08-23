@@ -86,6 +86,10 @@ model User {
   githubAutoSync     Boolean   @default(true)
   lastSyncedAt       DateTime?
   assignmentProgress AssignmentStudent[]
+  aiConversations    AIAgentConversation[]
+  aiActions          AIAgentAction[]
+  aiJobs             AIAgentJob[]
+  aiSavedQueries     AISavedQuery[]
 
   @@index([collegeId])
   @@index([collegeId, totalScore])
@@ -382,6 +386,10 @@ model Institution {
   contests          Contest[]
   institutionInvite InstitutionInvite[]
   users             User[]
+  aiConversations   AIAgentConversation[]
+  aiActions         AIAgentAction[]
+  aiJobs            AIAgentJob[]
+  aiSavedQueries    AISavedQuery[]
 
   @@map("institution")
 }
@@ -422,6 +430,7 @@ model Classroom {
   contests          Contest[]
   students          User[]       @relation("StudentClassrooms")
   quizAssignments   QuizTemplateAssignment[]
+  aiConversations   AIAgentConversation[]
 
   @@index([institutionId])
   @@index([teacherId])
@@ -1068,3 +1077,141 @@ model FeaturedItem {
   @@index([order, createdAt(sort: Desc)])
   @@map("featured_item")
 }
+
+enum AIAgentMessageRole {
+  USER
+  ASSISTANT
+  TOOL
+  SYSTEM
+}
+
+enum AIAgentActionType {
+  READ
+  CREATE
+  UPDATE
+  DELETE
+  IMPORT
+  EXPORT
+}
+
+enum AIAgentActionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+  PERMISSION_DENIED
+  BLOCKED
+}
+
+enum AIAgentJobType {
+  FILE_IMPORT
+  CLASS_ANALYSIS
+  REPORT_GENERATION
+  BULK_ASSIGNMENT
+  BULK_ENROLLMENT
+}
+
+enum AIAgentJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model AIAgentConversation {
+  id            String            @id @default(cuid())
+  institutionId String
+  userId        String
+  title         String?
+  classroomId   String?
+  context       Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  institution   Institution       @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom     Classroom?        @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  messages      AIAgentMessage[]
+  actions       AIAgentAction[]
+
+  @@index([userId, createdAt])
+  @@index([institutionId])
+  @@map("ai_agent_conversation")
+}
+
+model AIAgentMessage {
+  id             String              @id @default(cuid())
+  conversationId String
+  role           AIAgentMessageRole
+  content        String
+  toolName       String?
+  toolCallId     String?
+  metadata       Json?
+  createdAt      DateTime            @default(now())
+  conversation   AIAgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("ai_agent_message")
+}
+
+model AIAgentAction {
+  id               String              @id @default(cuid())
+  conversationId   String?
+  institutionId    String
+  userId           String
+  toolName         String
+  actionType       AIAgentActionType
+  arguments        Json
+  result           Json?
+  status           AIAgentActionStatus @default(PENDING)
+  requiresApproval Boolean             @default(false)
+  approved         Boolean             @default(false)
+  approvedAt       DateTime?
+  errorMessage     String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  conversation     AIAgentConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  institution      Institution         @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId, createdAt])
+  @@index([userId, createdAt])
+  @@index([conversationId])
+  @@map("ai_agent_action")
+}
+
+model AIAgentJob {
+  id            String           @id @default(cuid())
+  institutionId String
+  userId        String
+  type          AIAgentJobType
+  status        AIAgentJobStatus @default(PENDING)
+  input         Json
+  result        Json?
+  progress      Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  institution   Institution      @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([institutionId, status])
+  @@map("ai_agent_job")
+}
+
+model AISavedQuery {
+  id            String      @id @default(cuid())
+  institutionId String
+  userId        String
+  name          String
+  query         String
+  config        Json?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("ai_saved_query")
+}
+
