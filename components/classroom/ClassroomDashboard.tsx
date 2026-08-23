@@ -56,8 +56,13 @@ interface ClassroomDashboardProps {
     currentUserId: string;
 }
 
+const AnalyticsDashboard = dynamic(() => import("./analytics/AnalyticsDashboard").then(mod => mod.AnalyticsDashboard), {
+    loading: () => <div className="p-8"><div className="h-64 animate-pulse bg-gray-100 dark:bg-[#1D1E23] rounded-2xl" /></div>,
+    ssr: false
+});
+
 export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashboardProps) {
-    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments' | 'performance'>('leaderboard');
+    const [activeTab, setActiveTab] = useState<'leaderboard' | 'tracking' | 'assignments' | 'performance' | 'analytics'>('leaderboard');
     const [isCopied, setIsCopied] = useState(false);
     const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -188,6 +193,18 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                                 className="w-full h-full overflow-y-auto"
                             >
                                 <ContestPerformance classroomId={classroom.id} />
+                            </motion.div>
+                        )}
+                        {activeTab === 'analytics' && (
+                            <motion.div
+                                key="analytics"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                                className="w-full h-full overflow-y-auto p-6"
+                            >
+                                <AnalyticsDashboard classroomId={classroom.id} />
                             </motion.div>
                         )}
                         {activeTab === 'tracking' && (
