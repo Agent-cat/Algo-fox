@@ -91,6 +91,24 @@ export async function markConceptAsCompleted(problemId: string) {
              revalidateTag(`problem-${problemId}`, 'max');
              revalidateTag(`user-submissions-${userId}`, 'max');
              revalidateTag(`problem-submissions-${userId}-${problemId}`, 'max');
+
+             try {
+               const { prisma } = await import('@/lib/prisma');
+               const userWithClassrooms = await prisma.user.findUnique({
+                 where: { id: userId },
+                 select: { enrolledClassrooms: { select: { id: true } } },
+               });
+               if (userWithClassrooms?.enrolledClassrooms) {
+                 const { invalidateAnalyticsCache } = await import('@/lib/analytics/cache');
+                 await Promise.all(
+                   userWithClassrooms.enrolledClassrooms.map((c: { id: string }) =>
+                     invalidateAnalyticsCache(c.id, ['overview', 'tag-mastery', 'heatmap', 'risk', 'assignments'])
+                   )
+                 );
+               }
+             } catch (err) {
+               console.error('[Analytics Invalidation Error]:', err);
+             }
         });
 
         revalidatePath("/problems");

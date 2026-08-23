@@ -665,6 +665,20 @@ export async function startContestSession(contestId: string, password?: string) 
         });
 
         revalidatePath(`/contest/${contestId}`);
+
+        try {
+          const contest = await prisma.contest.findUnique({
+            where: { id: contestId },
+            select: { classroomId: true },
+          });
+          if (contest?.classroomId) {
+            const { invalidateAnalyticsCache } = await import('@/lib/analytics/cache');
+            await invalidateAnalyticsCache(contest.classroomId, ['contests', 'risk']);
+          }
+        } catch (err) {
+          console.error('[Analytics Invalidation Error]:', err);
+        }
+
         return result;
     } catch (error) {
          console.error("Failed to start contest session:", error);
