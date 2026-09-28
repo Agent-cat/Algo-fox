@@ -1,7 +1,21 @@
 import { PrismaClient } from "@prisma/client";
 
+// PERF: with PM2 cluster mode (`instances: 'max'`), every worker gets its own
+// Prisma pool. The default (num_cpus * 2 + 1 per process) oversubscribes the
+// PgBouncer pool (20 server connections) and causes queuing under load.
+// An explicit per-worker limit keeps total connections predictable.
+function buildDatasourceUrl(): string | undefined {
+    const url = process.env.DATABASE_URL;
+    if (!url || url.includes("connection_limit=")) return url;
+    const limit = process.env.PRISMA_POOL_SIZE || "5";
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}connection_limit=${limit}&pool_timeout=10`;
+}
+const datasourceUrl = buildDatasourceUrl();
+
 const prismaClientSingleton = () => {
     return new PrismaClient({
+        datasources: datasourceUrl ? { db: { url: datasourceUrl } } : undefined,
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     }).$extends({
         query: {

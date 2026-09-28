@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, memo, useEffect } from "react";
+import { useState, useCallback, memo, useEffect, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { SEARCH_DEBOUNCE_DELAY } from "./constants";
 import { Search, X } from "lucide-react";
@@ -20,9 +20,16 @@ function SearchBarComponent({
     const debouncedSearch = useDebounce(localSearch, SEARCH_DEBOUNCE_DELAY);
     const [isFocused, setIsFocused] = useState(false);
 
+    // Keep latest onSearch in a ref so the effect only fires when debounced value changes,
+    // not on every parent re-render that creates a new callback identity.
+    const onSearchRef = useRef(onSearch);
     useEffect(() => {
-        onSearch(debouncedSearch);
-    }, [debouncedSearch, onSearch]);
+        onSearchRef.current = onSearch;
+    }, [onSearch]);
+
+    useEffect(() => {
+        onSearchRef.current(debouncedSearch);
+    }, [debouncedSearch]);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalSearch(e.target.value);

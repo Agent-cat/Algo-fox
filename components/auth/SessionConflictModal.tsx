@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ShieldAlertIcon, LogOutIcon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export function SessionConflictModal() {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+  const hasSession = !isPending && !!session?.user;
 
   const check = async () => {
     try {
@@ -29,14 +32,27 @@ export function SessionConflictModal() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // PERF: only poll for session conflicts while actually signed in, and pause
+  // the polling while the tab is hidden (previously every visitor — including
+  // anonymous ones on the landing page — polled a server action every 30s).
+  useEffect(() => {
+    if (!hasSession) return;
+
     check();
 
+    let cancelled = false;
     const interval = setInterval(() => {
+      if (cancelled || document.hidden) return;
       check();
     }, 30000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [hasSession]);
 
   if (!mounted) return null;
 

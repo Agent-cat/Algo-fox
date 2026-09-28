@@ -2,7 +2,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 
-import hljs from "highlight.js";
+// PERF: shared core-only highlight.js setup (see lib/hljs.ts) — avoids
+// shipping the full ~190-language bundle to the client.
+import hljs from "@/lib/hljs";
 import "highlight.js/styles/github-dark.css";
 
 interface MarkdownProps {

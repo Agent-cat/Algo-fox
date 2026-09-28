@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-utils";
-import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
     await connection();
@@ -36,26 +35,42 @@ export async function GET(req: NextRequest) {
         }
 
         // Fetch classrooms and students — teachers may only export their own classrooms
-        const classrooms = await prisma.classroom.findMany({
-            where: {
-                id: { in: classroomIds },
-                // TEACHERs are restricted to classrooms they own
-                ...(role === "TEACHER" && { teacherId: session.user.id }),
-            },
-            include: {
-                students: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                        submissions: {
-                            where: { status: "ACCEPTED", mode: "SUBMIT" },
-                            select: { problemId: true }
-                        }
+        // PERF: classrooms, categories and course title are independent — fetch
+        // concurrently instead of sequentially.
+        const [classrooms, allCategories, courseTitle] = await Promise.all([
+            prisma.classroom.findMany({
+                where: {
+                    id: { in: classroomIds },
+                    // TEACHERs are restricted to classrooms they own
+                    ...(role === "TEACHER" && { teacherId: session.user.id }),
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    students: { select: { id: true, name: true, email: true } },
+                },
+            }),
+            prisma.category.findMany({
+                where: {
+                    domain: domain,
+                    ...(courseId && { courseId })
+                },
+                orderBy: { order: "asc" },
+                include: {
+                    categoryProblems: {
+                        include: {
+                            problem: {
+                                select: { id: true, title: true, difficulty: true }
+                            }
+                        },
+                        orderBy: { order: "asc" }
                     }
                 }
-            }
-        });
+            }),
+            courseId
+                ? prisma.course.findUnique({ where: { id: courseId }, select: { title: true } })
+                : Promise.resolve(null),
+        ]);
 
         const studentsMap = new Map();
         for (const classroom of classrooms) {
@@ -64,33 +79,28 @@ export async function GET(req: NextRequest) {
                     studentsMap.set(student.id, {
                         ...student,
                         classroomNames: [classroom.name],
-                        solvedProblemIds: new Set(student.submissions.map(s => s.problemId))
+                        solvedProblemIds: new Set<string>()
                     });
                 } else {
                     studentsMap.get(student.id).classroomNames.push(classroom.name);
                 }
             }
         }
-        const uniqueStudents = Array.from(studentsMap.values());
 
-        // Fetch ALL categories for hierarchy awareness
-        const allCategories = await prisma.category.findMany({
-            where: {
-                domain: domain,
-                ...(courseId && { courseId })
-            },
-            orderBy: { order: "asc" },
-            include: {
-                categoryProblems: {
-                    include: {
-                        problem: {
-                            select: { id: true, title: true, difficulty: true }
-                        }
-                    },
-                    orderBy: { order: "asc" }
-                }
+        // PERF: one bulk GROUP BY for every student's distinct solved problems,
+        // instead of nesting an unbounded accepted-submissions include under each
+        // student (previously loaded one row per solved problem per student).
+        const studentIds = Array.from(studentsMap.keys());
+        if (studentIds.length > 0) {
+            const solvedPairs = await prisma.submission.groupBy({
+                by: ["userId", "problemId"],
+                where: { userId: { in: studentIds }, status: "ACCEPTED", mode: "SUBMIT" },
+            });
+            for (const pair of solvedPairs) {
+                studentsMap.get(pair.userId)?.solvedProblemIds.add(pair.problemId);
             }
-        });
+        }
+        const uniqueStudents = Array.from(studentsMap.values());
 
         // Recursively get problems from a category and its descendants
         const getProblemsRecursive = (catId: string, visited = new Set()): any[] => {
@@ -166,7 +176,7 @@ export async function GET(req: NextRequest) {
             });
 
             const cleanName = cat.name.toLowerCase().replace(/\s+/g, '-');
-            return generateResponse(headersRow, dataRows, format, `algofox-progress-${cleanName}`);
+            return await generateResponse(headersRow, dataRows, format, `algofox-progress-${cleanName}`);
 
         } else {
             /**
@@ -228,18 +238,12 @@ export async function GET(req: NextRequest) {
 
             let filename = `${domain.toLowerCase()}-progress-all`;
             if (courseId) {
-                const course = await prisma.course.findUnique({
-                    where: { id: courseId },
-                    select: { title: true }
-                });
-                if (course) {
-                    filename = `${course.title.toLowerCase().replace(/\s+/g, '-')}-progress-all`;
-                } else {
-                    filename = `course-progress-all`;
-                }
+                filename = courseTitle
+                    ? `${courseTitle.title.toLowerCase().replace(/\s+/g, '-')}-progress-all`
+                    : `course-progress-all`;
             }
 
-            return generateResponse(headersRow, dataRows, format, `algofox-${filename}`);
+            return await generateResponse(headersRow, dataRows, format, `algofox-${filename}`);
         }
 
     } catch (error) {
@@ -249,10 +253,13 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * Shared helper to generate CSV or XLSX response
+ * Shared helper to generate CSV or XLSX response.
+ * PERF: xlsx (~430KB) is loaded on demand only when xlsx format is requested,
+ * instead of at module scope for every route cold-start.
  */
-function generateResponse(headers: string[], data: any[][], format: string, filename: string) {
+async function generateResponse(headers: string[], data: any[][], format: string, filename: string) {
     if (format === "xlsx") {
+        const XLSX = await import("xlsx");
         const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Progress");

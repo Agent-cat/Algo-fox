@@ -295,25 +295,37 @@ export class ContestService {
                 _count: true
             }),
             // Max passed test cases per user/problem pair
-            prisma.$queryRaw<Array<{ userId: string; problemId: string; maxPassed: bigint }>>`
-                SELECT
-                    s."userId",
-                    s."problemId",
-                    COALESCE(MAX(t.passed_count), 0) as "maxPassed"
-                FROM "Submission" s
-                LEFT JOIN (
-                    SELECT "submissionId", COUNT(*) as passed_count
-                    FROM "TestCase"
-                    WHERE status = 'ACCEPTED'
-                    GROUP BY "submissionId"
-                ) t ON s.id = t."submissionId"
-                WHERE s."contestId" = ${contestId}
-                  AND s."userId" IN (${Prisma.join(paginatedUserIds)})
-                  AND s.mode = 'SUBMIT'
-                  AND s."createdAt" >= ${contest.startTime}
-                  AND s."createdAt" <= ${contest.endTime}
-                GROUP BY s."userId", s."problemId"
-            `
+            // PERF: The old inner subquery aggregated EVERY row of "TestCase"
+            // (status-only predicate can't use the [submissionId, status] index).
+            // Restrict TestCases to this page's submissions first so the
+            // composite [submissionId, status] index is actually used.
+            paginatedUserIds.length === 0
+                ? Promise.resolve([] as Array<{ userId: string; problemId: string; maxPassed: bigint }>)
+                : prisma.$queryRaw<Array<{ userId: string; problemId: string; maxPassed: bigint }>>`
+                    WITH rel AS (
+                        SELECT id, "userId", "problemId"
+                        FROM "Submission"
+                        WHERE "contestId" = ${contestId}
+                          AND "userId" IN (${Prisma.join(paginatedUserIds)})
+                          AND mode = 'SUBMIT'
+                          AND "createdAt" >= ${contest.startTime}
+                          AND "createdAt" <= ${contest.endTime}
+                    ),
+                    passed AS (
+                        SELECT tc."submissionId", COUNT(*) AS passed_count
+                        FROM "TestCase" tc
+                        JOIN rel ON rel.id = tc."submissionId"
+                        WHERE tc.status = 'ACCEPTED'
+                        GROUP BY tc."submissionId"
+                    )
+                    SELECT
+                        rel."userId",
+                        rel."problemId",
+                        COALESCE(MAX(p.passed_count), 0) as "maxPassed"
+                    FROM rel
+                    LEFT JOIN passed p ON p."submissionId" = rel.id
+                    GROUP BY rel."userId", rel."problemId"
+                `
         ]);
 
         // Build mapping for maxPassed

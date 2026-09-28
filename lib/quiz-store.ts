@@ -74,8 +74,8 @@ export const QuizStore = {
     const key = answersKey(quizId, questionIndex);
     const existing = await redis.hget(key, participantId);
     if (existing) return false;
-    await redis.hset(key, participantId, JSON.stringify(answer));
-    await redis.expire(key, QUIZ_TTL);
+    // PERF: single pipelined round trip instead of HSET + EXPIRE sequentially
+    await redis.pipeline().hset(key, participantId, JSON.stringify(answer)).expire(key, QUIZ_TTL).exec();
 
     const participant = await QuizStore.getParticipant(quizId, participantId);
     if (participant) {
@@ -99,6 +99,12 @@ export const QuizStore = {
     return redis.hlen(answersKey(quizId, questionIndex));
   },
 
+  // PERF: O(1) HLEN — callers previously fetched + JSON-parsed every
+  // participant just to compute a count.
+  async getParticipantCount(quizId: string): Promise<number> {
+    return redis.hlen(participantsKey(quizId));
+  },
+
   async setTimer(quizId: string, endsAt: number): Promise<void> {
     await redis.set(timerKey(quizId), String(endsAt), "EX", QUIZ_TTL);
   },
@@ -110,12 +116,14 @@ export const QuizStore = {
 
   async resetAnsweredFlags(quizId: string): Promise<void> {
     const participants = await QuizStore.getAllParticipants(quizId);
-    await Promise.all(
-      participants.map((p) => {
-        p.answeredCurrentQuestion = false;
-        return QuizStore.updateParticipant(quizId, p);
-      })
-    );
+    if (participants.length === 0) return;
+    // PERF: one pipelined round trip instead of one HSET per participant
+    const pipeline = redis.pipeline();
+    for (const p of participants) {
+      p.answeredCurrentQuestion = false;
+      pipeline.hset(participantsKey(quizId), p.id, JSON.stringify(p));
+    }
+    await pipeline.exec();
   },
 
   buildLeaderboard(participants: Participant[]): LeaderboardEntry[] {
@@ -133,13 +141,19 @@ export const QuizStore = {
       }));
   },
 
-  async applyAnswersToScores(quizId: string, questionIndex: number): Promise<void> {
+  // PERF: accept a prefetched answers map so callers that already read the
+  // answers hash (question transitions) avoid re-fetching it.
+  async applyAnswersToScores(
+    quizId: string,
+    questionIndex: number,
+    prefetchedAnswers?: Record<string, Answer>
+  ): Promise<void> {
     const quiz = await QuizStore.get(quizId);
     if (!quiz) return;
     const question = quiz.questions[questionIndex];
     if (!question) return;
 
-    const answers = await QuizStore.getAnswers(quizId, questionIndex);
+    const answers = prefetchedAnswers ?? (await QuizStore.getAnswers(quizId, questionIndex));
     const quizStartTime = quiz.questions
       .slice(0, questionIndex)
       .reduce((sum, q) => sum + q.timeLimit * 1000, 0);
@@ -156,8 +170,13 @@ export const QuizStore = {
     );
   },
 
-  async computeDistribution(quizId: string, questionIndex: number, optionCount: number): Promise<number[]> {
-    const answers = await QuizStore.getAnswers(quizId, questionIndex);
+  async computeDistribution(
+    quizId: string,
+    questionIndex: number,
+    optionCount: number,
+    prefetchedAnswers?: Record<string, Answer>
+  ): Promise<number[]> {
+    const answers = prefetchedAnswers ?? (await QuizStore.getAnswers(quizId, questionIndex));
     const counts = new Array(optionCount).fill(0);
     for (const answer of Object.values(answers)) {
       if (answer.option >= 0 && answer.option < optionCount) {
@@ -167,9 +186,15 @@ export const QuizStore = {
     return counts;
   },
 
-  async computeOptionSelections(quizId: string, questionIndex: number): Promise<Record<number, Participant[]>> {
-    const answers = await QuizStore.getAnswers(quizId, questionIndex);
-    const participants = await QuizStore.getAllParticipants(quizId);
+  async computeOptionSelections(
+    quizId: string,
+    questionIndex: number,
+    prefetchedAnswers?: Record<string, Answer>
+  ): Promise<Record<number, Participant[]>> {
+    const [answers, participants] = await Promise.all([
+      prefetchedAnswers ?? QuizStore.getAnswers(quizId, questionIndex),
+      QuizStore.getAllParticipants(quizId),
+    ]);
     const partMap = new Map(participants.map(p => [p.id, p]));
     
     const selections: Record<number, Participant[]> = {};

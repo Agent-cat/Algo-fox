@@ -25,6 +25,7 @@ export class GithubService {
         "User-Agent": "Algo-fox-sync",
         Accept: "application/vnd.github.v3+json",
       },
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!response.ok) {
@@ -48,6 +49,7 @@ export class GithubService {
         Accept: "application/vnd.github.v3+json",
         "Content-Type": "application/json",
       },
+      signal: AbortSignal.timeout(10_000),
       body: JSON.stringify({
         name: repoName,
         description: "Coding submissions synced from Algo-fox",
@@ -86,6 +88,7 @@ export class GithubService {
           "User-Agent": "Algo-fox-sync",
           Accept: "application/vnd.github.v3+json",
         },
+        signal: AbortSignal.timeout(10_000),
       });
 
       let sha = undefined;
@@ -105,6 +108,7 @@ export class GithubService {
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
         },
+        signal: AbortSignal.timeout(10_000),
         body: JSON.stringify({
           message: commitMessage,
           content: encodedContent,
@@ -144,14 +148,14 @@ export class GithubService {
       };
 
       // 1. Get default branch name
-      const repoRes = await fetch(`https://api.github.com/repos/${githubHandle}/${repoName}`, { headers });
+      const repoRes = await fetch(`https://api.github.com/repos/${githubHandle}/${repoName}`, { headers, signal: AbortSignal.timeout(10_000) });
       if (!repoRes.ok) return false;
       const repoData = await repoRes.json();
       const defaultBranch = repoData.default_branch || "main";
 
       // 2. Get the latest commit SHA for the default branch
       const refUrl = `https://api.github.com/repos/${githubHandle}/${repoName}/git/ref/heads/${defaultBranch}`;
-      const refRes = await fetch(refUrl, { headers });
+      const refRes = await fetch(refUrl, { headers, signal: AbortSignal.timeout(10_000) });
       
       let baseCommitSha: string;
       if (refRes.ok) {
@@ -163,7 +167,7 @@ export class GithubService {
       }
 
       // 3. Get the base tree SHA
-      const commitRes = await fetch(`https://api.github.com/repos/${githubHandle}/${repoName}/git/commits/${baseCommitSha}`, { headers });
+      const commitRes = await fetch(`https://api.github.com/repos/${githubHandle}/${repoName}/git/commits/${baseCommitSha}`, { headers, signal: AbortSignal.timeout(10_000) });
       if (!commitRes.ok) return false;
       const commitData = await commitRes.json();
       const baseTreeSha = commitData.tree.sha;
@@ -182,7 +186,8 @@ export class GithubService {
       const createTreeRes = await fetch(`https://api.github.com/repos/${githubHandle}/${repoName}/git/trees`, {
         method: "POST",
         headers,
-        body: JSON.stringify(treePayload)
+        body: JSON.stringify(treePayload),
+        signal: AbortSignal.timeout(15_000)
       });
       if (!createTreeRes.ok) {
         console.error("[GithubService] Error creating tree", await createTreeRes.text());
@@ -199,7 +204,8 @@ export class GithubService {
           message: commitMessage,
           tree: newTreeSha,
           parents: [baseCommitSha]
-        })
+        }),
+        signal: AbortSignal.timeout(15_000)
       });
       if (!createCommitRes.ok) return false;
       const newCommitData = await createCommitRes.json();
@@ -212,7 +218,8 @@ export class GithubService {
         body: JSON.stringify({
           sha: newCommitSha,
           force: false
-        })
+        }),
+        signal: AbortSignal.timeout(10_000)
       });
 
       if (!updateRefRes.ok) return false;

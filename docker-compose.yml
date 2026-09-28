@@ -46,8 +46,10 @@ services:
       RESERVE_POOL_SIZE: "5"
       RESERVE_POOL_TIMEOUT: "3"
       SERVER_RESET_QUERY: "DISCARD ALL"
-      # Disable prepared statements — incompatible with transaction-mode pooling
-      MAX_PREPARED_STATEMENTS: "0"
+      # PERF: enable server-side prepared statements in transaction pooling
+      # (supported by edoburu/pgbouncer >= 1.21). Previously disabled, which
+      # forced Postgres to re-parse/re-plan every query.
+      MAX_PREPARED_STATEMENTS: "200"
     depends_on:
       postgres:
         condition: service_healthy

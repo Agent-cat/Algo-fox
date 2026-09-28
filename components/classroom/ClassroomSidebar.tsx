@@ -1,16 +1,21 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-    LdCupStar, 
-    LdClipboardList, 
-    LdWidget, 
-    LdDiploma, 
+import {
+    LdCupStar,
+    LdClipboardList,
+    LdWidget,
+    LdDiploma,
     LdChart,
     LdDatabase,
     LdAltArrowRight
 } from "solar-icon-react/ld";
-import { Info, Copy, Check } from "lucide-react";
+import { Info, Copy, Check, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { deleteClassroom } from "@/actions/classroom";
 
 interface SidebarProps {
     activeTab: 'leaderboard' | 'tracking' | 'assignments' | 'performance' | 'analytics';
@@ -20,6 +25,7 @@ interface SidebarProps {
     showDownload: boolean;
     isTeacher: boolean;
     classroomName: string;
+    classroomId?: string;
     classroomDetails?: {
         instructor: string;
         domain: string;
@@ -38,11 +44,38 @@ export function ClassroomSidebar({
     showDownload,
     isTeacher,
     classroomName,
+    classroomId,
     classroomDetails,
     onCopyLink,
     isCopied
 }: SidebarProps) {
     const [showDetails, setShowDetails] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const router = useRouter();
+
+    const handleDeleteClassroom = async () => {
+        if (!classroomId) {
+            toast.error("Classroom ID missing");
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            const res = await deleteClassroom(classroomId);
+            if (!res.success) {
+                toast.error(res.error || "Failed to delete classroom");
+                return;
+            }
+            toast.success(`"${classroomName}" deleted successfully`);
+            setShowDeleteDialog(false);
+            router.push("/dashboard/teacher/classrooms");
+            router.refresh();
+        } catch (err: any) {
+            toast.error(err?.message || "Failed to delete classroom");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({
         "Classroom Hub": true,
@@ -149,10 +182,75 @@ export function ClassroomSidebar({
                                         </button>
                                     </div>
                                 )}
+
+                                {/* Delete Classroom — only for teacher, inside View details */}
+                                {isTeacher && classroomId && (
+                                    <div className="pt-4 mt-2 border-t border-red-100 dark:border-red-900/20">
+                                        <span className="text-[8px] font-black text-red-400 uppercase tracking-[0.2em] mb-2 block">Danger Zone</span>
+                                        <button
+                                            onClick={() => setShowDeleteDialog(true)}
+                                            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[11px] font-bold uppercase tracking-wide hover:bg-red-100 dark:hover:bg-red-500/20 hover:border-red-300 transition-colors"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            Delete Classroom
+                                        </button>
+                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1.5 leading-relaxed">
+                                            Permanently deletes the classroom and all linked assignments, contests and enrollments.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                    <DialogHeader>
+                        <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center shrink-0">
+                                <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                            </div>
+                            <div className="flex-1 text-left">
+                                <DialogTitle className="text-[15px] font-black text-gray-900 dark:text-white">Delete Classroom?</DialogTitle>
+                                <DialogDescription className="text-[13px] text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
+                                    You are about to permanently delete <span className="font-bold text-gray-900 dark:text-white">“{classroomName}”</span>. This will remove all assignments, contests, quiz links and student enrollments for this classroom. This action cannot be undone.
+                                </DialogDescription>
+                            </div>
+                        </div>
+                    </DialogHeader>
+                    <p className="text-[11px] font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg px-3 py-2 mt-1">
+                        Type confirmation is not required — clicking Delete will immediately remove the classroom.
+                    </p>
+                    <DialogFooter>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setShowDeleteDialog(false)}
+                            disabled={isDeleting}
+                            className="rounded-xl"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteClassroom}
+                            disabled={isDeleting}
+                            className="rounded-xl bg-red-600 hover:bg-red-700 text-white min-w-[110px]"
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                <>
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete Classroom
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
             </div>
 
             <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 space-y-5 custom-scrollbar">

@@ -95,6 +95,7 @@ export async function syncGithubAccount() {
         Authorization: `Bearer ${account.accessToken}`,
         "User-Agent": "Algo-fox",
       },
+      signal: AbortSignal.timeout(10_000),
     });
     if (res.ok) {
       const profile = await res.json();

@@ -471,86 +471,107 @@ export async function checkGitHubUser(handle: string) {
                 return { success: false, status: 500 };
             }
 
-            // 1. Fetch Contributions HTML and parse with JSDOM
-            let contributionDays: { date: string; count: number; level: number }[] = [];
-            try {
-                const contributionsRes = await fetch(`https://github.com/users/${handle}/contributions`, {
-                    next: { revalidate: 3600 },
-                    signal: AbortSignal.timeout(8000)
-                });
-                if (contributionsRes.ok) {
-                    const html = await contributionsRes.text();
-                    const dom = new JSDOM(html);
-                    const document = dom.window.document;
-                    const cells = document.querySelectorAll(".ContributionCalendar-day, rect.ContributionCalendar-day");
-                    cells.forEach((cell: any) => {
-                        const date = cell.getAttribute("data-date");
-                        const level = parseInt(cell.getAttribute("data-level") || "0");
-                        const text = cell.textContent || "";
-                        let count = 0;
-                        const match = text.match(/(\d+)\s+contribution/);
-                        if (match) {
-                            count = parseInt(match[1]);
-                        } else if (text.includes("No contributions")) {
-                            count = 0;
-                        } else {
-                            count = level > 0 ? level * 2 : 0;
-                        }
-                        if (date) {
-                            contributionDays.push({ date, count, level });
-                        }
+            // PERF: contributions, repos and PR lookups are independent — they
+            // were previously awaited sequentially (~3× serial latency).
+            const [contributionsResult, reposResult, prsResult] = await Promise.allSettled([
+                (async () => {
+                    let days: { date: string; count: number; level: number }[] = [];
+                    const contributionsRes = await fetch(`https://github.com/users/${handle}/contributions`, {
+                        next: { revalidate: 3600 },
+                        signal: AbortSignal.timeout(8000)
                     });
-                }
-            } catch (e) {
-                console.error("Error fetching contributions:", e);
-            }
-
-            // 2. Fetch Repos for languages, stars, forks
-            let languages: Record<string, number> = {};
-            let totalStars = 0;
-            let totalForks = 0;
-            try {
-                const reposRes = await fetch(`https://api.github.com/users/${handle}/repos?per_page=100`, {
-                    headers: {
-                        "Accept" : "application/vnd.github.v3+json",
-                        "User-Agent": "Algo-fox"
-                    },
-                    next: { revalidate: 3600 },
-                    signal: AbortSignal.timeout(8000)
-                });
-                if (reposRes.ok) {
-                    const repos = await reposRes.json();
-                    if (Array.isArray(repos)) {
-                        repos.forEach((repo: any) => {
-                            totalStars += repo.stargazers_count || 0;
-                            totalForks += repo.forks_count || 0;
-                            if (repo.language) {
-                                languages[repo.language] = (languages[repo.language] || 0) + 1;
+                    if (contributionsRes.ok) {
+                        const html = await contributionsRes.text();
+                        const dom = new JSDOM(html);
+                        const document = dom.window.document;
+                        const cells = document.querySelectorAll(".ContributionCalendar-day, rect.ContributionCalendar-day");
+                        cells.forEach((cell: any) => {
+                            const date = cell.getAttribute("data-date");
+                            const level = parseInt(cell.getAttribute("data-level") || "0");
+                            const text = cell.textContent || "";
+                            let count = 0;
+                            const match = text.match(/(\d+)\s+contribution/);
+                            if (match) {
+                                count = parseInt(match[1]);
+                            } else if (text.includes("No contributions")) {
+                                count = 0;
+                            } else {
+                                count = level > 0 ? level * 2 : 0;
+                            }
+                            if (date) {
+                                days.push({ date, count, level });
                             }
                         });
                     }
-                }
-            } catch (e) {
-                console.error("Error fetching repos:", e);
+                    return days;
+                })(),
+                (async () => {
+                    let langs: Record<string, number> = {};
+                    let stars = 0;
+                    let forks = 0;
+                    const reposRes = await fetch(`https://api.github.com/users/${handle}/repos?per_page=100`, {
+                        headers: {
+                            "Accept" : "application/vnd.github.v3+json",
+                            "User-Agent": "Algo-fox"
+                        },
+                        next: { revalidate: 3600 },
+                        signal: AbortSignal.timeout(8000)
+                    });
+                    if (reposRes.ok) {
+                        const repos = await reposRes.json();
+                        if (Array.isArray(repos)) {
+                            repos.forEach((repo: any) => {
+                                stars += repo.stargazers_count || 0;
+                                forks += repo.forks_count || 0;
+                                if (repo.language) {
+                                    langs[repo.language] = (langs[repo.language] || 0) + 1;
+                                }
+                            });
+                        }
+                    }
+                    return { langs, stars, forks };
+                })(),
+                (async () => {
+                    let prCount = 0;
+                    const prsRes = await fetch(`https://api.github.com/search/issues?q=author:${handle}+type:pr`, {
+                        headers: {
+                            "Accept" : "application/vnd.github.v3+json",
+                            "User-Agent": "Algo-fox"
+                        },
+                        next: { revalidate: 3600 },
+                        signal: AbortSignal.timeout(8000)
+                    });
+                    if (prsRes.ok) {
+                        const prsData = await prsRes.json();
+                        prCount = prsData.total_count || 0;
+                    }
+                    return prCount;
+                })(),
+            ]);
+
+            let contributionDays: { date: string; count: number; level: number }[] = [];
+            if (contributionsResult.status === "fulfilled") {
+                contributionDays = contributionsResult.value;
+            } else {
+                console.error("Error fetching contributions:", contributionsResult.reason);
             }
 
-            // 3. Fetch Pull Requests search
+            let languages: Record<string, number> = {};
+            let totalStars = 0;
+            let totalForks = 0;
+            if (reposResult.status === "fulfilled") {
+                languages = reposResult.value.langs;
+                totalStars = reposResult.value.stars;
+                totalForks = reposResult.value.forks;
+            } else {
+                console.error("Error fetching repos:", reposResult.reason);
+            }
+
             let totalPRs = 0;
-            try {
-                const prsRes = await fetch(`https://api.github.com/search/issues?q=author:${handle}+type:pr`, {
-                    headers: {
-                        "Accept" : "application/vnd.github.v3+json",
-                        "User-Agent": "Algo-fox"
-                    },
-                    next: { revalidate: 3600 },
-                    signal: AbortSignal.timeout(8000)
-                });
-                if (prsRes.ok) {
-                    const prsData = await prsRes.json();
-                    totalPRs = prsData.total_count || 0;
-                }
-            } catch (e) {
-                console.error("Error fetching PRs:", e);
+            if (prsResult.status === "fulfilled") {
+                totalPRs = prsResult.value;
+            } else {
+                console.error("Error fetching PRs:", prsResult.reason);
             }
 
             return {

@@ -124,8 +124,12 @@ export async function runAgentTurn(
   const tools = buildTools(ctx);
   const toolMap = new Map(tools.map(t => [t.name, t]));
 
+  // Valid Gemini models: gemini-2.0-flash is stable; -lite variant was retired (404).
+  // Allow override via GEMINI_MODEL env var for future-proofing.
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+
   const llm = new ChatGoogleGenerativeAI({
-    model: 'gemini-2.0-flash-lite',
+    model: modelName,
     apiKey: process.env.GEMINI_API_KEY,
     temperature: 0.3,
   });
@@ -148,12 +152,39 @@ export async function runAgentTurn(
     return '';
   }
 
+  // Mutable so we can fallback to a known-good model on 404
+  let currentModelName = modelName;
+  let currentLlmWithTools: any = llmWithTools;
+
+  const FALLBACK_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash'];
+
   async function invokeWithRetry(msgs: BaseMessage[], retries = 3): Promise<any> {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        return await llmWithTools.invoke(msgs);
+        return await currentLlmWithTools.invoke(msgs);
       } catch (err: any) {
-        const is429 = err?.message?.includes('429') || err?.name === 'RateLimitQuotaExhaustedError';
+        const msg: string = err?.message || '';
+        const is429 = msg.includes('429') || err?.name === 'RateLimitQuotaExhaustedError';
+        const is404ModelNotFound = msg.includes('404') && (msg.includes('models/') || msg.includes('generateContent'));
+
+        // Fallback on retired/invalid model (e.g. gemini-2.0-flash-lite → gemini-2.0-flash)
+        if (is404ModelNotFound) {
+          const tried = new Set([currentModelName]);
+          const fallback = FALLBACK_MODELS.find(m => !tried.has(m));
+          if (fallback) {
+            console.warn(`[AI Agent] Model ${currentModelName} not found (404), falling back to ${fallback}`);
+            currentModelName = fallback;
+            const fallbackLlm = new ChatGoogleGenerativeAI({
+              model: fallback,
+              apiKey: process.env.GEMINI_API_KEY,
+              temperature: 0.3,
+            });
+            currentLlmWithTools = fallbackLlm.bindTools(tools);
+            // retry immediately without counting towards rate-limit retries
+            continue;
+          }
+        }
+
         if (is429 && attempt < retries) {
           const delay = Math.min(2000 * Math.pow(2, attempt), 30000);
           console.warn(`[AI Agent] Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`);
@@ -242,7 +273,10 @@ export async function runAgentTurn(
     if (msg.includes('429') || msg.includes('RateLimit') || msg.includes('quota')) {
       return { success: false, error: 'AI service is temporarily rate-limited. Please try again in a few minutes.' };
     }
-    return { success: false, error: `AI service error: ${msg.slice(0, 200)}` };
+    if (msg.includes('404') && msg.includes('models/')) {
+      return { success: false, error: `AI model "${currentModelName}" is unavailable (404). Admin: set GEMINI_MODEL env to a valid model like gemini-2.0-flash and restart the server.` };
+    }
+    return { success: false, error: `AI service error: ${msg.slice(0, 300)}` };
   }
 
   // 8. Persist assistant message

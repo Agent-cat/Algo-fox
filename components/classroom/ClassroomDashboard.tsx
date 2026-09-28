@@ -141,6 +141,7 @@ export function ClassroomDashboard({ classroom, currentUserId }: ClassroomDashbo
                         showDownload={activeTab === 'leaderboard'}
                         isTeacher={isTeacher}
                         classroomName={classroom.name}
+                        classroomId={classroom.id}
                         classroomDetails={{
                             instructor: classroom.teacher.name || "Anonymous",
                             domain: classroom.subject || "Logic & Coding",

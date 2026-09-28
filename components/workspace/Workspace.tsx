@@ -17,7 +17,6 @@ import { useWorkspaceSubmission } from '@/hooks/workspace/use-workspace-submissi
 
 // Components
 import WorkspaceHeader from './WorkspaceHeader';
-import ProblemTour from '../tour/ProblemTour';
 import ProblemSkeleton from './ProblemSkeleton';
 import EditorSkeleton from './EditorSkeleton';
 import TestCasesSkeleton from './TestCasesSkeleton';
@@ -25,6 +24,10 @@ import { WorkspaceModals } from './WorkspaceModals';
 import { WorkspaceSidebars } from './WorkspaceSidebars';
 import CodeFileTabs from './CodeFileTabs';
 import { getParticipationStatus } from '@/actions/contest';
+
+// PERF: react-joyride (~40-50KB) rides along on the hottest page although the
+// tour typically runs once — load it on demand.
+const ProblemTour = dynamic(() => import('../tour/ProblemTour'), { ssr: false });
 
 const ProblemSidebar = dynamic(() => import('./ProblemSidebar'), {
     loading: () => null,

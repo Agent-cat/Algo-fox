@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import ModeToggle from "@/components/problems/ModeToggle";
 import PracticeClient from "./practice/PracticeClient";
@@ -83,7 +83,7 @@ export default function DsaProblemsClient({
         }
     }, [mode, hasFetchedCategories, isCategoriesLoading]);
 
-    const setMode = (newMode: "practice" | "learn") => {
+    const setMode = useCallback((newMode: "practice" | "learn") => {
         const params = new URLSearchParams(searchParams.toString());
         if (newMode === "practice") {
             params.delete("mode");
@@ -91,11 +91,11 @@ export default function DsaProblemsClient({
             params.set("mode", newMode);
         }
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    };
+    }, [searchParams, router, pathname]);
 
-    const handleSearch = (term: string) => {
+    const handleSearch = useCallback((term: string) => {
         setSearchTerm(term);
-    };
+    }, []);
 
     // Collect unique companies from all loaded problems for the filter dropdown
     const allCompanies = useMemo(() => {

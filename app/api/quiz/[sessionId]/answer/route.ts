@@ -29,7 +29,11 @@ export async function POST(
   const participantId = session.user.id;
   const { option } = parsed.data;
 
-  const participant = await QuizStore.getParticipant(sessionId, participantId);
+  // PERF: participant lookup and timer read are independent — fetch concurrently.
+  const [participant, timerEndsAt] = await Promise.all([
+    QuizStore.getParticipant(sessionId, participantId),
+    QuizStore.getTimer(sessionId),
+  ]);
   if (!participant) return NextResponse.json({ error: "Not a participant" }, { status: 403 });
 
   const questionIndex = quiz.currentQuestion;
@@ -39,7 +43,6 @@ export async function POST(
     return NextResponse.json({ error: "Invalid option" }, { status: 400 });
   }
 
-  const timerEndsAt = await QuizStore.getTimer(sessionId);
   if (timerEndsAt && Date.now() > timerEndsAt) {
     return NextResponse.json({ error: "Time is up" }, { status: 409 });
   }
@@ -56,8 +59,11 @@ export async function POST(
 
   if (!submitted) return NextResponse.json({ error: "Already answered" }, { status: 409 });
 
-  const answerCount = await QuizStore.getAnswerCount(sessionId, questionIndex);
-  const totalParticipants = (await QuizStore.getAllParticipants(sessionId)).length;
+  // PERF: HLEN instead of fetching and parsing every participant
+  const [answerCount, totalParticipants] = await Promise.all([
+    QuizStore.getAnswerCount(sessionId, questionIndex),
+    QuizStore.getParticipantCount(sessionId),
+  ]);
 
   await QuizStore.publishEvent(sessionId, {
     type: "ANSWER_COUNT_UPDATE",

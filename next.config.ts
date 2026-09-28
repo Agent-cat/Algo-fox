@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 
+// PERF: run `ANALYZE=true npm run build` (or `npm run analyze`) to inspect
+// bundle composition.
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
   // output: 'standalone',
   allowedDevOrigins: ['143.110.189.110', 'localhost:3000'],
@@ -53,8 +59,6 @@ const nextConfig: NextConfig = {
       'date-fns',
       'recharts',
       'sonner',
-      '@iconify/react',
-      '@solar-icons/react',
       'solar-icon-react',
     ],
   },
@@ -159,4 +163,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

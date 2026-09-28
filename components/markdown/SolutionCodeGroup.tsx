@@ -3,7 +3,7 @@
 import React, { useState, useEffect, ReactElement, ReactNode } from "react";
 import { Copy, Check, Maximize2, X, Download, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import hljs from "highlight.js";
+import hljs from "@/lib/hljs";
 import "highlight.js/styles/github-dark.css"; // Ensure a dark theme is available, or use a specific one
 
 // Helper to extract text from React children

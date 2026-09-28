@@ -93,6 +93,7 @@ async function workerProcessor(job: Job<any>) {
           "User-Agent": "Algo-fox-sync",
           Accept: "application/vnd.github.v3+json",
         },
+      signal: AbortSignal.timeout(10_000),
       });
       if (res.ok) {
         const profile = await res.json();
@@ -214,6 +215,7 @@ async function processBatchSync(job: Job<any>) {
           "User-Agent": "Algo-fox-sync",
           Accept: "application/vnd.github.v3+json",
         },
+      signal: AbortSignal.timeout(10_000),
       });
       if (res.ok) {
         const profile = await res.json();

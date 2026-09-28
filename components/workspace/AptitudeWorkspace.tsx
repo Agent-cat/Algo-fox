@@ -8,13 +8,15 @@ import { useRouter } from 'next/navigation';
 import { usePersistentSplit } from '@/hooks/use-layout';
 import AptitudeMCQPanel from './AptitudeMCQPanel';
 import AptitudeTextPanel from './AptitudeTextPanel';
-import ProblemTour from '../tour/ProblemTour';
 import { PointsCelebration } from '../shared/PointsCelebration';
 import dynamic from 'next/dynamic';
 import { authClient } from '@/lib/auth-client';
 import { WorkspaceSidebars } from './WorkspaceSidebars';
 import { getParticipationStatus } from '@/actions/contest';
 import { toast } from 'sonner';
+
+// PERF: react-joyride loads on demand instead of with every aptitude workspace
+const ProblemTour = dynamic(() => import('../tour/ProblemTour'), { ssr: false });
 
 interface AptitudeWorkspaceProps {
     problem: Problem & {

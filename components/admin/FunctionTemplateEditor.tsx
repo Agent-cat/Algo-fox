@@ -1,10 +1,20 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
 import { ChevronDown, ChevronRight, Loader2, Copy, Check, Plus, X } from "lucide-react";
 import { LANGUAGES } from "@/lib/languages";
 import { useTheme } from "next-themes";
+
+// PERF: monaco is ~MBs — never bundle statically, load on demand (admin-only route).
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full">
+      <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+    </div>
+  ),
+});
 
 // DSA languages only (exclude SQL which has id 82)
 const DSA_LANGUAGES = LANGUAGES.filter(lang => lang.id !== 82);

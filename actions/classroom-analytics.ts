@@ -79,46 +79,44 @@ export async function getOverviewAnalytics(
     const cached = await getAnalyticsCache<OverviewData>(cacheKey);
     if (cached) return cached;
 
-    // 1. Enrolled student count
-    const studentCount = await prisma.user.count({
-      where: {
-        enrolledClassrooms: {
-          some: { id: classroomId },
-        },
-      },
-    });
-
-    // 2. Fetch distinct problems solved (ACCEPTED & SUBMIT mode)
-    const solvedAggregate = await prisma.submission.findMany({
-      where: {
-        user: {
+    // PERF: these three aggregations are independent — run concurrently.
+    const [studentCount, solvedAggregate, allSubmits] = await Promise.all([
+      prisma.user.count({
+        where: {
           enrolledClassrooms: {
             some: { id: classroomId },
           },
         },
-        mode: 'SUBMIT',
-        status: 'ACCEPTED',
-      },
-      select: {
-        problemId: true,
-      },
-      distinct: ['problemId'],
-    });
+      }),
+      prisma.submission.findMany({
+        where: {
+          user: {
+            enrolledClassrooms: {
+              some: { id: classroomId },
+            },
+          },
+          mode: 'SUBMIT',
+          status: 'ACCEPTED',
+        },
+        select: {
+          problemId: true,
+        },
+        distinct: ['problemId'],
+      }),
+      prisma.submission.groupBy({
+        by: ['status'],
+        where: {
+          user: {
+            enrolledClassrooms: {
+              some: { id: classroomId },
+            },
+          },
+          mode: 'SUBMIT',
+        },
+        _count: { _all: true },
+      }),
+    ]);
     const totalProblemsSolved = solvedAggregate.length;
-
-    // 3. Submissions aggregate for overall accuracy
-    const allSubmits = await prisma.submission.groupBy({
-      by: ['status'],
-      where: {
-        user: {
-          enrolledClassrooms: {
-            some: { id: classroomId },
-          },
-        },
-        mode: 'SUBMIT',
-      },
-      _count: { _all: true },
-    });
 
     let totalSubmits = 0;
     let acceptedSubmits = 0;
@@ -132,16 +130,18 @@ export async function getOverviewAnalytics(
     const overallAccuracy =
       totalSubmits > 0 ? Math.min(100, Math.round((acceptedSubmits / totalSubmits) * 1000) / 10) : 0;
 
-    // 4. Compute average tag mastery across classroom
-    const tagMasteryRes = await getTagMasteryAnalytics(classroomId);
+    // PERF: overview sub-computations are independent — run concurrently.
+    const [tagMasteryRes, riskRes] = await Promise.all([
+      getTagMasteryAnalytics(classroomId),
+      getRiskAnalytics(classroomId),
+    ]);
     let averageMasteryScore = 0;
     if (tagMasteryRes.success && tagMasteryRes.tags.length > 0) {
       const sum = tagMasteryRes.tags.reduce((acc: number, t: TagMasteryItem) => acc + t.averageMastery, 0);
       averageMasteryScore = Math.round(sum / tagMasteryRes.tags.length);
     }
 
-    // 5. At-risk count from risk analytics
-    const riskRes = await getRiskAnalytics(classroomId);
+    // At-risk count from risk analytics
     let atRiskCount = 0;
     if (riskRes.success) {
       atRiskCount = riskRes.atRiskStudents.length;
@@ -168,49 +168,50 @@ export async function getOverviewAnalytics(
 // Helper: Fetch all classroom student IDs & problem tags
 // ---------------------------------------------------------------------------
 async function getClassroomContext(classroomId: string) {
-  const students = await prisma.user.findMany({
-    where: {
-      enrolledClassrooms: {
-        some: { id: classroomId },
+  // PERF: students, assignments and contests lookups are independent — run concurrently.
+  const [students, assignments, contests] = await Promise.all([
+    prisma.user.findMany({
+      where: {
+        enrolledClassrooms: {
+          some: { id: classroomId },
+        },
       },
-    },
-    select: { id: true, name: true, image: true },
-    orderBy: { name: 'asc' },
-  });
-
-  const assignments = await prisma.assignment.findMany({
-    where: { classroomId },
-    select: {
-      problems: {
-        select: {
-          problem: {
-            select: {
-              id: true,
-              difficulty: true,
-              tags: { select: { id: true, name: true } },
+      select: { id: true, name: true, image: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.assignment.findMany({
+      where: { classroomId },
+      select: {
+        problems: {
+          select: {
+            problem: {
+              select: {
+                id: true,
+                difficulty: true,
+                tags: { select: { id: true, name: true } },
+              },
             },
           },
         },
       },
-    },
-  });
-
-  const contests = await prisma.contest.findMany({
-    where: { classroomId },
-    select: {
-      problems: {
-        select: {
-          problem: {
-            select: {
-              id: true,
-              difficulty: true,
-              tags: { select: { id: true, name: true } },
+    }),
+    prisma.contest.findMany({
+      where: { classroomId },
+      select: {
+        problems: {
+          select: {
+            problem: {
+              select: {
+                id: true,
+                difficulty: true,
+                tags: { select: { id: true, name: true } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+  ]);
 
   const tagsMap = new Map<string, { id: string; name: string }>();
   const problemsMap = new Map<string, { difficulty: string; tagIds: string[] }>();
@@ -281,11 +282,24 @@ export async function getTagMasteryAnalytics(
       });
     });
 
+    // PERF: precompute per-tag problem-id sets and per-student submission
+    // buckets ONCE instead of re-filtering the full submission array for every
+    // student × tag pair (was O(students × tags × totalSubmissions)).
+    const tagProblemSets = new Map<string, Set<string>>();
+    tagsMap.forEach((_, tagId) => tagProblemSets.set(tagId, new Set(tagProblemsMap.get(tagId) || [])));
+
+    const subsByStudent = new Map<string, typeof rawSubmissions>();
+    for (const s of rawSubmissions) {
+      const list = subsByStudent.get(s.userId);
+      if (list) list.push(s);
+      else subsByStudent.set(s.userId, [s]);
+    }
+
     for (const studentId of studentIds) {
-      const studentSubs = rawSubmissions.filter((s: { userId: string }) => s.userId === studentId);
+      const studentSubs = subsByStudent.get(studentId) || [];
 
       tagsMap.forEach((_, tagId) => {
-        const tagProblemIds = new Set(tagProblemsMap.get(tagId) || []);
+        const tagProblemIds = tagProblemSets.get(tagId)!;
         const tagSubmissions: TagSubmissionData[] = studentSubs
           .filter((s: { problemId: string }) => tagProblemIds.has(s.problemId))
           .map((s: { problemId: string; status: string; createdAt: Date }) => ({
@@ -379,15 +393,27 @@ export async function getHeatmapAnalytics(
       });
     });
 
+    // PERF: precompute per-tag sets and per-student buckets once (same pattern
+    // as tag-mastery) instead of rescanning all submissions per student × tag.
+    const tagProblemSets = new Map<string, Set<string>>();
+    tagsMap.forEach((_, tId) => tagProblemSets.set(tId, new Set(tagProblemsMap.get(tId) || [])));
+
+    const subsByStudent = new Map<string, typeof rawSubmissions>();
+    for (const s of rawSubmissions) {
+      const list = subsByStudent.get(s.userId);
+      if (list) list.push(s);
+      else subsByStudent.set(s.userId, [s]);
+    }
+
     const cells: HeatmapCell[] = [];
     const tagMasteryScoresMap = new Map<string, number[]>();
     tagsMap.forEach((_, tId) => tagMasteryScoresMap.set(tId, []));
 
     for (const student of students) {
-      const studentSubs = rawSubmissions.filter((s: { userId: string }) => s.userId === student.id);
+      const studentSubs = subsByStudent.get(student.id) || [];
 
       tagsMap.forEach((_, tagId) => {
-        const tagProblemIds = new Set(tagProblemsMap.get(tagId) || []);
+        const tagProblemIds = tagProblemSets.get(tagId)!;
         const tagSubs = studentSubs.filter((s: { problemId: string }) => tagProblemIds.has(s.problemId));
 
         const attempts = tagSubs.length;
@@ -480,36 +506,56 @@ export async function getDifficultyAnalytics(
       },
     });
 
+    // PERF: bucket submissions by problemId once; also precompute per-tag
+    // difficulty buckets so we don't rescan all problems per tag.
+    const subsByProblem = new Map<string, { problemId: string; status: string }[]>();
+    for (const s of rawSubmissions) {
+      const list = subsByProblem.get(s.problemId);
+      if (list) list.push(s);
+      else subsByProblem.set(s.problemId, [s]);
+    }
+
+    const bucketsByTag = new Map<string, { easy: string[]; medium: string[]; hard: string[] }>();
+    problemsMap.forEach((p, probId) => {
+      p.tagIds.forEach((tId) => {
+        let b = bucketsByTag.get(tId);
+        if (!b) {
+          b = { easy: [], medium: [], hard: [] };
+          bucketsByTag.set(tId, b);
+        }
+        if (p.difficulty === 'EASY') b.easy.push(probId);
+        else if (p.difficulty === 'MEDIUM') b.medium.push(probId);
+        else if (p.difficulty === 'HARD') b.hard.push(probId);
+      });
+    });
+
     const items: DifficultyTagItem[] = [];
 
     tagsMap.forEach((tag, tagId) => {
-      const easyProbIds: string[] = [];
-      const mediumProbIds: string[] = [];
-      const hardProbIds: string[] = [];
-
-      problemsMap.forEach((p, probId) => {
-        if (p.tagIds.includes(tagId)) {
-          if (p.difficulty === 'EASY') easyProbIds.push(probId);
-          else if (p.difficulty === 'MEDIUM') mediumProbIds.push(probId);
-          else if (p.difficulty === 'HARD') hardProbIds.push(probId);
-        }
-      });
+      const buckets = bucketsByTag.get(tagId) || { easy: [], medium: [], hard: [] };
 
       const calcAccuracy = (probIds: string[]): number | null => {
         if (probIds.length === 0) return null;
-        const setIds = new Set(probIds);
-        const matchingSubs = rawSubmissions.filter((s: { problemId: string }) => setIds.has(s.problemId));
-        if (matchingSubs.length === 0) return 0;
-        const accepted = matchingSubs.filter((s: { status: string }) => s.status === 'ACCEPTED').length;
-        return Math.round((accepted / matchingSubs.length) * 1000) / 10;
+        let matchingSubs = 0;
+        let accepted = 0;
+        for (const probId of probIds) {
+          const subs = subsByProblem.get(probId);
+          if (!subs) continue;
+          matchingSubs += subs.length;
+          for (const s of subs) {
+            if (s.status === 'ACCEPTED') accepted++;
+          }
+        }
+        if (matchingSubs === 0) return 0;
+        return Math.round((accepted / matchingSubs) * 1000) / 10;
       };
 
       items.push({
         tagId,
         tagName: tag.name,
-        easy: calcAccuracy(easyProbIds),
-        medium: calcAccuracy(mediumProbIds),
-        hard: calcAccuracy(hardProbIds),
+        easy: calcAccuracy(buckets.easy),
+        medium: calcAccuracy(buckets.medium),
+        hard: calcAccuracy(buckets.hard),
       });
     });
 
@@ -581,21 +627,44 @@ export async function getRiskAnalytics(
       });
     });
 
+    // PERF: precompute per-tag problem sets, per-student submission buckets and
+    // assignment records ONCE instead of filtering full arrays per student × tag.
+    const tagProblemSets = new Map<string, Set<string>>();
+    tagsMap.forEach((_, tagId) => tagProblemSets.set(tagId, new Set(tagProblemsMap.get(tagId) || [])));
+
+    const subsByStudent = new Map<string, typeof allSubmissions>();
+    for (const s of allSubmissions) {
+      const list = subsByStudent.get(s.userId);
+      if (list) list.push(s);
+      else subsByStudent.set(s.userId, [s]);
+    }
+
+    const assignByStudent = new Map<string, { status: string }[]>();
+    for (const r of assignmentStudentRecords) {
+      const list = assignByStudent.get(r.userId);
+      if (list) list.push(r);
+      else assignByStudent.set(r.userId, [r]);
+    }
+
+    // Precompute difficulty lookup for mastery inputs
+    const difficultyByProblem = new Map<string, string>();
+    problemsMap.forEach((p, probId) => difficultyByProblem.set(probId, p.difficulty));
+
     const atRiskStudents: AtRiskStudent[] = [];
 
     for (const student of students) {
-      const studentSubs = allSubmissions.filter((s: { userId: string }) => s.userId === student.id);
+      const studentSubs = subsByStudent.get(student.id) || [];
 
       // Average mastery across tags
       let totalMastery = 0;
       if (tagsMap.size > 0) {
         tagsMap.forEach((_, tagId) => {
-          const tagProbIds = new Set(tagProblemsMap.get(tagId) || []);
+          const tagProbIds = tagProblemSets.get(tagId)!;
           const tagSubs: TagSubmissionData[] = studentSubs
             .filter((s: { problemId: string }) => tagProbIds.has(s.problemId))
             .map((s: { problemId: string; status: string; createdAt: Date }) => ({
               problemId: s.problemId,
-              difficulty: (problemsMap.get(s.problemId)?.difficulty as any) || 'EASY',
+              difficulty: (difficultyByProblem.get(s.problemId) as any) || 'EASY',
               status: s.status,
               createdAt: s.createdAt,
             }));
@@ -631,7 +700,7 @@ export async function getRiskAnalytics(
       });
 
       // Incomplete assignments
-      const studentAssignRecords = assignmentStudentRecords.filter((r: { userId: string }) => r.userId === student.id);
+      const studentAssignRecords = assignByStudent.get(student.id) || [];
       let incompleteAssignments = totalAssignmentsCount - studentAssignRecords.filter((r: { status: string }) => r.status === 'COMPLETED').length;
       incompleteAssignments = Math.max(0, incompleteAssignments);
 
@@ -880,19 +949,65 @@ export async function getContestAnalytics(
 
     const items: ContestItem[] = [];
 
+    // PERF: previously ran 2 submission queries PER CONTEST inside the loop
+    // (the practice query was identical on every iteration). Both are now a
+    // single bulk fetch each, grouped in memory.
+    const contestIds = contests.map((c: { id: string }) => c.id);
+
+    const [allContestSubmissions, practiceSubmissions] = await Promise.all([
+      contestIds.length > 0
+        ? prisma.submission.findMany({
+            where: {
+              userId: { in: studentIds },
+              contestId: { in: contestIds },
+            },
+            select: { contestId: true, userId: true, status: true, createdAt: true, problem: { select: { score: true } } },
+          })
+        : Promise.resolve([] as never[]),
+      studentIds.length > 0
+        ? prisma.submission.findMany({
+            where: {
+              userId: { in: studentIds },
+              mode: 'SUBMIT',
+            },
+            select: { userId: true, status: true },
+          })
+        : Promise.resolve([] as never[]),
+    ]);
+
+    const contestSubsByContest = new Map<string, (typeof allContestSubmissions)[number][]>();
+    for (const s of allContestSubmissions) {
+      if (!s.contestId) continue;
+      const list = contestSubsByContest.get(s.contestId);
+      if (list) list.push(s);
+      else contestSubsByContest.set(s.contestId, [s]);
+    }
+
+    // Practice accuracy per student — computed once instead of once per contest
+    const practiceAccByStudent = new Map<string, number>();
+    {
+      const counts = new Map<string, { total: number; accepted: number }>();
+      for (const s of practiceSubmissions) {
+        const entry = counts.get(s.userId) || { total: 0, accepted: 0 };
+        entry.total++;
+        if ((s as { status: string }).status === 'ACCEPTED') entry.accepted++;
+        counts.set(s.userId, entry);
+      }
+      for (const student of students) {
+        const entry = counts.get(student.id);
+        practiceAccByStudent.set(
+          student.id,
+          entry && entry.total > 0 ? Math.round((entry.accepted / entry.total) * 100) : 0
+        );
+      }
+    }
+
     for (const contest of contests) {
       // Submissions during contest timeframe by classroom students
-      const contestSubmissions = await prisma.submission.findMany({
-        where: {
-          userId: { in: studentIds },
-          contestId: contest.id,
-          createdAt: {
-            gte: contest.startTime,
-            lte: contest.endTime,
-          },
-        },
-        select: { userId: true, status: true, createdAt: true, problem: { select: { score: true } } },
-      });
+      // (time-window filter preserved from the original DB-level where clause)
+      const contestSubmissions = (contestSubsByContest.get(contest.id) || []).filter(
+        (s) => new Date(s.createdAt) >= contest.startTime && new Date(s.createdAt) <= contest.endTime
+      );
 
       const participantSet = new Set<string>();
       contest.participants.forEach((p: { userId: string }) => participantSet.add(p.userId));
@@ -942,26 +1057,10 @@ export async function getContestAnalytics(
             )
           : 0;
 
-      // Practice accuracy for classroom students outside contest
-      const practiceSubmissions = await prisma.submission.findMany({
-        where: {
-          userId: { in: studentIds },
-          mode: 'SUBMIT',
-        },
-        select: { userId: true, status: true },
-      });
-
+      // Practice accuracy for classroom students outside contest (precomputed above)
       const studentRows: ContestStudentRow[] = students.map((student: { id: string; name: string | null; image: string | null }) => {
         const rowInfo = participantRows.find((r) => r.userId === student.id)!;
-        const studentPracticeSubs = practiceSubmissions.filter((s: { userId: string }) => s.userId === student.id);
-        const practiceAcc =
-          studentPracticeSubs.length > 0
-            ? Math.round(
-                (studentPracticeSubs.filter((s: { status: string }) => s.status === 'ACCEPTED').length /
-                  studentPracticeSubs.length) *
-                  100
-              )
-            : 0;
+        const practiceAcc = practiceAccByStudent.get(student.id) || 0;
 
         return {
           studentId: student.id,

@@ -596,6 +596,60 @@ export async function getInstitutionClassrooms(page: number = 1, limit: number =
     }
 }
 
+/**
+ * Deletes a classroom. Only the owning teacher, ADMIN or INSTITUTION_MANAGER can delete.
+ * Cascading deletes handle assignments, contests, quiz assignments via Prisma `onDelete: Cascade`.
+ */
+export async function deleteClassroom(classroomId: string) {
+    const session = await getSession();
+
+    if (!session?.user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const currentUser = session.user as any;
+    const isPowerful = ["ADMIN", "INSTITUTION_MANAGER"].includes(currentUser.role);
+
+    try {
+        const classroom = await prisma.classroom.findUnique({
+            where: { id: classroomId },
+            select: { teacherId: true, institutionId: true },
+        });
+
+        if (!classroom) {
+            return { success: false, error: "Classroom not found" };
+        }
+
+        if (!isPowerful && classroom.teacherId !== currentUser.id) {
+            return { success: false, error: "Unauthorized. Only the classroom owner can delete it." };
+        }
+
+        await prisma.classroom.delete({
+            where: { id: classroomId },
+        });
+
+        // Clean up Redis student set if present
+        try {
+            await redis.del(`classroom:students:${classroomId}`);
+        } catch {}
+
+        // Invalidate all related caches
+        revalidateTag(`classroom-${classroomId}`, 'max');
+        revalidateTag(`teacher-classrooms-${classroom.teacherId}`, 'max');
+        revalidateTag(`institution-classrooms-${classroom.institutionId}`, 'max');
+        // Assignment / contest / analytics caches scoped to classroom
+        revalidateTag(`assignments-classroom-${classroomId}`, 'max');
+        revalidatePath("/dashboard/teacher/classrooms");
+        revalidatePath("/dashboard/classrooms");
+        revalidatePath(`/dashboard/classrooms/${classroomId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete classroom:", error);
+        return { success: false, error: "Failed to delete classroom" };
+    }
+}
+
 export async function removeStudentFromClassroom(classroomId: string, studentId: string) {
     const session = await getSession();
 

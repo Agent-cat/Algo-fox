@@ -76,14 +76,6 @@ export function PageNavigationLoader() {
           opacity: progress === 100 ? 0 : 1,
         }}
       />
-
-      {/* Floating Spinner Overlay Badge */}
-      {isLoading && (
-        <div className="fixed top-4 right-4 z-[99999] flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-[#1D1E23]/90 backdrop-blur-md border border-orange-500/30 shadow-lg text-xs font-semibold text-orange-600 dark:text-orange-400 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="w-3.5 h-3.5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <span>Loading...</span>
-        </div>
-      )}
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { getClassroomContestPerformance } from "@/actions/classroom";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
 import { PageTooltip } from "@/components/shared/PageTooltip";
 
 interface PerformanceRow {
@@ -102,7 +101,7 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
         currentPage * ITEMS_PER_PAGE
     );
 
-    const handleExport = () => {
+    const handleExport = async () => {
         try {
             const exportData = filteredData.map(row => {
                 const rowData: any = {
@@ -117,6 +116,8 @@ export function ContestPerformance({ classroomId }: ContestPerformanceProps) {
                 return rowData;
             });
 
+            // PERF: xlsx (~430KB) is loaded only when exporting
+            const XLSX = await import("xlsx");
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Contest Performance");

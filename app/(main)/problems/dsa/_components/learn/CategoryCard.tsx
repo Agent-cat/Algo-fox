@@ -56,6 +56,8 @@ export default function CategoryCard({
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const isLoadingRef = useRef(false);
+  const problemsRef = useRef<ProblemWithStats[]>([]);
 
   // Helper to get recursive counts
   const getRecursiveCounts = useCallback((cat: any) => {
@@ -81,11 +83,16 @@ export default function CategoryCard({
   const progressPercentage = totalProblemCount > 0 ? (totalSolvedCount / totalProblemCount) * 100 : 0;
   const isCompleted = totalProblemCount > 0 && totalSolvedCount === totalProblemCount;
 
+  // Keep refs in sync so loadProblems can read latest without re-creating on every problems change
+  useEffect(() => { problemsRef.current = problems; }, [problems]);
+  useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
+
   const loadProblems = useCallback(async (pageNum: number = 1, append: boolean = false) => {
-    if (isLoading) return;
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
     try {
-      const cursor = append && problems.length > 0 ? problems[problems.length - 1].id : undefined;
+      const cursor = append && problemsRef.current.length > 0 ? problemsRef.current[problemsRef.current.length - 1].id : undefined;
       // Increase pageSize when searching to ensure we find the matching problem
       const effectivePageSize = searchTerm ? 100 : 10;
       const res = await getCategoryProblems(id, pageNum, effectivePageSize, cursor);
@@ -100,10 +107,11 @@ export default function CategoryCard({
     } catch (error) {
        console.error("Failed to load category problems:", error);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
       setIsInitialLoad(false);
     }
-  }, [id, isLoading, problems, searchTerm]);
+  }, [id, searchTerm]);
 
   const handleToggle = () => {
     if (!isExpanded && problems.length === 0) {
@@ -114,9 +122,9 @@ export default function CategoryCard({
   };
 
   const loadMore = useCallback(() => {
-    if (isLoading || !hasMore) return;
+    if (isLoadingRef.current || !hasMore) return;
     loadProblems(page + 1, true);
-  }, [isLoading, hasMore, page, loadProblems]);
+  }, [hasMore, page, loadProblems]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -124,7 +132,7 @@ export default function CategoryCard({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting && hasMore && !isLoading) {
+        if (entries[0]?.isIntersecting && hasMore && !isLoadingRef.current) {
           loadMore();
         }
       },
@@ -141,9 +149,9 @@ export default function CategoryCard({
         observer.unobserve(currentTarget);
       }
     };
-  }, [isExpanded, hasMore, isLoading, loadMore]);
+  }, [isExpanded, hasMore, loadMore]);
 
-  // Auto-expand on search match
+  // Auto-expand on search match - stable, only re-run when searchTerm changes
   useEffect(() => {
     if (searchTerm) {
       const hasMatchingProblem = problemTitles.some(title =>
@@ -151,13 +159,14 @@ export default function CategoryCard({
       );
       if (hasMatchingProblem && !isExpanded) {
         setIsExpanded(true);
-        if (problems.length === 0) {
+        if (problemsRef.current.length === 0 && !isLoadingRef.current) {
           setIsInitialLoad(true);
           loadProblems(1, false);
         }
       }
     }
-  }, [searchTerm, problemTitles, isExpanded, problems.length, loadProblems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   const getDifficultyColor = (difficulty: Difficulty) => {
     return DIFFICULTY_COLORS[difficulty] || "text-gray-500";

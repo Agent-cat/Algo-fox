@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { connection } from "next/server";
+import { getSession } from "@/lib/auth-utils";
 
 export async function GET(request: Request) {
   await connection();
   try {
+    const session = await getSession();
+    if (!session?.user) {
+      return NextResponse.json({ success: false, notifications: [] }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "5", 10);
+    // PERF/SAFETY: clamp the page size — previously `?limit=999999999` made the
+    // DB return every row.
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "5", 10) || 5, 1), 50);
     const cursor = searchParams.get("cursor");
 
     const query: any = {

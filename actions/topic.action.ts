@@ -2,46 +2,57 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth-utils";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag, cacheTag, cacheLife } from "next/cache";
+import { getCacheLifeConfig } from "@/lib/cache-config";
+
+// PERF: the user's distinct solved-problem set grows forever with their history
+// and was re-fetched (uncached) on every topic-sheet and topic-problems view.
+// Cached per-user and invalidated via the `user-submissions-${userId}` tag that
+// submission.service.ts already revalidates after every accepted solve.
+async function getSolvedProblemIds(userId: string): Promise<string[]> {
+  "use cache: private";
+  cacheLife(getCacheLifeConfig("problems"));
+  cacheTag(`solved-set-${userId}`, `user-submissions-${userId}`);
+
+  const solvedSubmissions = await prisma.submission.findMany({
+    where: {
+      userId,
+      status: "ACCEPTED",
+      mode: "SUBMIT",
+    },
+    select: { problemId: true },
+    distinct: ["problemId"],
+  });
+  return solvedSubmissions.map((s) => s.problemId);
+}
 
 export async function getTopicSheets() {
   try {
     const session = await getSession();
     const userId = session?.user?.id;
 
-    // Get solved problem IDs for logged-in user
-    const solvedSet = new Set<string>();
-    if (userId) {
-      const solvedSubmissions = await prisma.submission.findMany({
+    // PERF: solved-set and tag lookups are independent — run concurrently.
+    const [solvedProblemIds, tags] = await Promise.all([
+      userId ? getSolvedProblemIds(userId) : Promise.resolve([] as string[]),
+      prisma.tag.findMany({
         where: {
-          userId,
-          status: "ACCEPTED",
-          mode: "SUBMIT",
-        },
-        select: { problemId: true },
-        distinct: ["problemId"],
-      });
-      solvedSubmissions.forEach((s) => solvedSet.add(s.problemId));
-    }
-
-    // Get tags that are connected as topic tags
-    const tags = await prisma.tag.findMany({
-      where: {
-        topicProblems: {
-          some: {},
-        },
-      },
-      include: {
-        topicProblems: {
-          select: {
-            id: true,
+          topicProblems: {
+            some: {},
           },
         },
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+        include: {
+          topicProblems: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: {
+          name: "asc",
+        },
+      }),
+    ]);
+    const solvedSet = new Set<string>(solvedProblemIds);
 
     const categories = tags.map((tag) => {
       const total = tag.topicProblems.length;
@@ -89,22 +100,9 @@ export async function getTopicProblems(tagId: string, page: number = 1, pageSize
     const session = await getSession();
     const userId = session?.user?.id;
 
-    // Get solved problem IDs for logged-in user
-    const solvedSet = new Set<string>();
-    if (userId) {
-      const solvedSubmissions = await prisma.submission.findMany({
-        where: {
-          userId,
-          status: "ACCEPTED",
-          mode: "SUBMIT",
-        },
-        select: { problemId: true },
-        distinct: ["problemId"],
-      });
-      solvedSubmissions.forEach((s) => solvedSet.add(s.problemId));
-    }
-
-    const [problems, total] = await Promise.all([
+    // PERF: all three lookups are independent — run concurrently.
+    const [solvedProblemIds, problems, total] = await Promise.all([
+      userId ? getSolvedProblemIds(userId) : Promise.resolve([] as string[]),
       prisma.problem.findMany({
         where: {
           topicTags: {
@@ -129,6 +127,7 @@ export async function getTopicProblems(tagId: string, page: number = 1, pageSize
         },
       }),
     ]);
+    const solvedSet = new Set<string>(solvedProblemIds);
 
     const problemsWithStats = problems.map((p) => {
       return {

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import * as tf from "@tensorflow/tfjs";
-import * as blazeface from "@tensorflow-models/blazeface";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
+
+// PERF: TF.js + blazeface + coco-ssd are megabytes — never bundle statically.
+// They are dynamically imported after camera access is granted (see init below),
+// so /cam paints UI first and downloads models lazily.
+import type * as blazeface from "@tensorflow-models/blazeface";
+import type * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 type ModelStatus = "loading" | "ready" | "error";
 type GazeStatus = "centered" | "away" | "no_face";
@@ -258,6 +261,11 @@ export default function ProctorCheck() {
         }
 
         setLoadingMessage("Loading face detection model...");
+        const [tf, blazeface, cocoSsd] = await Promise.all([
+          import("@tensorflow/tfjs"),
+          import("@tensorflow-models/blazeface"),
+          import("@tensorflow-models/coco-ssd"),
+        ]);
         await tf.ready();
         if (cancelled) return;
 

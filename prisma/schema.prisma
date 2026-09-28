@@ -315,6 +315,7 @@ model Submission {
   @@index([userId, mode, createdAt])
   @@index([contestId, createdAt])
   @@index([contestId, userId, status]) // For leaderboard groupBy queries
+  @@index([mode, githubSyncedAt]) // PERF: github-sync workers scan githubSyncedAt IS NULL + mode SUBMIT
 }
 
 model TestCase {

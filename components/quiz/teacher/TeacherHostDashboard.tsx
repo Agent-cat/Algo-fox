@@ -8,7 +8,6 @@ import { QuizTimer } from "@/components/quiz/shared/QuizTimer";
 import { Leaderboard } from "@/components/quiz/shared/Leaderboard";
 import { AnswerDistribution } from "@/components/quiz/shared/AnswerDistribution";
 import { Markdown } from "@/components/quiz/shared/Markdown";
-import * as XLSX from "xlsx";
 import type { QuizSSEEvent, QuizStatePayload, LeaderboardEntry } from "@/lib/quiz-types";
 
 interface TeacherHostDashboardProps {
@@ -206,6 +205,8 @@ export function TeacherHostDashboard({ sessionId, joinUrl, qrDataUrl }: TeacherH
       if (!res.ok) throw new Error("Export failed");
       const { title, results } = await res.json();
 
+      // PERF: xlsx (~430KB) is loaded only when exporting, not on page load
+      const XLSX = await import("xlsx");
       const worksheet = XLSX.utils.json_to_sheet(results);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Quiz Results");

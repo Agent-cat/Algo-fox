@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { authClient } from "@/lib/auth-client";
 
@@ -9,10 +10,24 @@ const ALLOWED_EMAILS: string[] = [
   "mandalavishnxuvardhan07@gmail.com"
 ];
 
+// PERF: anti-cheat enforcement only matters during contests and proctoring.
+// Running these detection loops site-wide burned CPU on every page for every
+// visitor (3 intervals + 2 debugger loops). They are now scoped to protected
+// routes and collapsed into a single timer that pauses in hidden tabs.
+const PROTECTED_ROUTE_PREFIXES = ["/contest/", "/cam"];
+
+function isProtectedRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return PROTECTED_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
 export default function DevToolsBlocker() {
   const { data: session } = authClient.useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (!isProtectedRoute(pathname)) return;
+
     // If the user is in the allowed list, do not block DevTools
     if (session?.user?.email && ALLOWED_EMAILS.includes(session.user.email)) {
       return;
@@ -124,34 +139,26 @@ export default function DevToolsBlocker() {
       }
     };
 
-    const consoleDetectionInterval = setInterval(() => {
+    // PERF: single consolidated timer (was 3 setIntervals + a self-scheduling
+    // setTimeout debugger loop). Pauses when the tab is hidden.
+    const consolidatedInterval = setInterval(() => {
+      if (document.hidden) return;
+
+      // Console-based detection
       devtools = false;
       console.log(element);
       console.clear();
-    }, 3000);
 
-    const checkResizeInterval = setInterval(checkDevToolsResize, 4000);
+      // Resize-based detection
+      checkDevToolsResize();
 
-    // 7. Aggressive Debugger Loop (using Function to persist through minifiers after build)
-    const runDebugger = setInterval(() => {
-        const start = performance.now();
-        Function('debugger')();
-        // If debugger paused execution, performance diff will be high
-        if (performance.now() - start > 100) {
-            triggerReload();
-        }
+      // Debugger timing detection
+      const start = performance.now();
+      Function('debugger')();
+      if (performance.now() - start > 100) {
+        triggerReload();
+      }
     }, 5000);
-
-    let debuggerTimeoutId: NodeJS.Timeout;
-    const debuggerLoop = () => {
-        const start = performance.now();
-        Function('debugger')();
-        if (performance.now() - start > 100) {
-            triggerReload();
-        }
-        debuggerTimeoutId = setTimeout(debuggerLoop, 5000);
-    };
-    debuggerLoop();
 
     // Attach listeners with CAPTURE: TRUE to intercept events before other handlers (like Monaco)
     document.addEventListener('contextmenu', handleContextMenu, true);
@@ -162,13 +169,9 @@ export default function DevToolsBlocker() {
       document.removeEventListener('contextmenu', handleContextMenu, true);
       document.removeEventListener('keydown', handleKeyDown, true);
 
-
-      clearInterval(consoleDetectionInterval);
-      clearInterval(checkResizeInterval);
-      clearInterval(runDebugger);
-      clearTimeout(debuggerTimeoutId);
+      clearInterval(consolidatedInterval);
     };
-  }, [session]);
+  }, [session, pathname]);
 
   return null;
 }

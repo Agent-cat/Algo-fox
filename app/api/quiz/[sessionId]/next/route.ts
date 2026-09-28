@@ -24,14 +24,16 @@ export async function POST(
     await cancelQuestionTimer(sessionId, currentIndex);
 
     const question = quiz.questions[currentIndex];
-    await QuizStore.applyAnswersToScores(sessionId, currentIndex);
-    const distribution = await QuizStore.computeDistribution(
-      sessionId,
-      currentIndex,
-      question.options.length
-    );
-    const optionSelections = await QuizStore.computeOptionSelections(sessionId, currentIndex);
-    const participants = await QuizStore.getAllParticipants(sessionId);
+    // PERF: read the answers hash ONCE and share it across score application,
+    // distribution and option selections (previously 3 identical HGETALLs),
+    // then run the independent computations concurrently.
+    const answers = await QuizStore.getAnswers(sessionId, currentIndex);
+    await QuizStore.applyAnswersToScores(sessionId, currentIndex, answers);
+    const [distribution, optionSelections, participants] = await Promise.all([
+      QuizStore.computeDistribution(sessionId, currentIndex, question.options.length, answers),
+      QuizStore.computeOptionSelections(sessionId, currentIndex, answers),
+      QuizStore.getAllParticipants(sessionId),
+    ]);
     const leaderboard = QuizStore.buildLeaderboard(participants);
 
     await QuizStore.setStatus(sessionId, "QUESTION_REVIEW", currentIndex);
@@ -81,8 +83,11 @@ export async function POST(
     const nextQuestion = quiz.questions[nextIndex];
     const endsAt = Date.now() + nextQuestion.timeLimit * 1000;
 
-    await QuizStore.resetAnsweredFlags(sessionId);
-    await QuizStore.setTimer(sessionId, endsAt);
+    // PERF: these touch independent Redis keys — run concurrently.
+    await Promise.all([
+      QuizStore.resetAnsweredFlags(sessionId),
+      QuizStore.setTimer(sessionId, endsAt),
+    ]);
     await QuizStore.setStatus(sessionId, "QUESTION_ACTIVE", nextIndex);
 
     await QuizStore.publishEvent(sessionId, {

@@ -6,7 +6,6 @@ import { Trophy, Medal, User, Crown, CheckCircle2, Clock, Hash, ChevronLeft, Che
 import Link from "next/link";
 import { FinalizeContestButton } from "./FinalizeContestButton";
 import { LanguageLogo } from "./LanguageLogo";
-import * as XLSX from "xlsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Copy, X } from "lucide-react";
@@ -115,7 +114,7 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                         <>
                             <FinalizeContestButton contestId={contestId} isFinalized={isFinalized} />
                             <button
-                                onClick={() => {
+                                onClick={async () => {
                                     const rows = students.map((s: Student, idx: number) => {
                                             const row: any = {
                                                 "Rank": idx + 1,
@@ -136,6 +135,8 @@ export function ContestStandings({ students, currentUserId, contestId, isFinaliz
                                         return row;
                                     });
 
+                                    // PERF: xlsx (~430KB) is loaded only when exporting
+                                    const XLSX = await import("xlsx");
                                     const worksheet = XLSX.utils.json_to_sheet(rows);
                                     const workbook = XLSX.utils.book_new();
                                     XLSX.utils.book_append_sheet(workbook, worksheet, "Results");

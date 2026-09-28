@@ -24,35 +24,25 @@ export async function getUserTopicStats(userId?: string) {
     const targetUserId = await resolveTargetUserId(userId);
     if (!targetUserId) return null;
 
-    const submissions = await prisma.submission.findMany({
-        where: {
-            userId: targetUserId,
-            status: "ACCEPTED",
-        },
-        include: {
-            problem: {
-                include: {
-                    tags: true,
-                },
-            },
-        },
-    });
+    // PERF: replaced findMany(include problem.include tags) + JS counting with a
+    // single SQL GROUP BY — avoids loading every accepted submission row + its
+    // problem and tag relations into memory just to count tag names.
+    const rows = await prisma.$queryRaw<Array<{ subject: string; count: bigint }>>`
+        SELECT t."name" AS subject, COUNT(*)::bigint AS count
+        FROM "Submission" s
+        JOIN "_ProblemToTag" ptn ON ptn."A" = s."problemId"
+        JOIN "Tag" t ON t."id" = ptn."B"
+        WHERE s."userId" = ${targetUserId}
+          AND s."status" = 'ACCEPTED'
+        GROUP BY t."name"
+        ORDER BY count DESC
+    `;
 
-    const tagCounts: Record<string, number> = {};
-
-    submissions.forEach((sub) => {
-        sub.problem.tags.forEach((tag) => {
-            tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
-        });
-    });
-
-    const data = Object.entries(tagCounts)
-        .map(([subject, count]) => ({
-            subject,
-            A: count,
-            fullMark: Math.max(count * 1.5, 10),
-        }))
-        .sort((a, b) => b.A - a.A)
+    const data = rows
+        .map(({ subject, count }) => {
+            const c = Number(count);
+            return { subject, A: c, fullMark: Math.max(c * 1.5, 10) };
+        })
         .slice(0, 6);
 
     return data;
@@ -62,29 +52,23 @@ export async function getUserProgressHistory(userId?: string) {
     const targetUserId = await resolveTargetUserId(userId);
     if (!targetUserId) return null;
 
-    const submissions = await prisma.submission.findMany({
-        where: {
-            userId: targetUserId,
-            status: "ACCEPTED",
-        },
-        orderBy: { createdAt: "asc" },
-        select: { createdAt: true },
-    });
+    // PERF: daily counts computed in SQL instead of fetching all accepted submissions.
+    const rows = await prisma.$queryRaw<Array<{ day: Date; count: bigint }>>`
+        SELECT ("createdAt" AT TIME ZONE 'UTC')::date AS day, COUNT(*)::bigint AS count
+        FROM "Submission"
+        WHERE "userId" = ${targetUserId}
+          AND "status" = 'ACCEPTED'
+        GROUP BY 1
+        ORDER BY 1 ASC
+    `;
 
-    const map = new Map<string, number>();
-    submissions.forEach((sub) => {
-        const date = sub.createdAt.toISOString().split("T")[0];
-        map.set(date, (map.get(date) || 0) + 1);
-    });
-
-    const sortedDates = Array.from(map.keys()).sort();
     let cumulative = 0;
     const history: { date: string; count: number }[] = [];
 
-    for (const date of sortedDates) {
-        cumulative += map.get(date) || 0;
+    for (const row of rows) {
+        cumulative += Number(row.count);
         history.push({
-            date: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            date: new Date(row.day).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
             count: cumulative,
         });
     }

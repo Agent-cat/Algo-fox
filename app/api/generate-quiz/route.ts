@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PDFParse } from "pdf-parse";
+import { getSession } from "@/lib/auth-utils";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY/PERF: this endpoint triggers paid Gemini calls + heavy PDF
+    // parsing — it must not be invokable by anonymous traffic.
+    const session = await getSession();
+    const role = (session?.user as any)?.role;
+    if (!session?.user || !["TEACHER", "ADMIN", "INSTITUTION_MANAGER"].includes(role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const formData = await req.formData();
     const topic = formData.get("topic") as string;
     const language = formData.get("language") as string;
@@ -29,8 +38,8 @@ export async function POST(req: NextRequest) {
       pdfText = parsed.text;
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+    const model = genAI.getGenerativeModel({ model: modelName });
     const prompt = `
 You are an expert quiz creator. Generate a quiz based on the following context.
     
@@ -56,7 +65,9 @@ Requirements:
 - Make sure options has exactly 4 items unless it's True/False.
 `;
 
-    const result = await model.generateContent(prompt);
+    // PERF: bound the upstream call so a slow Gemini response cannot pin the
+    // request (and server resources) open indefinitely.
+    const result = await model.generateContent(prompt, { signal: AbortSignal.timeout(60_000) });
     let text = result.response.text();
     
     // Clean up markdown wrapping if the model ignored the instruction

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import LearnMode from "../../dsa/_components/learn/LearnMode";
 import { SearchBar } from "../../dsa/_components/shared/SearchBar";
 import { Difficulty, ProblemType } from "@prisma/client";
@@ -47,9 +47,9 @@ export default function AptitudeClient({
         }
     }, [hasFetchedCategories, isCategoriesLoading]);
 
-    const handleSearch = (term: string) => {
+    const handleSearch = useCallback((term: string) => {
         setSearchTerm(term);
-    };
+    }, []);
 
     return (
         <motion.div

@@ -167,7 +167,7 @@ export type StudentInsights = {
     codeforcesContests: number;
     contestPerformance: ContestPerformancePoint[];
     courseEnrollments: CourseEnrollmentItem[];
-    submissions: { id: string; createdAt: Date; status: string; problem: { id: string; title: string; slug: string; difficulty: string } | null; code: string | null; language: { name: string } | null }[];
+    submissions: { id: string; createdAt: Date; status: string; problem: { id: string; title: string; slug: string; difficulty: string } | null; language: { name: string } | null }[];
     heatmapSubmissions: { createdAt: Date; status: string }[];
     languageCounts: Record<string, number>;
     solvedByDifficulty: {
@@ -203,7 +203,7 @@ export async function getStudentInsights(
                 submissions: {
                     where: { mode: "SUBMIT" },
                     select: {
-                        id: true, createdAt: true, status: true, code: true,
+                        id: true, createdAt: true, status: true,
                         language: { select: { name: true } },
                         problem: { select: { id: true, difficulty: true, slug: true, title: true, domain: true } }
                     },
