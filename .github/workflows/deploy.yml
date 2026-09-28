@@ -27,13 +27,13 @@ jobs:
             # Pull latest changes from git
             git pull origin main
 
-            # Install dependencies (using Bun or PM2/Node depending on server setup)
-            if command -v bun &> /dev/null; then
-              bun install
-              bun run build
-              pm2 restart algofox || pm2 start "bun start" --name algofox
-            else
-              npm install 
-              npm run build
-              pm2 restart algofox || pm2 start "npm start" --name algofox
-            fi
+            # Install pnpm if missing, then install workspace dependencies
+            command -v pnpm &> /dev/null || npm install -g pnpm@10
+            pnpm install --frozen-lockfile
+
+            # Typecheck + build the monorepo (turbo caches unchanged tasks)
+            pnpm typecheck
+            pnpm build
+
+            # Restart all services (web + api + queue worker)
+            pm2 restart ecosystem.config.js --update-env || pm2 start ecosystem.config.js

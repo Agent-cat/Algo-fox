@@ -9,6 +9,8 @@ yarn-error.log
 out
 dist
 build
+.turbo
+*.tsbuildinfo
 
 # Environment files (will be passed at runtime)
 .env

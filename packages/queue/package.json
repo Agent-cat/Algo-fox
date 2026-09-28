@@ -1,0 +1,23 @@
+{
+  "name": "@algofox/queue",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./languages": "./src/languages.ts"
+  },
+  "dependencies": {
+    "@algofox/db": "workspace:*",
+    "@algofox/env": "workspace:*",
+    "@algofox/types": "workspace:*",
+    "bullmq": "^5.66.2"
+  },
+  "devDependencies": {
+    "@algofox/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "typescript": "^5"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

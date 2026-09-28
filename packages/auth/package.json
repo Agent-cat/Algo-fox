@@ -1,0 +1,25 @@
+{
+  "name": "@algofox/auth",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/auth-client.ts"
+  },
+  "dependencies": {
+    "@algofox/db": "workspace:*",
+    "@algofox/email": "workspace:*",
+    "better-auth": "1.5.6",
+    "next": "16.2.2",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@algofox/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "typescript": "^5"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

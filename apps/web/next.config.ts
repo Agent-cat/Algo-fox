@@ -1,0 +1,176 @@
+import type { NextConfig } from "next";
+
+// PERF: run `ANALYZE=true npm run build` (or `npm run analyze`) to inspect
+// bundle composition.
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
+const nextConfig: NextConfig = {
+  output: 'standalone',
+  transpilePackages: [
+    "@algofox/utils",
+    "@algofox/ui",
+    "@algofox/types",
+    "@algofox/db",
+    "@algofox/auth",
+    "@algofox/email",
+    "@algofox/env",
+    "@algofox/queue",
+  ],
+  allowedDevOrigins: ['143.110.189.110', 'localhost:3000'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'algofox-vishnu.s3.ap-south-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vishnu-vercel-output.s3.ap-south-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.simpleicons.org',
+      },
+    ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
+
+  reactStrictMode: true, // Re-enabled: BullMQ worker is now guarded by a globalThis singleton
+
+  compress: true,
+  poweredByHeader: false,
+  cacheComponents: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+    optimizePackageImports: [
+      '@aws-sdk/client-s3',
+      '@aws-sdk/s3-request-presigner',
+      'framer-motion',
+      'highlight.js',
+      '@tanstack/react-table',
+      'react-markdown',
+      'zod',
+      'xlsx',
+      // PERF: These ship large barrel exports — tree-shake at build time
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'sonner',
+      'solar-icon-react',
+    ],
+  },
+  cacheHandlers: {
+    default: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-local.js"),
+    remote: process.env.SKIP_CACHE_HANDLER ? undefined : require.resolve("./lib/cache-handler-redis.js"),
+  },
+  cacheLife: {
+    // For contest list - shared across all users
+    contests: {
+      stale: 300,      // 5 minutes stale
+      revalidate: 600, // 10 minutes revalidate
+      expire: 3600,    // 1 hour expire
+    },
+    // For individual contest details
+    "contest-detail": {
+      stale: 60,       // 1 minute stale
+      revalidate: 120, // 2 minutes revalidate
+      expire: 600,     // 10 minutes expire
+    },
+    // For live leaderboard during contests
+    leaderboard: {
+      stale: 15,       // 15 seconds stale
+      revalidate: 30,  // 30 seconds revalidate
+      expire: 120,     // 2 minutes expire
+    },
+    // For assignments list and details
+    assignments: {
+      stale: 60,       // 1 minute stale
+      revalidate: 120, // 2 minutes revalidate
+      expire: 600,     // 10 minutes expire
+    },
+    // For classrooms list
+    classrooms: {
+      stale: 120,      // 2 minutes stale
+      revalidate: 300, // 5 minutes revalidate
+      expire: 900,     // 15 minutes expire
+    },
+    // For institution statistics
+    "institution-stats": {
+      stale: 300,      // 5 minutes stale
+      revalidate: 600, // 10 minutes revalidate
+      expire: 3600,    // 1 hour expire
+    },
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          // Enforce HTTPS for 2 years, include subdomains
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          // Restrict browser feature access
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(self), microphone=(), geolocation=(), payment=()',
+          },
+          // CSP: allow Next.js inline scripts + our trusted sources
+          // 'unsafe-inline' is required for Next.js hydration scripts
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
+              "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+              "img-src 'self' data: blob: https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.amazonaws.com https://www.codechef.com https://codeforces.org https://assets.leetcode.com https://cdn.simpleicons.org https://unpkg.com",
+              "font-src 'self' data: https://cdn.jsdelivr.net https://unpkg.com",
+              "worker-src blob: 'self'",
+              "connect-src 'self' ws: wss: blob: https://cdn.jsdelivr.net https://storage.googleapis.com https://tfhub.dev https://raw.githubusercontent.com https://fonts.googleapis.com https://www.kaggle.com https://leetcode.com https://codeforces.com https://www.codechef.com https://api.github.com https://unpkg.com",
+              "frame-src 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join('; '),
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default withBundleAnalyzer(nextConfig);

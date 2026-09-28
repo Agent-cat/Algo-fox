@@ -1,0 +1,184 @@
+import { cache } from 'react';
+import { auth } from "@algofox/auth";
+import { headers } from 'next/headers';
+import { connection } from 'next/server';
+
+// FIX: Matches the Role enum in prisma/schema.prisma exactly.
+// Previously had 'MODERATOR' which doesn't exist, and was missing TEACHER, INSTITUTION_MANAGER, CONTEST_MANAGER.
+export type UserRole = 'STUDENT' | 'ADMIN' | 'TEACHER' | 'INSTITUTION_MANAGER' | 'CONTEST_MANAGER';
+
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  institutionId?: string;
+}
+
+/**
+ * Memoized session getter — cached per request via React.cache().
+ * Subsequent calls within the same request return the same Promise,
+ * eliminating repeated decoding and DB hits when multiple server actions
+ * call getSession() within one request lifecycle.
+ *
+ * Next.js 16: `await connection()` declares this as a Request-time boundary.
+ * Per the bundled docs (node_modules/next/dist/docs/.../connection.md),
+ * connection() is the idiomatic replacement for force-dynamic/unstable_noStore
+ * when using dynamic APIs like headers(). This prevents HANGING_PROMISE_REJECTION
+ * during PPR static prerendering at build time.
+ */
+export const getSession = cache(async () => {
+    // Declare the dynamic boundary — everything below runs at request time only.
+    await connection();
+    const reqHeaders = await headers();
+    const cookieHeader = reqHeaders.get("cookie") || "";
+    const hasSessionToken =
+      cookieHeader.includes("better-auth.session_token") ||
+      cookieHeader.includes("session_token") ||
+      cookieHeader.includes("__Secure-better-auth.session_token");
+
+    if (!hasSessionToken) {
+      return null;
+    }
+
+    return auth.api.getSession({ headers: reqHeaders });
+});
+
+export function isNextBailoutError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const err = error as any;
+  if (
+    err.digest === 'DYNAMIC_SERVER_USAGE' ||
+    err.digest === 'HANGING_PROMISE_REJECTION' ||
+    err.digest === 'NEXT_REDIRECT' ||
+    err.digest === 'NEXT_NOT_FOUND' ||
+    (err.message && (
+      err.message.includes('Dynamic server usage') ||
+      err.message.includes('prerendering') ||
+      err.message.includes('headers') ||
+      err.message.includes('connection()')
+    ))
+  ) {
+    return true;
+  }
+  try {
+    const { isDynamicServerError } = require('next/dist/client/components/hooks-server-context');
+    if (isDynamicServerError(error)) {
+      return true;
+    }
+  } catch (_) {}
+  return false;
+}
+
+export function throwIfNextBailoutError(error: unknown): void {
+  if (isNextBailoutError(error)) {
+    throw error;
+  }
+}
+
+/**
+ * Get the current authenticated user from the (memoized) session
+ */
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  try {
+    const session = await getSession();
+
+    if (!session || !session.user) {
+      return null;
+    }
+
+    return {
+      id: session.user.id,
+      email: session.user.email || '',
+      role: (session.user.role || 'STUDENT') as UserRole,
+      institutionId: (session.user as any).institutionId,
+    };
+  } catch (error: any) {
+    throwIfNextBailoutError(error);
+    console.error('Error getting current user:', error);
+    return null;
+  }
+}
+
+/**
+ * Check if user has a specific role
+ */
+export async function hasRole(requiredRole: UserRole | UserRole[]): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) return false;
+
+  const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+  return roles.includes(user.role);
+}
+
+/**
+ * Check if user is admin
+ */
+export async function isAdmin(): Promise<boolean> {
+  return hasRole('ADMIN');
+}
+
+/**
+ * Check if user is authorized (authenticated)
+ */
+export async function isAuthenticated(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user !== null;
+}
+
+/**
+ * Protected route handler - ensures user is authenticated
+ */
+export async function requireAuth() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new UnauthorizedError('Authentication required');
+  }
+  return user;
+}
+
+/**
+ * Protected route handler - ensures user has specific role
+ */
+export async function requireRole(requiredRole: UserRole | UserRole[]) {
+  const user = await requireAuth();
+  const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+
+  if (!roles.includes(user.role)) {
+    throw new ForbiddenError(
+      `This action requires one of the following roles: ${roles.join(', ')}`
+    );
+  }
+  return user;
+}
+
+/**
+ * Protected route handler - ensures user is admin
+ */
+export async function requireAdmin() {
+  return requireRole('ADMIN');
+}
+
+// Custom error classes
+export class AuthError extends Error {
+  constructor(message: string, public statusCode: number = 401) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+
+export class UnauthorizedError extends AuthError {
+  constructor(message: string = 'Unauthorized') {
+    super(message, 401);
+    this.name = 'UnauthorizedError';
+  }
+}
+
+export class ForbiddenError extends AuthError {
+  constructor(message: string = 'Forbidden') {
+    super(message, 403);
+    this.name = 'ForbiddenError';
+  }
+}

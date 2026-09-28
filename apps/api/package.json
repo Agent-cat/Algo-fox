@@ -1,0 +1,23 @@
+{
+  "name": "algofox-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@algofox/db": "workspace:*",
+    "@algofox/env": "workspace:*",
+    "@algofox/queue": "workspace:*",
+    "@hono/node-server": "^2.1.1",
+    "hono": "^4.7.0"
+  },
+  "devDependencies": {
+    "@algofox/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "tsx": "^4.23.5",
+    "typescript": "^5"
+  }
+}

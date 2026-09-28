@@ -1,5 +1,22 @@
-node_modules
-.next
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Env (never commit secrets)
 .env
-public/monaco
-tsconfig.tsbuildinfo
+.env.local
+.env*.local
+
+# Misc
+*.tsbuildinfo
+.turbo/
+.wrangler/
+.dev.vars
+
+# OS / editor
+.DS_Store

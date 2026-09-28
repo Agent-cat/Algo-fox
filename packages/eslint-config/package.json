@@ -1,0 +1,17 @@
+{
+  "name": "@algofox/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.js",
+    "./next": "./next.js"
+  },
+  "dependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "16.0.8"
+  },
+  "peerDependencies": {
+    "eslint": "^9"
+  }
+}

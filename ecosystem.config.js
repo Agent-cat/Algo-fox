@@ -1,8 +1,10 @@
+// PM2 bare-metal deploy for the Algo-fox monorepo.
+// Run from the repo root after: pnpm install && pnpm build
 module.exports = {
   apps: [
     {
       name: 'algofox',
-      script: '.next/standalone/Algo-fox/server.js',
+      script: 'apps/web/.next/standalone/apps/web/server.js',
       cwd: __dirname,
       instances: 'max',
       exec_mode: 'cluster',
@@ -18,9 +20,25 @@ module.exports = {
       },
     },
     {
+      name: 'algofox-api',
+      script: 'pnpm',
+      args: '--filter algofox-api start',
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '512M',
+      kill_timeout: 5000,
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3001,
+      },
+    },
+    {
       name: 'algofox-worker',
-      script: 'node_modules/.bin/tsx',
-      args: 'core/queues/submission.queue.ts',
+      script: 'pnpm',
+      args: '--filter @algofox/web worker',
       cwd: __dirname,
       instances: 1,
       exec_mode: 'fork',

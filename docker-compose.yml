@@ -106,7 +106,7 @@ services:
       # All secrets (BETTER_AUTH_SECRET, OAuth client secrets, TELEGRAM_BOT_TOKEN, etc.)
       # are loaded from the .env file below — never hardcode them here.
     env_file:
-      - .env
+      - apps/web/.env
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -118,6 +118,36 @@ services:
         limits:
           memory: 1g
           cpus: "2"
+
+  # Worker host service (apps/api): drains github-sync + quiz-timer queues.
+  api:
+    image: agentcat1/algofox-api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: algofox-api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://algofox:algofox@pgbouncer:5432/algofox
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      # WORKER_SECRET must match the web app + cron worker secrets.
+    env_file:
+      - apps/web/.env
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "1"
 
 volumes:
   # Standard volume creation for persistence

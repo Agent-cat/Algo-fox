@@ -1,0 +1,38 @@
+import { auth } from "@algofox/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { getSession } from "@algofox/auth";
+
+async function AuthCheck({ children }: { children: React.ReactNode }) {
+    const session = await getSession();
+
+    if (!session) {
+        redirect("/signin");
+    }
+
+    if (session.user.onboardingCompleted) {
+        redirect("/");
+    }
+
+    return <>{children}</>;
+}
+
+export default async function OnboardingLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <AuthCheck>{children}</AuthCheck>
+        </Suspense>
+    );
+}
